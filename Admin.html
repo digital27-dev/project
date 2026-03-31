@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style> :root { --bg: #0b1020; --panel: #141b3a; --input: #0f1530; --border: rgba(255,255,255,.08); --check: #243b6b; --update: #243b6b; --reset: #243b6b; --aktivasi: #243b6b; --text: #eef3ff; --muted: #9aa4c7; --success: #33d69f; --header-bg: #1a214a; --prefix-bg: #0c112b; } * { box-sizing: border-box; font-family: Inter, Segoe UI, system-ui; } body { margin: 0; min-height: 100vh; background: linear-gradient(180deg, #070b18, #0b1020); display: flex; align-items: center; justify-content: center; color: var(--text); } .panel { width: 90%; max-width: 420px; background: var(--panel); border-radius: 18px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 12px 30px rgba(0,0,0,.45); } .panel h1 { margin: 0; font-size: 18px; text-align: center; letter-spacing: .5px; } .panel small { display: block; text-align: center; color: var(--muted); margin: 6px 0 24px; } .saldo-box { background: #0c112b; border: 1px solid var(--border); border-radius: 14px; padding: 16px; text-align: center; margin-bottom: 20px; } .saldo { font-size: 26px; font-weight: 700; color: var(--success); } .input-group { position: relative; margin-bottom: 16px; } .input-prefix { position: absolute; left: 1px; top: 1px; bottom: 1px; width: 60px; background: var(--prefix-bg); border-right: 1px solid var(--border); border-radius: 12px 0 0 12px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 14px; font-weight: 500; pointer-events: none; z-index: 1; } input { width: 100%; padding: 13px 13px 13px 70px; border-radius: 12px; border: 1px solid var(--border); background: var(--input); color: var(--text); font-size: 15px; } input:focus { outline: none; border-color: #2f437a; } .actions-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; } .btn { padding: 12px; border-radius: 10px; border: 1px solid var(--border); font-weight: 600; cursor: pointer; transition: opacity .15s; color: #e6eeff; } .btn:hover { opacity: .9; } .btn-check { background: var(--check); } .btn-update { background: var(--update); } .btn-aktivasi { background: var(--aktivasi); } .alert { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); min-width: 220px; padding: 10px 14px; border-radius: 10px; font-weight: 600; text-align: center; z-index: 9999; } .alert.success { background: #2fa77c; color: #eef3ff; } .alert.error { background: #a33d3d; color: #eef3ff; } .alert.info { background: #2f5fa7; color: #eef3ff; } #riwayatContainer { margin: 24px 0 20px; } .riwayat-header { background: var(--header-bg); border: 1px solid var(--border); border-radius: 10px 10px 0 0; padding: 10px; display: flex; align-items: center; font-size: 14px; font-weight: 600; color: #c0d0ff; } .riwayat-search { width: 100%; font-size: 13px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--input); color: var(--text); } .riwayat-search::placeholder { color: var(--muted); } .riwayat-content { background: #0c112b; border: 1px solid var(--border); border-top: none; border-radius: 0 0 10px 10px; padding: 12px; max-height: 200px; overflow-y: auto; } .riwayat-item { background: var(--input); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; line-height: 1.3; font-size: 13px; } .riwayat-item-header { font-weight: 600; margin-bottom: 4px; color: var(--success); } .riwayat-actions { display: flex; gap: 6px; margin-top: 8px; } .riwayat-actions button { font-size: 11px; padding: 4px 8px; min-width: 50px; } .riwayat-actions .btn-reset { background: var(--check); color: #dbe6ff; border: 1px solid var(--border); } .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; z-index: 10000; opacity: 0; visibility: hidden; transition: all 0.2s; } .modal.active { opacity: 1; visibility: visible; } .modal-content { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 24px; width: 90%; max-width: 360px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); } .modal-title { margin: 0 0 16px; font-size: 17px; color: #dbe6ff; } .modal-text { margin: 0 0 24px; color: var(--muted); font-size: 14px; } .modal-actions { display: flex; gap: 12px; justify-content: center; } .modal-btn { padding: 10px 24px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; min-width: 100px; } .modal-btn.yes { background: #a33d3d; color: white; } .modal-btn.no { background: var(--check); color: #dbe6ff; } </style>
+</head>
+<body>
+
+<div class="panel">
+
+  <h1>DIGITAL</h1>
+  <small>Saldo Management System</small>
+
+  <div class="saldo-box">
+    <div class="saldo" id="saldoView">Rp 0</div>
+  </div>
+
+  <div class="input-group">
+    <div class="input-prefix">ID</div>
+    <input id="trxId" placeholder="TRX1234567">
+  </div>
+
+  <div class="input-group">
+    <div class="input-prefix">Rp</div>
+    <input id="saldoInput" type="number" placeholder="Masukkan nominal">
+  </div>
+
+  <div id="riwayatContainer">
+    <div class="riwayat-header">
+      <input type="text" id="riwayatSearch" class="riwayat-search" placeholder="Cari TRX...">
+    </div>
+    <div id="riwayatContent" class="riwayat-content">
+      <div id="riwayatList"></div>
+    </div>
+  </div>
+
+  <div class="actions-3">
+    <button class="btn btn-check" onclick="checkSaldo()">Check</button>
+    <button class="btn btn-update" onclick="updateSaldo()">Update</button>
+    <button class="btn btn-aktivasi" onclick="aktivasiSaldo()">Aktivasi</button>
+  </div>
+</div>
+
+<div class="modal" id="confirmModal">
+  <div class="modal-content">
+    <h3 class="modal-title">Konfirmasi Hapus</h3>
+    <p class="modal-text">Yakin ingin menghapus riwayat ini?<br>TRX akan hilang dari daftar.</p>
+    <div class="modal-actions">
+      <button class="modal-btn yes" id="btnConfirmYes">Ya, Hapus</button>
+      <button class="modal-btn no" id="btnConfirmNo">Batal</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+const socket = io("https://server-rx2y.onrender.com", { transports: ["websocket"] });
+
+const trxInput       = document.getElementById("trxId");
+const saldoInput     = document.getElementById("saldoInput");
+const saldoView      = document.getElementById("saldoView");
+const riwayatList    = document.getElementById("riwayatList");
+const riwayatSearch  = document.getElementById("riwayatSearch");
+
+let joinedRoom = null;
+
+const HISTORY_KEY = 'global_history';
+
+function getHistory() {
+  const data = localStorage.getItem(HISTORY_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+function saveHistory(history) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+}
+
+function addOrUpdateHistory(trxId, newBalance, actionType = "Update") {
+  let history = getHistory();
+  const existingIndex = history.findIndex(item => item.trxId === trxId);
+  const now = new Date().toISOString();
+  const numericNew = Number(newBalance);
+
+  if (existingIndex !== -1) {
+    const oldEntry = history[existingIndex];
+    history[existingIndex] = {
+      ...oldEntry,
+      oldBalance: oldEntry.newBalance,
+      newBalance: numericNew,
+      timestamp: now,
+      action: actionType
+    };
+  } else {
+    history.push({
+      id: Date.now(),
+      trxId,
+      oldBalance: Number(localStorage.getItem(`balance_${trxId}`)) || 0,
+      newBalance: numericNew,
+      timestamp: now,
+      action: actionType
+    });
+  }
+
+  saveHistory(history);
+  localStorage.setItem(`balance_${trxId}`, numericNew);
+  renderRiwayat();
+}
+
+function deleteHistory(index) {
+  let history = getHistory();
+  if (index >= 0 && index < history.length) {
+    history.splice(index, 1);
+    saveHistory(history);
+    renderRiwayat();
+  }
+}
+
+function showAlert(msg, type = "info") {
+  const d = document.createElement("div");
+  d.className = `alert ${type}`;
+  d.textContent = msg;
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 2200);
+}
+
+function formatRp(n) {
+  return "Rp " + Number(n).toLocaleString("id-ID");
+}
+
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleString("id-ID", {dateStyle:"short", timeStyle:"short"});
+}
+
+function loadToInput(trxId, balance) {
+  trxInput.value = trxId;
+  saldoInput.value = balance;
+  checkSaldo(); 
+}
+
+function renderRiwayat() {
+  const history = getHistory();
+  const search = (riwayatSearch.value || "").trim().toLowerCase();
+  riwayatList.innerHTML = "";
+
+  let filtered = history;
+  if (search) {
+    filtered = history.filter(item => item.trxId.toLowerCase().includes(search));
+  }
+
+  if (filtered.length === 0) {
+    riwayatList.innerHTML = `<p style="text-align:center; color:var(--muted); padding:16px 0;">
+      ${search ? 'Tidak ditemukan' : 'Belum ada riwayat'}
+    </p>`;
+    return;
+  }
+
+  filtered
+    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    .forEach(item => {
+      const idx = history.findIndex(h => h.id === item.id);
+      const div = document.createElement("div");
+      div.className = "riwayat-item";
+      div.innerHTML = `
+        <div class="riwayat-info">
+          <div class="riwayat-item-header">
+            ${item.trxId}
+            <span style="float:right; font-size:11px; color:#aaa; background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px;">
+              ${item.action}
+            </span>
+          </div>
+          <div><strong>Saldo:</strong> ${formatRp(item.newBalance)}</div>
+          <div><strong>Dari:</strong> ${formatRp(item.oldBalance)}</div>
+          <div><strong></strong> ${formatDate(item.timestamp)}</div>
+        </div>
+        <div class="riwayat-actions">
+          <button class="btn btn-check" onclick="loadToInput('${item.trxId}', ${item.newBalance})">Check</button>
+          <button class="btn btn-reset" onclick="confirmDelete(${idx})">Hapus</button>
+        </div>
+      `;
+      riwayatList.appendChild(div);
+    });
+}
+
+let pendingDeleteIndex = -1;
+
+function showConfirmModal(index) {
+  pendingDeleteIndex = index;
+  document.getElementById("confirmModal").classList.add("active");
+}
+
+function hideConfirmModal() {
+  document.getElementById("confirmModal").classList.remove("active");
+  pendingDeleteIndex = -1;
+}
+
+function confirmDelete(index) {
+  showConfirmModal(index);
+}
+
+document.getElementById("btnConfirmYes").addEventListener("click", () => {
+  if (pendingDeleteIndex !== -1) {
+    deleteHistory(pendingDeleteIndex);
+    showAlert("Riwayat berhasil dihapus", "success");
+  }
+  hideConfirmModal();
+});
+
+document.getElementById("btnConfirmNo").addEventListener("click", hideConfirmModal);
+
+document.getElementById("confirmModal").addEventListener("click", (e) => {
+  if (e.target === document.getElementById("confirmModal")) {
+    hideConfirmModal();
+  }
+});
+
+socket.on("saldoUpdate", data => {
+  if (!data || data.userId !== joinedRoom) return;
+  const balance = Number(data.balance) || 0;
+  saldoView.textContent = formatRp(balance);
+});
+
+function checkSaldo() {
+  const id = trxInput.value.trim();
+  if (!id) return showAlert("Lengkapi data", "error");
+
+  joinedRoom = id;
+  socket.emit("join", id);
+  socket.emit("adminCheckSaldo", id);
+  saldoView.textContent = "•••••••";
+}
+
+function updateSaldo() {
+  const id = trxInput.value.trim();
+  const val = saldoInput.value.trim();
+
+  if (!id || !val) return showAlert("Lengkapi data", "error");
+  if (Number(val) < 0) return showAlert("Lengkapi data", "error");
+
+  joinedRoom = id;
+  socket.emit("join", id);
+  socket.emit("adminUpdateSaldo", { userId: id, balance: Number(val) });
+
+  addOrUpdateHistory(id, val, "Update");
+  showAlert("Update berhasil", "success");
+  saldoInput.value = "";
+}
+
+function aktivasiSaldo() {
+  const id = trxInput.value.trim();
+  if (!id) return showAlert("Lengkapi data", "error");
+
+  const lastBalanceStr = localStorage.getItem(`balance_${id}`);
+  
+  if (!lastBalanceStr) {
+    return showAlert("Belum ada riwayat update", "error");
+  }
+
+  const lastBalance = Number(lastBalanceStr);
+
+  joinedRoom = id;
+  socket.emit("join", id);
+  socket.emit("adminResetSaldo", id);
+
+  addOrUpdateHistory(id, lastBalance, "Aktivasi");
+
+  showAlert(`Aktivasi berhasil`, "success");
+  saldoInput.value = "";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderRiwayat();
+  riwayatSearch.addEventListener("input", renderRiwayat);
+});
+</script>
+</body>
+</html>
