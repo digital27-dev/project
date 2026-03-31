@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pulsa Prabayar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      margin: 0;
+      padding: 20px;
+      color: #e0e0e0;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: auto;
+      background: #1e1e1e;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h2 {
+      margin: 0;
+      color: #007bff;
+    }
+
+    .header p {
+      color: #bbb;
+      font-size: 14px;
+    }
+
+    .input-group {
+      margin-bottom: 25px;
+    }
+
+    .input-group label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+      color: #ccc;
+    }
+
+    .input-group input {
+      width: 90%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid #333;
+      background: #2a2a2a;
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+      transition: border 0.2s ease;
+    }
+
+    .input-group input:focus {
+      border-color: #007bff;
+    }
+
+    .input-group input::placeholder {
+      color: #888;
+      font-style: italic;
+    }
+
+    .token-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .token-item {
+      border-radius: 15px;
+      background: #2c2c2c;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.3s;
+    }
+
+    .token-item:hover {
+      background: #37474f;
+      border-color: #007bff;
+      transform: scale(1.03);
+    }
+
+    .token-item i {
+      font-size: 22px;
+      color: #007bff;
+      margin-bottom: 8px;
+    }
+
+    .nominal {
+      font-size: 16px;
+      font-weight: 600;
+      color: #eee;
+    }
+
+    .harga {
+      font-size: 14px;
+      color: #888;
+      text-decoration: line-through;
+    }
+
+    .harga-diskon {
+      font-size: 16px;
+      color: #ff5252;
+      font-weight: bold;
+    }
+
+    .btn-beli {
+      margin-top: 30px;
+      display: block;
+      width: 100%;
+      background: #007bff;
+      color: #fff;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2><i class="fa-solid fa-mobile-screen-button"></i> Pulsa Prabayar</h2>
+      <p>Pilih nominal pulsa dengan harga spesial</p>
+    </div>
+
+    <div class="input-group">
+      <label for="nomorHP">Nomor HP</label>
+      <input type="number" id="nomorHP" placeholder="Masukkan Nomor Handphone Anda" />
+    </div>
+
+    <div class="token-list" id="tokenList">
+      <!-- Pulsa akan diisi dengan JavaScript -->
+    </div>
+
+    <button class="btn-beli">Beli Sekarang</button>
+  </div>
+
+  <script>
+    const tokenList = document.getElementById("tokenList");
+
+    const nominalPulsa = [
+      5000, 10000, 15000, 20000, 25000,
+      30000, 40000, 50000, 75000, 100000,
+      150000, 200000, 300000, 500000, 1000000
+    ];
+
+    nominalPulsa.forEach(nom => {
+      const hargaDiskon = nom - 2000;
+      const item = document.createElement("div");
+      item.className = "token-item";
+      item.innerHTML = `
+        <i class="fa-solid fa-mobile-screen-button"></i>
+        <div class="nominal">Pulsa ${nom.toLocaleString('id-ID')}</div>
+        <div class="harga">Rp${nom.toLocaleString('id-ID')}</div>
+        <div class="harga-diskon">Rp${hargaDiskon.toLocaleString('id-ID')}</div>
+      `;
+      tokenList.appendChild(item);
+    });
+  </script>
+</body>
+</html>
