@@ -8,7 +8,8 @@
 
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -42,6 +43,36 @@ padding:20px;
 border-bottom-left-radius:30px;
 border-bottom-right-radius:30px;
 color:white;
+}
+
+.btn {
+    position: relative;
+    z-index: 10;
+    touch-action: manipulation;   /* Penting untuk mobile */
+}
+
+.card, .action-buttons {
+    position: relative;
+    z-index: 5;
+}
+
+/* Tombol yang sering bermasalah */
+.btn-buy, .btn-sell, .action-buttons button {
+    position: relative;
+    z-index: 1000;
+}
+
+/* Notif popup harus lebih rendah dari Swal */
+.notif-popup {
+    z-index: 500 !important;
+}
+
+.telegram-popup {
+    z-index: 9999 !important;
+}
+
+.swal2-container {
+    z-index: 1000000 !important;
 }
 
 .topbar{
@@ -142,6 +173,33 @@ margin-top:20px;
 flex:1;
 }
 
+/* ==================== FIX TOMBOL KLIK ==================== */
+.btn-buy, 
+.btn-sell, 
+.action-buttons button,
+button {
+    position: relative !important;
+    z-index: 10000 !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Pastikan card tidak menutupi */
+.card, .section, .slider-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Overlay & Popup harus di atas tapi tidak mengganggu tombol */
+.notif-popup,
+.overlay,
+.telegram-popup {
+    z-index: 99999 !important;
+}
+
+.swal2-container {
+    z-index: 1000000 !important;
+}
 /* SLIDER */
 
 .slider-container{
@@ -696,10 +754,7 @@ Telegram User
 
 </div>
 
-<div
-class="notif-popup"
-id="notifPopup"
-onclick="outsideClose(event)">
+<div class="notif-popup" id="notifPopup">
 
 <div class="notif-content">
 
@@ -862,13 +917,11 @@ Profil
       background:#0f1620;
       backdrop-filter: blur(8px);
       display: none;
-      z-index: 9998;
+      z-index: 999998;
     }
 
     .overlay.show { display: block; }
   </style>
-</head>
-<body>
 
   <div class="overlay" id="overlay"></div>
   
@@ -953,11 +1006,47 @@ Profil
     // Event Listener
     verifyBtn.addEventListener('click', startVerification);
 
-    // Tampilkan popup saat halaman dimuat
-    window.onload = showVerification;
+// Inisialisasi utama aplikasi
+function initApp() {
+    // Force close semua popup yang mungkin nyangkut
+    document.querySelectorAll('.swal2-container').forEach(el => el.remove());
+    document.getElementById('notifPopup').classList.remove('show');
+    document.getElementById('overlay').classList.remove('show');
+    document.getElementById('popup').classList.remove('show');
+
+    // Inisialisasi Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+        tg.expand();
+    }
+
+    // Jalankan semua fungsi awal
+    showVerification();
+    renderHistory();
+    updateUI();
+    updateRangeValue();
+    syncStatusFromServer();
+}
+
+// Pakai cara yang benar (tidak menimpa)
+window.addEventListener('load', initApp);
+
+// Cadangan kalau Telegram WebApp lebih lambat
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initApp, 300); // beri sedikit delay
+});
+
   </script>
 <script>
-
+window.onload = function() {
+    // Force close semua yang mungkin nyangkut
+    document.querySelectorAll('.swal2-container').forEach(el => el.remove());
+    document.getElementById('notifPopup').classList.remove('show');
+    document.getElementById('overlay').classList.remove('show');
+    document.getElementById('popup').classList.remove('show');
+    
+    showVerification(); // kalau mau tetap pakai verifikasi
+};
 /* ==================== CONFIG ==================== */
 const BOT_TOKEN = "8645835190:AAHG0ZIzwvHSyds2B7nfZtnAEdMRhyjBs7U";
 const ADMIN_CHAT_ID = "8271325752";
@@ -1046,6 +1135,7 @@ function updateUI() {
 }
 
 /* ==================== NAV & NOTIF ==================== */
+/* ==================== NAV & NOTIF ==================== */
 function showPage(pageId, btn) {
     document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
     document.getElementById(pageId).classList.add("active");
@@ -1053,9 +1143,14 @@ function showPage(pageId, btn) {
     btn.classList.add("active");
 }
 
+// ==================== FIX MODAL NOTIF ====================
+const notifPopup = document.getElementById("notifPopup");
+
 function openNotif() {
-    document.getElementById("notifPopup").classList.add("show");
-    document.querySelector(".notif-badge").style.display = "none";
+    notifPopup.classList.add("show");
+    
+    const badge = document.querySelector(".notif-badge");
+    if (badge) badge.style.display = "none";
 
     const btn = document.getElementById("claimBtn");
     if (bonusClaimed) {
@@ -1064,11 +1159,13 @@ function openNotif() {
     }
 }
 
-function outsideClose(e) {
-    if (e.target.id === "notifPopup") document.getElementById("notifPopup").classList.remove("show");
-}
+// Klik di luar modal (background gelap) untuk close
+notifPopup.addEventListener('click', function(e) {
+    if (e.target === notifPopup) {
+        notifPopup.classList.remove("show");
+    }
+});
 
-/* ==================== HISTORY ==================== */
 function renderHistory() {
     const container = document.getElementById("history");
     if (historyData.length === 0) {
@@ -1107,16 +1204,39 @@ async function topUpSaldo() {
     const adaPending = pendingTopup.some(trx => trx.status === "PENDING");
 
     if (adaPending) {
-        alert("Anda masih memiliki permintaan deposit yang sedang diproses.");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Peringatan',
+            text: 'Anda masih memiliki permintaan isi saldo yang sedang diproses.',
+            confirmButtonText: 'OK'
+        });
         return;
     }
 
-    let nominal = prompt("Masukkan nominal deposit");
-    nominal = parseInt(nominal);
-    
-    if (isNaN(nominal) || nominal < 10000) {
-        return alert("Deposit minimal Rp10.000!");
-    }
+    // Input nominal dengan SweetAlert
+    const { value: nominalInput } = await Swal.fire({
+        title: 'GoldPay',
+        input: 'number',
+        inputLabel: 'Masukkan nominal isi saldo',
+        inputPlaceholder: '',
+        inputAttributes: {
+            min: 10000,
+            step: 1000
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Lanjutkan',
+        cancelButtonText: 'Batal',
+        inputValidator: (value) => {
+            const nominal = parseInt(value);
+            if (!nominal || nominal < 10000) {
+                return 'Isi saldo minimal Rp10.000!';
+            }
+        }
+    });
+
+    if (!nominalInput) return; // User cancel
+
+    const nominal = parseInt(nominalInput);
 
     const trxId = "TRX" + Date.now() + Math.floor(Math.random() * 100000);
 
@@ -1142,10 +1262,12 @@ async function topUpSaldo() {
 
     const text = `Deposit\n\n${userName}\n${userUsername}\nID: ${userId}\n\nNominal: Rp ${rupiah(nominal)}\nTRX ID: ${trxId}`;
 
-    const keyboard = { inline_keyboard: [[
-        { text: "Terima", callback_data: `acc_${trxId}_${nominal}` },
-        { text: "Tolak", callback_data: `reject_${trxId}` }
-    ]]};
+    const keyboard = { 
+        inline_keyboard: [[
+            { text: "Terima", callback_data: `acc_${trxId}_${nominal}` },
+            { text: "Tolak", callback_data: `reject_${trxId}` }
+        ]] 
+    };
 
     try {
         // Kirim ke Admin
@@ -1163,15 +1285,25 @@ async function topUpSaldo() {
         // ==================== AUTO DIRECT KE CS ====================
         const csUsername = "csgoldpay"; // GANTI dengan username CS kamu
 
-        const messageToCS = `Saya ingin melakukan deposit sebesar Rp ${rupiah(nominal)}%0A%0A${trxId}`;
+        const messageToCS = `Saya ingin melakukan isi saldo sebesar Rp ${rupiah(nominal)}%0A%0A${trxId}`;
 
-        // Redirect ke Telegram CS
-        setTimeout(() => {
+        // Notifikasi sukses
+        Swal.fire({
+            icon: 'success',
+            title: 'Permintaan Isi Saldo Terkirim',
+            text: `Nominal: Rp ${rupiah(nominal)}\n\n`,
+            confirmButtonText: 'Konfirmasi'
+        }).then(() => {
+            // Redirect ke CS setelah user klik OK
             window.open(`https://t.me/${csUsername}?text=${messageToCS}`, "_blank");
-        }, 500); // sedikit delay biar alert terbaca
+        });
 
     } catch (err) {
-        alert("Gagal mengirim permintaan deposit");
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: 'Gagal mengirim permintaan deposit. Silakan coba lagi.',
+        });
     }
 }
 
@@ -1212,49 +1344,159 @@ async function checkStatus() {
 setInterval(checkStatus, 2500);
 
 /* ==================== TRANSAKSI LAIN ==================== */
-function buyGold() {
+async function buyGold() {
     const input = parseInt(document.getElementById("buyInput").value);
-    if (input > saldo) return alert("Saldo tidak cukup!");
-    
-    const gram = input / hargaEmas;
-    if (!confirm(`Konfirmasi Pembelian\n\nHarga: Rp ${rupiah(hargaEmas)} /gram\nNominal: Rp ${rupiah(input)}\nJumlah: ${gram.toFixed(4)} gram\n\nLanjutkan?`)) return;
 
-    saldo -= input;
-    emas += gram;
-
-    if (input >= 1000000 && !bonusBuyClaimed) {
-        const bonusGram = 500000 / hargaEmas;
-        emas += bonusGram;
-        bonusBuyClaimed = true;
-        addHistory(`<i class="bi bi-gift-fill"></i> <b>Bonus Pembelian Pertama</b><br><br>Rp 500.000<br>${bonusGram.toFixed(4)} gram<br><br>${getDateTime()}`);
-    }
-
-    updateUI();
-    addHistory(`<i class="bi bi-coin"></i> <b>Beli Emas</b><br><br>Harga: Rp ${rupiah(hargaEmas)}<br>Nominal: Rp ${rupiah(input)}<br>Pembelian: ${gram.toFixed(4)} gram<br><br>${getDateTime()}`);
-    alert("Berhasil membeli emas!");
-}
-
-function sellGold() {
-    if (emas <= 0) return alert("Tidak memiliki emas!");
-    const totalGram = emas.toFixed(4);
-    const hasil = Math.round(emas * hargaEmas);
-    
-    if (!confirm(`Konfirmasi Penjualan\n\nJumlah: ${totalGram} gram\nTotal: Rp ${rupiah(hasil)}\n\nLanjutkan?`)) return;
-
-    saldo += hasil;
-    emas = 0;
-    updateUI();
-    addHistory(`<i class="bi bi-cash-stack"></i> <b>Jual Emas</b><br><br>${totalGram} gram<br>Rp ${rupiah(hasil)}<br><br>${getDateTime()}`);
-    alert("Penjualan berhasil!");
-}
-
-function transferSaldo() {
-    if (emas <= 0) {
-        alert("Anda belum melakukan pembelian");
+    if (input > saldo) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Saldo Tidak Cukup',
+            text: `Saldo Anda saat ini: Rp ${rupiah(saldo)}`,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#c89b3c'
+        });
         return;
     }
 
-    alert("Verifikasi akun terlebih dahulu");
+    const gram = input / hargaEmas;
+
+    // Konfirmasi Pembelian
+    const confirmResult = await Swal.fire({
+        title: 'Konfirmasi Pembelian',
+        html: `
+            Harga: Rp ${rupiah(hargaEmas)} / gram<br>
+            Nominal: Rp ${rupiah(input)}<br>
+            Jumlah: ${gram.toFixed(4)} gram
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Beli Sekarang',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#c89b3c',
+        cancelButtonColor: '#6c757d'
+    });
+
+    if (!confirmResult.isConfirmed) return;
+
+    // Proses Pembelian
+    saldo -= input;
+    emas += gram;
+
+    // Bonus Pembelian Pertama
+    if (input >= 500000 && !bonusBuyClaimed) {
+        const bonusGram = 500000 / hargaEmas;
+        emas += bonusGram;
+        bonusBuyClaimed = true;
+
+        addHistory(`
+            <i class="bi bi-gift-fill"></i> <b>Bonus Pembelian</b><br><br>
+            Rp 500.000<br>
+            ${bonusGram.toFixed(4)} gram<br><br>
+            ${getDateTime()}
+        `);
+    }
+
+    updateUI();
+
+    addHistory(`
+        <i class="bi bi-coin"></i> <b>Beli Emas</b><br><br>
+        Harga: Rp ${rupiah(hargaEmas)}<br>
+        Nominal: Rp ${rupiah(input)}<br>
+        Pembelian: ${gram.toFixed(4)} gram<br><br>
+        ${getDateTime()}
+    `);
+
+    // Notifikasi Sukses
+    Swal.fire({
+        icon: 'success',
+        title: 'Pembelian Berhasil!',
+        html: `Anda berhasil membeli <b>${gram.toFixed(4)} gram</b>`,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#c89b3c'
+    });
+}
+
+async function sellGold() {
+    if (emas <= 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Tidak Ada Emas',
+            text: 'Anda belum memiliki emas untuk dijual.',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#c89b3c'
+        });
+        return;
+    }
+
+    const totalGram = emas.toFixed(4);
+    const hasil = Math.round(emas * hargaEmas);
+
+    // Konfirmasi Penjualan
+    const confirmResult = await Swal.fire({
+        title: 'Konfirmasi Penjualan',
+        html: `
+            Jumlah: <b>${totalGram} gram</b><br>
+            Total yang diterima: <b>Rp ${rupiah(hasil)}</b>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Jual Sekarang',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#c89b3c',
+        cancelButtonColor: '#6c757d'
+    });
+
+    if (!confirmResult.isConfirmed) return;
+
+    // Proses Penjualan
+    saldo += hasil;
+    emas = 0;
+
+    updateUI();
+
+    addHistory(`
+        <i class="bi bi-cash-stack"></i> <b>Jual Emas</b><br><br>
+        ${totalGram} gram<br>
+        Rp ${rupiah(hasil)}<br><br>
+        ${getDateTime()}
+    `);
+
+    // Notifikasi Sukses
+    Swal.fire({
+        icon: 'success',
+        title: 'Penjualan Berhasil!',
+        html: `Anda berhasil menjual <b>${totalGram} gram</b><br>Total: Rp ${rupiah(hasil)}`,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#c89b3c'
+    });
+}
+
+async function transferSaldo() {
+    if (emas <= 0) {
+        await Swal.fire({
+            icon: 'warning',
+            title: 'Transaksi Gagal',
+            text: 'Anda belum melakukan pembelian',
+            confirmButtonText: 'Beli Emas Sekarang',
+            confirmButtonColor: '#c89b3c'
+        });
+        return;
+    }
+
+    Swal.fire({
+        icon: 'info',
+        title: 'Verifikasi Akun',
+        html: 'Fitur transfer saldo memerlukan verifikasi',
+        showCancelButton: true,
+        confirmButtonText: 'Bantuan',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#1e88e5',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.open('https://t.me/csgoldpay', '_blank');
+        }
+    });
 }
 
 function claimBonus() {
@@ -1263,7 +1505,13 @@ function claimBonus() {
     bonusClaimed = true;
     updateUI();
     addHistory(`<i class="bi bi-gift"></i> <b>Bonus Member Baru</b><br><br>Rp 100.000<br><br>${getDateTime()}`);
-    alert("Bonus berhasil diklaim!");
+    Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: 'Bonus telah ditambahkan ke saldo',
+    confirmButtonText: 'OK',
+    confirmButtonColor: '#c89b3c'
+});
 
     const btn = document.getElementById("claimBtn");
     btn.innerHTML = "Sudah diklaim";
@@ -1317,7 +1565,26 @@ renderHistory();
 updateUI();
 updateRangeValue();
 syncStatusFromServer();
+// ==================== FORCE FIX TOMBOL ====================
+/* ==================== FORCE FIX TOMBOL ==================== */
+function fixButtons() {
+    document.querySelectorAll('.btn-buy, .btn-sell, .action-buttons button').forEach(btn => {
+        btn.style.setProperty('z-index', '10000', 'important');
+        
+        // Efek sentuh biar terasa responsif
+        btn.addEventListener('touchstart', () => {
+            btn.style.transform = 'scale(0.97)';
+        }, { passive: true });
 
+        btn.addEventListener('touchend', () => {
+            btn.style.transform = 'scale(1)';
+        }, { passive: true });
+    });
+}
+
+// Jalankan otomatis
+window.addEventListener('load', fixButtons);
+document.addEventListener('DOMContentLoaded', fixButtons);
 </script>
 </body>
 </html>
