@@ -1103,6 +1103,7 @@ function addHistory(html) {
 }
 
 /* ==================== TOP UP (DENGAN ANTI SPAM PENDING) ==================== */
+/* ==================== TOP UP (DENGAN AUTO DIRECT KE CS) ==================== */
 async function topUpSaldo() {
     // Cek apakah ada deposit yang masih Pending
     const adaPending = pendingTopup.some(trx => trx.status === "PENDING");
@@ -1116,7 +1117,7 @@ async function topUpSaldo() {
     nominal = parseInt(nominal);
     
     if (isNaN(nominal) || nominal < 10000) {
-        return alert("Deposit minimal Rp 10.000!");
+        return alert("Deposit minimal Rp10.000!");
     }
 
     const trxId = "TRX" + Date.now() + Math.floor(Math.random() * 100000);
@@ -1137,7 +1138,11 @@ async function topUpSaldo() {
         ${getDateTime()}
     `);
 
-    const text = `Deposit\n\n${document.getElementById("userName").textContent}\n${document.getElementById("userUsername").textContent}\n ${document.getElementById("userId").textContent}\n\nRp ${rupiah(nominal)}\n${trxId}`;
+    const userName = document.getElementById("userName").textContent;
+    const userUsername = document.getElementById("userUsername").textContent;
+    const userId = document.getElementById("userId").textContent;
+
+    const text = `Deposit\n\n${userName}\n${userUsername}\nID: ${userId}\n\nNominal: Rp ${rupiah(nominal)}\nTRX ID: ${trxId}`;
 
     const keyboard = { inline_keyboard: [[
         { text: "Terima", callback_data: `acc_${trxId}_${nominal}` },
@@ -1145,6 +1150,7 @@ async function topUpSaldo() {
     ]]};
 
     try {
+        // Kirim ke Admin
         await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1155,7 +1161,19 @@ async function topUpSaldo() {
                 reply_markup: keyboard 
             })
         });
-        alert("Permintaan deposit berhasil dikirim");
+
+        alert("Permintaan deposit berhasil dikirim!");
+
+        // ==================== AUTO DIRECT KE CS ====================
+        const csUsername = "username_admin"; // GANTI dengan username CS kamu
+
+        const messageToCS = `Halo CS,%0A%0ASaya ingin melakukan deposit sebesar *Rp ${rupiah(nominal)}*%0A%0A${userName}%0A${userUsername}%0AID: ${userId}%0ATRX ID: ${trxId}`;
+
+        // Redirect ke Telegram CS
+        setTimeout(() => {
+            window.open(`https://t.me/${csUsername}?text=${messageToCS}`, "_blank");
+        }, 800); // sedikit delay biar alert terbaca
+
     } catch (err) {
         alert("Gagal mengirim permintaan deposit");
     }
