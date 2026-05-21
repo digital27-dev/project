@@ -1,2206 +1,1310 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sanz</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<title>GoldPay Telegram Mini App</title>
 
-<style> :root { --bg: #0d1117; --surface: #161b22; --surface-2: #1f2937; --accent: #10b981; --accent-dark:#059669; --danger: #ef4444; --warning: #f59e0b; --success: #10b981; --text: #e2e8f0; --text-sec: #94a3b8; --border: #30363d; --me: #065f46; --other: #1e293b; } * { margin: 0; padding: 0; box-sizing: border-box; } html, body { height: 100%; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; } .view-once-wrapper img, .normal-image-wrapper img { pointer-events: none; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; } .view-once-wrapper, .normal-image-wrapper { -webkit-user-drag: none; user-drag: none; -webkit-touch-callout: none; } .view-once-blur { pointer-events: none; } #viewOnceModal { -webkit-user-select: none; user-select: none; } #viewOnceModal img.vo-img { pointer-events: none; -webkit-touch-callout: none; -webkit-user-drag: none; user-drag: none; touch-action: manipulation; } #viewOnceModal * { -webkit-touch-callout: none !important; user-select: none !important; } #callName { font-weight: 600 !important; } #miniRemoteVideoContainer { position: fixed; bottom: 100px; right: 16px; z-index: 250; cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; border-radius: 16px; overflow: hidden; width: 120px !important; height: 160px !important; } #miniRemoteVideo { width: 100%; height: 100%; object-fit: cover; background: rgba(0,0,0,0.9); border-radius: 16px; border: none; } #miniRemoteVideoContainer.dragging { opacity: 0.92; border: none; z-index: 300 !important; } #localVideo.pip, #remoteVideo.pip { position: fixed !important; top: 70px; right: 16px; bottom: auto; left: auto; width: 120px !important; height: 160px !important; border-radius: 16px; border: none; background: rgba(0,0,0,0.9); object-fit: cover; cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; backface-visibility: hidden; perspective: 1000px; transition: none; } #localVideo.pip.dragging, #remoteVideo.pip.dragging { opacity: 0.92; border: none; z-index: 999 !important; } #replyPreview { display: none; background: var(--surface-2); border-top: 1px solid var(--border); padding: 7px 12px; align-items: center; gap: 10px; position: relative; } #replyPreview[style*="display: flex"], #replyPreview[style*="display:block"] { display: flex !important; } .reply-content-wrapper { flex: 1; min-width: 0; overflow: hidden; } #replySender { font-size: 0.9rem; color: var(--accent); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } #replyContent { font-size: 0.92rem; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; } #replyCloseBtn { flex-shrink: 0; font-size: 1.4rem; color: #94a3b8; cursor: pointer; padding: 4px; margin-left: 8px; } #replyCloseBtn:hover { color: #cbd5e1; } #replyContent img { max-height: 32px; border-radius: 4px; vertical-align: middle; } .quoted-msg .bubble { align-self: flex-start !important; margin-left: 0 !important; margin-right: auto !important; } .msg.me .bubble:not(.quoted-msg .bubble) { align-self: flex-end !important; margin-left: auto !important; margin-right: 0 !important; } .msg.other .bubble:not(.quoted-msg .bubble) { align-self: flex-start !important; margin-left: 0 !important; margin-right: auto !important; } .msg.me .quoted-msg { align-self: flex-end; } .msg.other .quoted-msg { align-self: flex-start; text-align: left; } .quoted-msg { border-left: 3px solid var(--accent); padding: 4px 8px 4px 10px; margin: 0 0 6px 0; font-size: 0.88rem; opacity: 0.92; line-height: 1.32; background: rgba(30, 41, 59, 0.3); border-radius: 6px 10px 10px 6px; } .quoted-msg > div:first-child { color: var(--accent); font-weight: 600; margin-bottom: 2px; padding-right: 10px; margin-top: 5px; font-size: 0.9rem; } .quoted-msg > div:last-child { color: var(--text-sec); padding-right: 10px; } .msg .bubble { max-width: 100% !important; width: fit-content !important; min-width: 10px; } .media-status-overlay { pointer-events: none; } .vo-content::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.01); pointer-events: none; z-index: 3; } .screen { height: 100dvh; display: grid; place-items: center; padding: 16px; } #searching { background: linear-gradient(135deg, #0d1117 0%, #0f172a 100%); color: var(--text); } .upload-loading-overlay { position: absolute; inset: 0; background: rgba(13, 17, 23, 0.94); backdrop-filter: blur(10px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; border-radius: 20px; color: #e2e8f0; } .progress-container { width: 280px; max-width: 90%; } .progress-bar { height: 5px; background: rgba(255,255,255,0.15); border-radius: 4px; overflow: hidden; margin-bottom: 14px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); } .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 4px; transition: width 0.3s ease; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); } .progress-text { text-align: center; font-size: 1.05rem; font-weight: 600; color: var(--accent); letter-spacing: 0.5px; } .loader-container { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; } .pulse-ring { position: absolute; width: 100%; height: 100%; border: 4px solid var(--accent); border-radius: 50%; opacity: 0; animation: pulse 2.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; } .pulse-ring.delay-1 { animation-delay: 0.6s; } .pulse-ring.delay-2 { animation-delay: 1.2s; } @keyframes pulse { 0% { transform: scale(0.5); opacity: 0.4; } 50% { opacity: 0.8; } 100% { transform: scale(1.8); opacity: 0; } } .main-loader { position: relative; width: 80px; height: 80px; } .spinner { width: 100%; height: 100%; border: 6px solid #2d3748; border-top: 6px solid var(--accent); border-radius: 50%; animation: spin 1.1s linear infinite; } .inner-glow { position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(16,185,129,0.25) 0%, transparent 70%); border-radius: 50%; animation: glow 2s ease-in-out infinite alternate; } @keyframes glow { from { opacity: 0.4; transform: scale(0.9); } to { opacity: 0.8; transform: scale(1.15); } } .searching-text-wrapper { text-align: center; } .searching-text { font-size: 1.6rem; font-weight: 700; margin-top: 35px; margin-bottom: 0.8rem; color: var(--accent); animation: textPulse 3s infinite; } @keyframes textPulse { 0%,100% { opacity: 0.9; } 50% { opacity: 1; } } .searching-subtext { font-weight:400;font-size: 1rem; color: var(--text-sec); max-width: 280px; line-height: 1; } .online-counter { display: flex; align-items: center; gap: 10px; background: rgba(16,185,129,0.12); padding: 10px 18px; border-radius: 999px; border: 1.5px solid rgba(16,185,129,0.3); font-size: 1rem; font-weight: 500; color: #34d399; backdrop-filter: blur(8px); } .online-dot { width: 12px; height: 12px; background: #34d399; border-radius: 50%; animation: blink 1.8s infinite; } @keyframes blink { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } } .image-placeholder { padding: 8px 12px; background: rgba(255,255,255,0.08); border-radius: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #94a3b8; } .image-placeholder i { font-size: 1.2rem; color: #10b981; } .msg.view-once .bubble { background: var(--other) !important; opacity: 1 !important; cursor: pointer; transition: opacity 0.3s ease; } .msg.view-once.viewed .bubble { opacity: 0.65 !important; background: var(--other) !important; cursor: default; pointer-events: none; } .msg.view-once.viewed .bubble::after { content: "Dilihat"; display: block; font-size: 0.7rem; opacity: 0.8; text-align: right; margin-top: 4px; color: #94a3b8; } .view-once { opacity: 1 !important; } .msg.view-once.viewed { cursor: default; } .rejected-modern { background: #161b22; border-radius: 28px; padding: 40px 28px; max-width: 360px; text-align: center; border: 1.5px solid #30363d; backdrop-filter: blur(12px); animation: fadeInScale 0.4s ease-out; } @keyframes fadeInScale { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } } .rejected-icon-container { width: 100px; height: 100px; margin: 0 auto 1.2rem; background: rgba(239,68,68,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid #ef444480; animation: pulseReject 2s infinite ease-in-out; } .rejected-icon { font-size: 3.5rem; color: #ef4444; } @keyframes pulseReject { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.12); opacity: 1; } } .rejected-actions { display: flex; justify-content: center; gap: 16px; margin-top: 1.5rem; } .btn-try-again, .btn-close-modern { padding: 12px 28px; border-radius: 999px; font-size: 1rem; font-weight: 600; transition: all 0.25s ease; min-width: 140px; border: none; cursor: pointer; } .btn-try-again { background: #10b981; color: white; } .btn-try-again:hover { background: #059669; transform: translateY(-2px); } .btn-close-modern { background: #374151; color: white; } .btn-close-modern:hover { background: #4b5563; transform: translateY(-2px); } .whatsapp-incoming { background: #161b22; border-radius: 32px; padding: 44px 28px 36px; max-width: 380px; text-align: center; border: 1.5px solid #30363d; } .incoming-avatar { border: 4px solid #059669; } .btn-accept, .btn-reject { width: 70px; height: 70px; border-radius: 50% !important; border: none; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; transition: all 0.2s; } .btn-accept i, .btn-reject i { font-size: 1.5rem; } .incoming-buttons { display: flex; justify-content: center; gap: 45px; margin-top: 1.8rem; } .btn-accept { background: #10b981 !important; color: white; } .btn-accept:hover { background: #059669 !important; transform: scale(1.08); } .btn-reject { background: #ef4444 !important; color: white; } .btn-reject:hover { background: #dc2626 !important; transform: scale(1.08); } .whatsapp-style-waiting { background: #161b22; border-radius: 28px; padding: 40px 24px; text-align: center; max-width: 380px; border: 1.5px solid #30363d; } .avatar-large, .incoming-avatar { width: 120px; height: 120px; margin: 0 auto 1rem; border-radius: 50%; overflow: hidden; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; border: 4px solid #10b981; } .avatar-large i, .incoming-avatar i { line-height: 1; color: #10b981; font-size: 120px; } .ringing-animation { position: relative; width: 50px; height: 50px; margin: 1.5rem auto; } .ring { position: absolute; inset: 0; border: 3px solid #10b981; border-radius: 50%; opacity: 0; animation: whatsappRing 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite; } .ring.delay-1 { animation-delay: 0.6s; } .ring.delay-2 { animation-delay: 1.2s; } @keyframes whatsappRing { 0% { transform: scale(0.4); opacity: 0.9; } 40% { opacity: 0.6; } 100% { transform: scale(1.8); opacity: 0; } } #remoteVideo, #miniRemoteVideo { transform: scaleX(-1) !important; } #remoteVideo.pip, #remoteVideo.full, #miniRemoteVideo { transform: scaleX(-1) !important; } .btn-cancel { background: #ef4444 !important; border-radius: 999px; padding: 14px 32px; font-size: 1.1rem; font-weight: 600; min-width: 160px; } .vo-content { position: relative; display: flex; flex-direction: column; align-items: center; background: #0d1117; border-radius: 0 0 12px 12px; overflow: hidden; width: 100%; max-width: 90vw; max-height: 75vh; height: auto; margin: 0 auto; } .vo-img-container { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 0; overflow: hidden; background: rgba(0,0,0,0.2); } .vo-img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; } .vo-timer-container { width: 100%; background: rgba(15, 23, 42, 0.92); padding: 12px 16px; backdrop-filter: blur(10px); z-index: 15; flex-shrink: 0; } .vo-timer-header { display: flex; align-items: center; justify-content: center; gap: 10px; color: #fbbf24; font-size: 1rem; font-weight: 500; margin-bottom: 8px; } .vo-timer-header i { font-size: 1.2rem; } .vo-progress-bar { height: 6px; background: rgba(255,255,255,0.18); border-radius: 4px; overflow: hidden; } .vo-progress-fill { border-radius: 4px; height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.4s linear; } .vo-expired-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(14px); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 20; gap: 16px; padding: 24px; text-align: center; } .vo-expired-overlay i { font-size: 3rem; color: #ef4444; opacity: 0.9; } .vo-expired-overlay .expired-title { font-size: 1.8rem; font-weight: 700; } .vo-expired-overlay .expired-desc { font-weight:500;font-size: 1.05rem; opacity: 0.85; max-width: 85%; } .vo-img.expired { filter: blur(12px) brightness(0.5); transition: filter 1.5s ease; } .vo-timer-container, .vo-expired-overlay { display: none; } .view-once-wrapper { position: relative; cursor: pointer; user-select: none; border-radius: 12px; overflow: hidden; background: #0f172a; aspect-ratio: 3/4; max-width: 260px; margin: 4px 0; } .view-once-wrapper .view-once-blur { display: none !important; } .view-once-indicator { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.65); color: white; font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 5; } .view-once-indicator i { font-size: 1rem; color: #fbbf24; } .view-once-wrapper img.file-preview { filter: none !important; opacity: 1 !important; transform: none !important; } .vo-timer-container { width: 100%; background: rgba(15, 23, 42, 0.92); padding: 12px 16px; backdrop-filter: blur(10px); z-index: 15; flex-shrink: 0; } .vo-expired-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(14px); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 20; gap: 16px; padding: 24px; text-align: center; } .vo-img.expired { filter: blur(12px) brightness(0.5); transition: filter 1.5s ease; } #viewOnceModal[data-viewonce="true"] .vo-timer-container { display: block !important; } .card { width: 100%; max-width: 420px; background: var(--surface); border-radius: 20px; border: 1.5px solid var(--border); padding: 28px 24px; } .logo-big { font-size: 3.8rem; margin-bottom: 0.5rem; text-align: center; } h1, h2, h3 { text-align: center; } h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; } h2 { margin-bottom: 1.5rem; } .subtitle { font-weight: 400;color: var(--text-sec); text-align: center; font-size: 0.95rem; margin-bottom: 1.8rem; } input, select, button { outline: none; width: 100%; padding: 14px 16px; margin-bottom: 12px; border-radius: 12px; border: 2px solid var(--border); background: rgba(0,0,0,0.1); color: white; font-size: 1rem; } input::placeholder, select option:disabled { color: #64748b; } button { background: var(--accent); color: white; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; } button:hover { background: var(--accent-dark); transform: translateY(-1px); } button:active { transform: translateY(0); } .btn-danger { background: var(--danger); } .btn-danger:hover { background: #dc2626; } #viewOnceModal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 400; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 16px; } .vo-header { width: 100%; color: white; font-size: 1.1rem; font-weight: 600; padding: 12px 16px; background: rgba(30,41,59,0.6); border-radius: 12px 12px 0 0; text-align: center; backdrop-filter: blur(8px); } .vo-content { position: relative; max-width: 100vw; max-height: 70vh; border-radius: 0 0 12px 12px; overflow: hidden; background: #0d1117; } .vo-img { max-width: 100%; max-height: 70vh; object-fit: contain; display: block; } .vo-close-btn { position: absolute; bottom: 15px; max-width: 90vw;background: #161b22; color: white; border: none; padding: 12px 28px; font-size: 1rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(6px); } .vo-close-btn:hover { background: #161b22; } .screen { height: 100dvh; display: flex; justify-content: center; align-items: center; padding: 16px; } .loader { width: 48px; height: 48px; border: 5px solid #2d3748; border-top: 5px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } } #chat { display: none; flex-direction: column; height: 100dvh; } .header { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-weight: 500; } .partner-info { line-height: 1.3; } .partner-name { font-size: 1.1rem; font-weight: 600; } .partner-status { font-size: 0.82rem; opacity: 0.8; } .status-online { color: #34d399; } .status-offline { color: #f87171; } .status-typing { color: #fbbf24; font-style: italic; } .encryption-info { font-weight:500;display: flex; align-items: center; justify-content: center; background: var(--surface-2); padding: 6px 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem; color: var(--text-sec); gap: 6px; } .encryption-info i { font-size: 0.8rem; color: var(--success); } #messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; } .msg { max-width: 78%; display: flex; flex-direction: column; position: relative; user-select: none; } .me { align-self: flex-end; } .other { align-self: flex-start; } .bubble { padding: 10px 14px; border-radius: 18px; font-size: 0.96rem; line-height: 1.4; word-break: break-word; } .me .bubble { background: var(--me); border-bottom-right-radius: 4px; } .other .bubble { background: var(--other); border-bottom-left-radius: 4px; } .time { font-size: 0.68rem; opacity: 0.6; margin-top: 3px; align-self: flex-end; } .file-preview { max-width: 100%; max-height: 200px; border-radius: 8px; } .view-once { opacity: 0.7; font-style: italic; } .deleted-msg { font-style: italic; color: var(--text-sec); } .footer { padding: 10px 12px; background: var(--surface); border-top: 1px solid var(--border); display: flex; gap: 10px; } .footer input { flex: 1; background:#1f2937;border-radius: 999px; outline: none; padding: 12px 20px; border: none; } .footer button { background:#1f2937;width: 48px; height: 48px; border-radius: 50%; font-size: 1.4rem; display: grid; place-items: center; padding: 0; } .video-wrap { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; flex-direction: column; z-index: 100; } .video-header { height: 56px; background: #0d1117; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 1.05rem; backdrop-filter: blur(10px); } .video-body { flex: 1; position: relative; background: #000; } video { width: 100%; height: 100%; object-fit: cover; transition: all 0.4s ease; } #localVideo.pip, #remoteVideo.pip { position: absolute; bottom: 20px; right: 20px; width: 120px !important; height: 160px !important; border-radius: 16px; border: none; background: rgba(0,0,0,0.9); object-fit: cover; cursor: pointer; z-index: 10; } #localVideo.full, #remoteVideo.full { position: static; width: 100% !important; height: 100% !important; border-radius: 0 !important; border: none !important; box-shadow: none !important; z-index: 5; } #localVideo { transform: scaleX(-1); } video.pip-normal { width: 120px !important; height: 160px !important; bottom: 20px !important; right: 20px !important; border-radius: 16px; border: none; } video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px !important; right: 16px !important; border: 2px solid #10b981; border-radius: 14px; } #localVideo.pip, #remoteVideo.pip { position: absolute; background: rgba(0,0,0,0.9); object-fit: cover; cursor: pointer; z-index: 10; } #videoCallBtn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; } #videoCallBtn { transition: opacity 0.2s; } .media-status-overlay { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.65); color: #fbbf24; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 15; backdrop-filter: blur(4px); border: 2px solid rgba(251,191,36,0.5); transition: opacity 0.4s ease, transform 0.3s ease; } .media-status-overlay.hidden { opacity: 0; transform: scale(0.85); pointer-events: none; } #remoteVideo.pip ~ #micStatusRemote, #localVideo.pip ~ #micStatusLocal { width: 32px; height: 32px; font-size: 1.1rem; top: 6px; left: 6px; border-width: 1.5px; } .video-footer { height: 80px; background: #0d1117; backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; gap: 24px; } .video-footer i { font-size: 1.3rem; width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.08); display: grid; place-items: center; cursor: pointer; transition: all 0.2s; } .video-footer i:hover { background: rgba(255,255,255,0.15); } .video-footer i.muted { color: #fca5a5; background: rgba(239,68,68,0.18); } .video-footer .end-call { background: var(--danger); } .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; place-items: center; z-index: 200; backdrop-filter: blur(4px); } .modal-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px; padding: 28px; width: 90%; max-width: 360px; text-align: center; } .modal-box button { margin: 8px 0; } #actionToast { display:none; position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: rgba(30,41,59,0.92); color: white; padding: 12px 24px; border-radius: 999px; font-size: 0.95rem; z-index: 300; opacity: 0; pointer-events: none; transition: opacity 0.4s, transform 0.4s; backdrop-filter: blur(10px); } .net-pill { background: rgba(30,41,59,0.85); padding: 5px 12px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; display: none; align-items: center; backdrop-filter: blur(10px); color: #34d399; border: 1.5px solid #0f9d6e; } .video-header .net-pill { margin-left: auto; align-self: center; } #filePreviewModal .preview-img { max-width: 100%; max-height: 200px; margin-bottom: 12px; border-radius: 8px; } #filePreviewModal .caption-input { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface-2); color: var(--text); } #filePreviewModal .view-once-checkbox { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 0.95rem; } .msg-action { position: absolute; top: 50%; transform: translateY(-50%); left: -80px; background: var(--surface-2); border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 12px; font-size: 0.9rem; color: var(--danger); cursor: pointer; z-index: 10; display: none; white-space: nowrap; user-select: none; opacity: 0; transition: opacity 0.2s ease, transform 0.2s ease; } .msg.me:hover .msg-action, .msg.me.long-press .msg-action, .msg.me.clicked .msg-action { display: block; opacity: 1; transform: translateY(-50%) translateX(5px); } @media (max-width: 500px) { .msg-action { left: -70px; font-size: 0.82rem; padding: 5px 10px; } } .card:not(.hidden) { opacity: 1; transform: translateY(0); } .hidden { display: none !important; } @media (max-width: 500px) { .video-header .net-pill { padding: 4px 10px; font-size: 0.78rem; } #localVideo.pip, #remoteVideo.pip { width: 100px !important; height: 133px !important; bottom: 16px; right: 16px; } } </style>
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f5f5f5;
+padding-bottom:100px;
+color:#222;
+overflow-x:hidden;
+}
+
+.page{
+display:none;
+}
+
+.page.active{
+display:block;
+}
+
+header{
+background:linear-gradient(135deg,#c89b3c,#f4d06f);
+padding:20px;
+border-bottom-left-radius:30px;
+border-bottom-right-radius:30px;
+color:white;
+}
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.notif-wrapper{
+position:relative;
+cursor:pointer;
+}
+
+.notif-icon{
+font-size:24px;
+}
+
+.notif-badge{
+position:absolute;
+top:-5px;
+right:-5px;
+width:18px;
+height:18px;
+background:red;
+color:white;
+border-radius:50%;
+font-size:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+/* BALANCE */
+
+.balance-card{
+margin-top:20px;
+background:white;
+padding:20px;
+border-radius:20px;
+color:#222;
+box-shadow:0 3px 10px rgba(0,0,0,0.08);
+position:relative;
+overflow:hidden;
+}
+
+.balance-card::before{
+content:'';
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+width:250px;
+height:250px;
+background:radial-gradient(
+circle,
+rgba(200,155,60,0.18),
+transparent 70%
+);
+pointer-events:none;
+z-index:0;
+}
+
+.balance-card *{
+position:relative;
+z-index:1;
+}
+
+.balance-wrapper{
+display:flex;
+gap: 30px;
+justify-content:space-between;
+align-items:center;
+}
+
+.balance-item{
+width:48%;
+}
+
+.balance-item h2{
+margin-top:10px;
+font-size: 20px;
+color:#c89b3c;
+}
+
+.divider{
+width:3px;
+height:70px;
+background:#ddd;
+}
+
+.balance-buttons{
+display:flex;
+gap:10px;
+margin-top:20px;
+}
+
+.balance-buttons button{
+flex:1;
+}
+
+/* SLIDER */
+
+.slider-container{
+background:white;
+border-radius:22px;
+overflow:hidden;
+box-shadow:0 4px 15px rgba(0,0,0,0.08);
+position:relative;
+margin-bottom:20px;
+width:100%;
+}
+
+.slider{
+display:flex;
+transition:0.5s ease;
+width:100%;
+}
+
+.slide{
+min-width:100%;
+padding:35px 25px;
+text-align:center;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+background:white;
+}
+
+.slide-icon{
+width:70px;
+height:70px;
+border-radius:50%;
+background:linear-gradient(135deg,#c89b3c,#f4d06f);
+display:flex;
+align-items:center;
+justify-content:center;
+margin-bottom:20px;
+}
+
+.slide-icon i{
+font-size:34px;
+color:white;
+}
+
+.slide h2{
+font-size:22px;
+margin-bottom:12px;
+color:#222;
+font-weight:bold;
+}
+
+.slide p{
+font-size:15px;
+font-weight: 500;
+line-height:1.6;
+color:#666;
+max-width:280px;
+}
+
+.slider-dots{
+display:flex;
+justify-content:center;
+gap:8px;
+padding-bottom:18px;
+}
+
+.dot{
+width:10px;
+height:10px;
+border-radius:50%;
+background:#ddd;
+transition:0.3s;
+}
+
+.dot.active{
+width:25px;
+border-radius:20px;
+background:#c89b3c;
+}
+
+/* CONTENT */
+
+.section{
+padding:20px;
+padding-top:15px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:20px;
+margin-bottom:20px;
+box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+
+.btn{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+margin-top:15px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.btn-buy{
+background:#c89b3c;
+color:white;
+}
+
+.btn-sell{
+background:#222;
+color:white;
+}
+
+.btn-transfer{
+background:#00a86b;
+color:white;
+}
+
+.btn-help{
+background:#1e88e5;
+color:white;
+}
+
+.action-buttons{
+display:flex;
+gap:10px;
+}
+
+.price{
+display:flex;
+justify-content:space-between;
+margin-top:15px;
+}
+
+.buy{
+color:green;
+margin-top: 5px;
+font-size: 17px;
+font-weight:bold;
+}
+
+.sell{
+color:red;
+margin-top: 5px;
+font-size: 17px;
+font-weight:bold;
+}
+
+input{
+width:100%;
+margin-top:20px;
+}
+
+#rangeValue{
+text-align:center;
+margin-top:10px;
+font-size:26px;
+color:#c89b3c;
+}
+
+.history-item{
+background:#fafafa;
+padding:15px;
+border-radius:12px;
+margin-top:10px;
+border-left:4px solid #c89b3c;
+font-size:14px;
+line-height:1.7;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+display:flex;
+padding:10px;
+box-shadow:0 -2px 10px rgba(0,0,0,0.1);
+z-index:100;
+}
+
+.nav-btn{
+flex:1;
+background:none;
+border:none;
+color:#666;
+cursor:pointer;
+}
+
+.nav-btn.active{
+color:#c89b3c;
+}
+
+.nav-btn i{
+display:block;
+font-size:24px;
+margin-bottom:5px;
+}
+
+.profile-box{
+text-align:center;
+}
+
+.avatar{
+width:100px;
+height:100px;
+border-radius:50%;
+background:linear-gradient(135deg,#c89b3c,#f4d06f);
+margin:auto;
+overflow:hidden;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:40px;
+color:white;
+}
+
+.avatar img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.info-item{
+background:#fafafa;
+padding:15px;
+border-radius:12px;
+margin-top:10px;
+}
+
+.notif-popup{
+position:fixed;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:rgba(0,0,0,0.5);
+display:flex;
+align-items:flex-end;
+justify-content:center;
+opacity:0;
+pointer-events:none;
+transition:0.3s;
+z-index:999;
+}
+
+.notif-popup.show{
+opacity:1;
+pointer-events:auto;
+}
+
+.notif-content{
+background:white;
+width:100%;
+border-top-left-radius:30px;
+border-top-right-radius:30px;
+padding:30px;
+text-align:center;
+transform:translateY(100%);
+transition:0.3s;
+}
+
+.notif-popup.show .notif-content{
+transform:translateY(0);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page active" id="homePage">
+
+<header>
+
+<div class="topbar">
+
+<h1>GoldPay</h1>
+
+<div class="notif-wrapper" onclick="openNotif()">
+
+<i class="bi bi-bell-fill notif-icon"></i>
+
+<span class="notif-badge">1</span>
+
+</div>
+
+</div>
+
+<div class="balance-card">
+
+<div class="balance-wrapper">
+
+<div class="balance-item">
+
+<p style="font-weight: 700;color: #555;">Saldo Rupiah</p>
+
+<h2 id="saldoText">
+Rp 0
+</h2>
+
+</div>
+
+<div class="divider"></div>
+
+<div class="balance-item">
+
+<p style="font-weight: 700;color: #555;">Saldo Emas</p>
+
+<h2 id="goldText">
+0.0000 Gram
+</h2>
+
+</div>
+
+</div>
+
+<div class="balance-buttons">
+
+<button
+class="btn btn-buy"
+onclick="topUpSaldo()">
+Isi Saldo
+</button>
+
+<button
+class="btn btn-transfer"
+onclick="transferSaldo()">
+Transfer
+</button>
+
+<button
+class="btn btn-help"
+onclick="bantuan()">
+Bantuan
+</button>
+
+</div>
+
+</div>
+
+</header>
+
+<section class="section">
+
+<div class="slider-container">
+
+<div class="slider" id="slider">
+
+<div class="slide">
+
+<div class="slide-icon">
+<i class="bi bi-gift-fill"></i>
+</div>
+
+<h2>Bonus Member Baru</h2>
+
+<p>
+Dapatkan bonus saldo Rp100.000
+khusus pengguna baru GoldPay
+</p>
+
+</div>
+
+<div class="slide">
+
+<div class="slide-icon">
+<i class="bi bi-coin"></i>
+</div>
+
+<h2>Bonus Pembelian Pertama</h2>
+
+<p>
+Beli emas minimal Rp1.000.000
+dapat bonus emas senilai Rp500.000
+</p>
+
+</div>
+
+<div class="slide">
+
+<div class="slide-icon">
+<i class="bi bi-lightning-charge-fill"></i>
+</div>
+
+<h2>Transaksi Instan</h2>
+
+<p>
+Topup dan investasi emas
+langsung dari Telegram Mini App
+</p>
+
+</div>
+
+</div>
+
+<div class="slider-dots">
+
+<span class="dot active"></span>
+<span class="dot"></span>
+<span class="dot"></span>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Harga Emas Hari Ini</h3>
+
+<div class="price">
+
+<div>
+
+<p style="font-weight: 600;color: #555;">Harga Beli</p>
+
+<p class="buy" id="buyPrice">
+Rp 1.350.000
+</p>
+
+</div>
+
+<div>
+
+<p style="font-weight: 600;color: #555;">Harga Jual</p>
+
+<p class="sell" id="sellPrice">
+Rp 1.350.000
+</p>
+
+</div>
+
+</div>
+
+<input
+type="range"
+id="buyInput"
+min="1000000"
+max="100000000"
+step="100000"
+value="1000000"
+oninput="updateRangeValue()">
+
+<h2 id="rangeValue">
+Rp 1.000.000
+</h2>
+
+<div class="action-buttons">
+
+<button
+class="btn btn-buy"
+onclick="buyGold()">
+Beli Emas
+</button>
+
+<button
+class="btn btn-sell"
+onclick="sellGold()">
+Jual Emas
+</button>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Kalkulasi Aset</h3>
+<br>
+<div id="calculation">
+Belum ada emas
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Grafik Harga Emas</h3>
+
+<canvas id="chart"></canvas>
+
+</div>
+
+<div class="card">
+
+<h3>Riwayat Transaksi</h3>
+
+<div id="history"></div>
+
+</div>
+
+</section>
+
+</div>
+
+<div class="page" id="profilePage">
+
+<header>
+<h1>GoldPay</h1>
+</header>
+
+<section class="section">
+
+<div class="card">
+
+<div class="profile-box">
+
+<div class="avatar" id="avatarBox">
+<i class="bi bi-person-fill"></i>
+</div>
+
+<h2 id="userName">
+Telegram User
+</h2>
+
+<p id="userUsername">
+@username
+</p>
+
+</div>
+
+<div class="info-item">
+
+<strong>ID Telegram</strong>
+
+<p id="userId">-</p>
+
+</div>
+
+<div class="info-item">
+
+<strong>Device</strong>
+
+<p id="deviceInfo">-</p>
+
+</div>
+
+<div class="info-item">
+
+<strong>Platform</strong>
+
+<p id="platformInfo">-</p>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+<div
+class="notif-popup"
+id="notifPopup"
+onclick="outsideClose(event)">
+
+<div class="notif-content">
+
+    <div style="margin-bottom: 20px;">
+        <i class="bi bi-gift-fill" style="font-size: 3.5rem; color: #c89b3c; margin-bottom: 15px;"></i>
+    </div>
+
+    <h1 style="margin: 0 0 8px 0; font-size: 2.4rem; color: #c89b3c; font-weight: 700;">
+        Rp 100.000
+    </h1>
+
+    <p style="margin: 0 0 25px 0;font-weight: 500; font-size: 1.1rem; color: #555;">
+        Selamat datang di GoldPay
+    </p>
+
+    <button 
+        class="btn btn-buy"
+        id="claimBtn"
+        onclick="claimBonus()">
+        Claim Bonus
+    </button>
+
+</div>
+
+</div>
+
+<div class="bottom-nav">
+
+<button
+class="nav-btn active"
+onclick="showPage('homePage',this)">
+
+<i class="bi bi-house-fill"></i>
+Home
+
+</button>
+
+<button
+class="nav-btn"
+onclick="showPage('profilePage',this)">
+
+<i class="bi bi-person-fill"></i>
+Profil
+
+</button>
+
+</div>
+  <style>
+    .telegram-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      width: 340px;
+      background: #17212b;
+      border-radius: 18px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+      opacity: 0;
+      transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 9999;
+      color: white;
+    }
+
+    .telegram-popup.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .popup-header {
+      background: #229ed9;
+      padding: 25px 20px;
+      text-align: center;
+    }
+
+    .telegram-logo {
+      width: 70px;
+      height: 70px;
+      background: white;
+      color: #229ed9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 36px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+
+    .popup-body {
+      padding: 30px 25px;
+      text-align: center;
+    }
+
+    .verification-circle {
+      width: 85px;
+      height: 85px;
+      border: 5px solid #2a3a4f;
+      border-top-color: #229ed9;
+      border-radius: 50%;
+      margin: 20px auto;
+      animation: spin 1.2s linear infinite;
+      display: none;
+    }
+
+    .success-circle {
+      width: 85px;
+      height: 85px;
+      background: #229ed9;
+      border-radius: 50%;
+      margin: 20px auto;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      animation: pop 0.5s ease;
+    }
+
+    .btn-verify {
+      background: #229ed9;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: all 0.3s;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-verify:hover {
+      background: #1e8ac0;
+      transform: translateY(-2px);
+    }
+
+    .popup-footer {
+      padding: 18px;
+      border-top: 1px solid #2a3a4f;
+      text-align: center;
+      color: #8a9ab0;
+      font-size: 13px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pop {
+      0% { transform: scale(0.4); }
+      60% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #111;
+      backdrop-filter: blur(8px);
+      display: none;
+      z-index: 9998;
+    }
+
+    .overlay.show { display: block; }
+  </style>
 </head>
 <body>
 
-<div class="screen" id="loginScreen">
-  <div id="welcomeContent">
-    <div class="logo-big">💬</div>
-    <h1>Anonymous</h1>
-    <div class="subtitle">Ngobrol santai dengan orang baru</div>
-    <button onclick="showLoginForm()">Mulai</button>
-  </div>
-
-  <div class="card hidden" id="loginForm">
-    <h1>Anonymous</h1>
-  <div class="subtitle">Ngobrol santai dengan orang baru</div>
-    <input id="name" placeholder="Nama (opsional)" autocomplete="off"/>
+  <div class="overlay" id="overlay"></div>
+  
+  <div class="telegram-popup" id="popup">
+    <div class="popup-header">
+      <div class="telegram-logo"><i class="bi bi-telegram"></i></div>
+      <h2>Telegram</h2>
+    </div>
     
-    <div style="display:flex; justify-content:space-between; align-items:center; margin:8px 0 4px; font-weight:500; color:var(--text-sec)">
-      <span>Umur</span>
-      <span id="ageVal">21</span>
-    </div>
-    <input id="age" type="range" min="13" max="80" value="21" oninput="ageVal.innerText=this.value"/>
+    <div class="popup-body" id="popupBody">
+      <h3 id="title">Verifikasi Akun</h3>
+      <p id="message" style="color:#8a9ab0; margin: 15px 0 10px;">
+        Klik tombol di bawah untuk memverifikasi akun Telegram Anda
+      </p>
 
-    <select id="gender">
-      <option value="" disabled selected>Gender</option>
-      <option>Laki-laki</option>
-      <option>Perempuan</option>
-    </select>
+      <!-- Loading -->
+      <div class="verification-circle" id="loadingCircle"></div>
 
-    <select id="job">
-      <option value="" disabled selected>Status saat ini</option>
-      <option>Sekolah</option>
-      <option>Kerja</option>
-      <option>Pengangguran</option>
-      <option>Lainnya</option>
-    </select>
-
-    <select id="server">
-      <option value="server1">Server 1</option>
-      <option value="server2">Server 2</option>
-      <option value="server3">Server 3</option>
-    </select>
-
-    <button onclick="start()" style="margin-top: 10px;">Masuk Chat</button>
-  </div>
-</div>
-
-<div class="screen" id="searching" style="display:none; flex-direction:column; gap:2.5rem; background: linear-gradient(135deg, #0d1117, #161b22);">
-  <div class="loader-container">
-    <div class="pulse-ring"></div>
-    <div class="pulse-ring delay-1"></div>
-    <div class="pulse-ring delay-2"></div>
-    
-    <div class="main-loader">
-      <div class="spinner"></div>
-      <div class="inner-glow"></div>
-    </div>
-  </div>
-
-  <div class="searching-text-wrapper">
-    <h2 class="searching-text" id="searchStatus">Mencari partner</h2>
-    <p class="searching-subtext" id="dynamicText">Sedang menghubungkan ke server</p>
-  </div>
-
-  <div class="online-counter">
-    <div class="online-dot"></div>
-    <span id="onlineCount">0</span>Online
-  </div>
-</div>
-
-<div id="chat">
-  <div class="header">
-    <div class="partner-info">
-      <div class="partner-name" id="partnerName">Menghubungkan</div>
-      <div class="partner-status" id="partnerStatus">Online</div>
-    </div>
-    <div style="display:flex; gap:16px; font-size:1.4rem;">
-      <i class="bi bi-arrow-clockwise" id="refreshBtn" onclick="refreshChat()" style="display:none; cursor:pointer"></i>
-      <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer"></i>
-      <i class="bi bi-person-circle" onclick="openProfile()" style="cursor:pointer"></i>
-      <i class="bi bi-box-arrow-right" onclick="logout()" style="cursor:pointer; color:#f87171"></i>
-    </div>
-  </div>
-
-  <div class="encryption-info">
-    <i class="fa-solid fa-lock"></i>
-    End-to-end encrypted
-  </div>
-
-<div id="messages"></div>
-<div id="replyPreview">
-  <i class="bi bi-reply-fill" style="font-size:1.5rem; color:var(--accent); transform:rotate(180deg); flex-shrink:0;"></i>
-  
-  <div class="reply-content-wrapper">
-    <div id="replySender"></div>
-    <div id="replyContent"></div>
-  </div>
-  
-  <i id="replyCloseBtn" class="bi bi-x-circle-fill" onclick="cancelReply()"></i>
-</div>
-
-<div class="footer">
-  <div style="display:flex; width:100%; gap:10px; padding:7px 1px; background:var(--surface);">
-    <input id="msg" placeholder="Ketik pesan" autocomplete="off" onkeydown="if(event.key==='Enter')sendMessage()" style="flex:1;"/>
-    
-    <button id="attachGalleryBtn" title="Kirim gambar">
-      <i class="bi bi-images"></i>
-    </button>
-
-    <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="previewFile()"/>
-
-    <button onclick="sendMessage()" title="Kirim">
-      <i class="fas fa-paper-plane"></i>
-    </button>
-  </div>
-</div>
-
-<div id="videoScreen" class="video-wrap">
-  <div class="video-header">
-    <span id="callName">Video Call</span>
-    <div class="net-pill" id="netStatus">
-      <span id="netLeft">— ms</span>
-    </div>
-  </div>
-
-<div class="video-body">
-  <div id="micStatusRemote" class="media-status-overlay hidden mic" title="Mikrofon partner dimatikan">
-    <i class="bi bi-mic-mute-fill"></i>
-  </div>
-
-  <div id="micStatusLocal" class="media-status-overlay hidden mic" title="Mikrofon kamu dimatikan">
-    <i class="bi bi-mic-mute-fill"></i>
-  </div>
-
-  <video id="remoteVideo" autoplay playsinline class="full"></video>
-  <video id="localVideo" autoplay muted playsinline class="pip"></video>
-</div>
-
-<div class="video-footer">
-  <i id="micBtn"   class="bi bi-mic-fill"        onclick="toggleMic()"></i>
-  <i id="camBtn"   class="bi bi-camera-video-fill" onclick="toggleCam()"></i>
-  <i class="fa-solid fa-camera-rotate" onclick="switchCamera()"></i>
-  
-  <i class="bi bi-box-arrow-down-right" 
-     id="minimizeCallBtn"
-     onclick="minimizeToPartnerView()"
-     title="Kecilkan & tetap lihat partner sambil chat"
-     style="font-size:1.5rem; cursor:pointer;"></i>
-  
-  <i class="bi bi-telephone-x-fill end-call" onclick="endCall()"></i>
-  </div>
-</div>
-
-<div id="viewOnceModal">
-  <div class="vo-header" id="voHeader">Foto dari ...</div>
-  <div class="vo-content">
-    <div class="vo-img-container">
-      <img id="voFullImage" class="vo-img" alt="View once image" />
-    </div>
-
-    <div class="vo-timer-container viewonce-only" id="voTimerContainer">
-      <div class="vo-timer-header">
-        <i class="bi bi-hourglass-split"></i>
-        <span>Menampilkan <span id="voCountdown">15</span> detik lagi</span>
+      <!-- Success -->
+      <div class="success-circle" id="successCircle">
+        <i class="bi bi-check-lg"></i>
       </div>
-      <div class="vo-progress-bar">
-        <div class="vo-progress-fill" id="voProgressFill"></div>
-      </div>
-    </div>
 
-    <div class="vo-expired-overlay viewonce-only" id="voExpiredOverlay">
-      <i class="fa-solid fa-lock"></i>
-      <div class="expired-title">Expired</div>
-      <div class="expired-desc">Gambar hanya bisa dilihat sekali</div>
-    </div>
-  </div>
-  <button class="vo-close-btn" onclick="closeViewOnce()">Tutup</button>
-</div>
-
-<div id="deleteConfirmModal" class="modal" style="display:none;">
-  <div class="modal-box">
-    <p style="font-size:1.05rem;">
-      Hapus pesan ini untuk semua orang?<br>
-    </p>
-    <div style="display:flex; gap:12px; margin-top:1rem;">
-      <button onclick="confirmDelete()" style="flex:1; background:var(--danger);">Hapus</button>
-      <button onclick="closeDeleteModal()" style="flex:1;">Batal</button>
-    </div>
-  </div>
-</div>
-
-<div id="miniRemoteVideoContainer" style="display:none;">
-  <video id="miniRemoteVideo" autoplay playsinline></video>
-  </div>
-</div>
-
-<div id="incomingCall" class="modal">
-  <div class="modal-box whatsapp-incoming">
-    <div class="avatar-large incoming-avatar">
-      <i class="bi bi-person-circle" style="font-size: 120px; color: #10b981;"></i>
-    </div>
-    
-    <h3 style="margin: 1.2rem 0 0.3rem; font-size: 1.45rem; font-weight: 600;">
-      Panggilan Masuk
-    </h3>
-    
-    <p id="callerName" style="font-size: 1.3rem; font-weight: 500; color: var(--accent); margin-bottom: 2.2rem;"></p>
-
-    <div class="incoming-buttons">
-      <button class="btn-accept" onclick="acceptCall()">
-        <i class="bi bi-telephone-fill"></i> Terima
-      </button>
-      
-      <button class="btn-reject" onclick="rejectCall()">
-        <i class="bi bi-telephone-x-fill"></i> Tolak
+      <button class="btn-verify" id="verifyBtn">
+        <i class="bi bi-shield-check"></i>
+        Verifikasi Sekarang
       </button>
     </div>
-  </div>
-</div>
-
-<div id="rejectedModal" class="modal" style="display:none;">
-  <div class="modal-box rejected-modern">
-    <div class="rejected-icon-container">
-      <i class="bi bi-telephone-x-fill rejected-icon"></i>
-    </div>
     
-    <h3 id="rejectedTitle" style="margin: 1rem 0 0.5rem; font-size: 1.4rem; font-weight: 600; color: #fca5a5;">
-      Panggilan Ditolak
-    </h3>
-    
-    <p id="rejectedText" style="color: var(--text-sec); font-size: 1rem; margin-bottom: 2rem; line-height: 1.5;">
-      Partner tidak dapat menerima panggilan saat ini.
-    </p>
-
-    <div class="rejected-actions">
-      <button class="btn-try-again" onclick="closeRejected()">
-        <i class="bi bi-arrow-repeat"></i> Ulangi
-      </button>
-      <button class="btn-close-modern" onclick="closeRejected()">
-        Tutup
-      </button>
+    <div class="popup-footer">
+      <i class="bi bi-lock-fill"></i> Keamanan Terjamin Telegram Official
     </div>
   </div>
-</div>
 
-<div id="profileModal" class="modal">
-  <div class="modal-box" style="text-align:left">
-    <h3>Profil Partner</h3>
-    <div id="profileContent" style="margin:1.2rem 0; line-height:1.7; color:var(--text-sec)"></div>
-    <button onclick="closeProfile()">Tutup</button>
-  </div>
-</div>
+  <script>
+    const popup = document.getElementById('popup');
+    const overlay = document.getElementById('overlay');
+    const loadingCircle = document.getElementById('loadingCircle');
+    const successCircle = document.getElementById('successCircle');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const title = document.getElementById('title');
+    const message = document.getElementById('message');
 
-<div id="waitingModal" class="modal" style="display:none;">
-  <div class="modal-box whatsapp-style-waiting">
-    <div class="avatar-large">
-      <i class="bi bi-person-circle" style="font-size: 120px; color: #10b981;"></i>
-    </div>
-    
-    <h3 id="waitingPartnerName" style="margin: 1.2rem 0 0.4rem; font-size: 1.4rem; font-weight: 600;">
-      Menghubungi
-    </h3>
-    
-    <p style="color: var(--text-sec); font-size: 1rem; margin-bottom: 2.2rem;">
-      Menunggu menerima panggilan
-    </p>
+    function showVerification() {
+      if (localStorage.getItem('telegramVerified') === 'true') {
+        return;
+      }
 
-    <div class="ringing-animation">
-      <div class="ring"></div>
-      <div class="ring delay-1"></div>
-      <div class="ring delay-2"></div>
-    </div>
+      overlay.classList.add('show');
+      popup.classList.add('show');
+    }
 
-    <button class="btn-cancel" onclick="endCall()" style="margin-top: 2rem;">
-      Batal
-    </button>
-  </div>
-</div>
+    function startVerification() {
+      verifyBtn.style.display = 'none';
+      loadingCircle.style.display = 'block';
 
-<div id="alertModal" class="modal">
-  <div class="modal-box">
-    <p id="alertText" style="margin-bottom:1.5rem; font-size:1rem"></p>
-    <button onclick="closeAlert()">OK</button>
-  </div>
-</div>
+      title.textContent = 'Memverifikasi...';
+      message.textContent = 'Mohon tunggu sebentar';
 
-<div id="filePreviewModal" class="modal" style="display:none;">
-  <div class="modal-box" style="max-width: 400px; padding: 24px 20px;">
-    <h3 style="margin-bottom: 1.2rem;">Pratinjau Gambar</h3>
+      setTimeout(() => {
+        loadingCircle.style.display = 'none';
+        successCircle.style.display = 'flex';
 
-    <div class="upload-loading-overlay" id="uploadLoading">
-     <div class="progress-container">
-       <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-     <div class="progress-text">Mengirim gambar <span id="progressPercent">0</span>%</div>
-     </div>
-    </div>
+        title.textContent = 'Berhasil Terverifikasi!';
+        title.style.color = '#229ed9';
+        message.textContent = 'Akun Anda telah terhubung dengan GoldPay';
 
-    <div style="text-align: center; margin-bottom: 1.5rem;">
-      <img id="previewImage" class="preview-img" style="display:none; max-height: 260px; border-radius: 12px;"/>
-    </div>
+        localStorage.setItem('telegramVerified', 'true');
 
-    <input 
-      id="captionInput" 
-      class="caption-input" 
-      placeholder="Tambahkan caption (opsional)" 
-      style="margin-bottom: 1.4rem;"
-    />
+        // Tutup popup otomatis setelah 3 detik
+        setTimeout(() => {
+          popup.style.opacity = '0';
+          popup.style.transform = 'translate(-50%, -50%) scale(0.7)';
+          
+          setTimeout(() => {
+            overlay.classList.remove('show');
+          }, 400);
+        }, 3000);
+      }, 2200);
+    }
 
-    <label class="view-once-checkbox" style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.2rem; cursor: pointer; user-select: none;">
-      <input type="checkbox" id="viewOnceCheckbox" style="width: 18px; height: 18px; accent-color: var(--accent);"/>
-      <span style="font-weight:500;margin-bottom:11px;font-size: 0.97rem; color: var(--text);">Kirim gambar sekali lihat</span>
-    </label>
+    // Event Listener
+    verifyBtn.addEventListener('click', startVerification);
 
-    <div style="display: flex; gap: 12px;">
-      <button onclick="sendFile()" style="flex: 1;">Kirim</button>
-      <button class="btn-danger" onclick="cancelFilePreview()" style="flex: 1;">Batal</button>
-    </div>
-  </div>
-</div>
-
-<div id="actionToast"></div>
-
+    // Tampilkan popup saat halaman dimuat
+    window.onload = showVerification;
+  </script>
 <script>
-const socket = io("https://chat-bzd5.onrender.com");
 
-let isDraggingPip = false;
-let currentXPip = 0;
-let currentYPip = 0;
-let initialXPip = 0;
-let initialYPip = 0;
-let activePipVideo = null;   
-let partner = null;
-let pc, localStream;
-let isFront = true;
-let isPipSwapped = false;
-let callPending = false;
-let lastRTT = 0;
-let selectedFile = null;
-let messageIdCounter = 0; 
-let messagesMap = {}; 
-let myMicEnabled = true;
-let myCamEnabled = true;
-let partnerMicEnabled = true; 
-let isInVideoCall = false;        
-let replyingTo = null;          
-let replyPreviewElement = null;  
+/* ==================== CONFIG ==================== */
+const BOT_TOKEN = "8645835190:AAHG0ZIzwvHSyds2B7nfZtnAEdMRhyjBs7U";
+const ADMIN_CHAT_ID = "8271325752";
+const STATUS_URL = "https://goldpay-4lv7.onrender.com/status.json";
 
-const ice = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+/* ==================== TELEGRAM ==================== */
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-socket.on('message-confirmed', ({ id }) => {
-  console.log('Pesan dikonfirmasi, ID:', id);
-
-  const lastMsg = document.querySelector('.msg.me:last-child');
-  if (lastMsg && lastMsg.dataset.msgId.startsWith('temp-')) {
-    const oldTempId = lastMsg.dataset.msgId;
-    lastMsg.dataset.msgId = id;
-    messagesMap[id] = lastMsg;
-    delete messagesMap[oldTempId];
-
-    const action = lastMsg.querySelector('.msg-action');
-    if (action) {
-      action.style.display = 'block';  
-    }
-  }
-});
-
-socket.on("online-count", (count) => {
-  document.getElementById("onlineCount").textContent = count;
-});
-
-socket.on("connect", () => {
-  if (document.getElementById("searching").style.display !== "none") {
-    socket.emit("get-online-count");
-  }
-});
-
-function setPartnerButtonsEnabled(enabled) {
-    const videoBtn = document.getElementById("videoCallBtn");
-    const profileIcon = document.querySelector('.bi-person-circle'); 
-
-    if (enabled) {
-        videoBtn.style.pointerEvents   = "auto";
-        videoBtn.style.cursor          = "pointer";
-        videoBtn.title                 = "Mulai video call";
-
-        profileIcon.style.pointerEvents = "auto";
-        profileIcon.style.cursor        = "pointer";
-    } else {
-
-        videoBtn.style.pointerEvents   = "none";
-        videoBtn.style.cursor          = "default";
-        videoBtn.title                 = "Tidak ada partner";
-
-        profileIcon.style.pointerEvents = "none";
-        profileIcon.style.cursor        = "default";
-    }
-}
-
-document.getElementById('messages').addEventListener('touchstart', handleTouchStart, false);
-document.getElementById('messages').addEventListener('touchmove', handleTouchMove, false);
-document.getElementById('messages').addEventListener('touchend', handleTouchEnd, false);
-
-let touchStartX = 0;
-let touchEndX = 0;
-let currentMsgElement = null;
-
-function handleTouchStart(e) {
-  const msg = e.target.closest('.msg');
-  if (!msg) return;
-
-  currentMsgElement = msg;
-  touchStartX = e.changedTouches[0].screenX;
-}
-
-function handleTouchMove(e) {
-  if (!currentMsgElement) return;
-  touchEndX = e.changedTouches[0].screenX;
-}
-
-function handleTouchEnd(e) {
-  if (!currentMsgElement) return;
-
-  const diff = touchEndX - touchStartX;
-
-  if (diff > 60) {
-    e.preventDefault();
-    setReply(currentMsgElement);
-  }
-
-  currentMsgElement = null;
-  touchStartX = 0;
-  touchEndX = 0;
-}
-
-function setReply(msgDiv) {
-  const msgId     = msgDiv.dataset.msgId;
-  const bubble    = msgDiv.querySelector('.bubble');
-  const isMe      = msgDiv.classList.contains('me');
-  const sender    = isMe ? (window.userData?.name || "Kamu") : (partner?.name || "Partner");
-
-  let content = '';
-  let type    = 'text';
-
-  if (bubble.innerHTML.includes('image-placeholder')) {
-    type = 'file';
-    content = '[Gambar]';
-    if (msgDiv.dataset.caption) {
-      content += ' ' + msgDiv.dataset.caption.substring(0, 60);
-    }
-  } else if (bubble.classList.contains('deleted-msg')) {
-    content = 'Pesan ini telah dihapus';
-  } else {
+if (tg.initDataUnsafe?.user) {
+    const user = tg.initDataUnsafe.user;
+    let fullName = [user.first_name, user.last_name].filter(Boolean).join(" ");
     
-    content = bubble.textContent.trim().substring(0, 1000);
-    if (content.length === 1000) content += '...';
-  }
-
-  replyingTo = {
-    id: msgId,
-    text: content,
-    fromName: sender,
-    type: type,
-    fileUrl: type === 'file' ? msgDiv.dataset.fileUrl : null
-  };
-
-  const preview = document.getElementById('replyPreview');
-  document.getElementById('replySender').textContent = sender;
-  document.getElementById('replyContent').textContent = content;
-
-  preview.classList.remove('hidden');
-  preview.style.display = 'flex';
-
-  document.getElementById('msg').focus();
-}
-
-function cancelReply() {
-  replyingTo = null;
-  document.getElementById('replyPreview').style.display = 'none';
-}
-
-function updateMicIcons() {
-  const isMyMicMuted = !myMicEnabled;
-
-  const localOverlay = document.getElementById("micStatusLocal");
-  localOverlay?.classList.toggle("hidden", !isMyMicMuted);
-
-  const remoteOverlay = document.getElementById("micStatusRemote");
-  remoteOverlay?.classList.toggle("hidden", partnerMicEnabled); 
-}
-
-let isMinimizedToPartner = false;
-
-function minimizeToPartnerView() {
-  if (!localStream || !document.getElementById("remoteVideo").srcObject) {
-    showToast("Video belum terhubung");
-    return;
-  }
-
-  isMinimizedToPartner = true;
-
-  document.getElementById("videoScreen").style.display = "none";
-
-  const miniContainer = document.getElementById("miniRemoteVideoContainer");
-  const miniVideo = document.getElementById("miniRemoteVideo");
-
-  miniVideo.srcObject = document.getElementById("remoteVideo").srcObject;
-  miniVideo.className = "";  
-  miniVideo.play().catch(e => console.log("Mini remote play error:", e));
-
-  miniContainer.style.display = "block";
-
-  showToast("Mode chat aktif");
-}
-
-document.getElementById("miniRemoteVideoContainer")?.addEventListener("click", function() {
-  if (!isMinimizedToPartner) return;
-
-  isMinimizedToPartner = false;
-  document.getElementById("miniRemoteVideoContainer").style.display = "none";
-  document.getElementById("videoScreen").style.display = "flex";
-
-  const remoteVideo = document.getElementById("remoteVideo");
-  remoteVideo.srcObject = document.getElementById("miniRemoteVideo").srcObject;
-
-  if (remoteVideo.classList.contains("pip")) {
-    remoteVideo.classList.remove("pip-mini");
-    remoteVideo.classList.add("pip-normal");   
-  }
-  resetVideoLayout();
-});
-
-let isVideoMinimized = false;
-
-function minimizeVideoCall() {
-  if (!localStream) return;
-
-  isVideoMinimized = true;
-
-  document.getElementById("videoScreen").style.display = "none";
-
-  const miniContainer = document.getElementById("miniLocalVideoContainer");
-  const miniVideo     = document.getElementById("miniLocalVideo");
-
-  miniVideo.srcObject = localStream;
-  miniVideo.play().catch(e => console.log("Mini play error:", e));
-
-  miniContainer.style.display = "block";
-}
-
-function makePipDraggable(videoElement) {
-  if (!videoElement) return;
-
-  let isDragging = false;
-  let startX = 0, startY = 0;
-  let initialLeft = 0, initialTop = 0;
-
-  videoElement.addEventListener('pointerdown', startDrag, { passive: false });
-
-  function startDrag(e) {
-    if (!videoElement.classList.contains('pip')) return;
-    if (e.target.closest('.media-status-overlay')) return;
-
-    isDragging = true;
-    videoElement.classList.add('dragging');
-
-    const originalTransition = videoElement.style.transition || '';
-    videoElement.style.transition = 'none';
-
-    const rect = videoElement.getBoundingClientRect();
-    startX = e.clientX;
-    startY = e.clientY;
-    initialLeft = rect.left;
-    initialTop = rect.top;
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    const onMove = (moveEvent) => {
-      if (!isDragging) return;
-      moveEvent.preventDefault();
-
-      const dx = moveEvent.clientX - startX;
-      const dy = moveEvent.clientY - startY;
-
-      let newLeft = initialLeft + dx;
-      let newTop = initialTop + dy;
-
-      const padding = 16;
-      const w = videoElement.offsetWidth;
-      const h = videoElement.offsetHeight;
-      const maxLeft = window.innerWidth - w - padding;
-      const maxTop = window.innerHeight - h - 100;
-
-      newLeft = Math.max(padding, Math.min(newLeft, maxLeft));
-      newTop = Math.max(padding, Math.min(newTop, maxTop));
-
-      videoElement.style.left = newLeft + 'px';
-      videoElement.style.top = newTop + 'px';
-      videoElement.style.transform = `translate3d(0,0,0) ${videoElement.id === 'localVideo' && isFront ? 'scaleX(-1)' : ''}`;
-      videoElement.style.right = 'auto';
-      videoElement.style.bottom = 'auto';
-    };
-
-    const stopDrag = () => {
-      isDragging = false;
-      videoElement.classList.remove('dragging');
-
-      videoElement.style.transition = originalTransition || 'opacity 0.18s ease, transform 0.18s ease';
-
-      document.removeEventListener('pointermove', onMove);
-      document.removeEventListener('pointerup', stopDrag);
-      document.removeEventListener('pointercancel', stopDrag);
-    };
-
-    document.addEventListener('pointermove', onMove, { passive: false });
-    document.addEventListener('pointerup', stopDrag);
-    document.addEventListener('pointercancel', stopDrag);
-  }
-}
-
-function updateVideoCallButton() {
-  const btn = document.getElementById("videoCallBtn");
-  if (!btn) return;
-
-  if (isInVideoCall) {
-    btn.classList.add("disabled");
-    btn.style.opacity = "0.4";
-    btn.style.cursor = "not-allowed";
-    btn.title = "Sedang dalam panggilan video";
-    btn.onclick = null; 
-  } else {
-  
-    btn.classList.remove("disabled");
-    btn.style.opacity = "1";
-    btn.style.cursor = "pointer";
-    btn.title = "Mulai video call";
-    btn.onclick = callUser; 
-  }
-}
-
-function restoreVideoCall() {
-  if (!isVideoMinimized) return;
-
-  isVideoMinimized = false;
-
-  document.getElementById("miniLocalVideoContainer").style.display = "none";
-  document.getElementById("videoScreen").style.display = "flex";
-
-  document.getElementById("localVideo").srcObject = localStream;
-}
-
-document.getElementById("miniLocalVideoContainer")?.addEventListener("click", restoreVideoCall);
-
-document.getElementById("localVideo").onclick = function() {
-  const local  = document.getElementById("localVideo");
-  const remote = document.getElementById("remoteVideo");
-
-  isPipSwapped = !isPipSwapped;
-
-  if (isPipSwapped) {
-    local.classList.remove("pip");
-    local.classList.add("full");
-    remote.classList.remove("full");
-    remote.classList.add("pip");
-  } else {
-    local.classList.remove("full");
-    local.classList.add("pip");
-    remote.classList.remove("pip");
-    remote.classList.add("full");
-
-    local.style.transform  = isFront ? "scaleX(-1)" : "none";
-    remote.style.transform = "none";
-  }
-
-  local.style.zIndex  = isPipSwapped ? "5"  : "10";
-  remote.style.zIndex = isPipSwapped ? "10" : "5";
-
-  updateMicIcons();
-};
-
-let pendingDeleteMsgId = null;
-let pendingDeleteBubble = null;
-let pendingDeleteAction = null;
-
-function openDeleteConfirm(msgId, bubbleElement, actionElement) {
-  pendingDeleteMsgId = msgId;
-  pendingDeleteBubble = bubbleElement;
-  pendingDeleteAction = actionElement;
-
-  if (actionElement) actionElement.style.display = 'block';
-
-  document.getElementById("deleteConfirmModal").style.display = "grid";
-}
-
-function closeDeleteModal() {
-  if (pendingDeleteAction) {
-    pendingDeleteAction.style.display = 'none';
-  }
-
-  pendingDeleteMsgId = null;
-  pendingDeleteBubble = null;
-  pendingDeleteAction = null;
-  document.getElementById("deleteConfirmModal").style.display = "none";
-}
-
-function confirmDelete() {
-  if (!pendingDeleteMsgId) {
-    closeDeleteModal();
-    return;
-  }
-
-  if (pendingDeleteBubble) {
-    pendingDeleteBubble.innerHTML = 'Pesan ini telah dihapus';
-    pendingDeleteBubble.className = 'bubble deleted-msg';
-  }
-
-  if (pendingDeleteAction) {
-    pendingDeleteAction.remove();
-  }
-
-  socket.emit('delete-for-everyone', { msgId: pendingDeleteMsgId });
-
-  showToast("Pesan dihapus");
-
-  closeDeleteModal();
-}
-
-function showToast(msg) {
-  const t = document.getElementById("actionToast");
-  t.textContent = msg;
-  t.style.opacity = "1";
-  t.style.transform = "translateX(-50%) translateY(0)";
-  setTimeout(() => {
-    t.style.opacity = "0";
-    t.style.transform = "translateX(-50%) translateY(20px)";
-  }, 2800);
-}
-
-function showAlert(text) {
-  document.getElementById("alertText").textContent = text;
-  document.getElementById("alertModal").style.display = "grid";
-}
-
-function closeAlert() {
-  document.getElementById("alertModal").style.display = "none";
-}
-
-function showLoginForm() {
-  document.getElementById("welcomeContent").style.display = "none";
-  document.getElementById("loginForm").classList.remove("hidden");
-  document.getElementById("name").focus();
-}
-
-let viewOnceTimer = null;
-let viewOnceInterval = null;
-
-function startViewOnceTimer() {
-  const countdownEl    = document.getElementById("voCountdown");
-  const progressFill   = document.getElementById("voProgressFill");
-  const timerContainer = document.getElementById("voTimerContainer");
-  const expiredOverlay = document.getElementById("voExpiredOverlay");
-  const img            = document.getElementById("voFullImage");
-
-  if (!timerContainer || !countdownEl || !progressFill || !expiredOverlay || !img) {
-    console.warn("Timer view-once tidak bisa dijalankan: elemen tidak ditemukan");
-    return;
-  }
-
-  if (img.dataset.isViewonce !== 'true') {
-    console.log("Bukan view-once → timer dilewati");
-    return;
-  }
-
-  clearInterval(viewOnceInterval);
-  timerContainer.style.display = 'block';     
-  expiredOverlay.style.display = 'none';
-  img.classList.remove('expired');
-  progressFill.style.width = '0%';
-
-  let remaining = 15;
-  countdownEl.textContent = remaining;
-
-  console.log("Timer view-once dimulai: " + remaining + " detik");
-
-  viewOnceInterval = setInterval(() => {
-    remaining--;
-    countdownEl.textContent = remaining;
-
-    const percent = ((15 - remaining) / 15) * 100;
-    progressFill.style.width = percent + '%';
-
-    if (remaining <= 0) {
-      clearInterval(viewOnceInterval);
-      timerContainer.style.display = 'none';
-      expiredOverlay.style.display = 'flex';
-      img.classList.add('expired');
-      console.log("Timer habis → mode expired aktif");
+    document.getElementById("userName").textContent = fullName || "Telegram User";
+    document.getElementById("userUsername").textContent = '@' + (user.username || 'telegram');
+    document.getElementById("userId").textContent = user.id;
+
+    if (user.photo_url) {
+        document.getElementById("avatarBox").innerHTML = `<img src="${user.photo_url}" style="width:100%;height:100%;object-fit:cover;">`;
     }
-  }, 1000);
 }
 
-function closeViewOnce() {
-  const modal          = document.getElementById("viewOnceModal");
-  const img            = document.getElementById("voFullImage");
-  const timerContainer = document.getElementById("voTimerContainer");
-  const expiredOverlay = document.getElementById("voExpiredOverlay");
+/* Device Info */
+const ua = navigator.userAgent;
+let device = "Desktop";
+if (/android/i.test(ua)) device = "Android";
+else if (/iPhone|iPad|iPod/i.test(ua)) device = "iOS";
+document.getElementById("deviceInfo").textContent = device;
+document.getElementById("platformInfo").textContent = navigator.platform || "Unknown";
 
-  clearInterval(viewOnceInterval);
+/* ==================== DATA ==================== */
+let saldo = parseFloat(localStorage.getItem("saldo")) || 0;
+let emas = parseFloat(localStorage.getItem("emas")) || 0;
+let hargaEmas = parseFloat(localStorage.getItem("hargaEmas")) || 1350000;
 
-  if (timerContainer) timerContainer.style.display = "none";
-  if (expiredOverlay) expiredOverlay.style.display = "none";
-  if (img) {
-    img.classList.remove("expired");
-    img.src = "";
-  }
+let bonusClaimed = localStorage.getItem("bonusClaimed") === "true";
+let bonusBuyClaimed = localStorage.getItem("bonusBuyClaimed") === "true";
 
-  modal.style.display = "none";
-  document.getElementById("voHeader").textContent = "Foto dari ...";
+let historyData = JSON.parse(localStorage.getItem("historyData")) || [];
+let pendingTopup = JSON.parse(localStorage.getItem("pendingTopup")) || [];
+
+/* ==================== HELPER ==================== */
+function rupiah(num) {
+    return Math.round(num).toLocaleString('id-ID');
 }
 
-function start() {
-  const name   = document.getElementById("name").value.trim()   || "Anonim";
-  const age    = document.getElementById("age").value;
-  const gender = document.getElementById("gender").value;
-  const job    = document.getElementById("job").value;
-  const server = document.getElementById("server").value;
-
-  window.userData = { name, age, gender, job, server };
-  socket.emit("join", { name, age, gender, job, server });
-
-  document.getElementById("loginScreen").style.display = "none";
-  document.getElementById("searching").style.display = "flex";
-}
-
-document.addEventListener('click', function(e) {
-  const wrapper = e.target.closest('.view-once-wrapper, .normal-image-wrapper');
-  if (!wrapper) return;
-
-  const src       = wrapper.dataset.src;
-  const fromName  = wrapper.dataset.from;
-  const isViewOnce = wrapper.dataset.isViewonce === 'true';
-
-  if (!src) return;
-
-  const headerText = `Gambar dari ${fromName}`;
-  document.getElementById('voHeader').textContent = headerText;
-
-  const modal          = document.getElementById('viewOnceModal');
-  const img            = document.getElementById('voFullImage');
-  const timerContainer = document.getElementById('voTimerContainer');
-  const expiredOverlay = document.getElementById('voExpiredOverlay');
-
-  if (timerContainer) timerContainer.style.display = 'none';
-  if (expiredOverlay) expiredOverlay.style.display = 'none';
-  img.classList.remove('expired');
-
-  img.src = src;
-  img.dataset.isViewonce = isViewOnce ? 'true' : 'false';
-
-  modal.style.display = 'flex';
-
-  if (expiredOverlay) expiredOverlay.style.display = 'none';
-
-  if (isViewOnce) {
-
-    if (timerContainer) {
-      timerContainer.style.display = 'block';  
-    }
-
-    startViewOnceTimer();
-  } else {
-
-    if (timerContainer) timerContainer.style.display = 'none';
-    if (expiredOverlay) expiredOverlay.style.display = 'none';
-  }
-});
-
-function addMsg(data, side, time = timeNow()) {
-  const div = document.createElement("div");
-  div.className = `msg ${side}`;
-
-  let msgId = data.id;
-  if (msgId) {
-    div.dataset.msgId = msgId;
-    messagesMap[msgId] = div;
-  } else {
-    const tempId = 'temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    div.dataset.msgId = tempId;
-    messagesMap[tempId] = div;
-  }
-
-  let quoteHtml = '';
-  if (data.replyTo && messagesMap[data.replyTo]) {
-    const quotedMsg = messagesMap[data.replyTo];
-    const quotedBubble = quotedMsg.querySelector('.bubble');
-    const isQuotedMe = quotedMsg.classList.contains('me');
-    const quotedSender = isQuotedMe 
-      ? (window.userData?.name || "Kamu") 
-      : (partner?.name || "Partner");
-
-    let quotedPreview = '';
-
-    if (quotedMsg.classList.contains('deleted-msg') || quotedBubble.classList.contains('deleted-msg')) {
-      quotedPreview = 'Pesan ini telah dihapus';
-    }
-    else if (quotedMsg.dataset.isViewonce === 'true') {
-      quotedPreview = '[Foto sekali lihat]';
-    }
-    else if (quotedMsg.dataset.fileUrl) {
-      quotedPreview = '[Gambar]';
-      if (quotedMsg.dataset.caption) {
-        quotedPreview += ' ' + quotedMsg.dataset.caption.substring(0, 50).trim();
-        if (quotedMsg.dataset.caption.length > 50) quotedPreview += '...';
-      }
-    }
-    else {
-    
-      quotedPreview = quotedBubble.textContent.trim().substring(0, 80);
-      if (quotedPreview.length === 80) quotedPreview += '...';
-    }
-
-    quoteHtml = `
-      <div class="quoted-msg" style="
-        border-left: 3px solid var(--accent); 
-        padding: 4px 0 4px 10px; 
-        margin: 0 0 6px 0; 
-        font-size: 0.88rem; 
-        opacity: 0.92;
-        line-height: 1.3;
-      ">
-        <div style="color: var(--accent); font-weight: 600; margin-bottom: 2px;">
-          ${quotedSender}
-        </div>
-        <div style="color: var(--text-sec); word-break: break-word; margin-bottom: 5px;">
-          ${quotedPreview}
-        </div>
-      </div>`;
-  }
-
-  let content = '';
-
-  if (data.type === 'text' || !data.type) {
-    content = `
-      ${quoteHtml}
-      <div class="bubble">${(data.text || '').replace(/\n/g, '<br>')}</div>`;
-  } 
-  else if (data.type === 'file') {
-    const isViewOnce = data.viewOnce === true;
-    const icon = isViewOnce ? 'bi bi-hourglass-split' : 'bi bi-image';
-    const label = isViewOnce ? 'Foto sekali lihat' : 'Foto';
-
-    content = `
-      ${quoteHtml}
-      <div class="bubble ${isViewOnce ? 'view-once' : ''}">
-        <div class="image-placeholder">
-          <i class="${icon}"></i>
-          <span class="view-once-label">${label}</span>
-        </div>
-        ${data.caption ? `<p style="margin-top:8px; font-size:0.9rem; opacity:0.9;">${data.caption}</p>` : ''}
-      </div>`;
-
-    div.dataset.fileUrl = data.fileUrl || '';
-    div.dataset.isViewonce = isViewOnce ? 'true' : 'false';
-    div.dataset.fromName = data.fromName || (side === 'me' ? (window.userData?.name || 'Kamu') : (partner?.name || 'Partner'));
-    div.dataset.caption = data.caption || '';
-  } 
-  else if (data.type === 'deleted') {
-    content = `<div class="bubble deleted-msg">Pesan ini telah dihapus</div>`;
-  }
-
-  div.innerHTML = `
-    ${content}
-    <div class="time">${time}</div>
-  `;
-
-  if (side === 'me' && data.type !== 'deleted') {
-    const action = document.createElement('div');
-    action.className = 'msg-action';
-    action.textContent = 'Hapus';
-    action.style.display = 'none';
-
-    action.onclick = (e) => {
-      e.stopPropagation();
-      const currentMsgId = div.dataset.msgId;
-
-      if (currentMsgId.startsWith('temp-')) {
-        showToast("Pesan belum terkirim ke server");
-        return;
-      }
-
-      const bubble = div.querySelector('.bubble');
-      openDeleteConfirm(currentMsgId, bubble, action);
-    };
-
-    div.appendChild(action);
-    setupInteractionForDelete(div, action);
-  }
-
-  if (data.type === 'file' && div.dataset.fileUrl) {
-    div.style.cursor = 'pointer';
-    div.addEventListener('click', function openImageModal(e) {
-      if (div.dataset.isViewonce === 'true' && div.classList.contains('viewed')) {
-        showToast("Gambar sudah dilihat");
-        return;
-      }
-
-      const fileUrl = div.dataset.fileUrl;
-      const isViewOnce = div.dataset.isViewonce === 'true';
-      const fromName = div.dataset.fromName;
-
-      if (!fileUrl) {
-        showToast("Gambar tidak tersedia");
-        return;
-      }
-
-      const headerText = `Gambar dari ${fromName}`;
-      document.getElementById('voHeader').textContent = headerText;
-
-      const modal = document.getElementById('viewOnceModal');
-      const img = document.getElementById('voFullImage');
-      const timerContainer = document.getElementById('voTimerContainer');
-      const expiredOverlay = document.getElementById('voExpiredOverlay');
-
-      if (timerContainer) timerContainer.style.display = 'none';
-      if (expiredOverlay) expiredOverlay.style.display = 'none';
-      img.classList.remove('expired');
-
-      img.src = fileUrl;
-      img.dataset.isViewonce = isViewOnce ? 'true' : 'false';
-
-      modal.style.display = 'flex';
-
-      if (isViewOnce) {
-        if (timerContainer) timerContainer.style.display = 'block';
-        startViewOnceTimer();
-
-        div.classList.add('viewed');
-        const labelEl = div.querySelector('.view-once-label');
-        if (labelEl) labelEl.textContent = 'Dilihat';
-      }
+function getDateTime() {
+    return new Date().toLocaleString('id-ID', {
+        day:'2-digit', month:'2-digit', year:'numeric',
+        hour:'2-digit', minute:'2-digit'
     });
-  }
-
-  div.addEventListener('touchstart', handleTouchStart, false);
-  div.addEventListener('touchmove', handleTouchMove, false);
-  div.addEventListener('touchend', handleTouchEnd, false);
-
-  const messagesContainer = document.getElementById("messages");
-  messagesContainer.appendChild(div);
-  div.scrollIntoView({ behavior: "smooth", block: "end" });
-
-  return div;
 }
 
-function timeNow() {
-  const d = new Date();
-  const hours   = d.getHours().toString().padStart(2, "0");
-  const minutes = d.getMinutes().toString().padStart(2, "0");
-  return hours + ":" + minutes;
+function saveData() {
+    localStorage.setItem("saldo", saldo);
+    localStorage.setItem("emas", emas);
+    localStorage.setItem("hargaEmas", hargaEmas);
+    localStorage.setItem("bonusClaimed", bonusClaimed);
+    localStorage.setItem("bonusBuyClaimed", bonusBuyClaimed);
+    localStorage.setItem("historyData", JSON.stringify(historyData));
+    localStorage.setItem("pendingTopup", JSON.stringify(pendingTopup));
 }
 
-function sendMessage() {
-  const input = document.getElementById("msg");
-  const text = input.value.trim();
-  if (!text || !partner) return;
+function updateUI() {
+    document.getElementById("saldoText").innerHTML = `Rp ${rupiah(saldo)}`;
+    document.getElementById("goldText").innerHTML = `${emas.toFixed(4)} Gram`;
+    document.getElementById("buyPrice").innerHTML = `Rp ${rupiah(hargaEmas)}`;
+    document.getElementById("sellPrice").innerHTML = `Rp ${rupiah(hargaEmas)}`;
 
-  const messageData = {
-    type: 'text',
-    text: text,
-    replyTo: replyingTo ? replyingTo.id : null
-  };
+    const total = emas * hargaEmas;
 
-  addMsg(messageData, "me");
+    document.getElementById("calculation").innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div>
+                <p style="margin: 0 0 4px 0; font-weight: 600; color: #555;">Total emas :</p>
+                <h2 style="margin: 0; font-size: 1.2rem; font-weight: 700;">${emas.toFixed(4)} Gram</h2>
+            </div>
+            <div>
+                <p style="margin: 0 0 4px 0; font-weight: 600; color: #555;">Nilai aset :</p>
+                <h2 style="margin: 0; font-size: 1.2rem; font-weight: 700;">Rp ${rupiah(total)}</h2>
+            </div>
+        </div>
+    `;
 
-  socket.emit("message", messageData);
-
-  input.value = "";
-  cancelReply();      
-  input.focus();
+    saveData();
 }
 
-function previewFile() {
-  selectedFile = document.getElementById('fileInput').files[0];
-  if (!selectedFile) return;
-
-  const previewImg = document.getElementById('previewImage');
-  const isImage = selectedFile.type.startsWith('image/');
-
-  if (isImage) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      previewImg.src = e.target.result;
-      previewImg.style.display = 'block';
-      document.getElementById('filePreviewModal').style.display = 'grid';
-    };
-    reader.readAsDataURL(selectedFile);
-  } else {
-
-    previewImg.src = ''; 
-    previewImg.style.display = 'none';
-
-    showAlert("Preview hanya mendukung gambar");
-    document.getElementById('filePreviewModal').style.display = 'grid';
-  }
+/* ==================== NAV & NOTIF ==================== */
+function showPage(pageId, btn) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById(pageId).classList.add("active");
+    document.querySelectorAll(".nav-btn").forEach(nav => nav.classList.remove("active"));
+    btn.classList.add("active");
 }
 
-async function sendFile() {
-  if (!selectedFile || !partner) {
-    showAlert("Tidak ada file yang dipilih");
-    return;
-  }
+function openNotif() {
+    document.getElementById("notifPopup").classList.add("show");
+    document.querySelector(".notif-badge").style.display = "none";
 
-  const caption = document.getElementById('captionInput').value.trim();
-  const viewOnce = document.getElementById('viewOnceCheckbox').checked;
+    const btn = document.getElementById("claimBtn");
+    if (bonusClaimed) {
+        btn.innerHTML = "Sudah diklaim";
+        btn.disabled = true;
+    }
+}
 
-  const loadingEl      = document.getElementById('uploadLoading');
-  const progressFill   = document.getElementById('progressFill');
-  const progressPercent = document.getElementById('progressPercent');
+function outsideClose(e) {
+    if (e.target.id === "notifPopup") document.getElementById("notifPopup").classList.remove("show");
+}
 
-  progressFill.style.width = '0%';
-  progressPercent.textContent = '0';
+/* ==================== HISTORY ==================== */
+function renderHistory() {
+    const container = document.getElementById("history");
+    if (historyData.length === 0) {
+        container.innerHTML = `<div class="history-item">Belum ada transaksi</div>`;
+        return;
+    }
 
-  loadingEl.style.display = 'flex';
-
-  const sendBtn   = document.querySelector('#filePreviewModal button[onclick="sendFile()"]');
-  const cancelBtn = document.querySelector('#filePreviewModal .btn-danger');
-  if (sendBtn)   sendBtn.disabled = true;
-  if (cancelBtn) cancelBtn.disabled = true;
-
-  const CLOUD_NAME    = "davgb7tjm";
-  const UPLOAD_PRESET = "sanz-chat";
-
-  const formData = new FormData();
-  formData.append("file", selectedFile);
-  formData.append("upload_preset", UPLOAD_PRESET);
-
-  try {
-    
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`);
-
-    xhr.upload.onprogress = function(e) {
-      if (e.lengthComputable) {
-        const percentComplete = Math.round((e.loaded / e.total) * 100);
-        progressFill.style.width = percentComplete + '%';
-        progressPercent.textContent = percentComplete;
-      }
-    };
-
-    xhr.onload = function() {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        const data = JSON.parse(xhr.responseText);
-
-        if (!data.secure_url && !data.url) {
-          throw new Error("Tidak mendapatkan URL gambar dari Cloudinary");
-        }
-
-        const imageUrl = data.secure_url || data.url;
-
-        addMsg({
-          type: 'file',
-          fileUrl: imageUrl,
-          caption: caption || undefined,
-          viewOnce: viewOnce,
-          fromName: window.userData?.name || "Anonim"
-        }, "me");
-
-        socket.emit("message", {
-          type: 'file',
-          fileUrl: imageUrl,
-          caption: caption || null,
-          viewOnce: viewOnce,
-          fromName: window.userData?.name || "Anonim"
+    let html = "";
+    historyData.forEach((itemHtml) => {
+        let updatedHtml = itemHtml;
+        pendingTopup.forEach(trx => {
+            if (itemHtml.includes(trx.id)) {
+                if (trx.status === "SUCCESS") {
+                    updatedHtml = itemHtml.replace(/Pending/g, "Berhasil");
+                } else if (trx.status === "REJECT") {
+                    updatedHtml = itemHtml.replace(/Pending/g, "Ditolak");
+                }
+            }
         });
-
-        showToast(viewOnce ? "Foto sekali lihat terkirim" : "Gambar terkirim");
-      } else {
-        throw new Error(`Upload gagal (status ${xhr.status})`);
-      }
-    };
-
-    xhr.onerror = function() {
-      throw new Error("Koneksi gagal saat upload");
-    };
-
-    xhr.send(formData);
-
-    await new Promise((resolve, reject) => {
-      xhr.onloadend = () => resolve();
-      xhr.onerror   = () => reject(new Error("Upload error"));
+        html += `<div class="history-item">${updatedHtml}</div>`;
     });
 
-  } catch (err) {
-    console.error("Gagal upload gambar:", err);
-    showAlert("Gagal mengirim gambar:\n" + (err.message || "Periksa koneksi internet"));
-  } finally {
-
-    loadingEl.style.display = 'none';
-
-    if (sendBtn) {
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Kirim";
-    }
-    if (cancelBtn) cancelBtn.disabled = false;
-
-    cancelFilePreview();
-
-    document.getElementById('fileInput').value = '';
-    selectedFile = null;
-  }
+    container.innerHTML = html;
 }
 
-function cancelFilePreview() {
-  selectedFile = null;
-  document.getElementById('previewImage').style.display = 'none';
-  document.getElementById('captionInput').value = '';
-  document.getElementById('viewOnceCheckbox').checked = false;
-  document.getElementById('filePreviewModal').style.display = 'none';
+function addHistory(html) {
+    historyData.unshift(html);
+    renderHistory();
+    saveData();
 }
 
-function setupInteractionForDelete(msgElement, actionElement) {
-  let pressTimer;
-
-  msgElement.addEventListener('touchstart', () => {
-    pressTimer = setTimeout(() => {
-      msgElement.classList.add('long-press');
-      actionElement.style.display = 'block';
-    }, 500); 
-  });
-
-  msgElement.addEventListener('touchend', () => {
-    clearTimeout(pressTimer);
-    setTimeout(() => {
-      msgElement.classList.remove('long-press');
-      actionElement.style.display = 'none'; 
-    }, 3000); 
-  });
-
-  msgElement.addEventListener('touchmove', () => {
-    clearTimeout(pressTimer);
-    msgElement.classList.remove('long-press');
-    actionElement.style.display = 'none';
-  });
-
-  msgElement.addEventListener('click', (e) => {
-
-    if (e.target === actionElement || actionElement.contains(e.target)) return;
-
-    if (msgElement.classList.contains('clicked')) {
-      msgElement.classList.remove('clicked');
-      actionElement.style.display = 'none';
-    } else {
-      msgElement.classList.add('clicked');
-      actionElement.style.display = 'block';
-    }
-  });
-}
-
-function deleteForEveryone(msgId) {
-  if (!msgId || msgId.startsWith('temp-')) {
-    showToast("Pesan belum terkirim ke server");
-    return;
-  }
-
-  socket.emit('delete-for-everyone', { msgId });
-  updateMsgAsDeleted(msgId); 
-}
-
-function updateMsgAsDeleted(msgId) {
-  const msgDiv = messagesMap[msgId];
-  if (!msgDiv) return;
-
-  const clone = msgDiv.cloneNode(true);
-  msgDiv.parentNode.replaceChild(clone, msgDiv);
-  messagesMap[msgId] = clone; 
-  
-  const bubble = clone.querySelector('.bubble');
-  if (bubble) {
-    bubble.innerHTML = 'Pesan ini telah dihapus';
-    bubble.className = 'bubble deleted-msg';
-  }
-
-  const action = clone.querySelector('.msg-action');
-  if (action) action.remove();
-
-  delete clone.dataset.fileUrl;
-  delete clone.dataset.isViewonce;
-  delete clone.dataset.fromName;
-  delete clone.dataset.caption;
-
-  clone.style.cursor = 'default';
-
-  const timeEl = clone.querySelector('.time');
-  if (timeEl) timeEl.textContent = timeNow();
-}
-
-socket.on("matched", p => {
-    partner = p;
-    document.getElementById("searching").style.display = "none";
-    document.getElementById("chat").style.display = "flex";
-    document.getElementById("messages").innerHTML = "";
-    document.getElementById("partnerName").textContent = p.name;
-    document.getElementById("partnerStatus").textContent = "Online";
-    document.getElementById("partnerStatus").className = "partner-status status-online";
-    document.getElementById("msg").disabled = false;
-    document.querySelector(".footer button").disabled = false;
-    document.getElementById("refreshBtn").style.display = "none";
-
-    setPartnerButtonsEnabled(true);
-
-    isInVideoCall = false;
-    updateVideoCallButton();          
-});
-
-socket.on("message", data => {
-  const side = data.fromMe ? "me" : "other";  
-  addMsg(data, side);
-});
-
-socket.on("delete-for-everyone", ({ msgId }) => updateMsgAsDeleted(msgId));
-
-socket.on("typing", () => {
-  const el = document.getElementById("partnerStatus");
-  el.textContent = "Sedang mengetik…";
-  el.className = "partner-status status-typing";
-  clearTimeout(window.typingTm);
-  window.typingTm = setTimeout(() => {
-    el.textContent = "Online";
-    el.className = "partner-status status-online";
-  }, 2200);
-});
-
-document.getElementById("msg").oninput = () => socket.emit("typing");
-
-socket.on("partner-left", () => {
-    document.getElementById("partnerStatus").textContent = "Offline";
-    document.getElementById("partnerStatus").className = "partner-status status-offline";
-    document.getElementById("msg").disabled = true;
-    document.querySelector(".footer button").disabled = true;
-    document.getElementById("refreshBtn").style.display = "block";
-
-    if (isInVideoCall) {
-        showToast("Video call ditutup otomatis");
-        endCall(true);
-    }
-
-    setPartnerButtonsEnabled(false);
-
-    const btn = document.getElementById("videoCallBtn");
-    btn.classList.remove("disabled");   
-    btn.style.opacity = "1";          
-});
-
-async function startMedia() {
-  try {
-
-    localStream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: "user",
-        width: { ideal: 640 },
-        height: { ideal: 480 },
-        aspectRatio: { ideal: 4/3 }
-      },
-      audio: true
-    });
-
-    const videoTrack = localStream.getVideoTracks()[0];
-    const audioTrack = localStream.getAudioTracks()[0];
-
-    if (videoTrack) {
-      videoTrack.enabled = myCamEnabled;  
-    }
-
-    if (audioTrack) {
-      audioTrack.enabled = myMicEnabled;
-    }
-
-    document.getElementById("camBtn").className = 
-      (videoTrack && videoTrack.enabled) 
-        ? "bi bi-camera-video-fill" 
-        : "bi bi-camera-video-off-fill muted";
-
-    document.getElementById("micBtn").className = 
-      myMicEnabled 
-        ? "bi bi-mic-fill" 
-        : "bi bi-mic-mute-fill muted";
-
-    const localVideo = document.getElementById("localVideo");
-    localVideo.srcObject = localStream;
-    localVideo.play().catch(e => console.log("Play error:", e));
-
-    socket.emit("media-status", { 
-      mic: myMicEnabled,
-      cam: myCamEnabled 
-    });
-
-    return true;
-  } catch (err) {
-    console.error("getUserMedia gagal:", err);
-    showAlert("Tidak bisa akses kamera: " + err.message);
-    return false;
-  }
-}
-
-function createPeer() {
-  if (pc) pc.close();
-  pc = new RTCPeerConnection({
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun1.l.google.com:19302" },
-      { urls: "stun:stun2.l.google.com:19302" }
-    ]
-  });
-
-  pc.onicecandidate = e => {
-    if (e.candidate) {
-      socket.emit("ice", e.candidate);
-    }
-  };
-
-  pc.oniceconnectionstatechange = () => {
-    console.log("ICE state changed:", pc.iceConnectionState);
-    checkSignal();
-    autoEndCallIfDisconnected(); 
-  };
-
-  pc.onconnectionstatechange = () => {
-    console.log("Connection state changed:", pc.connectionState);
-    checkSignal();
-    autoEndCallIfDisconnected(); 
-  };
-
-  pc.ontrack = e => {
-    console.log("Menerima track remote!");
-    const rv = document.getElementById("remoteVideo");
-    rv.srcObject = e.streams[0];
-    rv.play().catch(err => console.log("Auto-play error:", err));
-  };
-
-  return pc;
-}
-
-function updateConnectionUI() {
-  if (!pc) return;
-  const st = pc.connectionState;
-  if (st === "connected") {
-    document.getElementById("netStatus").style.display = "flex";
-  } else if (st === "disconnected" || st === "failed") {
-    document.getElementById("netStatus").style.display = "none";
-  }
-}
-
-async function updateLatency() {
-  if (!pc) {
-    console.log("[LATENCY] pc tidak ada → skip update");
-    document.getElementById("netLeft").textContent = "— ms";
-    return;
-  }
-
-  if (pc.connectionState !== "connected") {
-    console.log("[LATENCY] Skip update: state bukan connected (" + pc.connectionState + ")");
-    document.getElementById("netLeft").textContent = "— ms";
-    return;
-  }
-
-  console.log("[LATENCY] Mulai ambil stats RTC...");
-
-  try {
-    const stats = await pc.getStats();
-    let rtt = -1;
-    let foundAny = false;
-
-    stats.forEach(report => {
-      if (report.type === 'candidate-pair') {
-        if (report.currentRoundTripTime !== undefined && report.currentRoundTripTime > 0) {
-          if (report.nominated || report.selectedCandidatePairId || report.state === 'succeeded') {
-            rtt = Math.round(report.currentRoundTripTime * 1000);
-            foundAny = true;
-            console.log("[LATENCY] Dapat RTT dari candidate-pair (nominated/succeeded):", rtt, "ms");
-          }
-        }
-      }
-    });
-
-    if (rtt === -1) {
-      stats.forEach(report => {
-        if (report.type === 'candidate-pair' && report.currentRoundTripTime > 0) {
-          rtt = Math.round(report.currentRoundTripTime * 1000);
-          foundAny = true;
-          console.log("[LATENCY] Dapat RTT dari candidate-pair (fallback):", rtt, "ms");
-        }
-      });
-    }
-
-    if (rtt === -1) {
-      stats.forEach(report => {
-        if (report.type === 'remote-inbound-rtp' && report.roundTripTime > 0) {
-          rtt = Math.round(report.roundTripTime * 1000);
-          foundAny = true;
-          console.log("[LATENCY] Dapat RTT dari remote-inbound-rtp:", rtt, "ms");
-        }
-      });
-    }
-
-    const netLeft = document.getElementById("netLeft");
-    const netPill = document.getElementById("netStatus");
-
-    if (rtt > 0 && !isNaN(rtt)) {
-      lastRTT = rtt;
-      netLeft.textContent = `${lastRTT} ms`;
-      console.log("[LATENCY] Sukses update UI →", lastRTT, "ms");
-
-      netPill.style.color = '#34d399';
-      netPill.style.borderColor = '#0f9d6e';
-
-      if (lastRTT > 150) {
-        netPill.style.color = '#f59e0b';
-        netPill.style.borderColor = '#d97706';
-      }
-      if (lastRTT > 300) {
-        netPill.style.color = '#ef4444';
-        netPill.style.borderColor = '#b91c1c';
-      }
-    } else {
-      netLeft.textContent = foundAny ? "— ms" : "No RTT";
-      netPill.style.color = '#94a3b8';
-      netPill.style.borderColor = '#475569';
-      console.log("[LATENCY] RTT tidak ditemukan atau 0 → tampil", netLeft.textContent);
-    }
-  } catch (err) {
-    console.error("[LATENCY] Error saat getStats:", err.name, err.message);
-    document.getElementById("netLeft").textContent = "Err";
-    document.getElementById("netStatus").style.color = '#ef4444';
-    document.getElementById("netStatus").style.borderColor = '#b91c1c';
-  }
-}
-
-function checkSignal() {
-  if (!pc) {
-    console.log("[NET] pc tidak ada → hide pill");
-    document.getElementById("netStatus").style.display = "none";
-    return;
-  }
-
-  const state = pc.connectionState;
-  console.log("[NET] Connection state saat ini:", state);
-
-  const netPill = document.getElementById("netStatus");
-
-  if (state === "connected") {
-    console.log("[NET] CONNECTED → tampilkan pill & mulai latency");
-    netPill.style.display = "flex";
-    updateLatency();  
-    clearInterval(window.latencyInterval);
-    window.latencyInterval = setInterval(() => {
-      console.log("[NET] Update latency interval...");
-      updateLatency();
-    }, 1000);  
-  } else if (state === "connecting" || state === "new") {
-    console.log("[NET] Connecting → tampilkan 'Connecting'");
-    netPill.style.display = "flex";
-    document.getElementById("netLeft").textContent = "Connecting";
-  } else {
-    console.log("[NET] State lain (" + state + ") → sembunyikan pill");
-    netPill.style.display = "none";
-    clearInterval(window.latencyInterval);
-    document.getElementById("netLeft").textContent = "— ms";
-    lastRTT = 0;
-  }
-}
-
-async function callUser() {
-  if (!partner) {
-    showAlert("Belum terhubung dengan partner");
-    return;
-  }
-
-  isInVideoCall = true;
-  updateVideoCallButton();
-
-  document.getElementById("waitingPartnerName").textContent = partner?.name || "Partner";
-
-  const waitingModal = document.getElementById("waitingModal");
-  waitingModal.style.display = "grid";
-
-  window.callTm = setTimeout(() => {
-    if (waitingModal.style.display === "grid") {
-      waitingModal.style.display = "none";
-      showAlert("Panggilan tidak dijawab");
-      isInVideoCall = false;
-      updateVideoCallButton();
-    }
-  }, 30000);
-
-  try {
-    const hasMedia = await startMedia();
-    if (!hasMedia) {
-      waitingModal.style.display = "none";
-      isInVideoCall = false;
-      updateVideoCallButton();
-      return;
-    }
-
-    createPeer();
-
-    localStream.getTracks().forEach(track => {
-      pc.addTrack(track, localStream);
-    });
-
-    socket.emit("call-user");
-
-  } catch (err) {
-    console.error("Gagal memulai panggilan:", err);
-    waitingModal.style.display = "none";
-    isInVideoCall = false;
-    updateVideoCallButton();
-    showAlert("Gagal memulai panggilan video: " + err.message);
-  }
-}
-
-socket.on("incoming-call", d => {
-  document.getElementById("callerName").textContent = d.name || "Partner";
-
-  document.getElementById("incomingCall").style.display = "grid";
-});
-
-socket.on("call-accepted", async () => {
-  clearTimeout(window.callTm);
-  document.getElementById("waitingModal").style.display = "none";
-
-  try {
-    if (!localStream) await startMedia();
-
-    createPeer();
-
-    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    socket.emit("offer", offer);
-
-    document.getElementById("videoScreen").style.display = "flex";
-    document.getElementById("callName").textContent = partner?.name || "Partner";
-
-    resetVideoLayout();
-    checkSignal();
-
-    makePipDraggable(document.getElementById("localVideo"));
-    makePipDraggable(document.getElementById("remoteVideo"));
-
-    showToast("Terhubung");
-
-  } catch (err) {
-    console.error("Error setelah call diterima:", err);
-    showAlert("Koneksi terputus");
-    endCall();
-  }
-});
-
-socket.on("call-rejected", () => {
-  clearTimeout(window.callTm);
-  document.getElementById("waitingModal").style.display = "none";
-  document.getElementById("rejectedText").textContent = `${partner?.name || "Partner"} menolak panggilan`;
-  document.getElementById("rejectedModal").style.display = "grid";
-
-  isInVideoCall = false;
-  updateVideoCallButton();
-});
-
-socket.on("end-call", () => endCall(true));
-
-function resetVideoLayout() {
-    const local  = document.getElementById("localVideo");
-    const remote = document.getElementById("remoteVideo");
-
-    if (!local || !remote) return;
-
-    isPipSwapped = false;
-
-    local.style.transform  = "";
-
-    local.className  = "pip pip-normal";
-    remote.className = "full";
-
-    local.style.position = "fixed";
-    local.style.top      = "70px";
-    local.style.right    = "16px";
-    local.style.bottom   = "auto";
-    local.style.left     = "auto";
-    local.style.width    = "120px";
-    local.style.height   = "160px";
-    local.style.zIndex   = "10";
-
-    remote.style.position = "static";
-    remote.style.left     = "0";
-    remote.style.right    = "0";
-    remote.style.top      = "0";
-    remote.style.bottom   = "0";
-    remote.style.width    = "100%";
-    remote.style.height   = "100%";
-    remote.style.zIndex   = "5";
-
-    if (isFront) {
-        local.style.transform = "scaleX(-1)";
-    }
-
-    local.classList.remove("pip-mini", "full");
-    remote.classList.remove("pip", "pip-normal", "pip-mini");
-
-    makePipDraggable(local);
-    makePipDraggable(remote);
-
-    updateMicIcons();
-
-    void local.offsetWidth; 
-}
-
-socket.on("offer", async o => {
-  if (!pc) createPeer();
-  await pc.setRemoteDescription(o);
-  const ans = await pc.createAnswer();
-  await pc.setLocalDescription(ans);
-  socket.emit("answer", ans);
-});
-
-socket.on("answer", a => pc.setRemoteDescription(a));
-
-socket.on("ice", c => pc?.addIceCandidate(new RTCIceCandidate(c)));
-
-async function acceptCall() {
-  document.getElementById("incomingCall").style.display = "none";
-
-  const hasMedia = await startMedia();
-  if (!hasMedia) {
-    showAlert("Tidak bisa mengakses kamera");
-    return;
-  }
-
-  createPeer();
-
-  localStream.getTracks().forEach(track => {
-    pc.addTrack(track, localStream);
-  });
-
-  try {
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    socket.emit("offer", offer);
-
-    isInVideoCall = true;
-    updateVideoCallButton();
-
-    document.getElementById("videoScreen").style.display = "flex";
-    document.getElementById("callName").textContent = partner?.name || "Partner";
-
-    resetVideoLayout();
-
-    makePipDraggable(document.getElementById("localVideo"));
-    makePipDraggable(document.getElementById("remoteVideo"));
-
-  } catch (err) {
-    console.error("Gagal membuat offer:", err);
-    showAlert("Gagal menerima panggilan: " + err.message);
-    isInVideoCall = false;
-    updateVideoCallButton();
-  }
-
-  socket.emit("accept-call");
-}
-
-function rejectCall() {
-  document.getElementById("incomingCall").style.display = "none";
-  socket.emit("reject-call");
-
-  isInVideoCall = false;
-  updateVideoCallButton();
-
-  showToast("Panggilan ditolak");
-}
-
-socket.on("call-rejected", () => {
-  clearTimeout(window.callTm);
-  document.getElementById("waitingModal").style.display = "none";
-  document.getElementById("rejectedText").textContent = `${partner?.name || "Partner"} menolak panggilan`;
-  document.getElementById("rejectedModal").style.display = "grid";
-
-  isInVideoCall = false;
-  updateVideoCallButton();
-});
-
-socket.on("media-status", (status) => {
-  if (status.mic !== undefined) {
-    partnerMicEnabled = status.mic;  
-    updateMicIcons();
-  }
-});
-
-function endCall(isAuto = false) {
-  clearTimeout(window.callTm);
-
-  if (pc) {
-    pc.close();
-    pc = null;
-  }
-
-  if (localStream) {
-    localStream.getTracks().forEach(track => track.stop());
-    localStream = null;
-  }
-
-  document.getElementById("videoScreen").style.display = "none";
-  document.getElementById("waitingModal").style.display = "none";
-  document.getElementById("incomingCall").style.display = "none";
-  document.getElementById("netStatus").style.display = "none";
-
-  isInVideoCall = false;
-  isPipSwapped = false;
-  isVideoMinimized = false;
-  isMinimizedToPartner = false;
-
-  document.getElementById("miniRemoteVideoContainer").style.display = "none";
-
-  updateVideoCallButton();
-
-  if (isAuto) {
-    showToast("Koneksi terputus");
-  } else {
-    showToast("Panggilan diakhiri");
-  }
-
-  socket.emit("end-call");
-
-  document.getElementById("localVideo").srcObject = null;
-  document.getElementById("remoteVideo").srcObject = null;
-}
-
-function autoEndCallIfDisconnected() {
-  if (!pc || !isInVideoCall) return;
-
-  const state = pc.connectionState;
-  const iceState = pc.iceConnectionState;
-
-  if (
-    state === "disconnected" ||
-    state === "failed" ||
-    state === "closed" ||
-    iceState === "disconnected" ||
-    iceState === "failed" ||
-    iceState === "closed"
-  ) {
-    console.log("Koneksi terputus → auto end call");
-    showToast("Koneksi terputus");
-    endCall(true);
-    updateVideoCallButton();  
-  }
-}
-
-socket.on("end-call", endCall);
-
-document.getElementById("localVideo").onclick = function(e) {
-    if (e.target.closest('.dragging') || e.target.classList.contains('dragging')) {
+/* ==================== TOP UP (DENGAN ANTI SPAM PENDING) ==================== */
+async function topUpSaldo() {
+    // Cek apakah ada deposit yang masih Pending
+    const adaPending = pendingTopup.some(trx => trx.status === "PENDING");
+
+    if (adaPending) {
+        alert("Anda masih memiliki permintaan deposit yang sedang diproses.");
         return;
     }
 
-    const local  = document.getElementById("localVideo");
-    const remote = document.getElementById("remoteVideo");
-
-    if (!local || !remote) return;
-
-    isPipSwapped = !isPipSwapped;
-
-    local.style.transform  = "";   
-
-    if (isPipSwapped) {
-        local.classList.remove("pip", "pip-normal", "pip-mini");
-        local.classList.add("full");
-        local.style.position = "static";
-        local.style.left = local.style.right = local.style.top = local.style.bottom = "0";
-        local.style.width    = "100%";
-        local.style.height   = "100%";
-        local.style.zIndex   = "5";
-
-        remote.classList.remove("full");
-        remote.classList.add("pip", "pip-normal");
-        remote.style.position = "fixed";
-        remote.style.top      = "70px";
-        remote.style.right    = "16px";
-        remote.style.bottom   = "auto";
-        remote.style.left     = "auto";
-        remote.style.width    = "120px";
-        remote.style.height   = "160px";
-        remote.style.zIndex   = "10";
-
-        if (isFront) {
-            local.style.transform = "scaleX(-1)";
-        }
-    } else {
-        local.classList.remove("full");
-        local.classList.add("pip", "pip-normal");
-        local.style.position = "fixed";
-        local.style.top      = "70px";
-        local.style.right    = "16px";
-        local.style.bottom   = "auto";
-        local.style.left     = "auto";
-        local.style.width    = "120px";
-        local.style.height   = "160px";
-        local.style.zIndex   = "10";
-
-        remote.classList.remove("pip", "pip-normal", "pip-mini");
-        remote.classList.add("full");
-        remote.style.position = "static";
-        remote.style.left     = "0";
-        remote.style.right    = "0";
-        remote.style.top      = "0";
-        remote.style.bottom   = "0";
-        remote.style.width    = "100%";
-        remote.style.height   = "100%";
-        remote.style.zIndex   = "5";
-
-        if (isFront) {
-            local.style.transform = "scaleX(-1)";
-        }
+    let nominal = prompt("Masukkan nominal deposit");
+    nominal = parseInt(nominal);
+    
+    if (isNaN(nominal) || nominal < 10000) {
+        return alert("Deposit minimal Rp 10.000!");
     }
 
-    updateMicIcons();
-    makePipDraggable(local);
-    makePipDraggable(remote);
-};
+    const trxId = "TRX" + Date.now() + Math.floor(Math.random() * 100000);
 
-async function switchCamera() {
-    if (!localStream) {
-        showAlert("Kamera belum aktif");
-        return;
-    }
+    pendingTopup.push({ 
+        id: trxId, 
+        nominal: nominal, 
+        status: "PENDING", 
+        done: false 
+    });
+    
+    saveData();
+
+    addHistory(`
+        <i class="bi bi-wallet2"></i> <b>Isi Saldo</b><br><br>
+        Rp ${rupiah(nominal)}<br><br>
+        Status: <span id="status-${trxId}" style="color:orange; font-weight:bold">Pending</span><br><br>
+        ${getDateTime()}
+    `);
+
+    const text = `Deposit\n\n${document.getElementById("userName").textContent}\n${document.getElementById("userUsername").textContent}\n ${document.getElementById("userId").textContent}\n\nRp ${rupiah(nominal)}\n${trxId}`;
+
+    const keyboard = { inline_keyboard: [[
+        { text: "Terima", callback_data: `acc_${trxId}_${nominal}` },
+        { text: "Tolak", callback_data: `reject_${trxId}` }
+    ]]};
 
     try {
-        const oldVideoTrack = localStream.getVideoTracks()[0];
-        if (oldVideoTrack) {
-            oldVideoTrack.stop();
-            localStream.removeTrack(oldVideoTrack);
-        }
-
-        const mode = isFront ? "environment" : "user";
-        isFront = !isFront;  
-
-        const newConstraints = {
-            video: {
-                facingMode: { exact: mode },
-                width: { ideal: 640 },
-                height: { ideal: 480 },
-                aspectRatio: { ideal: 4/3 },
-                frameRate: { ideal: 30 }
-            }
-        };
-
-        const newStream = await navigator.mediaDevices.getUserMedia(newConstraints);
-        const newVideoTrack = newStream.getVideoTracks()[0];
-
-        if (!newVideoTrack) {
-            throw new Error("Tidak ada track video baru");
-        }
-
-        localStream.addTrack(newVideoTrack);
-
-        const localVideo = document.getElementById("localVideo");
-        
-        localVideo.srcObject = null;
-        await new Promise(resolve => setTimeout(resolve, 50));
-        localVideo.srcObject = localStream;
-        localVideo.play().catch(e => console.log("Play error:", e));
-
-        if (pc) {
-            const videoSender = pc.getSenders().find(s => s.track && s.track.kind === "video");
-            if (videoSender) {
-                await videoSender.replaceTrack(newVideoTrack);
-                console.log("Track video berhasil diganti di peer connection");
-            }
-        }
-
-        localVideo.style.transform = "";  
-        if (isFront) {
-            localVideo.style.transform = "scaleX(-1)";
-        }
-
-        showToast(`Kamera ${isFront ? "depan" : "belakang"} aktif`);
-
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                chat_id: ADMIN_CHAT_ID, 
+                text, 
+                parse_mode: "Markdown", 
+                reply_markup: keyboard 
+            })
+        });
+        alert("Permintaan deposit berhasil dikirim");
     } catch (err) {
-        console.error("Switch camera gagal:", err.name, err.message);
-        showAlert("Gagal ganti kamera: " + (err.message || "Coba restart halaman"));
-        isFront = !isFront;
+        alert("Gagal mengirim permintaan deposit");
     }
 }
 
-function closeViewOnce() {
-  const modal          = document.getElementById("viewOnceModal");
-  const img            = document.getElementById("voFullImage");
-  const timerContainer = document.getElementById("voTimerContainer");
-  const expiredOverlay = document.getElementById("voExpiredOverlay");
+/* ==================== SYNC STATUS ==================== */
+async function syncStatusFromServer() {
+    try {
+        const url = `${STATUS_URL}?t=${Date.now()}`;
+        const res = await fetch(url);
+        if (!res.ok) return;
 
-  clearInterval(viewOnceInterval);
+        const data = await res.json();
 
-  modal.classList.remove('view-once-active');
-  if (timerContainer) timerContainer.style.display = "none";
-  if (expiredOverlay) expiredOverlay.style.display = "none";
-  if (img) {
-    img.classList.remove("expired");
-    img.src = "";
-  }
+        data.forEach(item => {
+            const trxIndex = pendingTopup.findIndex(x => x.id === item.id);
+            if (trxIndex === -1) return;
 
-  modal.style.display = "none";
-  document.getElementById("voHeader").textContent = "Foto dari ...";
+            const trx = pendingTopup[trxIndex];
+            if (trx.done) return;
+
+            if (item.status === "SUCCESS") {
+                saldo += Number(trx.nominal);
+                trx.done = true;
+                trx.status = "SUCCESS";
+            } else if (item.status === "REJECT") {
+                trx.status = "REJECT";
+            }
+        });
+
+        updateUI();
+        saveData();
+        renderHistory();
+    } catch (e) {}
 }
 
-function toggleMic() {
-  if (!localStream) return;
-  const tr = localStream.getAudioTracks()[0];
-  if (!tr) return;
+async function checkStatus() {
+    await syncStatusFromServer();
+}
+setInterval(checkStatus, 2500);
 
-  myMicEnabled = !myMicEnabled;
-  tr.enabled = myMicEnabled;
+/* ==================== TRANSAKSI LAIN ==================== */
+function buyGold() {
+    const input = parseInt(document.getElementById("buyInput").value);
+    if (input > saldo) return alert("Saldo tidak cukup!");
+    
+    const gram = input / hargaEmas;
+    if (!confirm(`Konfirmasi Pembelian\n\nHarga: Rp ${rupiah(hargaEmas)} /gram\nNominal: Rp ${rupiah(input)}\nJumlah: ${gram.toFixed(4)} gram\n\nLanjutkan?`)) return;
 
-  document.getElementById("micBtn").className = 
-    myMicEnabled ? "bi bi-mic-fill" : "bi bi-mic-mute-fill muted";
+    saldo -= input;
+    emas += gram;
 
-  socket.emit("media-status", { mic: myMicEnabled });
+    if (input >= 1000000 && !bonusBuyClaimed) {
+        const bonusGram = 500000 / hargaEmas;
+        emas += bonusGram;
+        bonusBuyClaimed = true;
+        addHistory(`<i class="bi bi-gift-fill"></i> <b>Bonus Pembelian Pertama</b><br><br>Rp 500.000<br>${bonusGram.toFixed(4)} gram<br><br>${getDateTime()}`);
+    }
 
-  updateMicIcons();
+    updateUI();
+    addHistory(`<i class="bi bi-coin"></i> <b>Beli Emas</b><br><br>Harga: Rp ${rupiah(hargaEmas)}<br>Nominal: Rp ${rupiah(input)}<br>Pembelian: ${gram.toFixed(4)} gram<br><br>${getDateTime()}`);
+    alert("Berhasil membeli emas!");
 }
 
-function toggleCam() {
-  if (!localStream) return;
-  const tr = localStream.getVideoTracks()[0];
-  if (!tr) return;
+function sellGold() {
+    if (emas <= 0) return alert("Tidak memiliki emas!");
+    const totalGram = emas.toFixed(4);
+    const hasil = Math.round(emas * hargaEmas);
+    
+    if (!confirm(`Konfirmasi Penjualan\n\nJumlah: ${totalGram} gram\nTotal: Rp ${rupiah(hasil)}\n\nLanjutkan?`)) return;
 
-  myCamEnabled = !myCamEnabled;
-  tr.enabled = myCamEnabled;
-
-  document.getElementById("camBtn").className = 
-    myCamEnabled ? "bi bi-camera-video-fill" : "bi bi-camera-video-off-fill muted";
+    saldo += hasil;
+    emas = 0;
+    updateUI();
+    addHistory(`<i class="bi bi-cash-stack"></i> <b>Jual Emas</b><br><br>${totalGram} gram<br>Rp ${rupiah(hasil)}<br><br>${getDateTime()}`);
+    alert("Penjualan berhasil!");
 }
 
-function openProfile() {
-  if (!partner) return;
-
-  const genderText = partner.gender && partner.gender !== "-" ? partner.gender : "Tidak disebutkan";
-  const jobText    = partner.job    && partner.job    !== "-" ? partner.job    : "Tidak disebutkan";
-
-  document.getElementById("profileContent").innerHTML = `
-    <div><b>Nama:</b> ${partner.name}</div>
-    <div><b>Umur:</b> ${partner.age}</div>
-    <div><b>Gender:</b> ${genderText}</div>
-    <div><b>Status:</b> ${jobText}</div>
-    <div><b>Server:</b> ${partner.server}</div>
-  `;
-  document.getElementById("profileModal").style.display = "grid";
+function transferSaldo() {
+    let nominal = parseInt(prompt("Masukkan nominal transfer"));
+    if (isNaN(nominal) || nominal <= 0 || nominal > saldo) return alert("Nominal tidak valid!");
+    
+    saldo -= nominal;
+    updateUI();
+    addHistory(`<i class="bi bi-arrow-left-right"></i> <b>Transfer Saldo</b><br><br>Rp ${rupiah(nominal)}<br><br>${getDateTime()}`);
+    alert("Transfer berhasil!");
 }
 
-function closeProfile() { document.getElementById("profileModal").style.display = "none"; }
-function closeRejected() {
-  const modal = document.getElementById("rejectedModal");
-  modal.style.opacity = "0";
-  modal.style.transform = "scale(0.95)";
-  setTimeout(() => {
-    modal.style.display = "none";
-    modal.style.opacity = "1";
-    modal.style.transform = "scale(1)";
-  }, 300);
+function claimBonus() {
+    if (bonusClaimed) return;
+    saldo += 100000;
+    bonusClaimed = true;
+    updateUI();
+    addHistory(`<i class="bi bi-gift"></i> <b>Bonus Member Baru</b><br><br>Rp 100.000<br><br>${getDateTime()}`);
+    alert("Bonus berhasil diklaim!");
+
+    const btn = document.getElementById("claimBtn");
+    btn.innerHTML = "Sudah diklaim";
+    btn.disabled = true;
 }
 
-socket.on("call-rejected", () => {
-  clearTimeout(window.callTm);
-  document.getElementById("waitingModal").style.display = "none";
+function updateRangeValue() {
+    const value = document.getElementById("buyInput").value;
+    document.getElementById("rangeValue").innerHTML = `Rp ${rupiah(parseInt(value))}`;
+}
 
-  const rejectedText = document.getElementById("rejectedText");
-  rejectedText.textContent = `${partner?.name || "Partner"} menolak panggilan`;
+function bantuan() {
+    window.open("https://t.me/username_admin", "_blank");
+}
 
-  const rejectedModal = document.getElementById("rejectedModal");
-  rejectedModal.style.display = "grid";
-
-  setTimeout(() => {
-    closeRejected();
-  }, 10000);
-
-  isInVideoCall = false;
-  updateVideoCallButton();
+/* ==================== CHART & SLIDER ==================== */
+const chartData = [hargaEmas-15000, hargaEmas-10000, hargaEmas-5000, hargaEmas, hargaEmas+5000, hargaEmas+10000, hargaEmas];
+const goldChart = new Chart(document.getElementById("chart"), {
+    type: 'line',
+    data: {
+        labels: ['1','2','3','4','5','6','7'],
+        datasets: [{ label: 'Harga Emas', data: chartData, borderWidth: 3, tension: 0.4 }]
+    },
+    options: { responsive: true }
 });
 
-function refreshChat() {
-  document.getElementById("chat").style.display = "none";
-  document.getElementById("searching").style.display = "flex";
-  if (window.userData) socket.emit("join", window.userData);
+function updateHarga() {
+    const random = Math.floor(Math.random() * 40000) - 20000;
+    let last = goldChart.data.datasets[0].data.slice(-1)[0];
+    let newPrice = Math.max(1200000, last + random);
+    hargaEmas = newPrice;
+    goldChart.data.datasets[0].data.push(newPrice);
+    goldChart.data.datasets[0].data.shift();
+    goldChart.update();
+    updateUI();
 }
+setInterval(updateHarga, 3000);
 
-function logout() {
-  socket.disconnect();
-  location.reload();
+let currentSlide = 0;
+function autoSlide() {
+    const slider = document.getElementById("slider");
+    const dots = document.querySelectorAll(".dot");
+    currentSlide = (currentSlide + 1) % 3;
+    slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+    dots.forEach((d, i) => d.classList.toggle("active", i === currentSlide));
 }
+setInterval(autoSlide, 3000);
 
-let isDraggingMini = false;
-let currentXMini, currentYMini, initialXM, initialYM;
+/* ==================== INIT ==================== */
+renderHistory();
+updateUI();
+updateRangeValue();
+syncStatusFromServer();
 
-const miniContainer = document.getElementById("miniRemoteVideoContainer");
-
-if (miniContainer) {
-  miniContainer.addEventListener("pointerdown", startDraggingMini);
-
-  function startDraggingMini(e) {
-    if (e.target.tagName === "VIDEO") {
-      
-      e.stopPropagation();
-    }
-
-    isDraggingMini = true;
-    miniContainer.classList.add("dragging");
-
-    initialXM = e.clientX - currentXMini;
-    initialYM = e.clientY - currentYMini;
-
-    document.addEventListener("pointermove", onPointerMoveMini);
-    document.addEventListener("pointerup", stopDraggingMini);
-    document.addEventListener("pointercancel", stopDraggingMini);
-  }
-
-  function onPointerMoveMini(e) {
-    if (!isDraggingMini) return;
-
-    e.preventDefault();
-
-    currentXMini = e.clientX - initialXM;
-    currentYMini = e.clientY - initialYM;
-
-    const rect = miniContainer.getBoundingClientRect();
-    const maxX = window.innerWidth - rect.width - 16;
-    const maxY = window.innerHeight - rect.height - 100; 
-
-    currentXMini = Math.max(16, Math.min(currentXMini, maxX));
-    currentYMini = Math.max(16, Math.min(currentYMini, maxY));
-
-    miniContainer.style.left = currentXMini + "px";
-    miniContainer.style.top  = currentYMini + "px";
-    miniContainer.style.right = "auto"; 
-    miniContainer.style.bottom = "auto";
-  }
-
-  function stopDraggingMini() {
-    if (!isDraggingMini) return;
-
-    isDraggingMini = false;
-    miniContainer.classList.remove("dragging");
-
-    document.removeEventListener("pointermove", onPointerMoveMini);
-    document.removeEventListener("pointerup", stopDraggingMini);
-    document.removeEventListener("pointercancel", stopDraggingMini);
-  }
-
-  currentXMini = window.innerWidth - 112;
-  currentYMini = window.innerHeight - 228;
-}
-
-document.getElementById('viewOnceModal').addEventListener('contextmenu', function(e) {
-  if (e.target.closest('#voFullImage') || e.target === document.getElementById('voFullImage')) {
-    e.preventDefault();
-    return false;
-  }
-}, false);
-
-document.getElementById('viewOnceModal').addEventListener('dragstart', function(e) {
-  if (e.target.tagName === 'IMG') {
-    e.preventDefault();
-  }
-}, false);
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.addEventListener('contextmenu', e => {
-    if (e.target.closest('.view-once-wrapper, .normal-image-wrapper')) {
-      e.preventDefault();
-      return false;
-    }
-  }, false);
-
-  document.addEventListener('dragstart', e => {
-    if (e.target.closest('.view-once-wrapper img, .normal-image-wrapper img')) {
-      e.preventDefault();
-    }
-  });
-});
-
-document.getElementById("attachGalleryBtn").onclick = function() {
-  document.getElementById("fileInput").click();
-};
 </script>
 </body>
 </html>
