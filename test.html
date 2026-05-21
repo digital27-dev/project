@@ -1163,7 +1163,7 @@ async function topUpSaldo() {
         // ==================== AUTO DIRECT KE CS ====================
         const csUsername = "csgoldpay"; // GANTI dengan username CS kamu
 
-        const messageToCS = `Halo GoldPay,%0A%0ASaya ingin melakukan deposit sebesar *Rp ${rupiah(nominal)}*%0A%0A${userName}%0A${userUsername}%0AID: ${userId}%0ATRX ID: ${trxId}`;
+        const messageToCS = `Saya ingin melakukan deposit sebesar Rp ${rupiah(nominal)}%0A%0A${trxId}`;
 
         // Redirect ke Telegram CS
         setTimeout(() => {
