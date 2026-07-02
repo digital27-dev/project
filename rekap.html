@@ -11,22 +11,43 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e2937;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+
+        .dark {
+            --primary: #34d399;
+            --primary-dark: #10b981;
+            --bg: #0f172a;
+            --surface: #1e2937;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Inter', system-ui, sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            background: var(--bg);
             min-height: 100vh;
-            color: #1e2937;
+            color: var(--text);
+            transition: background 0.4s ease;
         }
         
         .sidebar { 
             width: 280px; 
-            background: white; 
-            border-right: 1px solid #e2e8f0; 
+            background: var(--surface); 
+            border-right: 1px solid var(--border); 
             height: 100vh; 
             position: fixed; 
-            box-shadow: 4px 0 20px rgba(0,0,0,0.06); 
+            box-shadow: 4px 0 25px rgba(0,0,0,0.08); 
             z-index: 100; 
             transition: all 0.3s ease;
         }
@@ -43,8 +64,8 @@
             transition: all 0.2s ease;
         }
         .nav-item:hover, .nav-item.active { 
-            background: #ecfdf5; 
-            color: #10b981; 
+            background: rgba(16, 185, 129, 0.12); 
+            color: var(--primary); 
             transform: translateX(4px);
         }
 
@@ -52,9 +73,9 @@
 
         .header { 
             background: rgba(255,255,255,0.95); 
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
             padding: 16px 24px; 
-            border-bottom: 1px solid #e2e8f0; 
+            border-bottom: 1px solid var(--border); 
             display: flex; 
             align-items: center; 
             gap: 16px; 
@@ -63,14 +84,19 @@
             z-index: 10;
         }
 
+        .dark .header {
+            background: rgba(30, 41, 55, 0.95);
+        }
+
         .header-buttons {
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-left: auto;
         }
 
         .btn-primary { 
-            background: #10b981; 
+            background: var(--primary); 
             color: white; 
             border: none; 
             padding: 10px 18px; 
@@ -83,20 +109,31 @@
             transition: all 0.2s ease;
             font-size: 14px;
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+
+        .btn-icon {
+            background: var(--primary); 
+            border: none;
+            color: white; 
+            width: 42px;
+            height: 42px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
         }
 
         .card { 
-            background: white; 
+            background: var(--surface); 
             border-radius: 20px; 
             padding: 24px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.07); 
         }
 
         .transaction-item { 
-            background: white; 
+            background: var(--surface); 
+            border: 1px solid var(--border);
             border-radius: 20px; 
             padding: 18px; 
             margin-bottom: 12px; 
@@ -107,14 +144,14 @@
             transition: all 0.2s ease;
         }
         .transaction-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
 
         .modal { 
             position: fixed; 
             inset: 0; 
-            background: rgba(0,0,0,0.7); 
+            background: rgba(0,0,0,0.75); 
             display: none; 
             align-items: center; 
             justify-content: center; 
@@ -122,13 +159,25 @@
         }
 
         .modal-content {
-            background: white; 
+            background: var(--surface); 
             border-radius: 28px; 
             width: 92%; 
             max-width: 460px; 
             max-height: 92vh; 
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.2);
+        }
+
+        input, select, textarea {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
         }
 
         @media (max-width: 768px) {
@@ -141,7 +190,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <button onclick="toggleSidebar()" style="background:none;border:none;font-size:28px;color:#64748b;">
+        <button onclick="toggleSidebar()" style="background:none;border:none;font-size:28px;color:var(--text-light);">
             <i class="fas fa-bars"></i>
         </button>
         
@@ -152,14 +201,19 @@
             <button onclick="addTransactionModal()" class="btn-primary">
                 <i class="fas fa-plus"></i> Tambah
             </button>
+            
+            <!-- Dark Mode Toggle -->
+            <button onclick="toggleDarkMode()" id="dark-toggle" class="btn-icon" title="Ubah Tema">
+                <i class="fas fa-moon"></i>
+            </button>
         </div>
     </div>
 
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-        <div style="padding: 28px 24px; border-bottom: 1px solid #e2e8f0;">
+        <div style="padding: 28px 24px; border-bottom: 1px solid var(--border);">
             <div style="display: flex; align-items: center; gap: 14px;">
-                <div><h1 style="font-size: 28px; font-weight: 700; background: linear-gradient(to right, #10b981, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Afnan</h1></div>
+                <h1 style="font-size: 28px; font-weight: 700; background: linear-gradient(to right, #10b981, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Afnan</h1>
             </div>
         </div>
         <div style="padding: 20px;">
@@ -172,12 +226,12 @@
         <div id="transactions-page" style="padding: 28px;">
             <div class="filter-container" style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
                 <input id="search-input" type="text" placeholder="Cari transaksi..." 
-                       style="flex:1; padding:16px 20px; border:1px solid #e2e8f0; border-radius:9999px; font-size:15px;"
+                       style="flex:1; padding:16px 20px; border:1px solid var(--border); border-radius:9999px; font-size:15px;"
                        onkeyup="applyFilters()">
                 
                 <div style="display:flex; gap:10px;">
-                    <input id="date-from" type="date" style="padding:14px 16px; border:1px solid #e2e8f0; border-radius:9999px;" onchange="applyFilters()">
-                    <input id="date-to" type="date" style="padding:14px 16px; border:1px solid #e2e8f0; border-radius:9999px;" onchange="applyFilters()">
+                    <input id="date-from" type="date" style="padding:14px 16px; border:1px solid var(--border); border-radius:9999px;" onchange="applyFilters()">
+                    <input id="date-to" type="date" style="padding:14px 16px; border:1px solid var(--border); border-radius:9999px;" onchange="applyFilters()">
                 </div>
             </div>
             
@@ -192,19 +246,19 @@
                 <h3 id="modal-title" style="margin-bottom:24px; font-size:22px;">Tambah Transaksi Baru</h3>
                 
                 <div style="margin-bottom:20px;">
-                    <label style="display:block; margin-bottom:8px; color:#64748b; font-weight:500;">Tipe</label>
+                    <label style="display:block; margin-bottom:8px; color:var(--text-light); font-weight:500;">Tipe</label>
                     <div style="display:flex; gap:12px;">
-                        <button onclick="selectType(0)" id="type-income" style="flex:1;padding:16px;border:2px solid #10b981;border-radius:16px;font-weight:600;">Pemasukan</button>
-                        <button onclick="selectType(1)" id="type-expense" style="flex:1;padding:16px;border:2px solid #e2e8f0;border-radius:16px;font-weight:600;">Pengeluaran</button>
+                        <button onclick="selectType(0)" id="type-income" style="flex:1;padding:16px;border:2px solid #10b981;background:#1e2937;color:var(--text-light);;border-radius:16px;font-weight:600;">Pemasukan</button>
+                        <button onclick="selectType(1)" id="type-expense" style="flex:1;padding:16px;border:2px solid var(--border);background:#1e2937;color:var(--text-light);; border-radius:16px;font-weight:600;">Pengeluaran</button>
                     </div>
                 </div>
                 <div style="margin-bottom:20px;">
-                    <label style="display:block; margin-bottom:8px; color:#64748b;">Nominal (Rp)</label>
-                    <input id="amount" type="number" style="width:100%; padding:18px; font-size:28px; border:1px solid #e2e8f0; border-radius:16px; font-weight:600;">
+                    <label style="display:block; margin-bottom:8px; color:var(--text-light);">Nominal (Rp)</label>
+                    <input id="amount" type="number" style="width:100%; padding:18px; font-size:28px; border:1px solid var(--border); border-radius:16px; font-weight:600;">
                 </div>
                 <div style="margin-bottom:20px;">
-                    <label style="display:block; margin-bottom:8px; color:#64748b;">Kategori</label>
-                    <select id="category" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:16px;">
+                    <label style="display:block; margin-bottom:8px; color:var(--text-light);">Kategori</label>
+                    <select id="category" style="width:100%; padding:16px; border:1px solid var(--border); border-radius:16px;">
                         <option value="Gaji">Gaji</option>
                         <option value="Freelance">Freelance</option>
                         <option value="Makanan">Makanan</option>
@@ -215,43 +269,43 @@
                     </select>
                 </div>
                 <div style="margin-bottom:20px;">
-                    <label style="display:block; margin-bottom:8px; color:#64748b;">Deskripsi</label>
-                    <input id="description" type="text" placeholder="" style="width:100%; padding:16px; border:1px solid #e2e8f0; border-radius:16px;">
+                    <label style="display:block; margin-bottom:8px; color:var(--text-light);">Deskripsi</label>
+                    <input id="description" type="text" placeholder="" style="width:100%; padding:16px; border:1px solid var(--border); border-radius:16px;">
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
                     <div>
-                        <label style="display:block; margin-bottom:8px; color:#64748b;">Tanggal</label>
-                        <input id="date" type="date" style="width:100%; padding:14px; border:1px solid #e2e8f0; border-radius:16px;">
+                        <label style="display:block; margin-bottom:8px; color:var(--text-light);">Tanggal</label>
+                        <input id="date" type="date" style="width:100%; padding:14px; border:1px solid var(--border); border-radius:16px;">
                     </div>
                     <div>
-                        <label style="display:block; margin-bottom:8px; color:#64748b;">Jam</label>
-                        <input id="time" type="time" style="width:100%; padding:14px; border:1px solid #e2e8f0; border-radius:16px;">
+                        <label style="display:block; margin-bottom:8px; color:var(--text-light);">Jam</label>
+                        <input id="time" type="time" style="width:100%; padding:14px; border:1px solid var(--border); border-radius:16px;">
                     </div>
                 </div>
             </div>
             <div style="display:flex;">
-                <button onclick="closeModal()" style="flex:1; padding:20px; color:#64748b; border-radius:0 0 0 28px;border: none; font-size:16px;">Batal</button>
-                <button onclick="saveTransaction()" id="save-btn" style="flex:1; padding:20px; background:#10b981; color:white;border: none; border-radius:0 0 28px 0; font-size:16px;">Simpan</button>
+                <button onclick="closeModal()" style="flex:1; background: #64748b ;padding:20px; color:white; border-radius:0 0 0 28px;border: none; font-weight: 700; font-size:16px;">Batal</button>
+                <button onclick="saveTransaction()" id="save-btn" style="flex:1; padding:20px; background:var(--primary); color:white;border: none; border-radius:0 0 28px 0; font-weight:700;font-size:16px;">Simpan</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Rekap (Detail + Chart) -->
+    <!-- Modal Rekap -->
     <div id="rekap-modal" class="modal">
         <div class="modal-content" style="max-width:520px;">
             <div style="padding:32px;">
                 <h3 style="text-align:center; margin-bottom:24px;">Rekap Keuangan</h3>
                 
                 <div class="card" style="margin-bottom:20px;">
-                    <p style="color: #64748b;">Total Pemasukan</p>
+                    <p style="color: var(--text-light);">Pemasukan</p>
                     <p id="rekap-income" style="font-size: 28px; font-weight: 700; color: #10b981;">Rp 0</p>
                 </div>
                 <div class="card" style="margin-bottom:20px;">
-                    <p style="color: #64748b;">Total Pengeluaran</p>
+                    <p style="color: var(--text-light);">Pengeluaran</p>
                     <p id="rekap-expense" style="font-size: 28px; font-weight: 700; color: #ef4444;">Rp 0</p>
                 </div>
                 <div class="card" style="margin-bottom:24px;">
-                    <p style="color: #64748b;">Saldo Bersih</p>
+                    <p style="color: var(--text-light);">Saldo Bersih</p>
                     <p id="rekap-balance" style="font-size: 32px; font-weight: 700;">Rp 0</p>
                 </div>
 
@@ -260,8 +314,8 @@
 
                 <canvas id="rekapChart" height="180"></canvas>
             </div>
-            <div style="padding:20px; border-top:1px solid #e2e8f0;">
-                <button onclick="closeRekapModal()" style="width:100%; padding:16px; background:#64748b; color:white; border:none; border-radius:16px; font-size:16px;">Tutup</button>
+            <div style="padding:20px; border-top:1px solid var(--border);">
+                <button onclick="closeRekapModal()" style="width:100%; padding:16px; background:#64748b; color:white; border:none; border-radius:16px;font-weight:700; font-size:16px;">Tutup</button>
             </div>
         </div>
     </div>
@@ -285,7 +339,7 @@
             container.innerHTML = '';
             
             if (filteredTransactions.length === 0) {
-                container.innerHTML = `<div style="text-align:center;padding:80px;color:#94a3b8;">Belum ada transaksi</div>`;
+                container.innerHTML = `<div style="text-align:center;padding:80px;color:var(--text-light);">Belum ada transaksi</div>`;
                 return;
             }
             
@@ -306,7 +360,7 @@
                         </div>
                         <div>
                             <div style="font-weight:600;">${t.description || t.category}</div>
-                            <small style="color:#64748b;">${new Date(t.date).toLocaleDateString('id-ID')} ${timeDisplay}</small>
+                            <small style="color:var(--text-light);">${new Date(t.date).toLocaleDateString('id-ID')} ${timeDisplay}</small>
                         </div>
                     </div>
                     <div style="text-align:right;">
@@ -353,11 +407,25 @@
             selectType(0);
         }
 
-        function selectType(type) {
-            currentType = type;
-            document.getElementById('type-income').style.borderColor = type === 0 ? '#10b981' : '#e2e8f0';
-            document.getElementById('type-expense').style.borderColor = type === 1 ? '#ef4444' : '#e2e8f0';
-        }
+function selectType(type) {
+    currentType = type;
+
+    const incomeEl = document.getElementById('type-income');
+    const expenseEl = document.getElementById('type-expense');
+
+    if (type === 0) { 
+        incomeEl.style.borderColor = '#10b981';
+        incomeEl.style.backgroundColor = 'rgba(16, 185, 129, 0.08)'; 
+        
+        expenseEl.style.borderColor = 'var(--border)';
+        expenseEl.style.backgroundColor = 'transparent'; 
+    } else { 
+        expenseEl.style.borderColor = '#ef4444';
+        expenseEl.style.backgroundColor = 'rgba(239, 68, 68, 0.08)'; 
+        incomeEl.style.borderColor = 'var(--border)';
+        incomeEl.style.backgroundColor = 'transparent';
+    }
+}
 
         function saveTransaction() {
             const amount = parseFloat(document.getElementById('amount').value);
@@ -436,19 +504,17 @@
             document.getElementById('rekap-balance').textContent = formatRupiah(balance);
             document.getElementById('rekap-balance').style.color = balance >= 0 ? '#10b981' : '#ef4444';
 
-            // Breakdown Kategori
             let breakdownHTML = '';
             Object.keys(categoryMap).forEach(cat => {
                 const val = categoryMap[cat];
                 breakdownHTML += `
-                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;">
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
                         <span>${cat}</span>
                         <span style="font-weight:600;color:${val >= 0 ? '#10b981' : '#ef4444'}">${val >= 0 ? '+' : ''}${formatRupiah(val)}</span>
                     </div>`;
             });
             document.getElementById('category-breakdown').innerHTML = breakdownHTML;
 
-            // Chart
             const ctx = document.getElementById('rekapChart');
             if (rekapChart) rekapChart.destroy();
             
@@ -487,75 +553,27 @@
             document.getElementById('nav-0').classList.add('active');
         }
 
-        function getCurrentFilteredTransactions() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const dateFrom = document.getElementById('date-from').value;
-            const dateTo = document.getElementById('date-to').value;
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            const icon = document.getElementById('dark-toggle').querySelector('i');
             
-            return transactions.filter(t => {
-                const matchesSearch = (t.description && t.description.toLowerCase().includes(query)) || t.category.toLowerCase().includes(query);
-                let matchesDate = true;
-                if (dateFrom) matchesDate = matchesDate && t.date >= dateFrom;
-                if (dateTo) matchesDate = matchesDate && t.date <= dateTo;
-                return matchesSearch && matchesDate;
-            });
+            icon.classList.toggle('fa-moon', !isDark);
+            icon.classList.toggle('fa-sun', isDark);
+            
+            localStorage.setItem('darkMode', isDark);
         }
 
-        function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(20);
-            doc.text("Rekap Transaksi FinTrack", 20, 20);
-            doc.setFontSize(12);
-            doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID')}`, 20, 35);
-            
-            let y = 50;
-            const filtered = getCurrentFilteredTransactions();
-            
-            if (filtered.length === 0) {
-                doc.text("Tidak ada transaksi.", 20, y);
-                doc.save("fintrack-transaksi.pdf");
-                return;
+        function loadDarkMode() {
+            if (localStorage.getItem('darkMode') === 'true') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('dark-toggle').querySelector('i').classList.replace('fa-moon', 'fa-sun');
             }
-            
-            // Header tabel
-            doc.setFillColor(16, 185, 129);
-            doc.rect(20, y, 170, 10, "F");
-            doc.setTextColor(255, 255, 255);
-            doc.text("Tanggal", 25, y + 7);
-            doc.text("Deskripsi", 70, y + 7);
-            doc.text("Kategori", 130, y + 7);
-            doc.text("Nominal", 165, y + 7);
-            y += 12;
-            doc.setTextColor(0, 0, 0);
-            
-            filtered.forEach(t => {
-                if (y > 270) { doc.addPage(); y = 20; }
-                const dateStr = new Date(t.date).toLocaleDateString('id-ID') + (t.time ? ' ' + t.time : '');
-                const desc = (t.description || t.category).length > 25 ? (t.description || t.category).substring(0, 22) + '...' : (t.description || t.category);
-                const nominal = (t.type === 0 ? '+' : '-') + formatRupiah(t.amount);
-                
-                doc.text(dateStr, 25, y);
-                doc.text(desc, 70, y);
-                doc.text(t.category, 130, y);
-                doc.text(nominal, 165, y);
-                y += 10;
-            });
-            
-            let income = 0, expense = 0;
-            filtered.forEach(t => t.type === 0 ? income += t.amount : expense += t.amount);
-            y += 10;
-            doc.setFont("helvetica", "bold");
-            doc.text("Ringkasan:", 20, y); y += 10;
-            doc.text(`Total Pemasukan: ${formatRupiah(income)}`, 20, y); y += 8;
-            doc.text(`Total Pengeluaran: ${formatRupiah(expense)}`, 20, y); y += 8;
-            doc.text(`Saldo: ${formatRupiah(income - expense)}`, 20, y);
-            
-            doc.save("fintrack-transaksi.pdf");
         }
 
         window.onload = () => {
+            loadDarkMode();
+            
             const now = new Date();
             const fromDate = new Date(now);
             fromDate.setDate(now.getDate() - 30);
