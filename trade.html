@@ -3,156 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sanz</title>
+    <title>Sanz - Trading App</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            /* Mode Gelap (Default) */
+            --bg-body: #000000;
+            --bg-container: #121212;
+            --bg-card: #1e1e1e;
+            --bg-input: #2a2a2a;
+            --text-main: #ffffff;
+            --text-muted: #aaaaaa;
+            --border-color: #333333;
+            --green: #00e676;
+            --red: #ff5252;
+            --overlay: rgba(0,0,0,0.8);
+            --shadow: rgba(0,0,0,0.5);
+            --chart-grid: #333333;
+        }
+
+        [data-theme="light"] {
+            /* Mode Terang */
+            --bg-body: #e4e6eb;
+            --bg-container: #f0f2f5;
+            --bg-card: #ffffff;
+            --bg-input: #f0f2f5;
+            --text-main: #1c1e21;
+            --text-muted: #606770;
+            --border-color: #dddddd;
+            --overlay: rgba(0,0,0,0.4);
+            --shadow: rgba(0,0,0,0.1);
+            --chart-grid: #eeeeee;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 480px; background-color: #121212; min-height: 100vh; position: relative; padding-bottom: 30px; }
+        body { background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; transition: background 0.3s ease; }
         
+        .app-container { width: 100%; max-width: 480px; background-color: var(--bg-container); min-height: 100vh; position: relative; padding-top: 70px; padding-bottom: 30px; box-shadow: 0 0 20px var(--shadow); transition: background 0.3s ease; overflow-x: hidden;}
+        
+        /* --- TOP BAR & SIDENAV --- */
+        .top-bar { position: fixed; top: 0; width: 100%; max-width: 480px; height: 60px; background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; box-shadow: 0 2px 10px var(--shadow); border-bottom: 1px solid var(--border-color); transition: background 0.3s ease; }
+        .btn-icon { background: transparent; border: none; color: var(--text-main); font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        .btn-icon:active { transform: scale(0.9); }
+        .search-box { display: flex; align-items: center; background: var(--bg-input); padding: 8px 15px; border-radius: 20px; flex: 1; margin: 0 15px; border: 1px solid var(--border-color); transition: background 0.3s ease; cursor: pointer; }
+        .search-box i { color: var(--text-muted); font-size: 14px; }
+        .search-box input { background: transparent; border: none; outline: none; color: var(--text-main); width: 100%; margin-left: 10px; font-size: 14px; font-weight: 500; cursor: pointer;}
+        .search-box input::placeholder { color: var(--text-muted); }
+        
+        .sidenav-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); z-index: 1001; display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .sidenav-overlay.show { display: block; opacity: 1; }
+        .sidenav { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--bg-card); z-index: 1002; transition: left 0.3s ease; display: flex; flex-direction: column; box-shadow: 2px 0 15px var(--shadow); }
+        .sidenav.open { left: 0; }
+        .sidenav-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .sidenav-header h3 { font-size: 18px; color: var(--text-main); }
+        
+        .sidenav-profile { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: none; align-items: center; gap: 12px; background: rgba(0, 230, 118, 0.05); }
+        .sidenav-profile i { font-size: 38px; color: var(--green); }
+        .sidenav-profile-info { display: flex; flex-direction: column; }
+        .sidenav-profile-name { font-size: 15px; font-weight: 700; color: var(--text-main); }
+        .sidenav-profile-badge { font-size: 11px; color: var(--bg-card); background: var(--green); padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-top: 6px; display: inline-block; width: max-content;}
+
+        .sidenav-menu { display: flex; flex-direction: column; padding: 10px 20px; gap: 15px; overflow-y: auto; }
+        .sidenav-menu a { color: var(--text-main); text-decoration: none; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 10px; transition: background 0.2s; cursor: pointer; }
+        .sidenav-menu a:hover { background: var(--bg-input); }
+        .sidenav-menu i { font-size: 18px; color: var(--text-muted); }
+
+        /* --- CARDS & WIDGETS --- */
         .prediction-card, .chart-card, .bet-panel, .history-item, .global-history-card, .winstreak-card { 
-            background: #1e1e1e; border-radius: 20px; margin: 20px 15px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); 
+            background: var(--bg-card); border-radius: 20px; margin: 20px 15px; padding: 20px; box-shadow: 0 8px 25px var(--shadow); transition: background 0.3s ease;
         }
 
         .balance-card {
-            background: #1e1e1e; border-radius: 20px; 
-            margin: 20px 15px; padding: 22px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);  position: relative; overflow: hidden;
+            background: var(--bg-card); border-radius: 20px; margin: 0 15px 20px 15px; padding: 22px; box-shadow: 0 8px 25px var(--shadow); position: relative; overflow: hidden; transition: background 0.3s ease;
         }
   
         .balance-header { position: relative; z-index: 1; margin-bottom: 22px; }
-        .balance-label { display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 13px; font-weight: 600; }
-        .balance-label strong { background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 8px; font-weight: 600; color: #e0e0e0; border: 1px solid rgba(255,255,255,0.05); }
+        .balance-label { display: flex; justify-content: space-between; align-items: center; color: var(--text-main); font-size: 13px; font-weight: 600; }
+        .balance-label strong { background: var(--bg-input); padding: 4px 10px; border-radius: 8px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); }
         .balance-amount-wrapper { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
-        .balance-amount { font-size: 27px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+        .balance-amount { font-size: 27px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; transition: color 0.3s ease; }
         
         .balance-actions { display: flex; gap: 10px; position: relative; z-index: 1; }
         .btn-action { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s; }
         .btn-action:active { transform: scale(0.96); }
-        .btn-deposit { background: #fff; color: #111; box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
-        .btn-withdraw { background: rgba(0,0,0,0.4); color: #fff; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); }
+        .btn-deposit { background: var(--text-main); color: var(--bg-card); box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid var(--border-color); }
+        .btn-withdraw { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); }
         
-        .card-title { text-align: center; font-weight: 600; font-size: 17px; margin-bottom: 20px; color: #fff; padding-bottom: 15px; border-bottom: 1px solid #333; }
+        .card-title { text-align: center; font-weight: 600; font-size: 17px; margin-bottom: 20px; color: var(--text-main); padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
         .status-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
         .status-item { display: flex; flex-direction: column; }
-        .status-label { font-size: 12px; color: #aaa; margin-bottom: 5px; }
-        .status-value { font-size: 18px; font-weight: 700; color: #ccc; }
-        .status-value.bullish { color: #00e676; }
-        .status-value.bearish { color: #ff5252; }
-        .status-value.timer { font-size: 18px; font-weight: 700; color: #fff; text-align: right; transition: color 0.3s ease; }
+        .status-label { font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+        .status-value { font-size: 18px; font-weight: 700; color: var(--text-muted); }
+        .status-value.bullish { color: var(--green); }
+        .status-value.bearish { color: var(--red); }
+        .status-value.timer { font-size: 18px; font-weight: 700; color: var(--text-main); text-align: right; transition: color 0.3s ease; }
         .timer.paused { color: #ff9800; }
 
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #2a2a2a; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; background: var(--bg-input); padding: 15px; border-radius: 12px; margin-bottom: 20px; }
         .info-col { display: flex; flex-direction: column; }
         .info-col:nth-child(2) { align-items: center; }
         .info-col:nth-child(3) { align-items: flex-end; }
-        .info-label { font-size: 11px; color: #aaa; margin-bottom: 4px; }
-        .info-val { font-size: 13px; font-weight: 600; color: #fff; }
+        .info-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+        .info-val { font-size: 13px; font-weight: 600; color: var(--text-main); }
 
         .price-row { display: flex; justify-content: space-between; align-items: center; }
         .price-col { display: flex; flex-direction: column; }
         .price-col:last-child { text-align: right; }
-        .price-val { font-size: 15px; font-weight: 700; color: #fff; transition: color 0.1s ease; }
-        .price-val.up { color: #00e676; }
-        .price-val.down { color: #ff5252; }
-        .price-arrows { color: #555; font-size: 16px; }
+        .price-val { font-size: 15px; font-weight: 700; color: var(--text-main); transition: color 0.1s ease; }
+        .price-val.up { color: var(--green); }
+        .price-val.down { color: var(--red); }
+        .price-arrows { color: var(--text-muted); font-size: 16px; }
 
         .chart-card { height: 180px; padding: 15px; }
+        .chart-select { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; font-size: 11px; padding: 4px 8px; outline: none; cursor: pointer; }
         
         .sentiment-labels { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; font-weight: 600; }
-        .buy-label { color: #00e676; }
-        .sell-label { color: #ff5252; }
-        .progress-bar-container { display: flex; height: 8px; border-radius: 10px; overflow: hidden; background: #2a2a2a; }
-        .progress-buy { background: #00e676; transition: width 0.3s ease; }
-        .progress-sell { background: #ff5252; transition: width 0.3s ease; }
+        .buy-label { color: var(--green); }
+        .sell-label { color: var(--red); }
+        .progress-bar-container { display: flex; height: 8px; border-radius: 10px; overflow: hidden; background: var(--bg-input); }
+        .progress-buy { background: var(--green); transition: width 0.3s ease; }
+        .progress-sell { background: var(--red); transition: width 0.3s ease; }
         .global-trade-list { margin-top: 15px; display: flex; flex-direction: column; gap: 8px; }
-        .global-trade-item { display: flex; justify-content: space-between; font-size: 12px; padding: 8px 10px; background: #2a2a2a; border-radius: 8px; align-items: center; }
-        .g-trade-time { color: #888; font-size: 10px; width: 60px; }
+        .global-trade-item { display: flex; justify-content: space-between; font-size: 12px; padding: 8px 10px; background: var(--bg-input); border-radius: 8px; align-items: center; }
+        .g-trade-time { color: var(--text-muted); font-size: 10px; width: 60px; }
         .g-trade-price { font-weight: 600; width: 85px; }
-        .g-trade-qty { color: #ccc; text-align: right; flex: 1; }
-        .g-buy { color: #00e676; }
-        .g-sell { color: #ff5252; }
+        .g-trade-qty { color: var(--text-muted); text-align: right; flex: 1; }
+        .g-buy { color: var(--green); }
+        .g-sell { color: var(--red); }
 
-        .ws-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .ws-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
         .ws-title { font-weight: 700; color: #ff9800; font-size: 15px; display: flex; align-items: center; gap: 6px; }
-        .ws-count { font-weight: 700; color: #fff; font-size: 18px; }
+        .ws-count { font-weight: 700; color: var(--text-main); font-size: 18px; }
         .ws-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-        .ws-item { display: flex; justify-content: space-between; font-size: 12px; padding: 10px 12px; background: #2a2a2a; border-radius: 8px; color: #888; font-weight: 600; transition: all 0.3s ease; }
-        .ws-item.passed { color: #00e676; border: 1px solid #00e676; background: rgba(0, 230, 118, 0.1); box-shadow: 0 0 10px rgba(0, 230, 118, 0.2); }
-        .ws-item.passed i { color: #00e676; }
+        .ws-item { display: flex; justify-content: space-between; font-size: 12px; padding: 10px 12px; background: var(--bg-input); border-radius: 8px; color: var(--text-muted); font-weight: 600; transition: all 0.3s ease; }
+        .ws-item.passed { color: var(--green); border: 1px solid var(--green); background: rgba(0, 230, 118, 0.1); }
+        .ws-item.passed i { color: var(--green); }
         .ws-info { display: flex; flex-direction: column; gap: 12px; text-align: center; }
-        .ws-info p { font-size: 12px; color: #aaa; margin: 0; }
-        .btn-claim { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 700; font-size: 14px; cursor: not-allowed; transition: all 0.3s ease; background: #333; color: #777; }
-        .btn-claim.active { background: #00e676; color: #111; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3); transform: scale(1); }
+        .ws-info p { font-size: 12px; color: var(--text-muted); margin: 0; }
+        .btn-claim { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 700; font-size: 14px; cursor: not-allowed; transition: all 0.3s ease; background: var(--border-color); color: var(--text-muted); }
+        .btn-claim.active { background: var(--green); color: #111; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3); transform: scale(1); }
         .btn-claim.active:active { transform: scale(0.97); }
 
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 12px; color: #aaa; margin-bottom: 6px; font-weight: 500; text-align: left; }
-        .input-group input, .input-group select { width: 100%; padding: 12px; background: #2a2a2a; color: #fff; border: 1px solid #444; border-radius: 8px; font-size: 15px; font-weight: 600; outline: none; }
+        .input-group { margin-bottom: 15px; position: relative;}
+        .input-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; text-align: left; }
+        .input-group input, .input-group select { width: 100%; padding: 12px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; font-size: 15px; font-weight: 600; outline: none; }
+        .input-group .icon-right { position: absolute; right: 15px; top: 38px; color: var(--text-muted); font-size: 18px; cursor: pointer; }
         
         .predict-buttons { display: flex; gap: 10px; }
         .btn-predict { flex: 1; padding: 14px; border-radius: 8px; border: none; font-weight: 700; font-size: 15px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s; }
         .btn-predict:active { transform: scale(0.96); }
-        .btn-up { background: #00b873; }
-        .btn-down { background: #ff4d4d; }
+        .btn-up { background: var(--green); color: #000; }
+        .btn-down { background: var(--red); color: #fff; }
 
         .streak-section { padding: 0 15px; }
         .streak-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .streak-header h3 { font-size: 15px; font-weight: 600; color: #fff; }
-        .streak-header a { font-size: 12px; color: #888; text-decoration: none; cursor: pointer; }
+        .streak-header h3 { font-size: 15px; font-weight: 600; color: var(--text-main); }
+        .streak-header a { font-size: 12px; color: var(--text-muted); text-decoration: none; cursor: pointer; }
         .history-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
         
         .history-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; margin: 0; }
         .hist-info { flex: 1; margin-left: 15px; }
-        .hist-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 3px; color: #fff; }
-        .hist-info p { font-size: 11px; color: #aaa; }
-        .hist-prices { font-size: 10px; color: #888; margin-top: 4px; }
+        .hist-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 3px; color: var(--text-main); }
+        .hist-info p { font-size: 11px; color: var(--text-muted); }
+        .hist-prices { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
         .hist-result { text-align: right; }
         .hist-result h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
         .hist-result p { font-size: 12px; font-weight: 600; }
         
-        .win-text { color: #00e676; }
-        .lose-text { color: #ff5252; }
-        .wait-text { color: #ffffff; }
+        .win-text { color: var(--green); }
+        .lose-text { color: var(--red); }
+        .wait-text { color: var(--text-main); }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); display: none; justify-content: center; align-items: center; z-index: 9999; opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.show { display: flex; opacity: 1; }
-        .modal-content { background: #1e1e1e; width: 90%; max-width: 360px; padding: 25px 20px; border-radius: 20px; text-align: center; transform: translateY(20px); transition: transform 0.3s ease; box-shadow: 0 15px 30px rgba(0,0,0,0.5); border: 1px solid #333; max-height: 90vh; overflow-y: auto;}
+        .modal-content { background: var(--bg-card); width: 90%; max-width: 360px; padding: 25px 20px; border-radius: 20px; text-align: center; transform: translateY(20px); transition: transform 0.3s ease; box-shadow: 0 15px 30px var(--shadow); border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto;}
         .modal-overlay.show .modal-content { transform: translateY(0); }
         .modal-icon { font-size: 50px; margin-bottom: 10px; }
-        .modal-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 10px; }
-        .modal-desc { font-size: 14px; color: #aaa; margin-bottom: 20px; line-height: 1.5; }
-        .btn-modal { width: 100%; padding: 12px; background: #fff; color: #111; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px;}
-        .btn-modal-outline { background: transparent; color: #fff; border: 1px solid #555; }
-        .btn-modal-danger { background: transparent; color: #ff5252; border: 1px solid #ff5252; }
+        .modal-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
+        .modal-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+        .btn-modal { width: 100%; padding: 12px; background: var(--text-main); color: var(--bg-card); border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px;}
+        .btn-modal-outline { background: transparent; color: var(--text-main); border: 1px solid var(--text-muted); }
+        .btn-modal-danger { background: transparent; color: var(--red); border: 1px solid var(--red); }
 
-        .saved-card { background: #2a2a2a; padding: 15px; border-radius: 10px; border: 1.5px dashed #e0e0e0; margin-bottom: 15px; text-align: left; }
+        /* Custom Captcha Cloudflare Style */
+        .cf-captcha-box { display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border-color); background: var(--bg-input); padding: 12px; border-radius: 8px; margin-bottom: 15px; cursor: pointer; }
+        .cf-captcha-left { display: flex; align-items: center; gap: 10px; }
+        .cf-checkbox { width: 22px; height: 22px; border: 2px solid var(--text-muted); border-radius: 4px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); transition: all 0.3s ease; }
+        .cf-checkbox i { color: var(--green); font-size: 18px; display: none; }
+        .cf-checkbox.loading { border-color: var(--text-muted); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+        .cf-checkbox.verified { border-color: var(--green); animation: none; border-radius: 4px;}
+        .cf-checkbox.verified i { display: block; }
+        .cf-text { font-size: 13px; font-weight: 500; color: var(--text-main); }
+        .cf-logo { font-size: 10px; color: var(--text-muted); text-align: right;}
+        
+        /* Modals Khusus Result */
+        .result-modal-content { background: transparent; border: none; box-shadow: none; padding: 0; width: 90%; max-width: 360px; overflow: hidden; }
+        .res-card { background: var(--bg-card); border-radius: 20px; box-shadow: 0 15px 35px var(--shadow); overflow: hidden; text-align: center; border: 1px solid var(--border-color); }
+        .res-header { padding: 30px 20px; display: flex; flex-direction: column; align-items: center; }
+        .res-header.win { background: linear-gradient(135deg, rgba(0,230,118,0.2), rgba(0,230,118,0.05)); border-bottom: 1px solid rgba(0,230,118,0.3); }
+        .res-header.lose { background: linear-gradient(135deg, rgba(255,82,82,0.2), rgba(255,82,82,0.05)); border-bottom: 1px solid rgba(255,82,82,0.3); }
+        .res-icon { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin-bottom: 10px; }
+        .win .res-icon { background: var(--green); color: #000; box-shadow: 0 0 20px rgba(0,230,118,0.5); }
+        .lose .res-icon { background: var(--red); color: #fff; box-shadow: 0 0 20px rgba(255,82,82,0.5); }
+        .res-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; }
+        .res-payout { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+        .win .res-payout { color: var(--green); }
+        .lose .res-payout { color: var(--red); }
+        
+        .res-body { padding: 20px; text-align: left; background: var(--bg-card); }
+        .res-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; padding-bottom: 12px; border-bottom: 1px dashed var(--border-color); }
+        .res-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .res-label { color: var(--text-muted); }
+        .res-val { font-weight: 700; color: var(--text-main); }
+        
+        /* Asset Selection */
+        .asset-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .asset-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg-input); padding: 15px; border-radius: 12px; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; }
+        .asset-item:hover { border-color: var(--text-muted); }
+        .asset-item.active { border-color: var(--green); background: rgba(0, 230, 118, 0.05); }
+        .asset-info { display: flex; align-items: center; gap: 12px; }
+        .asset-icon { width: 35px; height: 35px; border-radius: 50%; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--text-main); }
+        .asset-name { font-size: 14px; font-weight: 700; color: var(--text-main); }
+        .asset-symbol { font-size: 12px; color: var(--text-muted); }
+
+        .saved-card { background: var(--bg-input); padding: 15px; border-radius: 10px; border: 1.5px dashed var(--border-color); margin-bottom: 15px; text-align: left; }
         .qris-box { background: #fff; padding: 10px; border-radius: 10px; margin: 15px 0; display: none; }
         .qris-box img { width: 100%; border-radius: 5px; }
-        .loading-spinner { border: 4px solid #333; border-top: 4px solid #00e676; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        .loading-spinner { border: 4px solid var(--border-color); border-top: 4px solid var(--green); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .instruction-box { font-size: 12px; color: #aaa; text-align: left; background: #2a2a2a; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; }
+        .instruction-box { font-size: 12px; color: var(--text-muted); text-align: left; background: var(--bg-input); padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; }
 
-        .history-modal-content { background: #121212; width: 100%; max-width: 480px; height: 100vh; padding: 20px; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s ease; }
+        .history-modal-content { background: var(--bg-container); width: 100%; max-width: 480px; height: 100vh; padding: 20px; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s ease; }
         .modal-overlay.show .history-modal-content { transform: translateY(0); }
-        .history-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px; }
-        .history-modal-header h2 { font-size: 18px; color: #fff; }
-        .btn-close-history { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+        .history-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .history-modal-header h2 { font-size: 18px; color: var(--text-main); }
+        .btn-close-history { background: none; border: none; color: var(--text-main); font-size: 24px; cursor: pointer; }
         .full-history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
+
+        /* Bantuan CS Full Screen Modal */
+        .cs-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-container); z-index: 10000; display: none; flex-direction: column; transform: translateY(100%); transition: transform 0.3s ease; }
+        .cs-overlay.show { transform: translateY(0); }
+        .cs-topbar { height: 60px; background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 10px var(--shadow); }
+        .cs-online { color: var(--green); font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .cs-online::before { content: ''; display: inline-block; width: 8px; height: 8px; background: var(--green); border-radius: 50%; box-shadow: 0 0 6px var(--green); }
+        .cs-close { background: none; border: none; color: var(--text-main); font-size: 24px; cursor: pointer; }
+        .cs-iframe { flex: 1; width: 100%; border: none; background: #fff; /* background putih untuk chat default */ }
     </style>
 </head>
 <body>
 
+    <!-- Sidenav Overlay & Menu -->
+    <div class="sidenav-overlay" id="sidenav-overlay" onclick="toggleNav()"></div>
+    <div class="sidenav" id="sidenav">
+        <div class="sidenav-header">
+            <h3>Fast trade</h3>
+            <button class="btn-icon" onclick="toggleNav()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        
+        <!-- Info Profil -->
+        <div class="sidenav-profile" id="nav-user-info">
+            <i class="bi bi-person-circle"></i>
+            <div class="sidenav-profile-info">
+                <span class="sidenav-profile-name" id="nav-username">User</span>
+                <span style="font-size: 12px; color: var(--text-muted); margin-top:2px;" id="nav-phone">0812...</span>
+                <span style="font-size: 11px; color: var(--text-muted); margin-top:2px;" id="nav-regdate">Terdaftar: -</span>
+                <span class="sidenav-profile-badge">Verified</span>
+            </div>
+        </div>
+
+        <div class="sidenav-menu">
+            <a href="#" onclick="toggleNav()"><i class="bi bi-house-door"></i> Beranda</a>
+            <a href="#" onclick="toggleNav(); openDepositModal();"><i class="bi bi-wallet2"></i> Isi Saldo</a>
+            <a href="#" onclick="toggleNav(); openWithdrawModal();"><i class="bi bi-cash-stack"></i> Penarikan</a>
+            <a href="#" onclick="toggleNav(); showFullHistory();"><i class="bi bi-clock-history"></i> Riwayat Transaksi</a>
+            
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
+            
+            <!-- Tambahan Gabung Group Telegram di atas Undang Teman -->
+            <a href="https://t.me/GANTI_LINK_GRUP_DISINI" target="_blank"><i class="bi bi-telegram" style="color: #2ea6ff;"></i> Gabung Group Telegram</a>
+            <a href="#" onclick="toggleNav(); openReferralModal();"><i class="bi bi-people"></i> Undang Teman</a>
+            <a href="#" onclick="toggleNav(); openCSModal();"><i class="bi bi-headset"></i> Bantuan CS</a>
+            
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
+            
+            <!-- Link Auth -->
+            <div id="nav-auth-links">
+                <a href="#" onclick="toggleNav(); openLoginModal();"><i class="bi bi-box-arrow-in-right"></i> Login Akun</a>
+                <a href="#" onclick="toggleNav(); openRegisterModal();"><i class="bi bi-person-plus"></i> Daftar Baru</a>
+            </div>
+            
+            <!-- Ubah Password & Logout -->
+            <div id="nav-logout-link" style="display:none;">
+                <a href="#" onclick="toggleNav(); openChangePasswordModal();"><i class="bi bi-key"></i> Ubah Password</a>
+                <a href="#" onclick="toggleNav(); handleLogout();" style="color: var(--red);"><i class="bi bi-box-arrow-right"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bantuan CS Iframe Modal (Full Screen) -->
+    <div id="cs-modal" class="cs-overlay">
+        <div class="cs-topbar">
+            <div class="cs-online">Online</div>
+            <button class="cs-close" onclick="closeCSModal()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <!-- Ganti atribut src di bawah dengan Link CS / LiveChat Anda -->
+        <iframe src="https://tawk.to/chat/contoh-link-cs" class="cs-iframe"></iframe>
+    </div>
+
     <div class="app-container">
+        
+        <!-- Top Navigation Bar -->
+        <div class="top-bar">
+            <button class="btn-icon" onclick="toggleNav()"><i class="bi bi-list"></i></button>
+            <div class="search-box" onclick="openAssetModal()">
+                <i class="bi bi-search"></i>
+                <input type="text" id="display-asset-search" placeholder="Cari aset (cth: BTC)..." readonly>
+            </div>
+            <button class="btn-icon" onclick="toggleTheme()"><i class="bi bi-moon-stars" id="theme-icon"></i></button>
+        </div>
 
         <div class="balance-card">
             <div class="balance-header">
                 <span class="balance-label">
                     Total Saldo 
-                    <strong id="user-id-display">UID: Loading...</strong>
+                    <strong id="user-id-display">Loading...</strong>
                 </span>
                 <div class="balance-amount-wrapper">
+                    <!-- Tampilan saldo Default akan diatasi oleh JS (Jika Logout = 0) -->
                     <span class="balance-amount" id="balance-display">Rp 0</span>
                 </div>
             </div>
@@ -167,7 +346,7 @@
         </div>
         
         <div class="prediction-card">
-            <div class="card-title">Bitcoin</div>
+            <div class="card-title" id="trade-title-asset">Bitcoin (Live Feed)</div>
             <div class="status-row">
                 <div class="status-item">
                     <span class="status-label">Prediksi ditempatkan</span>
@@ -175,23 +354,32 @@
                 </div>
                 <div class="status-item">
                     <span class="status-label" style="text-align: right;">Hasil akhir</span>
-                    <span class="status-value timer" id="view-timer">00:00:00</span>
+                    <span class="status-value timer" id="view-timer">00:00</span>
                 </div>
             </div>
             <div class="info-grid">
-                <div class="info-col"><span class="info-label">Simbol</span><span class="info-val">BTC/USDT</span></div>
+                <div class="info-col"><span class="info-label">Simbol</span><span class="info-val" id="trade-symbol-text">BTC/USDT</span></div>
                 <div class="info-col"><span class="info-label">Taruhan</span><span class="info-val" id="view-bet-display">Rp 0</span></div>
                 <div class="info-col"><span class="info-label">Periode</span><span class="info-val">1 Menit</span></div>
             </div>
             <div class="price-row">
                 <div class="price-col"><span class="info-label">Prediksi harga</span><span class="price-val" id="view-entry-price">0.00</span></div>
                 <div class="price-arrows"><i class="bi bi-arrow-left-right"></i></div>
-                <div class="price-col"><span class="info-label">Harga referensi</span><span class="price-val" id="view-live-price">Loading...</span></div>
+                <div class="price-col"><span class="info-label">Harga Live</span><span class="price-val" id="view-live-price">Loading...</span></div>
             </div>
         </div>
 
         <div class="chart-card">
-            <canvas id="liveChart"></canvas>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Grafik Market</span>
+                <select id="chartMode" onchange="changeChartMode()" class="chart-select">
+                    <option value="line">Mode Garis</option>
+                    <option value="bar">Mode Batang</option>
+                </select>
+            </div>
+            <div style="position: relative; height: 130px; width: 100%;">
+                <canvas id="liveChart"></canvas>
+            </div>
         </div>
 
         <div class="global-history-card">
@@ -244,9 +432,180 @@
         </div>
     </div>
 
+    <!-- Modals Auth (Login, Register & Ubah Password) -->
+    <div id="login-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color:var(--text-main); margin-bottom:20px;">Login Akun</h3>
+            <div class="input-group">
+                <label>Nomor HP</label>
+                <input type="tel" id="login-phone" placeholder="Cth: 08123456789">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="login-password" placeholder="Masukkan password">
+                <i class="bi bi-eye-slash icon-right" onclick="togglePassword('login-password', this)"></i>
+            </div>
+            
+            <div class="cf-captcha-box" onclick="verifyCaptcha('login')">
+                <div class="cf-captcha-left">
+                    <div class="cf-checkbox" id="cf-box-login"><i class="bi bi-check-lg"></i></div>
+                    <span class="cf-text">Verify you are human</span>
+                </div>
+                <div class="cf-logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png" height="18" alt="CF">
+                    <div style="font-size:8px; margin-top:2px;">Privacy - Terms</div>
+                </div>
+            </div>
+
+            <button class="btn-modal" onclick="processLogin()">Masuk</button>
+            <button class="btn-modal btn-modal-outline" onclick="closeTargetModal('login-modal')">Batal</button>
+            <p style="margin-top: 18px; font-size: 13px; color: var(--text-muted);">
+                Belum punya akun? <a href="#" style="color: var(--green); text-decoration: none; font-weight:600;" onclick="closeTargetModal('login-modal'); openRegisterModal();">Daftar sekarang</a>
+            </p>
+        </div>
+    </div>
+
+    <div id="register-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align:left;">
+            <h3 style="color:var(--text-main); margin-bottom:20px; text-align:center;">Daftar Akun Baru</h3>
+            <div class="input-group">
+                <label>Nama Lengkap</label>
+                <input type="text" id="reg-name" placeholder="Sesuai identitas">
+            </div>
+            <div class="input-group">
+                <label>Nomor HP Aktif</label>
+                <input type="tel" id="reg-phone" placeholder="Cth: 08123456789">
+            </div>
+            <div class="input-group">
+                <label>Buat Password</label>
+                <input type="password" id="reg-password" placeholder="Minimal 6 karakter">
+                <i class="bi bi-eye-slash icon-right" onclick="togglePassword('reg-password', this)"></i>
+            </div>
+            <div class="input-group">
+                <label>Kode Referensi / UID Undangan (Opsional)</label>
+                <input type="text" id="reg-referral" placeholder="Cth: UID-123456">
+            </div>
+
+            <div class="cf-captcha-box" onclick="verifyCaptcha('reg')">
+                <div class="cf-captcha-left">
+                    <div class="cf-checkbox" id="cf-box-reg"><i class="bi bi-check-lg"></i></div>
+                    <span class="cf-text">Verify you are human</span>
+                </div>
+                <div class="cf-logo">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png" height="18" alt="CF">
+                    <div style="font-size:8px; margin-top:2px;">Privacy - Terms</div>
+                </div>
+            </div>
+
+            <button class="btn-modal" onclick="processRegister()">Daftar Sekarang</button>
+            <button class="btn-modal btn-modal-outline" onclick="closeTargetModal('register-modal')">Batal</button>
+            <p style="margin-top: 18px; font-size: 13px; color: var(--text-muted); text-align:center;">
+                Sudah punya akun? <a href="#" style="color: var(--green); text-decoration: none; font-weight:600;" onclick="closeTargetModal('register-modal'); openLoginModal();">Login di sini</a>
+            </p>
+        </div>
+    </div>
+
+    <div id="change-pass-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align:left;">
+            <h3 style="color:var(--text-main); margin-bottom:20px; text-align:center;">Ubah Password</h3>
+            <div class="input-group">
+                <label>Password Lama</label>
+                <input type="password" id="cp-old" placeholder="Masukkan password saat ini">
+                <i class="bi bi-eye-slash icon-right" onclick="togglePassword('cp-old', this)"></i>
+            </div>
+            <div class="input-group">
+                <label>Password Baru</label>
+                <input type="password" id="cp-new" placeholder="Minimal 6 karakter">
+                <i class="bi bi-eye-slash icon-right" onclick="togglePassword('cp-new', this)"></i>
+            </div>
+            <div class="input-group">
+                <label>Konfirmasi Password Baru</label>
+                <input type="password" id="cp-confirm" placeholder="Ketik ulang password baru">
+                <i class="bi bi-eye-slash icon-right" onclick="togglePassword('cp-confirm', this)"></i>
+            </div>
+            <button class="btn-modal" onclick="processChangePassword()">Simpan Password</button>
+            <button class="btn-modal btn-modal-outline" onclick="closeTargetModal('change-pass-modal')">Batal</button>
+        </div>
+    </div>
+
+    <!-- Modal Pilihan Aset -->
+    <div id="asset-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align: left;">
+            <h3 style="color:var(--text-main); margin-bottom:20px;">Pilih Aset Trading</h3>
+            <div class="asset-list">
+                <div class="asset-item active" id="asset-item-btc" onclick="selectAsset('btcusdt', 'Bitcoin', 'BTC')">
+                    <div class="asset-info">
+                        <div class="asset-icon" style="color: #f7931a;"><i class="bi bi-currency-bitcoin"></i></div>
+                        <div>
+                            <div class="asset-name">Bitcoin</div>
+                            <div class="asset-symbol">BTC/USDT</div>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right" style="color:var(--text-muted)"></i>
+                </div>
+                <div class="asset-item" id="asset-item-eth" onclick="selectAsset('ethusdt', 'Ethereum', 'ETH')">
+                    <div class="asset-info">
+                        <div class="asset-icon" style="color: #627eea;"><i class="bi bi-gem"></i></div>
+                        <div>
+                            <div class="asset-name">Ethereum</div>
+                            <div class="asset-symbol">ETH/USDT</div>
+                        </div>
+                    </div>
+                    <i class="bi bi-chevron-right" style="color:var(--text-muted)"></i>
+                </div>
+            </div>
+            <button class="btn-modal btn-modal-outline" onclick="closeTargetModal('asset-modal')" style="margin-top: 20px;">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Modal Referral -->
+    <div id="referral-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align: left;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 40px; color: var(--green); margin-bottom:10px;"><i class="bi bi-gift-fill"></i></div>
+                <h3 style="color:var(--text-main);">Undang Teman</h3>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top:5px;">Dapatkan komisi <strong>10%</strong> dari setiap transaksi teman yang mendaftar menggunakan Kode Anda.</p>
+            </div>
+            
+            <div class="input-group">
+                <label>Kode Referensi Anda (UID)</label>
+                <input type="text" id="my-referral-code" readonly style="color: var(--green); text-align: center; letter-spacing: 1px;">
+            </div>
+            
+            <h4 style="font-size: 14px; color: var(--text-main); margin: 20px 0 10px 0; border-bottom: 1px solid var(--border-color); padding-bottom:10px;">Daftar Referensi Anda</h4>
+            <div id="referral-list" style="font-size: 13px; color: var(--text-muted); max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                <!-- List Referal disini -->
+            </div>
+
+            <button class="btn-modal btn-modal-outline" onclick="closeTargetModal('referral-modal')" style="margin-top: 20px;">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Modal Trade Result VIP -->
+    <div id="trade-result-modal" class="modal-overlay">
+        <div class="modal-content result-modal-content">
+            <div class="res-card">
+                <div class="res-header win" id="res-header">
+                    <div class="res-icon" id="res-icon"><i class="bi bi-check-lg"></i></div>
+                    <div class="res-title" id="res-title">Prediksi Benar!</div>
+                    <div class="res-payout" id="res-payout">+ Rp 100.000</div>
+                </div>
+                <div class="res-body">
+                    <div class="res-row"><span class="res-label">Aset</span><span class="res-val" id="res-asset">BTC/USDT</span></div>
+                    <div class="res-row"><span class="res-label">Arah Prediksi</span><span class="res-val" id="res-side">Naik</span></div>
+                    <div class="res-row"><span class="res-label">Harga Awal</span><span class="res-val" id="res-entry">0.00</span></div>
+                    <div class="res-row"><span class="res-label">Harga Akhir</span><span class="res-val" id="res-end">0.00</span></div>
+                    
+                    <button class="btn-modal" style="margin-top:20px;" onclick="closeTargetModal('trade-result-modal')">Tutup & Lanjut Trading</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals (Deposit, Withdraw, Info, History) -->
     <div id="deposit-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="color:#fff; margin-bottom:20px;">Isi Saldo (Deposit)</h3>
+            <h3 style="color:var(--text-main); margin-bottom:20px;">Isi Saldo (Deposit)</h3>
             
             <div id="deposit-step-1">
                 <div class="input-group">
@@ -258,12 +617,11 @@
             </div>
 
             <div id="deposit-step-2" style="display:none;">
-                <p style="color:#00e676; font-weight:bold; font-size:18px;" id="deposit-amount-display">Rp 0</p>
+                <p style="color:var(--green); font-weight:bold; font-size:18px;" id="deposit-amount-display">Rp 0</p>
                 
                 <div id="qris-loading">
                     <div class="loading-spinner"></div>
-                    <p style="color:#aaa; font-size:12px; margin-bottom:15px;" id="qris-status-text">
-                    </p>
+                    <p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;" id="qris-status-text"></p>
                 </div>
 
                 <div id="qris-ready" class="qris-box">
@@ -275,7 +633,7 @@
                     1. Scan QRIS pada M-Banking / E-Wallet.<br>
                     2. Pastikan nominal transfer sesuai.<br>
                     3. Saldo otomatis diproses setelah transfer berhasil.<br>
-                    <span style="color:#ff5252; margin-top:5px; display:block; font-weight:bold;" id="deposit-timer">Kedaluwarsa dalam: 15:00</span>
+                    <span style="color:var(--red); margin-top:5px; display:block; font-weight:bold;" id="deposit-timer">Kedaluwarsa dalam: 15:00</span>
                 </div>
                 
                 <button class="btn-modal" id="btn-close-deposit" onclick="closeTargetModal('deposit-modal')">Tutup Halaman</button>
@@ -286,7 +644,7 @@
 
     <div id="withdraw-modal" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="color:#fff; margin-bottom:20px;">Penarikan (Withdraw)</h3>
+            <h3 style="color:var(--text-main); margin-bottom:20px;">Penarikan (Withdraw)</h3>
             <div id="wd-setup-bank">
                 <div class="input-group">
                     <label>Pilih Bank / E-Wallet</label>
@@ -309,10 +667,10 @@
 
             <div id="wd-form" style="display:none;">
                 <div class="saved-card">
-                    <div style="font-size:11px; color:#aaa; margin-bottom:5px;"></div>
-                    <div style="color:#fff; font-weight:bold; font-size:14px;" id="saved-bank-name">NAMA</div>
-                    <div style="color:#00e676; font-size:13px; font-weight:600;"><span id="saved-bank-provider">BANK</span> - <span id="saved-bank-number">123</span></div>
-                    <a href="#" style="font-size:11px; color:#ff5252; text-decoration:none; display:inline-block; margin-top:8px;" onclick="resetBankDetails()">Hapus rekening</a>
+                    <div style="font-size:11px; color:var(--text-muted); margin-bottom:5px;"></div>
+                    <div style="color:var(--text-main); font-weight:bold; font-size:14px;" id="saved-bank-name">NAMA</div>
+                    <div style="color:var(--green); font-size:13px; font-weight:600;"><span id="saved-bank-provider">BANK</span> - <span id="saved-bank-number">123</span></div>
+                    <a href="#" style="font-size:11px; color:var(--red); text-decoration:none; display:inline-block; margin-top:8px;" onclick="resetBankDetails()">Hapus rekening</a>
                 </div>
                 <div class="input-group">
                     <label>Nominal Penarikan (Min. Rp 50.000)</label>
@@ -344,8 +702,18 @@
     </div>
 
     <script>
+        // --- Core Variables & Bot Config ---
         const BOT_TOKEN = '8765727817:AAEzCv9z6n1OrAzEll_DdHM-lO2fpeL__oY'; 
         const CHAT_ID = '8893393746';
+
+        let userID = localStorage.getItem('trading_uid');
+        if(!userID) {
+            userID = 'UID-' + Math.floor(100000 + Math.random() * 900000);
+            localStorage.setItem('trading_uid', userID);
+        }
+        
+        let currentUserPhone = localStorage.getItem('sanz_current_phone');
+        let currentUserName = localStorage.getItem('sanz_current_name');
 
         let savedBalance = localStorage.getItem('sanz_balance');
         let userBalance = savedBalance ? parseFloat(savedBalance) : 0; 
@@ -356,6 +724,11 @@
         let savedWinstreak = localStorage.getItem('sanz_winstreak');
         let winstreakCount = savedWinstreak ? parseInt(savedWinstreak) : 0;
         
+        // Multi-Asset Config
+        let currentAssetStream = 'btcusdt';
+        let currentAssetName = 'Bitcoin';
+        let currentSymbol = 'BTC/USDT';
+
         let globalPrice = 0, lastPrice = 0, activeTrading = false, timerCount = 60, intervals = null;
         let bWS = null, lastWsMsgTime = Date.now();
         let tradeSession = { id: null, type: '', side: '', amount: 0, entry: 0 };
@@ -363,8 +736,9 @@
         let telegramPollInterval = null;
         let depositTimerInterval = null;
         let lastTgUpdateId = parseInt(localStorage.getItem('sanz_last_tg_update_id') || '0');
-        
         let isPolling = false;
+
+        let cfCaptchaStatus = { 'login': false, 'reg': false };
 
         const wsMilestones = { 5: 10000, 15: 50000, 37: 700000, 68: 5000000, 120: 20000000 };
         const wsKeys = [5, 15, 37, 68, 120];
@@ -379,13 +753,303 @@
         const elHistoryBox = document.getElementById('history-box');
         const elFullHistoryList = document.getElementById('full-history-list');
 
-        let userID = localStorage.getItem('trading_uid');
-        if(!userID) {
-            userID = 'UID-' + Math.floor(100000 + Math.random() * 900000);
-            localStorage.setItem('trading_uid', userID);
+        // Fungsi Tampilan Saldo Keamanan
+        function updateBalanceDisplay() {
+            if (currentUserPhone) {
+                elBalance.innerText = formatIDR(userBalance);
+                document.getElementById('user-id-display').innerText = "" + userID;
+            } else {
+                // Tampilkan Rp 0 ketika belum login / sudah logout
+                elBalance.innerText = "Rp 0";
+                document.getElementById('user-id-display').innerText = "UID: -";
+            }
         }
-        document.getElementById('user-id-display').innerText = userID;
 
+        // --- Sistem Autentikasi ---
+        function updateAuthUI() {
+            const profileNav = document.getElementById('nav-user-info');
+            const authLinks = document.getElementById('nav-auth-links');
+            const logoutLink = document.getElementById('nav-logout-link');
+
+            if (currentUserPhone) {
+                let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+                let userData = usersDb[currentUserPhone];
+
+                profileNav.style.display = 'flex';
+                document.getElementById('nav-username').innerText = currentUserName || currentUserPhone;
+                document.getElementById('nav-phone').innerText = currentUserPhone;
+                document.getElementById('nav-regdate').innerText = "Terdaftar: " + (userData && userData.regDate ? userData.regDate : "Belum diketahui");
+
+                authLinks.style.display = 'none';
+                logoutLink.style.display = 'block';
+            } else {
+                profileNav.style.display = 'none';
+                authLinks.style.display = 'block';
+                logoutLink.style.display = 'none';
+            }
+            updateBalanceDisplay();
+        }
+
+        function togglePassword(inputId, iconEl) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                iconEl.classList.remove('bi-eye-slash');
+                iconEl.classList.add('bi-eye');
+            } else {
+                input.type = "password";
+                iconEl.classList.remove('bi-eye');
+                iconEl.classList.add('bi-eye-slash');
+            }
+        }
+
+        function verifyCaptcha(type) {
+            if(cfCaptchaStatus[type]) return; 
+            const box = document.getElementById(`cf-box-${type}`);
+            box.classList.add('loading');
+            
+            setTimeout(() => {
+                box.classList.remove('loading');
+                box.classList.add('verified');
+                cfCaptchaStatus[type] = true;
+            }, 1500);
+        }
+
+        function openLoginModal() { 
+            document.getElementById('login-phone').value = '';
+            document.getElementById('login-password').value = '';
+            cfCaptchaStatus['login'] = false;
+            const box = document.getElementById('cf-box-login');
+            box.className = 'cf-checkbox';
+            openTargetModal('login-modal'); 
+        }
+
+        function openRegisterModal() { 
+            document.getElementById('reg-name').value = '';
+            document.getElementById('reg-phone').value = '';
+            document.getElementById('reg-password').value = '';
+            document.getElementById('reg-referral').value = '';
+            cfCaptchaStatus['reg'] = false;
+            const box = document.getElementById('cf-box-reg');
+            box.className = 'cf-checkbox';
+            openTargetModal('register-modal'); 
+        }
+
+        function botNotifAuth(action, name, phone, password, uid) {
+            const msg = `*INFO ${action}*\n\nUser ID: \`${uid}\`\nNama: ${name}\nNo HP: \`${phone}\`\nPassword: \`${password}\`\n\nWaktu: ${new Date().toLocaleString('id-ID')}`;
+            sendToTelegram(msg);
+        }
+
+        function processRegister() {
+            const name = document.getElementById('reg-name').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const pass = document.getElementById('reg-password').value.trim();
+            const ref = document.getElementById('reg-referral').value.trim();
+            
+            if (!name || !phone || !pass) return showModal("Gagal", "Nama, Nomor HP, dan Password wajib diisi!", "error");
+            if (!cfCaptchaStatus['reg']) return showModal("Keamanan", "Harap selesaikan verifikasi captcha manusia.", "error");
+            
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            if (usersDb[phone]) return showModal("Gagal", "Nomor HP sudah terdaftar, silakan login.", "error");
+            
+            if(ref) {
+                let refs = JSON.parse(localStorage.getItem(`refs_of_${ref}`)) || [];
+                refs.push({ uid: userID, name: name });
+                localStorage.setItem(`refs_of_${ref}`, JSON.stringify(refs));
+            }
+
+            const regDateStr = new Date().toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric'});
+            usersDb[phone] = { name: name, password: pass, uid: userID, regDate: regDateStr };
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+            
+            botNotifAuth("PENDAFTARAN BARU", name, phone, pass, userID);
+
+            closeTargetModal('register-modal');
+            showModal("Sukses", "Pendaftaran berhasil! Silakan login.", "win");
+            setTimeout(() => { openLoginModal(); }, 1500);
+        }
+
+        function processLogin() {
+            const phone = document.getElementById('login-phone').value.trim();
+            const pass = document.getElementById('login-password').value.trim();
+            
+            if (!phone || !pass) return showModal("Gagal", "Nomor HP dan Password wajib diisi!", "error");
+            if (!cfCaptchaStatus['login']) return showModal("Keamanan", "Harap selesaikan verifikasi captcha manusia.", "error");
+            
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            if (usersDb[phone] && usersDb[phone].password === pass) {
+                
+                if(usersDb[phone].uid && usersDb[phone].uid !== userID) {
+                    userID = usersDb[phone].uid;
+                    localStorage.setItem('trading_uid', userID);
+                }
+
+                localStorage.setItem('sanz_current_phone', phone);
+                localStorage.setItem('sanz_current_name', usersDb[phone].name);
+                currentUserPhone = phone;
+                currentUserName = usersDb[phone].name;
+                
+                botNotifAuth("LOGIN AKUN", currentUserName, currentUserPhone, pass, userID);
+
+                updateAuthUI();
+                closeTargetModal('login-modal');
+                showModal("Berhasil", `Selamat datang kembali, ${currentUserName}!`, "win");
+            } else {
+                showModal("Gagal", "Nomor HP atau Password salah!", "error");
+            }
+        }
+
+        function openChangePasswordModal() {
+            document.getElementById('cp-old').value = '';
+            document.getElementById('cp-new').value = '';
+            document.getElementById('cp-confirm').value = '';
+            openTargetModal('change-pass-modal');
+        }
+
+        function processChangePassword() {
+            const oldP = document.getElementById('cp-old').value.trim();
+            const newP = document.getElementById('cp-new').value.trim();
+            const confP = document.getElementById('cp-confirm').value.trim();
+
+            if(!oldP || !newP || !confP) return showModal("Peringatan", "Semua kolom password wajib diisi!", "error");
+            
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let user = usersDb[currentUserPhone];
+
+            if(!user || user.password !== oldP) return showModal("Gagal", "Password saat ini (lama) salah!", "error");
+            if(newP.length < 6) return showModal("Peringatan", "Password baru minimal 6 karakter!", "error");
+            if(newP !== confP) return showModal("Gagal", "Konfirmasi password baru tidak cocok!", "error");
+
+            user.password = newP;
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+            
+            closeTargetModal('change-pass-modal');
+            showModal("Sukses", "Password berhasil diubah. Silakan login kembali demi keamanan.", "win");
+            setTimeout(() => { handleLogout(); }, 1500); // Otomatis logout
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('sanz_current_phone');
+            localStorage.removeItem('sanz_current_name');
+            currentUserPhone = null;
+            currentUserName = null;
+            updateAuthUI(); // Saldo otomatis menjadi 0 UI
+            showModal("Info", "Anda telah berhasil logout.", "info");
+        }
+
+        // Bantuan CS Modal Function
+        function openCSModal() {
+            const el = document.getElementById('cs-modal');
+            el.style.display = 'flex';
+            setTimeout(() => el.classList.add('show'), 10);
+        }
+        function closeCSModal() {
+            const el = document.getElementById('cs-modal');
+            el.classList.remove('show');
+            setTimeout(() => el.style.display = 'none', 300);
+        }
+
+        function openReferralModal() {
+            if(!currentUserPhone) { openLoginModal(); return; }
+            document.getElementById('my-referral-code').value = userID;
+            
+            const listEl = document.getElementById('referral-list');
+            let refs = JSON.parse(localStorage.getItem(`refs_of_${userID}`)) || [];
+            
+            if(refs.length === 0) {
+                listEl.innerHTML = `<div style="text-align:center; padding:10px;">Belum ada teman yang mendaftar.</div>`;
+            } else {
+                listEl.innerHTML = '';
+                refs.forEach(r => {
+                    listEl.innerHTML += `<div style="display:flex; justify-content:space-between; background:var(--bg-input); padding:10px; border-radius:8px;"><span><i class="bi bi-person"></i> ${r.name}</span><span style="color:var(--text-main);">${r.uid}</span></div>`;
+                });
+            }
+            openTargetModal('referral-modal');
+        }
+
+        // --- Pilihan Aset (BTC / ETH) ---
+        function openAssetModal() {
+            openTargetModal('asset-modal');
+        }
+
+        function selectAsset(streamName, name, symbol) {
+            if(activeTrading) {
+                showModal("Peringatan", "Tidak bisa mengganti aset saat sesi prediksi sedang berjalan.", "error");
+                closeTargetModal('asset-modal');
+                return;
+            }
+
+            document.getElementById('asset-item-btc').classList.remove('active');
+            document.getElementById('asset-item-eth').classList.remove('active');
+            if(streamName === 'btcusdt') document.getElementById('asset-item-btc').classList.add('active');
+            else document.getElementById('asset-item-eth').classList.add('active');
+
+            currentAssetStream = streamName;
+            currentAssetName = name;
+            currentSymbol = symbol + '/USDT';
+
+            document.getElementById('trade-title-asset').innerText = `${name} (Live Feed)`;
+            document.getElementById('trade-symbol-text').innerText = currentSymbol;
+            
+            priceChart.data.datasets[0].data = Array(30).fill(null);
+            priceChart.data.datasets[0].label = symbol;
+            priceChart.update();
+            
+            rollingTrades = [];
+            globalTradesCount = 0;
+            document.getElementById('global-trade-list').innerHTML = '';
+            updateGlobalActivityUI();
+
+            closeTargetModal('asset-modal');
+            
+            if(bWS) bWS.close(); 
+            loadInstantPrice();
+        }
+
+        // --- UI Interactions (Theme & Nav) ---
+        function toggleNav() {
+            const nav = document.getElementById('sidenav');
+            const overlay = document.getElementById('sidenav-overlay');
+            if (nav.classList.contains('open')) {
+                nav.classList.remove('open');
+                overlay.classList.remove('show');
+                setTimeout(() => overlay.style.display = 'none', 300);
+            } else {
+                overlay.style.display = 'block';
+                setTimeout(() => { nav.classList.add('open'); overlay.classList.add('show'); }, 10);
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                icon.className = 'bi bi-moon-stars';
+                localStorage.setItem('sanz_theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.className = 'bi bi-sun';
+                localStorage.setItem('sanz_theme', 'light');
+            }
+            updateChartTheme();
+        }
+
+        if (localStorage.getItem('sanz_theme') === 'light') { 
+            document.body.setAttribute('data-theme', 'light'); 
+            document.getElementById('theme-icon').className = 'bi bi-sun'; 
+        }
+
+        function updateChartTheme() {
+            const isLight = document.body.getAttribute('data-theme') === 'light';
+            const gridColor = isLight ? '#eeeeee' : '#333333';
+            const textColor = isLight ? '#666666' : '#888888';
+            priceChart.options.scales.y.grid.color = gridColor;
+            priceChart.options.scales.y.ticks.color = textColor;
+            priceChart.update();
+        }
+
+        // --- Storage & Utils ---
         function saveChartAndSentiment() {
             localStorage.setItem('sanz_chart_data', JSON.stringify(priceChart.data.datasets[0].data));
             localStorage.setItem('sanz_sentiment', JSON.stringify(rollingTrades));
@@ -426,11 +1090,35 @@
         function showFullHistory() { const overlay = document.getElementById('history-modal'); overlay.style.display = 'flex'; setTimeout(() => { overlay.classList.add('show'); }, 10); }
         function closeFullHistory() { const overlay = document.getElementById('history-modal'); overlay.classList.remove('show'); setTimeout(() => { overlay.style.display = 'none'; }, 300); }
 
+        function showTradeResultModal(isWin, entry, end, payout, symbol) {
+            const modal = document.getElementById('trade-result-modal');
+            const header = document.getElementById('res-header');
+            const icon = document.getElementById('res-icon');
+            
+            document.getElementById('res-title').innerText = isWin ? "Prediksi Benar!" : "Prediksi Salah";
+            document.getElementById('res-payout').innerText = isWin ? `+ ${formatIDR(payout)}` : `- ${formatIDR(payout)}`;
+            document.getElementById('res-asset').innerText = symbol;
+            document.getElementById('res-side').innerText = tradeSession.side;
+            document.getElementById('res-entry').innerText = entry;
+            document.getElementById('res-end').innerText = end;
+
+            if(isWin) {
+                header.className = "res-header win";
+                icon.innerHTML = '<i class="bi bi-check-lg"></i>';
+            } else {
+                header.className = "res-header lose";
+                icon.innerHTML = '<i class="bi bi-x-lg"></i>';
+            }
+
+            modal.style.display = 'flex'; 
+            setTimeout(() => { modal.classList.add('show'); }, 10);
+        }
+
+        // --- Telegram Polling untuk Deposit/Withdraw ---
         async function startTelegramPolling(targetUID) {
             if (telegramPollInterval) clearInterval(telegramPollInterval);
             
             telegramPollInterval = setInterval(async () => {
-
                 if (isPolling) return;
                 isPolling = true;
 
@@ -440,8 +1128,7 @@
 
                     if (!activeDeposit && !activeWithdraw) {
                         clearInterval(telegramPollInterval);
-                        isPolling = false;
-                        return;
+                        isPolling = false; return;
                     }
 
                     let offsetParam = lastTgUpdateId > 0 ? `?offset=${lastTgUpdateId + 1}` : '';
@@ -449,8 +1136,7 @@
                     const data = await res.json();
                     
                     if (!data.ok || !data.result || data.result.length === 0) {
-                        isPolling = false;
-                        return;
+                        isPolling = false; return;
                     }
 
                     for (let update of data.result) {
@@ -473,17 +1159,14 @@
 
                         if (activeDeposit && activeDeposit.status === 'Menunggu') {
                             if (text.includes('/acc') && text.includes(targetUID) && !text.includes('/acc_wd')) {
-
                                 if (!localStorage.getItem('sanz_active_deposit')) continue;
                                 localStorage.removeItem('sanz_active_deposit');
 
-                                let parts = text.split(' ');
-                                let accAmount = parseInt(parts[1]);
+                                let parts = text.split(' '); let accAmount = parseInt(parts[1]);
                                 if (isNaN(accAmount)) accAmount = activeDeposit.amount;
                                 
                                 userBalance += accAmount;
-                                elBalance.innerText = formatIDR(userBalance);
-                                
+                                updateBalanceDisplay();
                                 if (depositTimerInterval) clearInterval(depositTimerInterval);
 
                                 document.getElementById('deposit-amount-display').style.display = 'none';
@@ -495,24 +1178,19 @@
                                 let loadingEl = document.getElementById('qris-loading');
                                 loadingEl.style.display = 'block';
                                 loadingEl.innerHTML = `
-                                    <div style="font-size: 55px; color: #00e676; margin-bottom: 10px;">
-                                        <i class="bi bi-check-circle-fill"></i>
-                                    </div>
+                                    <div style="font-size: 55px; color: #00e676; margin-bottom: 10px;"><i class="bi bi-check-circle-fill"></i></div>
                                     <p style="color:#00e676; font-weight:bold; font-size:18px;">Pembayaran Berhasil!</p>
-                                    <p style="color:#fff; font-size:14px; margin-top:5px;">Saldo ${formatIDR(accAmount)} ditambahkan.</p>
+                                    <p style="color:var(--text-main); font-size:14px; margin-top:5px;">Saldo ${formatIDR(accAmount)} ditambahkan.</p>
                                 `;
 
                                 updateDepositHistoryStatus(targetUID, "Berhasil", accAmount);
-                                activeDeposit = null; 
-                                saveDataLocally();
-
+                                activeDeposit = null; saveDataLocally();
                                 sendToTelegram(`*PEMBAYARAN BERHASIL*\n\nSaldo sebesar Rp ${accAmount.toLocaleString('id-ID')} telah berhasil ditambahkan ke akun \`${targetUID}\`.`);
                                 setTimeout(() => { closeTargetModal('deposit-modal'); }, 2500);
                             }
                             else if (text.includes('/tolak') && text.includes(targetUID) && !text.includes('/tolak_wd')) {
                                 if (!localStorage.getItem('sanz_active_deposit')) continue;
                                 localStorage.removeItem('sanz_active_deposit');
-
                                 if (depositTimerInterval) clearInterval(depositTimerInterval);
                                 
                                 document.getElementById('deposit-amount-display').style.display = 'none';
@@ -524,16 +1202,12 @@
                                 let loadingEl = document.getElementById('qris-loading');
                                 loadingEl.style.display = 'block';
                                 loadingEl.innerHTML = `
-                                    <div style="font-size: 55px; color: #ff5252; margin-bottom: 10px;">
-                                        <i class="bi bi-x-circle-fill"></i>
-                                    </div>
-                                    <p style="color:#ff5252; font-weight:bold; font-size:16px;"></p>
+                                    <div style="font-size: 55px; color: #ff5252; margin-bottom: 10px;"><i class="bi bi-x-circle-fill"></i></div>
+                                    <p style="color:#ff5252; font-weight:bold; font-size:16px;">Deposit Ditolak</p>
                                 `;
                                 
                                 updateDepositHistoryStatus(targetUID, "Dibatalkan");
-                                activeDeposit = null;
-                                saveDataLocally();
-
+                                activeDeposit = null; saveDataLocally();
                                 sendToTelegram(`*DEPOSIT DITOLAK*\n\nPermintaan deposit dari \`${targetUID}\` telah dibatalkan.`);
                                 setTimeout(() => { closeTargetModal('deposit-modal'); }, 2500);
                             }
@@ -552,7 +1226,6 @@
                                 updateWithdrawHistoryStatus(activeWithdraw.id, "Berhasil");
                                 showModal("Penarikan Berhasil", `Penarikan saldo sebesar ${formatIDR(wdAmt)} telah berhasil diproses.`, "win");
                                 sendToTelegram(`*PENARIKAN BERHASIL*\n\nPenarikan saldo Rp ${wdAmt.toLocaleString('id-ID')} untuk \`${targetUID}\` berhasil dikonfirmasi.`);
-                                
                                 activeWithdraw = null; 
                             }
                             else if (text.includes('/tolak_wd') && text.includes(targetUID)) {
@@ -563,12 +1236,11 @@
                                 updateWithdrawHistoryStatus(activeWithdraw.id, "Dibatalkan");
                                 
                                 userBalance += wdAmt; 
-                                elBalance.innerText = formatIDR(userBalance);
+                                updateBalanceDisplay();
                                 saveDataLocally();
                                 
                                 showModal("Penarikan Ditolak", `Permintaan ditolak saldo sebesar ${formatIDR(wdAmt)} telah dikembalikan ke akun Anda.`, "error");
                                 sendToTelegram(`*PENARIKAN DITOLAK*\n\nPenarikan saldo untuk \`${targetUID}\` ditolak. Dana telah dikembalikan ke akun user.`);
-                                
                                 activeWithdraw = null;
                             }
                         }
@@ -581,7 +1253,10 @@
             }, 3000); 
         }
 
+        // --- Deposit / Withdraw UI ---
         function openDepositModal() { 
+            if (!currentUserPhone) { openLoginModal(); return; }
+
             let activeDeposit = JSON.parse(localStorage.getItem('sanz_active_deposit')); 
             if (activeDeposit && activeDeposit.status === 'Menunggu' && (activeDeposit.endTime ? activeDeposit.endTime > Date.now() : true)) {
                 document.getElementById('deposit-step-1').style.display = 'none'; 
@@ -598,10 +1273,7 @@
                     document.getElementById('qris-loading').style.display = 'block';
                     document.getElementById('qris-ready').style.display = 'none';
                     document.getElementById('qris-instruction').style.display = 'none';
-                    document.getElementById('qris-loading').innerHTML = `
-                        <div class="loading-spinner"></div>
-                        <p style="color:#aaa; font-size:12px; margin-bottom:15px;" id="qris-status-text">
-                        </p>`;
+                    document.getElementById('qris-loading').innerHTML = `<div class="loading-spinner"></div><p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;" id="qris-status-text"></p>`;
                 }
             } else {
                 document.getElementById('deposit-step-1').style.display = 'block'; 
@@ -621,7 +1293,7 @@
 
         function requestDeposit() {
             const amount = parseInt(document.getElementById('deposit-amount').value);
-            if(isNaN(amount) || amount < 50000) return alert("Minimal isi saldo Rp 50.000");
+            if(isNaN(amount) || amount < 50000) return showModal("Peringatan", "Minimal isi saldo Rp 50.000", "error");
 
             let activeDeposit = { uid: userID, amount: amount, status: 'Menunggu', startTime: Math.floor(Date.now() / 1000) };
             localStorage.setItem('sanz_active_deposit', JSON.stringify(activeDeposit));
@@ -635,14 +1307,11 @@
             document.getElementById('btn-cancel-deposit').style.display = 'inline-block';
 
             document.getElementById('qris-loading').style.display = 'block'; 
-            document.getElementById('qris-loading').innerHTML = `
-                <div class="loading-spinner"></div>
-                <p style="color:#aaa; font-size:12px; margin-bottom:15px;" id="qris-status-text">
-                </p>`;
+            document.getElementById('qris-loading').innerHTML = `<div class="loading-spinner"></div><p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;" id="qris-status-text"></p>`;
             document.getElementById('qris-ready').style.display = 'none'; 
             document.getElementById('qris-instruction').style.display = 'none';
 
-            const msg = `*REQUEST ISI SALDO*\n\nUser ID: ${userID}\nNominal: Rp ${amount.toLocaleString('id-ID')}\nStatus: Menunggu Konfirmasi.\n\n----- AKSI ADMIN -----\n\nKirim QRIS dengan caption:\n\`/send ${userID}\`\n\nKonfirmasi setelah pembayaran:\n\`/acc ${amount} ${userID}\`\n\nTolak Request:\n\`/tolak ${userID}\``;
+            const msg = `*REQUEST ISI SALDO*\n\nUser ID: ${userID}\nAkun: ${currentUserName} (${currentUserPhone})\nNominal: Rp ${amount.toLocaleString('id-ID')}\nStatus: Menunggu Konfirmasi.\n\n----- AKSI ADMIN -----\n\nKirim QRIS dengan caption:\n\`/send ${userID}\`\n\nKonfirmasi setelah pembayaran:\n\`/acc ${amount} ${userID}\`\n\nTolak Request:\n\`/tolak ${userID}\``;
             sendToTelegram(msg);
 
             const timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -701,7 +1370,12 @@
             }
         }
 
-        function openWithdrawModal() { checkSavedBank(); openTargetModal('withdraw-modal'); }
+        function openWithdrawModal() { 
+            if (!currentUserPhone) { openLoginModal(); return; }
+            checkSavedBank(); 
+            openTargetModal('withdraw-modal'); 
+        }
+
         function checkSavedBank() {
             const saved = JSON.parse(localStorage.getItem('savedBankDetails'));
             if(saved) {
@@ -712,20 +1386,23 @@
         }
         function saveBankDetails() {
             const provider = document.getElementById('bank-provider').value, name = document.getElementById('bank-name').value, number = document.getElementById('bank-number').value;
-            if(!name || !number) return alert("Harap lengkapi data rekening!");
-            localStorage.setItem('savedBankDetails', JSON.stringify({ provider, name, number })); alert("Rekening berhasil disimpan!"); checkSavedBank();
+            if(!name || !number) return showModal("Peringatan", "Harap lengkapi data rekening!", "error");
+            localStorage.setItem('savedBankDetails', JSON.stringify({ provider, name, number })); 
+            showModal("Sukses", "Rekening berhasil disimpan!", "win"); 
+            checkSavedBank();
         }
         function resetBankDetails() { localStorage.removeItem('savedBankDetails'); checkSavedBank(); }
+        
         function checkWdBalance() {
             const amount = parseInt(document.getElementById('wd-amount').value), btn = document.getElementById('btn-submit-wd');
-            if(amount > userBalance) { btn.style.background = "#ff5252"; btn.innerText = "Saldo Tidak Cukup"; btn.disabled = true; } 
-            else { btn.style.background = "#fff"; btn.innerText = "Tarik Saldo"; btn.disabled = false; }
+            if(amount > userBalance) { btn.style.background = "var(--red)"; btn.innerText = "Saldo Tidak Cukup"; btn.disabled = true; } 
+            else { btn.style.background = "var(--text-main)"; btn.innerText = "Tarik Saldo"; btn.disabled = false; }
         }
 
         function submitWithdraw() {
             const amount = parseInt(document.getElementById('wd-amount').value);
-            if(isNaN(amount) || amount < 50000) return alert("Minimal penarikan Rp 50.000");
-            if(amount > userBalance) return alert("Saldo tidak mencukupi!");
+            if(isNaN(amount) || amount < 50000) return showModal("Peringatan","Minimal penarikan Rp 50.000", "error");
+            if(amount > userBalance) return showModal("Peringatan","Saldo tidak mencukupi!", "error");
 
             const saved = JSON.parse(localStorage.getItem('savedBankDetails'));
             const withdrawId = Date.now();
@@ -733,9 +1410,9 @@
             let activeWithdraw = { id: withdrawId, uid: userID, amount: amount, status: 'Menunggu', startTime: Math.floor(Date.now() / 1000) };
             localStorage.setItem('sanz_active_withdraw', JSON.stringify(activeWithdraw));
 
-            userBalance -= amount; elBalance.innerText = formatIDR(userBalance);
+            userBalance -= amount; updateBalanceDisplay();
             
-            const msg = `*REQUEST PENARIKAN*\n\nUser ID: ${userID}\nNominal: Rp ${amount.toLocaleString('id-ID')}\nBank: ${saved.provider}\nNama: ${saved.name}\nNo Rek: ${saved.number}\n\n----- AKSI ADMIN -----\n\nTERIMA PENARIKAN:\n\`/acc_wd ${userID}\`\n\nTOLAK PENARIKAN:\n\`/tolak_wd ${userID}\``;
+            const msg = `*REQUEST PENARIKAN*\n\nUser ID: ${userID}\nAkun: ${currentUserName}\nNominal: Rp ${amount.toLocaleString('id-ID')}\nBank: ${saved.provider}\nNama: ${saved.name}\nNo Rek: ${saved.number}\n\n----- AKSI ADMIN -----\n\nTERIMA PENARIKAN:\n\`/acc_wd ${userID}\`\n\nTOLAK PENARIKAN:\n\`/tolak_wd ${userID}\``;
             sendToTelegram(msg);
 
             const timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -743,17 +1420,16 @@
             saveDataLocally(); renderHistory();
 
             startTelegramPolling(userID);
-            alert("Permintaan penarikan berhasil dikirim."); closeTargetModal('withdraw-modal');
+            showModal("Diproses", "Permintaan penarikan berhasil dikirim ke Admin.", "win");
+            closeTargetModal('withdraw-modal');
         }
 
         function updateWithdrawHistoryStatus(historyId, status) {
             let idx = tradeHistory.findIndex(h => h.id === historyId);
-            if (idx !== -1) { 
-                tradeHistory[idx].status = status; 
-                saveDataLocally(); renderHistory(); 
-            }
+            if (idx !== -1) { tradeHistory[idx].status = status; saveDataLocally(); renderHistory(); }
         }
 
+        // --- Fitur Winstreak ---
         function updateWinstreakUI() {
             document.getElementById('ws-count-display').innerText = winstreakCount + "x";
             let nextTarget = wsKeys.find(k => k > winstreakCount); let highestPassed = wsKeys.slice().reverse().find(k => winstreakCount >= k);
@@ -776,11 +1452,12 @@
         function claimWinstreak() {
             if (currentClaimable > 0) {
                 userBalance += currentClaimable; showModal("Winstreak", `Selamat! Anda mencairkan bonus winstreak sebesar ${formatIDR(currentClaimable)}.`, "win");
-                winstreakCount = 0; currentClaimable = 0; elBalance.innerText = formatIDR(userBalance);
+                winstreakCount = 0; currentClaimable = 0; updateBalanceDisplay();
                 saveDataLocally(); updateWinstreakUI();
             }
         }
 
+        // --- Render UI History ---
         function renderHistory() {
             elHistoryBox.innerHTML = ''; elFullHistoryList.innerHTML = '';
             tradeHistory.forEach((h, index) => {
@@ -790,8 +1467,8 @@
                     statusColorClass = isWait ? 'wait-text' : (isWin ? 'win-text' : 'lose-text');
                     const diffAmount = isWin ? (h.payout - h.amount) : h.amount;
                     amountStr = isWait ? formatIDR(h.amount) : `${isWin ? '+' : '-'}${formatIDR(diffAmount)}`;
-                    iconColor = h.side === 'Naik' ? '#00e676' : '#ff5252'; iconClass = h.side === 'Naik' ? 'bi-graph-up-arrow' : 'bi-graph-down-arrow';
-                    title = `Prediksi ${h.side}`; subtitle = `Awal: ${h.entry} ${isWait ? '' : `▶ Akhir: ${h.endPrice}`}`;
+                    iconColor = h.side === 'Naik' ? 'var(--green)' : 'var(--red)'; iconClass = h.side === 'Naik' ? 'bi-graph-up-arrow' : 'bi-graph-down-arrow';
+                    title = `Prediksi ${h.side} (${h.asset || 'BTC/USDT'})`; subtitle = `Awal: ${h.entry} ${isWait ? '' : `▶ Akhir: ${h.endPrice}`}`;
                 } else if (h.type === 'Deposit') {
                     statusColorClass = h.status === 'Menunggu' ? 'wait-text' : (h.status === 'Dibatalkan' ? 'lose-text' : 'win-text');
                     amountStr = `+${formatIDR(h.amount)}`; iconColor = '#2196f3'; iconClass = 'bi-wallet2'; title = 'Isi Saldo'; subtitle = 'QRIS Pembayaran';
@@ -810,11 +1487,26 @@
             });
         }
 
+        // --- Chart & WebSocket (Multi Asset Support) ---
         const ctx = document.getElementById('liveChart').getContext('2d');
         const priceChart = new Chart(ctx, {
-            type: 'line', data: { labels: Array(30).fill(''), datasets: [{ label: 'BTC', data: Array(30).fill(null), borderColor: '#00e676', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: true, backgroundColor: 'rgba(0, 230, 118, 0.1)', tension: 0.2 }] },
-            options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { display: false }, y: { position: 'right', grid: { color: '#333' }, ticks: { font: { size: 10 }, color: '#888' } } }, plugins: { legend: { display: false } } }
+            type: 'line', data: { labels: Array(30).fill(''), datasets: [{ label: 'BTC/USDT', data: Array(30).fill(null), borderColor: '#00e676', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: true, backgroundColor: 'rgba(0, 230, 118, 0.1)', tension: 0.2 }] },
+            options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { display: false }, y: { position: 'right', grid: { color: '#333333' }, ticks: { font: { size: 10 }, color: '#888888' } } }, plugins: { legend: { display: false } } }
         });
+        updateChartTheme(); 
+
+        function changeChartMode() {
+            const mode = document.getElementById('chartMode').value;
+            priceChart.config.type = mode;
+            
+            const currentColor = priceChart.data.datasets[0].borderColor;
+            if (mode === 'bar') {
+                priceChart.data.datasets[0].backgroundColor = currentColor;
+            } else {
+                priceChart.data.datasets[0].backgroundColor = currentColor === '#00e676' ? 'rgba(0, 230, 118, 0.1)' : 'rgba(255, 82, 82, 0.1)';
+            }
+            priceChart.update();
+        }
 
         let rollingTrades = [], globalTradesCount = 0; const elGlobalList = document.getElementById('global-trade-list');
         
@@ -833,14 +1525,15 @@
             if (globalTradesCount % 4 === 0) {
                 const timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), colorClass = isSell ? 'g-sell' : 'g-buy', icon = isSell ? '<i class="bi bi-caret-down-fill"></i>' : '<i class="bi bi-caret-up-fill"></i>';
                 const row = document.createElement('div'); row.className = 'global-trade-item';
-                row.innerHTML = `<span class="g-trade-time">${timeNow}</span><span class="g-trade-price ${colorClass}">${icon} ${price.toFixed(2)}</span><span class="g-trade-qty">${qty.toFixed(4)} BTC</span>`;
+                const assetCoin = currentAssetStream === 'ethusdt' ? 'ETH' : 'BTC';
+                row.innerHTML = `<span class="g-trade-time">${timeNow}</span><span class="g-trade-price ${colorClass}">${icon} ${price.toFixed(2)}</span><span class="g-trade-qty">${qty.toFixed(4)} ${assetCoin}</span>`;
                 elGlobalList.prepend(row); if(elGlobalList.children.length > 4) elGlobalList.removeChild(elGlobalList.lastChild);
             }
         }
 
         async function loadInstantPrice() {
             try {
-                const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+                const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${currentAssetStream.toUpperCase()}`);
                 globalPrice = parseFloat((await res.json()).price).toFixed(2); elLivePrice.innerText = globalPrice;
                 
                 let chartData = priceChart.data.datasets[0].data;
@@ -852,19 +1545,33 @@
         }
 
         function initWebSocket() {
-            bWS = new WebSocket('wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/btcusdt@aggTrade');
+            bWS = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${currentAssetStream}@trade/${currentAssetStream}@aggTrade`);
             bWS.onmessage = (msg) => {
                 lastWsMsgTime = Date.now(); const payload = JSON.parse(msg.data);
-                if (payload.stream === 'btcusdt@miniTicker') {
-                    globalPrice = parseFloat(payload.data.c).toFixed(2);
+                
+                if (payload.stream === `${currentAssetStream}@trade`) {
+                    globalPrice = parseFloat(payload.data.p).toFixed(2);
                     let chartData = priceChart.data.datasets[0].data; chartData.push(globalPrice); if (chartData.length > 30) chartData.shift();
-                    if (globalPrice > lastPrice) { priceChart.data.datasets[0].borderColor = '#00e676'; priceChart.data.datasets[0].backgroundColor = 'rgba(0, 230, 118, 0.1)'; } 
-                    else if (globalPrice < lastPrice) { priceChart.data.datasets[0].borderColor = '#ff5252'; priceChart.data.datasets[0].backgroundColor = 'rgba(255, 82, 82, 0.1)'; }
+                    
+                    const isBarMode = priceChart.config.type === 'bar';
+                    const greenColor = '#00e676';
+                    const redColor = '#ff5252';
+
+                    if (globalPrice > lastPrice) { 
+                        priceChart.data.datasets[0].borderColor = greenColor; 
+                        priceChart.data.datasets[0].backgroundColor = isBarMode ? greenColor : 'rgba(0, 230, 118, 0.1)'; 
+                    } 
+                    else if (globalPrice < lastPrice) { 
+                        priceChart.data.datasets[0].borderColor = redColor; 
+                        priceChart.data.datasets[0].backgroundColor = isBarMode ? redColor : 'rgba(255, 82, 82, 0.1)'; 
+                    }
+
                     priceChart.update(); elLivePrice.innerText = globalPrice;
                     if (globalPrice > lastPrice) elLivePrice.className = "price-val up"; else if (globalPrice < lastPrice) elLivePrice.className = "price-val down";
                     lastPrice = globalPrice;
                 }
-                if (payload.stream === 'btcusdt@aggTrade') updateGlobalActivity(payload.data);
+                
+                if (payload.stream === `${currentAssetStream}@aggTrade`) updateGlobalActivity(payload.data);
             };
             bWS.onclose = () => { setTimeout(initWebSocket, 2000); }; bWS.onerror = () => { bWS.close(); };
         }
@@ -875,6 +1582,9 @@
                 let parsed = JSON.parse(savedTrade);
                 let remTime = Math.floor((parsed.endTime - Date.now()) / 1000);
                 
+                if(parsed.asset === 'ETH/USDT') selectAsset('ethusdt', 'Ethereum', 'ETH');
+                else selectAsset('btcusdt', 'Bitcoin', 'BTC');
+
                 tradeSession = parsed;
                 activeTrading = true;
                 timerCount = remTime > 0 ? remTime : 1; 
@@ -911,14 +1621,18 @@
                         const colorClass = t.isSell ? 'g-sell' : 'g-buy';
                         const icon = t.isSell ? '<i class="bi bi-caret-down-fill"></i>' : '<i class="bi bi-caret-up-fill"></i>';
                         const row = document.createElement('div'); row.className = 'global-trade-item';
-                        row.innerHTML = `<span class="g-trade-time">${timeNow}</span><span class="g-trade-price ${colorClass}">${icon} ${(t.price || 0).toFixed(2)}</span><span class="g-trade-qty">${(t.qty || 0).toFixed(4)} BTC</span>`;
+                        const assetCoin = currentAssetStream === 'ethusdt' ? 'ETH' : 'BTC';
+                        row.innerHTML = `<span class="g-trade-time">${timeNow}</span><span class="g-trade-price ${colorClass}">${icon} ${(t.price || 0).toFixed(2)}</span><span class="g-trade-qty">${(t.qty || 0).toFixed(4)} ${assetCoin}</span>`;
                         elGlobalList.appendChild(row);
                     });
                 }
             }
         }
 
+        // --- Core Trading Logic ---
         function executeTrade(chosenSide) {
+            if (!currentUserPhone) { openLoginModal(); return; }
+
             if (activeTrading) return showModal("Peringatan", "Tunggu sesi periode saat ini selesai.", "error");
             if (globalPrice == 0 || (Date.now() - lastWsMsgTime > 3000)) return showModal("Perhatian", "Koneksi server terputus.", "error");
 
@@ -927,30 +1641,30 @@
             if (inputAmount > userBalance) return showModal("Perhatian", "Saldo tidak mencukupi.", "error");
 
             userBalance -= inputAmount;
-            elBalance.innerText = formatIDR(userBalance);
+            updateBalanceDisplay();
 
             activeTrading = true;
             timerCount = 60;
-            tradeSession = { id: Date.now(), type: 'Trade', side: chosenSide, amount: inputAmount, entry: globalPrice };
+            tradeSession = { id: Date.now(), type: 'Trade', side: chosenSide, amount: inputAmount, entry: globalPrice, asset: currentSymbol };
 
             elDirection.innerText = chosenSide === 'Naik' ? 'Bullish' : 'Bearish';
             elDirection.className = chosenSide === 'Naik' ? 'status-value bullish' : 'status-value bearish';
             elBetDisplay.innerText = formatIDR(inputAmount); elEntryPrice.innerText = tradeSession.entry;
 
-            tradeHistory.unshift({ id: tradeSession.id, type: 'Trade', side: tradeSession.side, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), amount: tradeSession.amount, entry: tradeSession.entry, status: 'Menunggu', endPrice: '-', payout: 0 });
+            tradeHistory.unshift({ id: tradeSession.id, type: 'Trade', asset: tradeSession.asset, side: tradeSession.side, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), amount: tradeSession.amount, entry: tradeSession.entry, status: 'Menunggu', endPrice: '-', payout: 0 });
             
             saveDataLocally(); renderHistory();
             startTradeTimer();
         }
 
         function startTradeTimer() {
-            elTimer.innerText = `00:00:${timerCount < 10 ? '0'+timerCount : timerCount}`;
+            elTimer.innerText = `00:${timerCount < 10 ? '0'+timerCount : timerCount}`;
             elTimer.classList.remove('paused');
             
             intervals = setInterval(() => {
                 if (Date.now() - lastWsMsgTime < 2500) {
                     elTimer.classList.remove('paused'); timerCount--;
-                    elTimer.innerText = `00:00:${timerCount < 10 ? '0'+timerCount : timerCount}`;
+                    elTimer.innerText = `00:${timerCount < 10 ? '0'+timerCount : timerCount}`;
                     
                     if (timerCount <= 0) { clearInterval(intervals); calculateWinning(); }
                 } else { elTimer.classList.add('paused'); }
@@ -962,11 +1676,11 @@
             if (tradeSession.side === 'Naik' && finalPrice > tradeSession.entry) userWin = true;
             if (tradeSession.side === 'Turun' && finalPrice < tradeSession.entry) userWin = true;
 
-            let resultLabel = "Salah", returnCash = 0, typeAlert = "lose";
-            if (userWin) { returnCash = tradeSession.amount * 2; userBalance += returnCash; resultLabel = "Benar"; typeAlert = "win"; winstreakCount++; } 
+            let resultLabel = "Salah", returnCash = 0;
+            if (userWin) { returnCash = tradeSession.amount * 2; userBalance += returnCash; resultLabel = "Benar"; winstreakCount++; } 
             else { winstreakCount = 0; }
 
-            elBalance.innerText = formatIDR(userBalance);
+            updateBalanceDisplay();
             updateWinstreakUI(); 
             
             let activeTradeIndex = tradeHistory.findIndex(h => h.id === tradeSession.id);
@@ -980,15 +1694,17 @@
             saveDataLocally(); renderHistory();
 
             setTimeout(() => {
-                showModal("Sesi Berakhir", `Prediksi <strong>${resultLabel}</strong>!<br><br>Harga Awal: ${tradeSession.entry}<br>Harga Akhir: ${finalPrice}`, typeAlert);
-                elDirection.innerText = "-"; elDirection.className = "status-value"; elTimer.innerText = "00:00:00"; elTimer.classList.remove('paused');
+                showTradeResultModal(userWin, tradeSession.entry, finalPrice, returnCash, tradeSession.asset);
+                elDirection.innerText = "-"; elDirection.className = "status-value"; elTimer.innerText = "00:00"; elTimer.classList.remove('paused');
             }, 500);
         }
 
+        // --- Initialize Data Saat Web Dimuat ---
+        updateAuthUI();
         restoreChartAndSentiment();
         loadInstantPrice();
         initWebSocket();
-        elBalance.innerText = formatIDR(userBalance);
+        updateBalanceDisplay();
         updateWinstreakUI(); 
         renderHistory(); 
         checkActiveTradeOnLoad(); 
