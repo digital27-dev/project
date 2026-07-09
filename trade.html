@@ -920,7 +920,7 @@
 
         function executeTrade(chosenSide) {
             if (activeTrading) return showModal("Peringatan", "Tunggu sesi periode saat ini selesai.", "error");
-            if (globalPrice == 0 || (Date.now() - lastWsMsgTime > 3000)) return showModal("Perhatian", "Koneksi harga terputus.", "error");
+            if (globalPrice == 0 || (Date.now() - lastWsMsgTime > 3000)) return showModal("Perhatian", "Koneksi server terputus.", "error");
 
             let inputAmount = parseInt(document.getElementById('bet-input').value);
             if (isNaN(inputAmount) || inputAmount < 10000) return showModal("Peringatan", "Minimal prediksi Rp 10.000", "error");
