@@ -880,7 +880,7 @@
   
         function requireLogin() {
             if (!currentUserPhone) {
-                showModal("Akses Ditolak", "Silakan Login atau Daftar Akun terlebih dahulu untuk mengakses fitur ini.", "error");
+                showModal("Akses Ditolak", "Silakan login atau daftar akun terlebih dahulu.", "error");
                 setTimeout(() => { closeInfoModal(); openLoginModal(); }, 2000);
                 return false;
             }
