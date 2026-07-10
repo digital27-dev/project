@@ -497,7 +497,7 @@
                 <div class="res-row"><span class="res-label">Nominal Taruhan</span><span class="res-val" id="tc-amount">Rp 0</span></div>
             </div>
             <div style="font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 15px;">Pastikan detail sudah benar transaksi yang berjalan tidak dapat dibatalkan.</div>
-            <button class="btn-modal" onclick="confirmTrade()">Konfirmasi Trade</button>
+            <button class="btn-modal" onclick="confirmTrade()">Konfirmasi</button>
             <button class="btn-modal btn-modal-outline" onclick="closeTargetModal('trade-confirm-modal')">Batal</button>
         </div>
     </div>
@@ -694,7 +694,7 @@
             </div>
             
             <div class="input-group">
-                <label>Kode Referensi Anda (UID)</label>
+                <label>Kode Referensi Anda</label>
                 <input type="text" id="my-referral-code" readonly style="color: var(--green); text-align: center; letter-spacing: 1px;">
             </div>
             
@@ -1521,7 +1521,7 @@
                 updateBalanceDisplay();
                 demoHistory.unshift({ id: trxId, type: 'Deposit', amount: amount, time: timeStr, status: 'Berhasil', info: 'Akun Demo' });
                 saveDataLocally(); renderHistory();
-                showModal("Sukses", `Saldo Demo berhasil ditambahkan: ${formatIDR(amount)}`, "win");
+                showModal("Sukses", `Saldo Demo berhasil ditambahkan ${formatIDR(amount)}`, "win");
                 closeTargetModal('deposit-modal');
             } else {
                 let activeDeposit = { id: trxId, uid: userID, amount: amount, status: 'Menunggu', startTime: Math.floor(Date.now() / 1000) };
@@ -1644,7 +1644,7 @@
                 demoBalance -= totalDeduct; updateBalanceDisplay();
                 demoHistory.unshift({ id: withdrawId, type: 'Withdraw', amount: amount, time: timeStr, status: 'Berhasil', info: 'Akun Demo' });
                 saveDataLocally(); renderHistory();
-                showModal("Berhasil", `Penarikan saldo demo sebesar ${formatIDR(amount)} berhasil.`, "win");
+                showModal("Berhasil", `Penarikan saldo demo sebesar ${formatIDR(amount)}`, "win");
                 closeTargetModal('withdraw-modal');
             } else {
                 let activeWithdraw = { id: withdrawId, uid: userID, amount: amount, status: 'Menunggu', startTime: Math.floor(Date.now() / 1000) };
