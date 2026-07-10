@@ -73,7 +73,6 @@
         .sidenav-menu a:hover { background: var(--bg-input); }
         .sidenav-menu i { font-size: 18px; color: var(--text-muted); }
         
-        /* Wrapper Auth Link Sidenav */
         #nav-auth-links, #nav-logout-link { display: none; flex-direction: column; gap: 15px; }
 
         /* --- CARDS & WIDGETS --- */
@@ -264,6 +263,20 @@
             66% { box-shadow: 0 0 30px green; } 100% { box-shadow: 0 0 30px white; }
         }
         .scan-instruction { font-size: 16px; font-weight: bold; color: var(--text-main); margin-bottom: 10px; transition: color 0.3s; }
+
+        /* --- NOTIFICATION STYLES (NEW) --- */
+        .toast-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; background: var(--bg-card); color: var(--text-main); padding: 15px; border-radius: 12px; box-shadow: 0 10px 30px var(--shadow); z-index: 10000; transition: top 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); border-left: 4px solid var(--green); display: flex; align-items: center; gap: 15px; }
+        .toast-notif.show { top: 20px; }
+        .toast-icon { font-size: 24px; color: var(--green); }
+        .toast-content { flex: 1; text-align: left; }
+        .toast-title { font-weight: 700; font-size: 14px; margin-bottom: 3px; color: var(--text-main); }
+        .toast-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+        
+        .notif-item { padding: 15px; border-bottom: 1px solid var(--border-color); text-align: left; display: flex; flex-direction: column; gap: 5px; }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-time { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+        .notif-text { font-size: 13px; color: var(--text-main); font-weight: 500; line-height: 1.5; }
+        .notif-unread { background: rgba(0, 230, 118, 0.05); border-left: 3px solid var(--green); }
     </style>
 </head>
 <body>
@@ -328,6 +341,10 @@
                 <i class="bi bi-search"></i>
                 <input type="text" id="display-asset-search" placeholder="Cari aset (cth: BTC)..." readonly>
             </div>
+            <button class="btn-icon" style="position:relative; margin-right: 15px;" onclick="openNotifModal()">
+                <i class="bi bi-bell"></i>
+                <span id="notif-badge" style="display:none; position:absolute; top:8px; right:6px; width:10px; height:10px; background:var(--red); border-radius:50%; box-shadow: 0 0 5px var(--red);"></span>
+            </button>
             <button class="btn-icon" onclick="toggleTheme()"><i class="bi bi-moon-stars" id="theme-icon"></i></button>
         </div>
 
@@ -435,6 +452,25 @@
                 <a onclick="showFullHistory()">Lihat Semua ></a>
             </div>
             <div class="history-list" id="history-box"></div>
+        </div>
+    </div>
+
+    <div id="toast-notif" class="toast-notif">
+        <div class="toast-icon"><i class="bi bi-info-circle-fill"></i></div>
+        <div class="toast-content">
+            <div class="toast-title">Pesan Global</div>
+            <div class="toast-desc" id="toast-msg">Notifikasi baru.</div>
+        </div>
+    </div>
+
+    <div id="notif-modal" class="modal-overlay">
+        <div class="modal-content" style="padding:0; overflow:hidden;">
+            <div style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="color:var(--text-main); margin:0;">Pusat Notifikasi</h3>
+                <button class="btn-icon" style="font-size: 20px;" onclick="closeTargetModal('notif-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div id="notif-list-container" style="max-height: 60vh; overflow-y: auto; background: var(--bg-card);">
+                </div>
         </div>
     </div>
 
@@ -903,6 +939,7 @@
                 loadUserData(null);
             }
             updateBalanceDisplay(); renderHistory(); updateWinstreakUI();
+            updateNotifBadge(); // Update badge notifikasi global saat auth diubah
         }
 
         function togglePassword(inputId, iconEl) {
@@ -1195,7 +1232,64 @@
             modal.style.display = 'flex'; setTimeout(() => { modal.classList.add('show'); }, 10);
         }
 
-        // --- Telegram Polling Master (Deposit, WD, Saldo, Blokir, Verif) ---
+        // --- SISTEM NOTIFIKASI GLOBAL (NEW) ---
+        function triggerGlobalNotif(msgText) {
+            if(!currentUserPhone) return;
+            
+            // Simpan Notif Ke Local Storage
+            let notifs = JSON.parse(localStorage.getItem('sanz_notifs_' + currentUserPhone)) || [];
+            let newNotif = { 
+                id: Date.now(), 
+                text: msgText, 
+                time: new Date().toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }), 
+                read: false 
+            };
+            notifs.unshift(newNotif);
+            localStorage.setItem('sanz_notifs_' + currentUserPhone, JSON.stringify(notifs));
+            
+            // Update Badge Lonceng
+            updateNotifBadge();
+
+            // Munculkan Toast Melayang
+            const toast = document.getElementById('toast-notif');
+            document.getElementById('toast-msg').innerText = msgText;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 5000);
+        }
+
+        function updateNotifBadge() {
+            if(!currentUserPhone) return;
+            let notifs = JSON.parse(localStorage.getItem('sanz_notifs_' + currentUserPhone)) || [];
+            let unread = notifs.some(n => !n.read);
+            document.getElementById('notif-badge').style.display = unread ? 'block' : 'none';
+        }
+
+        function openNotifModal() {
+            if(!requireLogin()) return;
+            
+            let notifs = JSON.parse(localStorage.getItem('sanz_notifs_' + currentUserPhone)) || [];
+            let listHtml = '';
+            
+            if (notifs.length === 0) {
+                listHtml = '<div style="padding:40px 20px; text-align:center; color:var(--text-muted); font-size:13px;"><i class="bi bi-bell-slash" style="font-size:30px; display:block; margin-bottom:10px;"></i>Belum ada notifikasi saat ini.</div>';
+            } else {
+                notifs.forEach(n => {
+                    listHtml += `
+                    <div class="notif-item ${n.read ? '' : 'notif-unread'}">
+                        <div class="notif-time"><i class="bi bi-clock"></i> ${n.time}</div>
+                        <div class="notif-text">${n.text}</div>
+                    </div>`;
+                    n.read = true; // Tandai sudah dibaca ketika dibuka
+                });
+                localStorage.setItem('sanz_notifs_' + currentUserPhone, JSON.stringify(notifs));
+            }
+            
+            document.getElementById('notif-list-container').innerHTML = listHtml;
+            updateNotifBadge(); // Hilangkan badge merah
+            openTargetModal('notif-modal');
+        }
+
+        // --- Telegram Polling Master (Deposit, WD, Saldo, Blokir, Verif, Command Bot Baru) ---
         async function startTelegramPolling() {
             if (telegramPollInterval) clearInterval(telegramPollInterval);
             
@@ -1218,6 +1312,28 @@
                         
                         let activeDeposit = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`)); 
                         let activeWithdraw = JSON.parse(localStorage.getItem(`sanz_active_withdraw_${currentUserPhone}`));
+
+                        // --- COMMAND /HELP (NEW) ---
+                        if (text === '/help') {
+                            const helpMsg = `*DAFTAR COMMAND ADMIN*\n\n` +
+                                            `/check [UID] - Cek saldo user\n` +
+                                            `/blokir [UID] - Blokir akun user\n` +
+                                            `/verif [UID] - Setujui verifikasi KTP\n` +
+                                            `/tolak_verif [UID] - Tolak verifikasi KTP\n` +
+                                            `/send [UID] + Foto - Kirim QRIS Deposit\n` +
+                                            `/acc [Nominal] [UID] - Setujui Deposit\n` +
+                                            `/tolak [UID] - Tolak Deposit\n` +
+                                            `/acc_wd [UID] - Setujui Penarikan\n` +
+                                            `/tolak_wd [UID] - Tolak Penarikan\n` +
+                                            `/notif all [Pesan] - Kirim notifikasi global`;
+                            sendToTelegram(helpMsg);
+                        }
+
+                        // --- COMMAND /NOTIF ALL (NEW) ---
+                        if (text.startsWith('/notif all ')) {
+                            let notifText = text.replace('/notif all ', '');
+                            triggerGlobalNotif(notifText);
+                        }
 
                         // Cek Admin Commands Global (Cek Saldo, Blokir, Verif, Tolak Verif)
                         if (text.includes('/check') && text.includes(userID)) {
@@ -1380,9 +1496,27 @@
             if (idx !== -1) { tradeHistory[idx].status = status; if (newAmount !== null) tradeHistory[idx].amount = newAmount; saveDataLocally(); renderHistory(); }
         }
 
+        // --- VERIFIKASI WAJIB UNTUK WITHDRAW (NEW) ---
         function openWithdrawModal() { 
             if (!requireLogin()) return;
             if (isUserBlocked()) return showModal("Terblokir", "Akun Anda diblokir, fitur withdraw dinonaktifkan.", "error");
+
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let userData = usersDb[currentUserPhone];
+            
+            // Cek Status Verifikasi Pengguna
+            if (!userData || !userData.isVerified) {
+                showModal("Verifikasi Diperlukan", "Mohon lakukan verifikasi identitas (KTP & Wajah) untuk dapat menarik saldo.", "error");
+                
+                // Secara otomatis memunculkan verifikasi KTP setelah modal error tertutup
+                setTimeout(() => {
+                    closeInfoModal();
+                    openKTPModal();
+                }, 2000);
+                
+                return;
+            }
+
             checkSavedBank(); openTargetModal('withdraw-modal'); 
         }
 
