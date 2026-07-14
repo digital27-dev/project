@@ -1372,9 +1372,9 @@
                     document.getElementById('nav-verif-icon').className = "bi bi-briefcase";
                     verifBtn.onclick = () => { toggleNav(); openTargetModal('reseller-verif-modal'); };
                 } else if (u.verifStatus === 'pending') {
-                    badge.innerText = "Antrean Pengecekan"; badge.className = "sidenav-profile-badge badge-unverified";
+                    badge.innerText = "Diproses"; badge.className = "sidenav-profile-badge badge-unverified";
                     verifBtn.style.display = "flex";
-                    document.getElementById('nav-verif-text').innerText = "Verifikasi KTP Diproses";
+                    document.getElementById('nav-verif-text').innerText = "Verifikasi Diproses";
                     document.getElementById('nav-verif-icon').className = "bi bi-hourglass";
                     verifBtn.onclick = () => { toggleNav(); showModal("Sedang Ditinjau", "Menunggu approval KTP Anda di Telegram.", "info"); };
                 } else if (u.verifStatus === 'rejected') {
