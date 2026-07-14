@@ -36,12 +36,18 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; transition: background 0.3s ease; scroll-behavior: smooth;}
-        
+  
+        body { background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; transition: background 0.3s ease; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; scroll-behavior: smooth;}
+
+        img {
+            -webkit-user-drag: none; 
+            pointer-events: none;   
+        }
+  
         .app-container { width: 100%; max-width: 480px; background-color: var(--bg-container); min-height: 100vh; position: relative; padding-top: 75px; padding-bottom: 30px; transition: background 0.3s ease; overflow-x: hidden;}
         
-        .top-bar { position: fixed; top: 0; width: 100%; max-width: 480px; height: 65px; background: rgba(28, 33, 45, 0.8); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; border-bottom: 1px solid var(--border-color); gap: 12px;}
-        [data-theme="light"] .top-bar { background: rgba(255, 255, 255, 0.9); }
+        .top-bar { position: fixed; top: 0; width: 100%; max-width: 480px; height: 65px; background: var(--bg-card); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: space-between; padding: 0 15px; z-index: 1000; border-bottom: 1px solid var(--border-color); gap: 12px;}
+        [data-theme="light"] .top-bar { background: var(--bg-card); }
         .btn-icon { background: transparent; border: none; color: var(--text-main); font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; position: relative; }
         .btn-icon:active { transform: scale(0.9); }
         
@@ -121,7 +127,7 @@
         .balance-header { position: relative; z-index: 1; margin-bottom: 20px; }
         .balance-label { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);}
         .balance-amount-wrapper { display: flex; align-items: center; gap: 15px; }
-        .balance-amount { font-size: 32px; font-weight: 800; letter-spacing: -1px; color: var(--text-main);}
+        .balance-amount { font-size: 27px; font-weight: 800; letter-spacing: -1px; color: var(--text-main);}
         
         .balance-actions { display: flex; gap: 12px; position: relative; z-index: 1; }
         .btn-action { flex: 1; padding: 12px; border-radius: 14px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.1s;}
@@ -152,7 +158,7 @@
             margin-bottom: 8px; border: 1px solid var(--border-color); 
             animation: slideInDown 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
-        .fake-ticker-icon { width: 35px; height: 35px; object-fit: contain; border-radius: 8px; background:#fff; padding: 4px;}
+        .fake-ticker-icon { width: 45px; height: 45px; object-fit: contain; border-radius: 8px; background:none; padding: 4px;}
         .fake-ticker-info { flex: 1; margin-left: 12px; }
         .fake-ticker-info h4 { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
         .fake-ticker-info p { font-size: 11px; color: var(--text-muted); }
@@ -163,7 +169,7 @@
         .status-success { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid var(--success); }
 
         /* Auto Slider Banners & App Info*/
-        .banner-slider-container { padding: 0 20px; margin-bottom: 25px; }
+        .banner-slider-container { display:none;padding: 0 20px; margin-bottom: 25px; }
         .banner-slider { overflow: hidden; border-radius: 16px; width: 100%; position: relative; }
         .banner-slides { display: flex; transition: transform 0.5s ease; width: 100%; }
         .banner-slides img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; border-radius: 16px; border: 1px solid var(--border-color); }
@@ -271,7 +277,7 @@
         /* Payment Gateway Methods */
         .payment-card { padding: 15px; border-radius: 14px; border: 2px solid var(--border-color); background: var(--bg-input); transition: all 0.2s; }
         .payment-card.active { border-color: var(--primary); background: rgba(59,130,246,0.05); }
-        .payment-card.disabled { opacity: 0.6; cursor: not-allowed; }
+        .payment-card.disabled { opacity: 0.8; cursor: not-allowed; }
         
         /* CF Captcha Modern Cloudflare Look */
         .cf-captcha-box { display: flex; align-items: center; justify-content: space-between; border: 1px solid #d3d3d3; background: #fafafa; padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; cursor: pointer; height: 70px; }
@@ -300,7 +306,7 @@
         .modal-overlay.show .help-modal-fullscreen { transform: translateY(0); }
         .help-header {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: var(--bg-container); border-bottom: 1px solid #e2e8f0;
+            padding: 15px 20px; background: var(--bg-container);
         }
         .help-iframe-view { flex: 1; width: 100%; height: 100%; border: none; }
         @keyframes blink-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
@@ -335,8 +341,8 @@
     <div id="maintenance-modal" class="modal-overlay" style="z-index: 99999; background: var(--bg-body);">
         <div style="text-align: center; padding: 20px;">
             <i class="bi bi-gear-wide-connected" style="font-size: 65px; color: var(--warning); display: block; margin-bottom: 20px; animation: spin 3s linear infinite;"></i>
-            <h2 style="margin-bottom: 10px; color: var(--text-main);">Sistem Maintenance</h2>
-            <p style="color: var(--text-muted); font-size: 14px; max-width: 300px; line-height: 1.5;">Sistem sedang dalam perbaikan, mohon maaf atas ketidaknyamanan ini.</p>
+            <h2 style="margin-bottom: 10px; color: var(--text-main);">Maintenance</h2>
+            <p style="color: var(--text-muted); font-size: 14px; max-width: 300px; line-height: 1.5;">Sistem sedang dalam perbaikan server.</p>
         </div>
     </div>
 
@@ -463,7 +469,7 @@
                 </div>
                 <div class="service-item" onclick="openPPOBModal('PDAM')">
                     <div class="service-icon"><i class="bi bi-droplet"></i></div>
-                    <div class="service-name">PDAM Air</div>
+                    <div class="service-name">PDAM</div>
                 </div>
                 <div class="service-item" onclick="openPPOBModal('BPJS')">
                     <div class="service-icon"><i class="bi bi-heart-pulse"></i></div>
@@ -483,7 +489,7 @@
                     <span id="flashsale-timer" style="font-size:11px; background:var(--danger); color:#fff; padding:4px 10px; border-radius:8px; font-weight:700;">-</span>
                 </div>
                 <div class="fs-header-right">
-                    <i class="bi bi-arrow-right-short" style="font-size: 24px; color: var(--primary); cursor: pointer;" onclick="showModal('Informasi','Promo flashsale khusus pengguna baru.', 'info')"></i>
+                    <i class="bi bi-arrow-right-short" style="font-size: 32px; color: var(--primary); cursor: pointer;" onclick="showModal('Informasi','Promo flashsale khusus pengguna baru.', 'info')"></i>
                 </div>
             </div>
             <div class="flashsale-grid">
@@ -539,7 +545,7 @@
         </div>
 
         <div class="services-section" id="section-fake-ticker">
-            <div class="section-title">Transaksi pengguna baru</div>
+            <div class="section-title">Transaksi Produk Digital</div>
             <div class="fake-ticker-container" id="fake-ticker-box">
                 </div>
         </div>
@@ -615,11 +621,11 @@
                 </div>
                 <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Telkom')">
                     <div class="service-icon"><i class="bi bi-telephone-fill"></i></div>
-                    <div class="service-name">Telkom / Indihome</div>
+                    <div class="service-name">Masa Aktif</div>
                 </div>
                 <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Internet')">
                     <div class="service-icon"><i class="bi bi-router"></i></div>
-                    <div class="service-name">Internet Non-Telkom</div>
+                    <div class="service-name">Wifi</div>
                 </div>
                 <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('PBB')">
                     <div class="service-icon"><i class="bi bi-buildings"></i></div>
@@ -731,7 +737,7 @@
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
-            <iframe src="https://smartpay-helpdesk.pages.dev" class="help-iframe-view"></iframe>
+            <iframe src="https://tawk.to/chat/69659e038167de198716f7e3/1jeqf2fkd" class="help-iframe-view"></iframe>
         </div>
     </div>
 
@@ -1000,7 +1006,7 @@
                     </div>
                     
                     <div id="qris-ready" class="qris-box" style="display:none; background:none;margin-bottom:15px;">
-                        <img id="qris-image-tag" src="" alt="QRIS" style="width:100%; max-width:480px;">
+                        <img id="qris-image-tag" src="" alt="QRIS" style="width:100%; max-width:480px;border-radius:12px">
                     </div>
                     
                     <div id="deposit-success-msg" style="display:none; margin: 20px 0;"></div>
@@ -1484,7 +1490,7 @@
             if (!name || !phone || !pass || !ref) return showModal("Perhatian", "Lengkapi seluruh data terlebih dahulu.", "error");
             if (name.length < 3) return showModal("Perhatian", "Pendaftaran nama lengkap minimal 3 karakter.", "error");
             if (phone.length < 10) return showModal("Perhatian", "Pendaftaran nomor handphone minimal 10 digit angka.", "error");
-            if (ref !== "57183") return showModal("Perhatian", "Kode referensi tidak valid.", "error");
+            if (ref !== "REF57183") return showModal("Perhatian", "Kode referensi tidak valid.", "error");
             if (!cfCaptchaStatus['reg']) return showModal("Perhatian", "Selesaikan verifikasi captcha terlebih dahulu.", "error");
             
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
@@ -1870,7 +1876,7 @@
 
         function openDownlineModal() {
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-            document.getElementById('downline-ref-code-text').innerText = `57183`;
+            document.getElementById('downline-ref-code-text').innerText = `REF57183`;
             
             let dwnBox = document.getElementById('downline-list-box');
             dwnBox.innerHTML = '';
@@ -1886,7 +1892,7 @@
                 }
             }
             if(count === 0) {
-                dwnBox.innerHTML = '<div style="text-align:center; font-size:12px; color:var(--text-muted); padding:10px 0;">Belum ada downline yang terafiliasi kode referensi UID Anda.</div>';
+                dwnBox.innerHTML = '<div style="text-align:center; font-size:12px;display:none; color:var(--text-muted); padding:10px 0;">Belum ada downline yang terafiliasi kode referensi UID Anda.</div>';
             }
             openTargetModal('downline-modal');
         }
@@ -2275,7 +2281,7 @@
                                 document.getElementById('deposit-success-msg').style.display = 'block';
                                 document.getElementById('deposit-success-msg').innerHTML = "<h3 style='color:var(--success);'>Pembayaran berhasil</h3>";
                                 document.getElementById('btn-cancel-deposit').style.display = 'none';
-                                addNotifToUser(currentUserPhone, `Setoran dana saldo wallet masuk senilai ${formatIDR(finalAmt)} terkonfirmasi valid.`);
+                                addNotifToUser(currentUserPhone, `isi saldo berhasil diproses senilai ${formatIDR(finalAmt)}`);
                             }
                             if (text.includes('/tolak') && text.includes(userID)) {
                                 localStorage.removeItem(`sanz_active_deposit_${currentUserPhone}`);
