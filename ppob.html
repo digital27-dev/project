@@ -83,7 +83,7 @@
         #nav-auth-links, #nav-logout-link { display: none; flex-direction: column; gap: 6px; }
 
         .security-protection-bar {
-            margin: 15px 20px 0 20px;
+            margin: 20px 20px 0 20px;
             background: linear-gradient(145deg, #1e2532 0%, #151a23 100%);
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 16px;
@@ -146,11 +146,11 @@
             from { transform: translateY(-20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        .fake-ticker-container { display: flex; flex-direction: column; }
+        .fake-ticker-container { margin-bottom:-7px;display: flex; flex-direction: column; }
         .fake-ticker-item { 
             display: flex; align-items: center; justify-content: space-between; 
             background: var(--bg-card); padding: 12px; border-radius: 12px; 
-            margin-bottom: 8px; border: 1px solid var(--border-color); 
+            margin-bottom: 10px; border: 1px solid var(--border-color); 
             animation: slideInDown 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
         .fake-ticker-icon { width: 45px; height: 45px; object-fit: contain; border-radius: 8px; background:none; padding: 4px;}
@@ -163,7 +163,7 @@
         .status-pending { background: rgba(245,158,11,0.1); color: var(--warning); border: 1px solid var(--warning); }
         .status-success { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid var(--success); }
 
-        .banner-slider-container { display:none;padding: 0 20px; margin-bottom: 25px; }
+        .banner-slider-container { padding: 0 20px; margin-bottom: 25px; }
         .banner-slider { overflow: hidden; border-radius: 16px; width: 100%; position: relative; }
         .banner-slides { display: flex; transition: transform 0.5s ease; width: 100%; }
         .banner-slides img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; border-radius: 16px; border: 1px solid var(--border-color); }
@@ -319,6 +319,53 @@
         
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+
+        .ref-card {
+           background: var(--bg-body);
+           padding: 20px;
+           border-radius: 20px;
+           color: var(--text-main);
+           margin-bottom: 20px;
+           text-align: center;
+         }
+
+         .ref-code-box {
+           background: var(--bg-card);
+           padding: 10px 20px;
+           border-radius: 12px;
+           display: inline-block;
+           font-weight: 800;
+           font-size: 18px;
+           letter-spacing: 1px;
+           margin-top: 10px;
+         }
+
+        .downline-item {
+           display: flex;
+           align-items: center;
+           padding: 15px;
+           background: var(--bg-card);
+           border: 1px solid var(--border-color);
+           border-radius: 16px;
+           margin-bottom: 10px;
+           transition: transform 0.2s;
+         }
+
+        .downline-icon {
+           width: 40px;
+           height: 40px;
+           background: rgba(59,130,246,0.1);
+           color: var(--primary);
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           border-radius: 12px;
+           font-size: 18px;
+           margin-right: 15px;
+         }
+
+         .downline-info h4 { font-size: 14px; margin-bottom: 2px; }
+         .downline-info p { font-size: 11px; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -358,6 +405,7 @@
             <a href="#" onclick="toggleNav(); showFullHistory();"><i class="bi bi-clock-history"></i> <span>Riwayat Transaksi</span></a>
             <a href="#" id="menu-downline" style="display: none;" onclick="toggleNav(); openDownlineModal();"><i class="bi bi-people"></i> <span>Menu Downline</span></a>
             <a href="#" id="menu-ubah-password" style="display: none;" onclick="toggleNav(); openChangePasswordModal();"><i class="bi bi-shield-lock"></i> <span>Ubah Password</span></a>
+            <a href="#" id="menu-ubah-pin" style="display: none;" onclick="toggleNav(); openChangePinModal();"><i class="bi bi-asterisk"></i> <span>Ubah PIN Transaksi</span></a>
             <a href="#" onclick="toggleNav(); openHelpModal();"><i class="bi bi-headset"></i> <span>Customer Support</span></a>
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
             
@@ -414,6 +462,13 @@
             </div>
         </div>
         
+        <div style="margin: -10px 20px -5px 20px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 8px 12px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; overflow: hidden;">
+            <i class="bi bi-exclamation-triangle-fill" style="flex-shrink: 0; font-size: 14px;"></i>
+            <marquee behavior="scroll" direction="left" scrollamount="4" style="flex: 1; margin-top: 2px;">
+                Hati-hati penipuan! Kami tidak pernah meminta kode OTP dan tidak ada layanan telepon silakan hubungi kami untuk bantuan.
+            </marquee>
+        </div>
+
         <div class="security-protection-bar" id="security-bar" style="display: none;">
             <div class="sec-icon-wrap"><i class="bi bi-shield-lock-fill"></i></div>
             <div class="sec-progress-container">
@@ -479,7 +534,7 @@
             </div>
             <div class="flashsale-grid">
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://cdn25.metrotvnews.com/content/2025/09/09/KvJCL6xJ/t_68bfe45e6ea64.jpg">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> CASHBACK</div>
                     </div>
                     <div class="fs-content">
@@ -491,7 +546,7 @@
                     </div>
                 </div>
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://cdn25.metrotvnews.com/content/2025/09/09/KvJCL6xJ/t_68bfe45e6ea64.jpg">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
                     </div>
                     <div class="fs-content">
@@ -503,7 +558,7 @@
                     </div>
                 </div>
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://cdn25.metrotvnews.com/content/2025/09/09/KvJCL6xJ/t_68bfe45e6ea64.jpg">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
                     </div>
                     <div class="fs-content">
@@ -515,7 +570,7 @@
                     </div>
                 </div>
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://cdn25.metrotvnews.com/content/2025/09/09/KvJCL6xJ/t_68bfe45e6ea64.jpg">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> RESELLER</div>
                     </div>
                     <div class="fs-content">
@@ -538,9 +593,9 @@
         <div class="banner-slider-container">
             <div class="banner-slider" id="auto-slider">
                 <div class="banner-slides" id="banner-slides">
-                    <img src="https://digital6301.wordpress.com/wp-content/uploads/2026/01/picsart_01-31-02.59.54.jpg" alt="Banner 1">
-                    <img src="https://digital6301.wordpress.com/wp-content/uploads/2026/01/picsart_01-20-12.56.49.jpg" alt="Banner 2">
-                    <img src="https://digital6301.wordpress.com/wp-content/uploads/2026/01/picsart_01-20-01.01.38.jpg" alt="Banner 3">
+                    <img src="https://img91.wordpress.com/wp-content/uploads/2026/07/13631.png" alt="Banner 1">
+                    <img src="https://img91.wordpress.com/wp-content/uploads/2026/07/13638.png" alt="Banner 2">
+                    <img src="https://img91.wordpress.com/wp-content/uploads/2026/07/13633.png" alt="Banner 3">
                 </div>
             </div>
         </div>
@@ -549,28 +604,28 @@
             <div class="section-title">PT Mitra Komunikasi Nusantara Tbk</div>
             <div class="app-info-grid">
                 <div class="info-card-app">
-                    <img src="https://ipol.id/wp-content/uploads/2024/12/logo-ojk.png" alt="OJK">
+                    <img src="https://img91.wordpress.com/wp-content/uploads/2026/07/logo-ojk.png" alt="OJK">
                     <div class="info-card-text">
                         <h5>Diawasi OJK</h5>
                         <p>Terdaftar resmi</p>
                     </div>
                 </div>
                 <div class="info-card-app">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_Lembaga_Penjamin_Simpanan_%282018%29_%28cropped%29.svg/250px-Logo_Lembaga_Penjamin_Simpanan_%282018%29_%28cropped%29.svg.png" alt="LPS">
+                    <img src="https://img91.wordpress.com/wp-content/uploads/2026/07/logo_lembaga_penjamin_simpanan_2018_cropped.svg_.webp" alt="LPS">
                     <div class="info-card-text">
                         <h5>Mitra LPS</h5>
                         <p>Dana dilindungi</p>
                     </div>
                 </div>
                 <div class="info-card-app">
-                    <img src="https://d29rr2wuoglkig.cloudfront.net/userfiles/brand%20pages/authorized-dist-badge-231006b.png" alt="Distributor">
+                    <img src="https://img91.wordpress.com/wp-content/uploads/2026/07/authorized-dist-badge-231006b.png" alt="Distributor">
                     <div class="info-card-text">
                         <h5>Distributor</h5>
                         <p>PPOB Nasional</p>
                     </div>
                 </div>
                 <div class="info-card-app">
-                    <img src="https://cdn-icons-png.flaticon.com/512/6553/6553484.png" alt="Asuransi">
+                    <img src="https://img91.wordpress.com/wp-content/uploads/2026/07/pngtree-medical-insurance-icon-flat-design-care-solutions-symbol-vector-png-image_20594850.png" alt="Asuransi">
                     <div class="info-card-text">
                         <h5>Asuransi</h5>
                         <p>Proteksi 100%</p>
@@ -757,6 +812,28 @@
         </div>
     </div>
 
+    <div id="change-pin-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Ubah PIN Transaksi</h3>
+                <button class="btn-icon" onclick="closeTargetModal('change-pin-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="input-group">
+                <label>PIN Lama</label>
+                <input type="password" id="old-pin-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan PIN lama">
+            </div>
+            <div class="input-group">
+                <label>PIN Baru</label>
+                <input type="password" id="new-pin-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan PIN baru (6 digit)">
+            </div>
+            <div class="input-group">
+                <label>Konfirmasi PIN Baru</label>
+                <input type="password" id="confirm-pin-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi PIN baru">
+            </div>
+            <button class="btn-modal" onclick="processChangePin()">Simpan PIN</button>
+        </div>
+    </div>
+
     <div id="login-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -853,6 +930,22 @@
         </div>
     </div>
 
+    <div id="reset-pin-nik-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Reset PIN Transaksi</h3>
+                <button class="btn-icon" onclick="closeTargetModal('reset-pin-nik-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Anda salah memasukkan PIN silakan verifikasi Nomor Induk Kependudukan (NIK KTP) Anda untuk mereset PIN transaksi.</p>
+            <div class="input-group">
+                <label>Nomor NIK KTP (16 Digit)</label>
+                <input type="number" id="reset-pin-nik-input" placeholder="Masukkan NIK Anda yang terdaftar">
+            </div>
+            <button class="btn-modal" onclick="processResetPinNik()">Verifikasi</button>
+            <button class="btn-modal btn-modal-danger" onclick="closeTargetModal('reset-pin-nik-modal'); showModal('Hubungi Bantuan','Jika Anda mengalami kendala atau NIK tidak sesuai harap hubungi Customer Support.','error')">Hubungi Bantuan</button>
+        </div>
+    </div>
+
     <div id="pin-setup-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -891,27 +984,29 @@
                 <h3>Verifikasi Reseller</h3>
                 <button class="btn-icon" onclick="closeTargetModal('reseller-verif-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="input-group"><label>Nama Lengkap / Bisnis (Sesuai NIK)</label><input type="text" id="res-corp-name" placeholder="Nama Lengkap / Bisnis"></div>
+            <div class="input-group"><label>Nama Lengkap Dokumen KTP</label><input type="text" id="res-corp-name" placeholder="Nama Lengkap"></div>
             <div class="input-group"><label>Nomor NIK KTP (16 Digit)</label><input type="number" id="res-nik-input" placeholder="Masukkan 16 Digit NIK"></div>
-            <div class="input-group"><label>Nomor NPWP Badan / Pribadi</label><input type="text" id="res-npwp" placeholder="Nomor NPWP Terdaftar"></div>
+            <div class="input-group"><label>Nomor NPWP Pribadi</label><input type="text" id="res-npwp" placeholder="Nomor NPWP Aktif"></div>
             <div class="input-group"><label>Surat Izin Usaha / Dokumen Pendukung</label><input type="file" id="res-doc" style="padding:10px; background:var(--bg-card);"></div>
             <button class="btn-modal" onclick="submitResellerVerification()">Kirim Berkas Verifikasi</button>
         </div>
     </div>
 
     <div id="downline-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Program referensi</h3>
-                <button class="btn-icon" onclick="closeTargetModal('downline-modal')"><i class="bi bi-x-lg"></i></button>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Program Referensi</h3>
+            <button class="btn-icon" onclick="closeTargetModal('downline-modal')"><i class="bi bi-x-lg"></i></button>
+        </div>
+
+        <div class="ref-card">
+            <div style="font-size: 12px; opacity: 0.9;">Kode Referensi Anda</div>
+            <div class="ref-code-box" id="downline-ref-code-text"></div>
+            <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">Dapatkan komisi Rp 50.000 setelah downline melakukan transaksi pertama.</div>
+        </div>
+
+        <div id="downline-list-box" style="display:flex; flex-direction:column; max-height:250px; overflow-y:auto;">
             </div>
-            <div style="background: var(--bg-input); padding:15px; border-radius:12px; margin-bottom:15px;">
-                <span style="font-size:12px; color:var(--text-muted);">Kode Referensi Anda</span>
-                <div style="font-weight:bold; color:var(--primary); font-size:14px; margin-top:4px;" id="downline-ref-code-text">Kode: -</div>
-                <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">*Dapatkan Komisi Rp 50.000 setelah downline melakukan transaksi.</div>
-            </div>
-            <div id="downline-list-box" style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto;">
-                </div>
         </div>
     </div>
 
@@ -1063,7 +1158,7 @@
                 <button class="btn-icon" onclick="closeTargetModal('verif-ktp-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
             <div class="input-group"><label>Nama Sesuai Dokumen KTP</label><input type="text" id="v-name" placeholder="Nama Lengkap"></div>
-            <div class="input-group"><label>Nomor NIK KTP (16 Digit Wajib)</label><input type="number" id="v-nik" placeholder="Masukkan 16 angka NIK KTP"></div>
+            <div class="input-group"><label>Nomor NIK KTP (16 Digit)</label><input type="number" id="v-nik" placeholder="Masukkan 16 angka NIK KTP"></div>
             <div class="input-group"><label>Unggah Gambar Foto Fisik KTP</label><input type="file" id="v-file" accept="image/*" style="padding:10px; background:var(--bg-card);"></div>
             <button class="btn-modal" onclick="proceedToFaceScan()">Konfirmasi</button>
         </div>
@@ -1124,6 +1219,7 @@
         let cartItem = null; 
         let currentPPOBService = '';
         let pendingPinCallback = null; 
+        let failedPinAttempts = 0; 
 
         function captureFaceFrame() {
             return new Promise((resolve) => {
@@ -1350,6 +1446,7 @@
             const badge = document.getElementById('nav-profile-badge');
             const verifBtn = document.getElementById('nav-verif-btn');
             const menuPwd = document.getElementById('menu-ubah-password');
+            const menuPin = document.getElementById('menu-ubah-pin');
             const menuDwn = document.getElementById('menu-downline');
             const secBar = document.getElementById('security-bar');
             const memberBadge = document.getElementById('nav-membership-badge');
@@ -1359,7 +1456,6 @@
                 let u = usersDb[currentUserPhone];
                 profileNav.style.display = 'flex';
                 menuPwd.style.display = 'flex';
-                secBar.style.display = 'flex';
                 memberBadge.style.display = 'inline-flex';
                 document.getElementById('nav-username').innerText = u.name;
                 document.getElementById('nav-phone').innerText = currentUserPhone;
@@ -1375,12 +1471,11 @@
                 }
 
                 if(u.pinCode) {
-                    document.getElementById('sec-percentage').innerText = "100%";
-                    document.getElementById('sec-percentage').style.color = "var(--success)";
-                    document.getElementById('sec-progress-fill').style.width = "100%";
-                    document.getElementById('sec-progress-fill').classList.add('full');
-                    document.getElementById('btn-setup-pin').style.display = "none";
+                    secBar.style.display = "none";
+                    menuPin.style.display = 'flex';
                 } else {
+                    secBar.style.display = "flex";
+                    menuPin.style.display = 'none';
                     document.getElementById('sec-percentage').innerText = "80%";
                     document.getElementById('sec-percentage').style.color = "var(--warning)";
                     document.getElementById('sec-progress-fill').style.width = "80%";
@@ -1425,7 +1520,7 @@
                 loadUserData(currentUserPhone);
             } else {
                 profileNav.style.display = 'none'; authLinks.style.display = 'flex'; logoutLink.style.display = 'none';
-                menuPwd.style.display = 'none'; menuDwn.style.display = 'none'; secBar.style.display = 'none'; memberBadge.style.display = 'none';
+                menuPwd.style.display = 'none'; menuPin.style.display = 'none'; menuDwn.style.display = 'none'; secBar.style.display = 'none'; memberBadge.style.display = 'none';
                 loadUserData(null);
             }
             updateBalanceDisplay(); renderHistory(); checkMaintenance(); updateNotifBadge();
@@ -1454,6 +1549,7 @@
             openTargetModal('help-modal'); 
         }
         function openChangePasswordModal() { openTargetModal('change-password-modal'); }
+        function openChangePinModal() { openTargetModal('change-pin-modal'); }
 
         function getDeviceName() {
             const ua = navigator.userAgent.toLowerCase();
@@ -1594,12 +1690,32 @@
             document.getElementById('confirm-password-field').value = '';
         }
 
+        function processChangePin() {
+            const oldPin = document.getElementById('old-pin-field').value.trim();
+            const newPin = document.getElementById('new-pin-field').value.trim();
+            const confirmPin = document.getElementById('confirm-pin-field').value.trim();
+
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+            if(usersDb[currentUserPhone].pinCode !== oldPin) return showModal("Akses Ditolak", "PIN lama yang Anda masukkan keliru.", "error");
+            if(newPin.length !== 6 || isNaN(newPin)) return showModal("Sandi Lemah", "Minimal PIN baru berupa 6 digit angka.", "error");
+            if(newPin !== confirmPin) return showModal("Gagal Konfirmasi", "Konfirmasi PIN baru tidak cocok.", "error");
+
+            usersDb[currentUserPhone].pinCode = newPin;
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+
+            closeTargetModal('change-pin-modal');
+            showModal("Sukses Diubah", "PIN transaksi Anda sukses diperbarui.", "win");
+            document.getElementById('old-pin-field').value = '';
+            document.getElementById('new-pin-field').value = '';
+            document.getElementById('confirm-pin-field').value = '';
+        }
+
         function openPinSetupModal() { openTargetModal('pin-setup-modal'); }
         function processPinSetup() {
             const p1 = document.getElementById('pin-1').value.trim();
             const p2 = document.getElementById('pin-2').value.trim();
-            if(p1.length !== 6 || isNaN(p1)) return showModal("Format Salah", "PIN pengaman diwajibkan berupa 6 digit susunan angka.", "error");
-            if(p1 !== p2) return showModal("Tidak Cocok", "Isian konfirmasi pin kedua tidak selaras dengan yang pertama.", "error");
+            if(p1.length !== 6 || isNaN(p1)) return showModal("Format Salah", "PIN transaksi diwajibkan berupa 6 digit susunan angka.", "error");
+            if(p1 !== p2) return showModal("Tidak Cocok", "Konfirmasi PIN kedua tidak sama dengan yang pertama.", "error");
             
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
             usersDb[currentUserPhone].pinCode = p1;
@@ -1609,24 +1725,65 @@
             showModal("Berhasil", "Tingkat keamanan akun Anda naik menjadi 100% Proteksi Optimal.", "win");
         }
 
-        function challengeUserPinSystem(successCallback) {
+        function processResetPinNik() {
+            const nik = document.getElementById('reset-pin-nik-input').value.trim();
+            if(nik.length !== 16) return showModal("Format NIK", "Masukkan NIK dengan format 16 digit angka yang benar.", "error");
+
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
             let u = usersDb[currentUserPhone];
-            if(u && u.pinCode) {
-                pendingPinCallback = successCallback;
-                document.getElementById('auth-pin-input').value = '';
-                openTargetModal('pin-auth-modal');
-            } else { successCallback(); }
+            
+            if (u.nik && u.nik === nik) {
+                u.pinCode = null;
+                localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                closeTargetModal('reset-pin-nik-modal');
+                document.getElementById('reset-pin-nik-input').value = '';
+                updateAuthUI();
+                showModal("Berhasil", "Berhasil direset silakan kembali buat PIN transaksi Anda.", "win");
+            } else {
+                closeTargetModal('reset-pin-nik-modal');
+                document.getElementById('reset-pin-nik-input').value = '';
+                showModal("Validasi Gagal", "NIK tidak sesuai dengan data yang terdaftar hubungi bantuan customer support untuk mereset.", "error");
+            }
         }
 
+        function challengeUserPinSystem(successCallback) {
+          let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+          let u = usersDb[currentUserPhone];
+          if(u && u.pinCode) {
+          pendingPinCallback = successCallback;
+          failedPinAttempts = 0; 
+          document.getElementById('auth-pin-input').value = '';
+          openTargetModal('pin-auth-modal');
+        } else { successCallback(); }
+     }
+
         function verifyPinAction() {
-            const pinVal = document.getElementById('auth-pin-input').value.trim();
-            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-            if(usersDb[currentUserPhone].pinCode === pinVal) {
-                closeTargetModal('pin-auth-modal');
-                if(pendingPinCallback) { pendingPinCallback(); pendingPinCallback = null; }
-            } else { showModal("Perhatian", "Kesalahan PIN Otorisasi Pembayaran.", "error"); }
+        const pinVal = document.getElementById('auth-pin-input').value.trim();
+    
+    if (!pinVal) {
+        return showModal("Perhatian", "PIN Transaksi tidak boleh kosong.", "error");
+    }
+
+    let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+    
+    if(usersDb[currentUserPhone].pinCode === pinVal) {
+        closeTargetModal('pin-auth-modal');
+        if(pendingPinCallback) { pendingPinCallback(); pendingPinCallback = null; }
+    } else { 
+  
+        failedPinAttempts++;
+        let sisaPercobaan = 3 - failedPinAttempts;
+
+        if (failedPinAttempts >= 3) {
+            closeTargetModal('pin-auth-modal');
+            showModal("Otorisasi Terblokir", "Anda telah salah memasukkan PIN 3 kali berturut-turut! Silakan validasi NIK Anda untuk mereset PIN.", "error");
+            setTimeout(() => { openTargetModal('reset-pin-nik-modal'); }, 1800);
+        } else {
+            document.getElementById('auth-pin-input').value = ''; 
+            showModal("Otorisasi Gagal", `PIN yang Anda masukkan salah sisa ${sisaPercobaan}x percobaan.`, "error");
         }
+    }
+}
 
         function openPPOBModal(service) {
             if (!requireLogin()) return;
@@ -2146,9 +2303,9 @@
                                     usersDb[ph].isVerified = true;
                                     usersDb[ph].verifStatus = 'verified';
                                     localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-                                    addNotifToUser(ph, "Verifikasi berhasil! Akun Anda kini berstatus Verified.");
+                                    addNotifToUser(ph, "Verifikasi akun telah berhasil diproses.");
                                     if (ph === currentUserPhone) updateAuthUI();
-                                    sendToTelegram(`Pusat Kontrol: KTP UID \`${targetUid}\` berhasil diverifikasi.`);
+                                    sendToTelegram(`KTP \`${targetUid}\` berhasil diverifikasi.`);
                                     break;
                                 }
                             }
@@ -2161,9 +2318,9 @@
                                     usersDb[ph].isVerified = false;
                                     usersDb[ph].verifStatus = 'rejected';
                                     localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-                                    addNotifToUser(ph, "Verifikasi KTP Ditolak! Dokumen tidak valid atau buram. Silakan ajukan ulang.");
+                                    addNotifToUser(ph, "Verifikasi ditolak dokumen tidak valid atau buram silakan ajukan ulang.");
                                     if (ph === currentUserPhone) updateAuthUI();
-                                    sendToTelegram(`Pusat Kontrol: Verifikasi KTP UID \`${targetUid}\` ditolak.`);
+                                    sendToTelegram(`KTP \`${targetUid}\` ditolak.`);
                                     break;
                                 }
                             }
@@ -2177,8 +2334,8 @@
                                     usersDb[ph].resellerPendingRequest = false;
                                     localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
                                     if(ph === currentUserPhone) updateAuthUI();
-                                    addNotifToUser(ph, "Selamat! Akun Anda resmi menjadi Reseller.");
-                                    sendToTelegram(`Pusat Kontrol: UID \`${targetUid}\` sukses diangkat menjadi level Reseller Pro Premium.`);
+                                    addNotifToUser(ph, "Aktivasi akun telah berhasil diproses.");
+                                    sendToTelegram(`\`${targetUid}\` sukses diproses menjadi Reseller.`);
                                     break;
                                 }
                             }
@@ -2192,8 +2349,8 @@
                                     usersDb[ph].resellerPendingRequest = false;
                                     localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
                                     if(ph === currentUserPhone) updateAuthUI();
-                                    addNotifToUser(ph, "Mohon maaf status pengajuan Reseller Anda ditolak.");
-                                    sendToTelegram(`Status Reseller UID \`${targetUid}\` dicabut/ditolak. Kembali ke akun Standar.`);
+                                    addNotifToUser(ph, "Mohon maaf pengajuan reseller ditolak.");
+                                    sendToTelegram(`\`${targetUid}\` status reseller ditolak.`);
                                     break;
                                 }
                             }
@@ -2206,10 +2363,24 @@
                                 localStorage.removeItem(`sanz_bal_${targetPhone}`);
                                 localStorage.removeItem(`sanz_hist_${targetPhone}`);
                                 localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-                                sendToTelegram(`Database Wipe: Nomor \`${targetPhone}\` berhasil dihapus bersih.`);
+                                sendToTelegram(`Nomor \`${targetPhone}\` berhasil dihapus.`);
                                 if(targetPhone === currentUserPhone) handleLogout();
                             } else {
                                 sendToTelegram("Nomor handphone tidak diketemukan di database lokal cloud.");
+                            }
+                        }
+
+                        if(text.startsWith('/reset_pin ')) {
+                            let targetUid = text.replace('/reset_pin ', '').trim();
+                            for(let ph in usersDb) {
+                                if(usersDb[ph].uid === targetUid) {
+                                    usersDb[ph].pinCode = null;
+                                    localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                                    if(ph === currentUserPhone) updateAuthUI();
+                                    addNotifToUser(ph, "PIN transaksi telah direset.");
+                                    sendToTelegram(`PIN \`${targetUid}\` berhasil direset.`);
+                                    break;
+                                }
                             }
                         }
 
@@ -2221,7 +2392,7 @@
                                     localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
                                     if(ph === currentUserPhone) updateAuthUI();
                                     addNotifToUser(ph, "Akses fitur sudah tersedia.");
-                                    sendToTelegram(`Akses Bypass PPN / PPOB Reguler terbuka otomatis untuk UID \`${targetUid}\``);
+                                    sendToTelegram(`Akses reguler terbuka untuk \`${targetUid}\``);
                                     break;
                                 }
                             }
@@ -2234,8 +2405,8 @@
                                     usersDb[ph].hasTrxOverride = true;
                                     localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
                                     if(ph === currentUserPhone) updateAuthUI();
-                                    addNotifToUser(ph, "Fitur Transfer Dana telah dibuka secara manual karena verifikasi internal.");
-                                    sendToTelegram(`Pusat Kontrol: Status transaksi UID \`${targetUid}\` berhasil di-override (Fitur Transfer Dana Terbuka).`);
+                                    addNotifToUser(ph, "Fitur transfer telah diverifikasi.");
+                                    sendToTelegram(`Status transfer \`${targetUid}\` berhasil terbuka.`);
                                     break;
                                 }
                             }
@@ -2258,7 +2429,7 @@
                                         if(ph === currentUserPhone) { tradeHistory = hDb; renderHistory(); }
                                         
                                         addNotifToUser(ph, `Saldo sebesar ${formatIDR(nominal)} telah berhasil ditambahkan.`);
-                                        sendToTelegram(`Sukses menambahkan saldo sebesar Rp ${nominal.toLocaleString('id-ID')} menuju UID \`${targetUID}\`.`);
+                                        sendToTelegram(`Sukses menambahkan saldo sebesar Rp ${nominal.toLocaleString('id-ID')} \`${targetUID}\`.`);
                                         break;
                                     }
                                 }
@@ -2321,7 +2492,7 @@
                                 let idx = tradeHistory.findIndex(h => h.id === activeWd.id);
                                 if (idx !== -1) { tradeHistory[idx].status = 'Dibatalkan'; saveDataLocally(); renderHistory(); }
                                 userBalance += activeWd.amount; updateBalanceDisplay(); saveDataLocally();
-                                addNotifToUser(currentUserPhone, `Penarikan dana dibatalkan oleh system.`);
+                                addNotifToUser(currentUserPhone, `Penarikan dana dibatalkan oleh sistem.`);
                             }
                         }
                     }
@@ -2403,7 +2574,7 @@
         function openKTPModal() {
             if(!requireLogin()) return;
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-            if(usersDb[currentUserPhone].isVerified) return showModal("Sudah Terverifikasi", "Tingkat akun Anda telah berstatus Verified.", "win");
+            if(usersDb[currentUserPhone].isVerified) return showModal("Berhasil", "Tingkat akun Anda telah berstatus Verified.", "win");
             if(usersDb[currentUserPhone].verifStatus === 'pending') return showModal("Sedang Ditinjau", "Menunggu diproses dokumen verifikasi.", "info");
             
             document.getElementById('v-name').value = ''; document.getElementById('v-nik').value = ''; document.getElementById('v-file').value = '';
@@ -2416,7 +2587,7 @@
             let fileInput = document.getElementById('v-file');
             
             if(!n || !nik || fileInput.files.length === 0) return showModal("Perhatian", "Lengkapi identitas untuk melanjutkan.", "error");
-            if(nik.length !== 16) return showModal("Perhatian", "Nomor NIK KTP wajib berjumlah 16 digit.", "error");
+            if(nik.length !== 16) return showModal("Perhatian", "Nomor NIK KTP berjumlah 16 digit.", "error");
 
             closeTargetModal('verif-ktp-modal'); openTargetModal('verif-face-modal');
             try {
