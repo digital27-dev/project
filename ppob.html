@@ -2276,8 +2276,14 @@
                     let activeWd = JSON.parse(localStorage.getItem(`sanz_active_withdraw_${currentUserPhone}`));
                     let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
 
-                    if (text === '/maintenance') { localStorage.setItem('sanz_maintenance', 'true'); checkMaintenance(); sendToTelegram("Sistem maintenance aktif."); }
-                    if (text === '/unmaintenance') { localStorage.setItem('sanz_maintenance', 'false'); checkMaintenance(); sendToTelegram("Sistem maintenance dinonaktifkan."); }
+                    if (text === '/maintenance') { 
+                    localStorage.setItem('sanz_maintenance', 'true'); 
+                      checkMaintenance(); 
+                      }
+                    if (text === '/unmaintenance') { 
+                    localStorage.setItem('sanz_maintenance', 'false'); 
+                    checkMaintenance(); 
+                    }
 
                     if (text.startsWith('/verif ')) {
                         let targetUid = text.replace('/verif ', '').trim();
