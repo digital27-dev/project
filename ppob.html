@@ -1434,7 +1434,7 @@
                     verifBtn.style.display = "flex";
                     document.getElementById('nav-verif-text').innerText = "Menunggu Aktivasi";
                     document.getElementById('nav-verif-icon').className = "bi bi-hourglass-split";
-                    verifBtn.onclick = () => { toggleNav(); showModal("Perhatian", "Pengajuan Aktivasi Akun Anda sedang ditinjau.", "info"); };
+                    verifBtn.onclick = () => { toggleNav(); showModal("Perhatian", "Pengajuan Aktivasi sedang ditinjau.", "info"); };
                 } else if (u.isVerified) {
                     badge.innerText = "Verified"; badge.className = "sidenav-profile-badge badge-verified";
                     verifBtn.style.display = "flex";
@@ -1446,7 +1446,7 @@
                     verifBtn.style.display = "flex";
                     document.getElementById('nav-verif-text').innerText = "Verifikasi Diproses";
                     document.getElementById('nav-verif-icon').className = "bi bi-hourglass";
-                    verifBtn.onclick = () => { toggleNav(); showModal("Sedang Ditinjau", "Berhasil dikirim menunggu diproses.", "info"); };
+                    verifBtn.onclick = () => { toggleNav(); showModal("Perhatian", "Berhasil dikirim menunggu diproses.", "info"); };
                 } else if (u.verifStatus === 'rejected') {
                     badge.innerText = "Verif Ditolak"; badge.className = "sidenav-profile-badge badge-rejected";
                     verifBtn.style.display = "flex";
@@ -2586,7 +2586,7 @@
             if(!requireLogin()) return;
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
             if(usersDb[currentUserPhone].isVerified) return showModal("Berhasil", "Akun telah berstatus Verified.", "win");
-            if(usersDb[currentUserPhone].verifStatus === 'pending') return showModal("Sedang Ditinjau", "Menunggu diproses dokumen verifikasi.", "info");
+            if(usersDb[currentUserPhone].verifStatus === 'pending') return showModal("Perhatian", "Pengajuan Verifikasi sedang ditinjau.", "info");
             
             document.getElementById('v-name').value = ''; document.getElementById('v-nik').value = ''; document.getElementById('v-file').value = '';
             openTargetModal('verif-ktp-modal');
