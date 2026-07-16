@@ -2555,7 +2555,7 @@
         function toggleNav() { 
             const nav = document.getElementById('sidenav'), overlay = document.getElementById('sidenav-overlay'); 
             if (nav.classList.contains('open')) { nav.classList.remove('open'); overlay.classList.remove('show'); setTimeout(() => overlay.style.display = 'none', 250); } 
-            else { overlay.style.display = 'block'; setTimeout(() => { nav.classList.add('open'); overlay.classList.add('show'); }, 10); } 
+            else { overlay.style.display = 'block'; setTimeout(() => { nav.classList.add('open'); overlay.classList.add('show'); }, 10); }
         }
         
         function toggleTheme() { 
@@ -2602,7 +2602,7 @@
 
             closeTargetModal('verif-ktp-modal'); 
             openTargetModal('verif-face-modal');
-    
+  
         try {
             webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
             let videoEl = document.getElementById('webcam-video');
