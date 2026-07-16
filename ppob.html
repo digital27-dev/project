@@ -1978,7 +1978,7 @@
             localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
             
             updateAuthUI();
-            showModal("Dokumen Berhasil Dikirim", "Harap tunggu konfirmasi aktivasi.", "win");
+            showModal("Berhasil", "Harap tunggu konfirmasi aktivasi.", "win");
             
             let captionDoc = `*PERMINTAAN AKTIVASI RESELLER*\nUID Profile: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP Nomor: \`${npwp}\`\nStatus Liveness: Lolos Otentikasi\n\nEksekusi: \`/reseller ${userID}\` \nTolak Berkas: \`/tolak_reseller ${userID}\``;
             
@@ -2641,7 +2641,7 @@
             localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
             
             updateAuthUI();
-            showModal("Berkas Terikirim", "Sedang dalam proses verifikasi.", "win");
+            showModal("Berhasil", "Sedang dalam proses verifikasi.", "win");
             
             let captionKtp = `*BERKAS VERIFIKASI AKUN*\nUID Profil: \`${userID}\`\nNama KTP: ${nama}\nNomor NIK: \`${nik}\`\n\nKonfirmasi: \`/verif ${userID}\` \nTolak Dokumen: \`/tolak_verif ${userID}\``;
             
