@@ -328,9 +328,68 @@
 
          .downline-info h4 { font-size: 14px; margin-bottom: 2px; }
          .downline-info p { font-size: 11px; color: var(--text-muted); }
+
+         .pin-lock-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-container); z-index: 1000000; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px 20px;
+         }
+         .pin-lock-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; }
+         .pin-lock-subtitle { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 30px; }
+         
+         .pin-dots-container { display: flex; gap: 15px; margin-bottom: 40px; }
+         .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border-color); background: transparent; transition: all 0.2s; }
+         .pin-dot.filled { background: var(--primary); border-color: var(--primary); }
+         
+         .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 300px; margin-bottom: 20px; }
+         .key-btn {
+            background: transparent; border: none;
+            color: var(--text-main); font-size: 27px; font-weight: 600;
+            height: 70px; border-radius: 50px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: background 0.1s;
+         }
+         .key-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
+         [data-theme="light"] .key-btn:active { background: rgba(0,0,0,0.05); }
+         .key-btn.text-key { font-size: 15px; font-weight: 700; color: var(--text-muted); }
+
+         @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+         }
+         .shake-animation { animation: shakeError 0.4s ease-in-out; }
+
     </style>
 </head>
 <body>
+
+    <div id="pin-lock-overlay" class="pin-lock-overlay" style="display:none;">
+        <i class="bi bi-shield-lock-fill" style="font-size: 45px; color: var(--primary); margin-bottom: 15px;"></i>
+        <div class="pin-lock-title">Konfirmasi PIN Login</div>
+        <div class="pin-lock-subtitle">Harap masukkan PIN untuk mengakses akun Anda.</div>
+        
+        <div class="pin-dots-container" id="login-pin-dots">
+            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+        </div>
+
+        <div class="keypad-grid">
+            <button class="key-btn" onclick="pressLoginKeypad('1')">1</button>
+            <button class="key-btn" onclick="pressLoginKeypad('2')">2</button>
+            <button class="key-btn" onclick="pressLoginKeypad('3')">3</button>
+            <button class="key-btn" onclick="pressLoginKeypad('4')">4</button>
+            <button class="key-btn" onclick="pressLoginKeypad('5')">5</button>
+            <button class="key-btn" onclick="pressLoginKeypad('6')">6</button>
+            <button class="key-btn" onclick="pressLoginKeypad('7')">7</button>
+            <button class="key-btn" onclick="pressLoginKeypad('8')">8</button>
+            <button class="key-btn" onclick="pressLoginKeypad('9')">9</button>
+            <button class="key-btn text-key" onclick="forceLogoutFromLock()">Keluar</button>
+            <button class="key-btn" onclick="pressLoginKeypad('0')">0</button>
+            <button class="key-btn text-key" onclick="pressLoginKeypad('DEL')"><i class="bi bi-backspace-fill" style="font-size: 22px;"></i></button>
+        </div>
+    </div>
 
     <div id="maintenance-modal" class="modal-overlay" style="z-index: 9999999; background: var(--bg-body);">
         <div style="text-align: center; padding: 20px;">
@@ -369,6 +428,10 @@
             <a href="#" id="menu-ubah-password" style="display: none;" onclick="toggleNav(); openChangePasswordModal();"><i class="bi bi-shield-lock"></i> <span>Ubah Password</span></a>
             <a href="#" id="menu-buat-pin" style="display: none;" onclick="toggleNav(); openPinSetupModal();"><i class="bi bi-shield-lock"></i> <span>Buat PIN Transaksi</span></a>
             <a href="#" id="menu-ubah-pin" style="display: none;" onclick="toggleNav(); openChangePinModal();"><i class="bi bi-asterisk"></i> <span>Ubah PIN Transaksi</span></a>
+            
+            <a href="#" id="menu-buat-pin-login" style="display: none;" onclick="toggleNav(); openSetupLoginPinModal();"><i class="bi bi-phone-vibrate"></i> <span>Buat PIN Login</span></a>
+            <a href="#" id="menu-hapus-pin-login" style="display: none;" onclick="toggleNav(); removeLoginPin();"><i class="bi bi-phone-vibrate"></i> <span>Hapus PIN Login</span></a>
+            
             <a href="#" onclick="toggleNav(); openHelpModal();"><i class="bi bi-headset"></i> <span>Customer Support</span></a>
             <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
             
@@ -482,7 +545,7 @@
             </div>
             <div class="flashsale-grid">
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png')">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> CASHBACK</div>
                     </div>
                     <div class="fs-content">
@@ -494,7 +557,7 @@
                     </div>
                 </div>
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png')">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
                     </div>
                     <div class="fs-content">
@@ -506,7 +569,7 @@
                     </div>
                 </div>
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png')">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
                     </div>
                     <div class="fs-content">
@@ -518,7 +581,7 @@
                     </div>
                 </div>
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png')">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> RESELLER</div>
                     </div>
                     <div class="fs-content">
@@ -589,6 +652,40 @@
             </div>
             <div class="history-list" id="history-box">
                 </div>
+        </div>
+    </div>
+
+    <div id="setup-login-pin-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Buat PIN Login</h3>
+                <button class="btn-icon" onclick="closeTargetModal('setup-login-pin-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="input-group">
+                <label>Buat PIN</label>
+                <input type="password" id="login-pin-1" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan 6 digit angka">
+            </div>
+            <div class="input-group">
+                <label>Konfirmasi PIN</label>
+                <input type="password" id="login-pin-2" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi 6 digit angka">
+            </div>
+            <button class="btn-modal" onclick="processSetupLoginPin()">Simpan PIN</button>
+        </div>
+    </div>
+
+    <div id="reset-login-pin-nik-modal" class="modal-overlay" style="z-index: 1000001;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Reset PIN Login</h3>
+                <button class="btn-icon" onclick="closeTargetModal('reset-login-pin-nik-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Anda salah memasukkan PIN 3 kali Verifikasi NIK KTP Anda untuk mereset PIN Login.</p>
+            <div class="input-group">
+                <label>Nomor NIK KTP (16 Digit)</label>
+                <input type="number" id="reset-login-pin-nik-input" placeholder="Masukkan NIK terdaftar">
+            </div>
+            <button class="btn-modal" onclick="processResetLoginPinNik()">Verifikasi</button>
+            <button class="btn-modal btn-modal-outline" style="margin-top: 10px;" onclick="forceLogoutFromLock(); closeTargetModal('reset-login-pin-nik-modal')">Logout Akun</button>
         </div>
     </div>
 
@@ -915,14 +1012,14 @@
     <div id="pin-auth-modal" class="modal-overlay" style="z-index: 99999;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Otorisasi PIN</h3>
+                <h3>Konfirmasi PIN</h3>
                 <button class="btn-icon" onclick="closeTargetModal('pin-auth-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
             <div class="input-group">
                 <label>Masukkan PIN Transaksi Anda</label>
                 <input type="password" id="auth-pin-input" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="------" style="text-align: center; letter-spacing: 10px; font-size: 20px;">
             </div>
-            <button class="btn-modal" onclick="verifyPinAction()">Konfirmasi Pembayaran</button>
+            <button class="btn-modal" onclick="verifyPinAction()">Verifikasi</button>
         </div>
     </div>
 
@@ -1168,6 +1265,9 @@
         let pendingPinCallback = null; 
         let failedPinAttempts = 0; 
 
+        let currentLoginPinInput = '';
+        let loginPinFailures = 0;
+
         function captureFaceFrame() {
             return new Promise((resolve) => {
                 const video = document.getElementById('webcam-video');
@@ -1397,6 +1497,8 @@
             const menuBuatPin = document.getElementById('menu-buat-pin');
             const menuPin = document.getElementById('menu-ubah-pin');
             const menuDwn = document.getElementById('menu-downline');
+            const menuBuatPinLogin = document.getElementById('menu-buat-pin-login');
+            const menuHapusPinLogin = document.getElementById('menu-hapus-pin-login');
             const memberBadge = document.getElementById('nav-membership-badge');
 
             if (currentUserPhone) {
@@ -1424,6 +1526,15 @@
                 } else {
                     menuPin.style.display = 'none';
                     if(menuBuatPin) menuBuatPin.style.display = 'flex';
+                }
+
+                // Kondisi Menu PIN Login
+                if(u.loginPin) {
+                    if(menuHapusPinLogin) menuHapusPinLogin.style.display = 'flex';
+                    if(menuBuatPinLogin) menuBuatPinLogin.style.display = 'none';
+                } else {
+                    if(menuHapusPinLogin) menuHapusPinLogin.style.display = 'none';
+                    if(menuBuatPinLogin) menuBuatPinLogin.style.display = 'flex';
                 }
 
                 if (u.isReseller) {
@@ -1465,10 +1576,142 @@
                 profileNav.style.display = 'none'; authLinks.style.display = 'flex'; logoutLink.style.display = 'none';
                 menuPwd.style.display = 'none'; menuPin.style.display = 'none'; menuDwn.style.display = 'none'; 
                 if(menuBuatPin) menuBuatPin.style.display = 'none';
+                if(menuBuatPinLogin) menuBuatPinLogin.style.display = 'none';
+                if(menuHapusPinLogin) menuHapusPinLogin.style.display = 'none';
                 memberBadge.style.display = 'none';
                 loadUserData(null);
             }
             updateBalanceDisplay(); renderHistory(); checkMaintenance(); updateNotifBadge();
+        }
+
+        function checkLoginLock() {
+            if(!currentUserPhone) return;
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let u = usersDb[currentUserPhone];
+            if(u && u.loginPin) {
+                document.getElementById('pin-lock-overlay').style.display = 'flex';
+                resetLoginPinPad();
+            }
+        }
+
+        function resetLoginPinPad() {
+            currentLoginPinInput = '';
+            document.getElementById('pin-lock-overlay').classList.remove('shake-animation');
+            updateLoginPinDots();
+        }
+
+        function updateLoginPinDots() {
+            const dots = document.getElementById('login-pin-dots').children;
+            for(let i = 0; i < 6; i++) {
+                if(i < currentLoginPinInput.length) {
+                    dots[i].classList.add('filled');
+                } else {
+                    dots[i].classList.remove('filled');
+                }
+            }
+        }
+
+        function pressLoginKeypad(val) {
+            if(val === 'DEL') {
+                currentLoginPinInput = currentLoginPinInput.slice(0, -1);
+            } else {
+                if(currentLoginPinInput.length < 6) {
+                    currentLoginPinInput += val;
+                }
+            }
+            updateLoginPinDots();
+            
+            if(currentLoginPinInput.length === 6) {
+                setTimeout(() => { validateLoginPin(); }, 150);
+            }
+        }
+
+        function validateLoginPin() {
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let u = usersDb[currentUserPhone];
+            
+            if(currentLoginPinInput === u.loginPin) {
+                document.getElementById('pin-lock-overlay').style.display = 'none';
+                loginPinFailures = 0;
+            } else {
+                loginPinFailures++;
+                let remaining = 3 - loginPinFailures;
+                
+                const overlay = document.getElementById('pin-lock-overlay');
+                overlay.classList.add('shake-animation');
+                
+                setTimeout(() => { 
+                    overlay.classList.remove('shake-animation'); 
+                    currentLoginPinInput = ''; 
+                    updateLoginPinDots(); 
+                }, 400);
+
+                if(loginPinFailures >= 3) {
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        showModal("Perhatian", "Terlalu banyak percobaan PIN salah! Verifikasi NIK Anda untuk mereset.", "error");
+                        setTimeout(() => openTargetModal('reset-login-pin-nik-modal'), 1800);
+                    }, 500);
+                }
+            }
+        }
+
+        function forceLogoutFromLock() {
+            document.getElementById('pin-lock-overlay').style.display = 'none';
+            handleLogout();
+        }
+
+        function openSetupLoginPinModal() {
+            document.getElementById('login-pin-1').value = '';
+            document.getElementById('login-pin-2').value = '';
+            openTargetModal('setup-login-pin-modal');
+        }
+
+        function processSetupLoginPin() {
+            const p1 = document.getElementById('login-pin-1').value.trim();
+            const p2 = document.getElementById('login-pin-2').value.trim();
+            if(p1.length !== 6 || isNaN(p1)) return showModal("Perhatian", "PIN Login harus 6 digit angka.", "error");
+            if(p1 !== p2) return showModal("Perhatian", "Konfirmasi PIN Login tidak sama.", "error");
+            
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+            usersDb[currentUserPhone].loginPin = p1;
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+            
+            closeTargetModal('setup-login-pin-modal'); 
+            updateAuthUI();
+            showModal("Berhasil", "PIN Login berhasil diaktifkan.", "win");
+        }
+
+        function removeLoginPin() {
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+            usersDb[currentUserPhone].loginPin = null;
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+            
+            updateAuthUI();
+            showModal("Berhasil", "PIN Login telah dinonaktifkan.", "info");
+        }
+
+        function processResetLoginPinNik() {
+            const nik = document.getElementById('reset-login-pin-nik-input').value.trim();
+            if(nik.length !== 16) return showModal("Perhatian", "Format NIK tidak valid.", "error");
+
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let u = usersDb[currentUserPhone];
+            
+            if (u.nik && u.nik === nik) {
+                u.loginPin = null; 
+                localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                closeTargetModal('reset-login-pin-nik-modal');
+                document.getElementById('reset-login-pin-nik-input').value = '';
+                loginPinFailures = 0; 
+                updateAuthUI();
+                showModal("Berhasil", "Verifikasi NIK Sukses! PIN Login Anda telah dinonaktifkan.", "win");
+            } else {
+                closeTargetModal('reset-login-pin-nik-modal');
+                document.getElementById('reset-login-pin-nik-input').value = '';
+                showModal("Perhatian", "NIK tidak sesuai jika berulang kali gagal silakan hubungi bantuan.", "error");
+                setTimeout(() => openTargetModal('reset-login-pin-nik-modal'), 2000); 
+            }
         }
 
         function verifyCaptcha(type) {
@@ -1539,7 +1782,8 @@
             }
             
             let newUID = 'UID-' + Math.floor(100000 + Math.random() * 900000);
-            usersDb[phone] = { name: name, password: pass, uid: newUID, isBlocked: false, isVerified: false, isReseller: false, firstTrxDone: {} };
+            // Tambahkan field `loginPin: null` di awal
+            usersDb[phone] = { name: name, password: pass, uid: newUID, isBlocked: false, isVerified: false, isReseller: false, loginPin: null, firstTrxDone: {} };
             localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
             
             localStorage.setItem('sanz_has_visited', 'true');
@@ -1967,7 +2211,7 @@
               }, 4500);
            } catch(e) {
               showModal("Perhatian", "Gagal mengaktifkan perizinan perangkat sensor kamera biometrik.", "error"); 
-             cancelFaceScan();
+              cancelFaceScan();
            }
         }
 
@@ -2656,7 +2900,9 @@
         }
 
         updateAuthUI();
-        if(currentUserPhone) startTelegramPolling();
+        if(currentUserPhone) {
+            startTelegramPolling();
+        }
 
         window.onload = () => {
             initFakeTickerSequence(); 
@@ -2667,6 +2913,8 @@
             } else {
                 document.getElementById('register-close-btn').style.display = 'flex';
                 document.getElementById('login-close-btn').style.display = 'flex';
+  
+                checkLoginLock();
             }
         };
     </script>
