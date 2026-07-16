@@ -1622,15 +1622,15 @@
             const confPwd = document.getElementById('confirm-password-field').value.trim();
             
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
-            if(usersDb[currentUserPhone].password !== oldPwd) return showModal("Akses Ditolak", "Password lama yang Anda masukkan keliru.", "error");
+            if(usersDb[currentUserPhone].password !== oldPwd) return showModal("Perhatian", "Password lama yang Anda masukkan keliru.", "error");
             if(newPwd.length < 5) return showModal("Perhatian", "Minimal kata sandi baru sepanjang 5 karakter.", "error");
-            if(newPwd !== confPwd) return showModal("Gagal Konfirmasi", "Konfirmasi password baru tidak cocok.", "error");
+            if(newPwd !== confPwd) return showModal("Perhatian", "Konfirmasi password baru tidak cocok.", "error");
             
             usersDb[currentUserPhone].password = newPwd;
             localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
             
             closeTargetModal('change-password-modal');
-            showModal("Sukses Diubah", "Sandi kredensial login akun Anda sukses diperbarui.", "win");
+            showModal("Berhasil", "Sandi login akun Anda sukses diperbarui.", "win");
             document.getElementById('old-password-field').value = '';
             document.getElementById('new-password-field').value = '';
             document.getElementById('confirm-password-field').value = '';
@@ -1642,15 +1642,15 @@
             const confirmPin = document.getElementById('confirm-pin-field').value.trim();
 
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
-            if(usersDb[currentUserPhone].pinCode !== oldPin) return showModal("Akses Ditolak", "PIN lama yang Anda masukkan keliru.", "error");
+            if(usersDb[currentUserPhone].pinCode !== oldPin) return showModal("Perhatian", "PIN lama yang Anda masukkan keliru.", "error");
             if(newPin.length !== 6 || isNaN(newPin)) return showModal("Perhatian", "Minimal PIN baru berupa 6 digit angka.", "error");
-            if(newPin !== confirmPin) return showModal("Gagal Konfirmasi", "Konfirmasi PIN baru tidak cocok.", "error");
+            if(newPin !== confirmPin) return showModal("Perhatian", "Konfirmasi PIN baru tidak cocok.", "error");
 
             usersDb[currentUserPhone].pinCode = newPin;
             localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
 
             closeTargetModal('change-pin-modal');
-            showModal("Sukses Diubah", "PIN transaksi Anda sukses diperbarui.", "win");
+            showModal("Berhasil", "PIN transaksi Anda sukses diperbarui.", "win");
             document.getElementById('old-pin-field').value = '';
             document.getElementById('new-pin-field').value = '';
             document.getElementById('confirm-pin-field').value = '';
