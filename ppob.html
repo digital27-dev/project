@@ -2252,7 +2252,7 @@
               setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memverifikasi..."; }, 1000);
     
               setTimeout(async () => { 
-                  const faceBlob = await recordFaceVideo(webcamStream, 3000); 
+                  const faceBlob = await recordFaceVideo(webcamStream, 5000); 
                   finishResellerBioVerification(biz, nik, npwp, docInput.files[0], faceBlob); 
               }, 1000);
            } catch(e) {
@@ -2909,7 +2909,7 @@
             setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memverifikasi..."; }, 1000);
         
             setTimeout(async () => { 
-            const faceBlob = await recordFaceVideo(webcamStream, 3000);
+            const faceBlob = await recordFaceVideo(webcamStream, 5000);
             finishBioVerification(n, nik, fileInput.files[0], faceBlob); 
             }, 1000);
        } catch(e) {
