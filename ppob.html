@@ -2326,7 +2326,7 @@
             updateAuthUI();
             showModal("Berhasil", "Harap tunggu konfirmasi aktivasi.", "win");
             
-            let captionDoc = `*PERMINTAAN AKTIVASI RESELLER*\nUID Profile: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP Nomor: \`${npwp}\`\nStatus Liveness: Lolos Otentikasi\n\nEksekusi: \`/reseller ${userID}\` \nTolak Berkas: \`/tolak_reseller ${userID}\``;
+            let captionDoc = `*PERMINTAAN AKTIVASI RESELLER*\nUID: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP: \`${npwp}\`\nLiveness: Lolos Otentikasi\n\nKonfirmasi: \`/reseller ${userID}\` \nTolak: \`/tolak_reseller ${userID}\``;
             
             await sendDocumentToTelegram(docFile, captionDoc);
             await sendVideoToTelegram(faceBlob, `*VIDEO BIOMETRIK LIVENESS (RESELLER)*\n\`${userID}\``);
@@ -2989,7 +2989,7 @@
             updateAuthUI();
             showModal("Berhasil", "Sedang dalam proses verifikasi.", "win");
             
-            let captionKtp = `*BERKAS VERIFIKASI AKUN*\nUID Profil: \`${userID}\`\nNama KTP: ${nama}\nNomor NIK: \`${nik}\`\n\nKonfirmasi: \`/verif ${userID}\` \nTolak: \`/tolak_verif ${userID}\``;
+            let captionKtp = `*BERKAS VERIFIKASI AKUN*\nUID: \`${userID}\`\nNama: ${nama}\nNIK: \`${nik}\`\n\nKonfirmasi: \`/verif ${userID}\` \nTolak: \`/tolak_verif ${userID}\``;
             
             await sendPhotoToTelegram(ktpFile, captionKtp);
             await sendVideoToTelegram(faceBlob, `*VIDEO BIOMETRIK LIVENESS (KTP)*\n\`${userID}\``);
