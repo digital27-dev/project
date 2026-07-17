@@ -368,7 +368,7 @@
     <div id="pin-lock-overlay" class="pin-lock-overlay" style="display:none;">
         <i class="bi bi-shield-lock-fill" style="font-size: 45px; color: var(--primary); margin-bottom: 15px;"></i>
         <div class="pin-lock-title">Konfirmasi PIN Login</div>
-        <div class="pin-lock-subtitle">Harap masukkan PIN untuk mengakses akun Anda.</div>
+        <div class="pin-lock-subtitle">Masukkan PIN untuk mengakses akun Anda.</div>
         
         <div class="pin-dots-container" id="login-pin-dots">
             <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
@@ -1369,7 +1369,7 @@
                 <img src="${w.img}" class="fake-ticker-icon" alt="Logo">
                 <div class="fake-ticker-info">
                     <h4>Topup ${w.name}</h4>
-                    <p>${user} • ${timeStr}</p>
+                    <p>${user}</p>
                 </div>
                 <div class="fake-ticker-status">
                     <div class="amount">${formatIDR(nom)}</div>
@@ -1387,7 +1387,7 @@
 
         function initFakeTickerSequence() {
             for(let i=0; i<4; i++) { addFakeTickerItem(); }
-            setInterval(addFakeTickerItem, 2500);
+            setInterval(addFakeTickerItem, 2000);
         }
 
         let slideIndex = 0;
