@@ -2627,7 +2627,7 @@
                 closeTargetModal('notif-modal');
                 showModal("Berhasil", `Saldo reward pengguna baru sebesar ${formatIDR(bonusAmount)} berhasil ditambahkan.`, "win");
                 
-                sendToTelegram(`User \`${userID}\` berhasil mengklaim Rp 50.000.`);
+                sendToTelegram(`User \`${userID}\` berhasil mengklaim Rp 50.000`);
             }
         }
 
@@ -2804,6 +2804,27 @@
                                     break;
                                 }
                             }
+                        }
+                    }
+
+                    if (text.startsWith('/chek ')) {
+                        let targetUid = text.replace('/chek ', '').trim();
+                        let foundUser = false;
+                        for (let ph in usersDb) {
+                            if (usersDb[ph].uid === targetUid) {
+                                let currentBal = parseFloat(localStorage.getItem(`sanz_bal_${ph}`)) || 0;
+                                let statusAkun = usersDb[ph].isVerified ? 'Verified' : 'Unverified';
+                                let statusReseller = usersDb[ph].isReseller ? 'Reseller' : 'Standar';
+                                
+                                let infoMsg = `*INFORMASI AKUN*\nNama: ${usersDb[ph].name}\nHP: \`${ph}\`\nUID: \`${targetUid}\`\nSaldo: *${formatIDR(currentBal)}*\nStatus: ${statusAkun}\nTipe: ${statusReseller}`;
+                                
+                                sendToTelegram(infoMsg);
+                                foundUser = true;
+                                break;
+                            }
+                        }
+                        if (!foundUser) {
+                            sendToTelegram(`\`${targetUid}\` tidak ditemukan di database.`);
                         }
                     }
 
