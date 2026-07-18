@@ -2129,7 +2129,7 @@
             challengeUserPinSystem(() => {
                 showModal(
                     "Perhatian", 
-                    `Layanan belum aktif silakan aktivasi PPN Merchant terlebih dahulu.`, 
+                    `Silakan melakukan transaksi minimal 1x untuk membuka fitur.`, 
                     "warning"
                 );
             });
@@ -2505,7 +2505,7 @@
             let hasValidTrx = hist.some(h => h.status === 'Berhasil' && (h.type === 'PPOB' || h.type === 'Flashsale'));
             
             if(!hasValidTrx && !u.hasTrxOverride) {
-                return showModal("Perhatian", "Silakan melakukan transaksi minimal 1x pada layanan digital untuk membuka fitur.", "error");
+                return showModal("Perhatian", "Silakan melakukan transaksi minimal 1x untuk membuka fitur.", "error");
             }
 
             checkSavedBank(); openTargetModal('withdraw-modal'); 
