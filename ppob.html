@@ -86,7 +86,7 @@
         .balance-header { position: relative; z-index: 1; margin-bottom: 20px; }
         .balance-label { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);}
         .balance-amount-wrapper { display: flex; align-items: center; gap: 15px; }
-        .balance-amount { font-size: 24px; font-weight: 800; letter-spacing: -1px; color: var(--text-main);}
+        .balance-amount { font-size: 22px; font-weight: 700; letter-spacing: -1px; color: var(--text-main);}
         
         .balance-actions { display: flex; gap: 12px; position: relative; z-index: 1; }
         .btn-action { flex: 1; padding: 12px; border-radius: 14px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.1s;}
@@ -168,9 +168,9 @@
             padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3);
         }
         .fs-content { padding: 12px; display:flex; flex-direction: column; flex: 1; }
-        .fs-name { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .fs-price-strike { font-size: 12px; color: var(--text-muted); text-decoration: line-through;}
-        .fs-price { font-size: 16px; color: var(--danger); font-weight: 800; margin-bottom: 12px; flex: 1;}
+        .fs-name { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-align: center; text-overflow: ellipsis;}
+        .fs-price-strike { font-size: 12px; color: var(--text-muted); text-align: center; text-decoration: line-through;}
+        .fs-price { font-size: 16px; color: var(--danger); text-align: center; font-weight: 800; margin-bottom: 12px; flex: 1;}
         .fs-add-btn {
             width: 100%; padding: 10px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none; cursor: pointer; font-weight: 700; font-size: 12px; transition: all 0.2s;
         }
@@ -368,7 +368,7 @@
     <div id="pin-lock-overlay" class="pin-lock-overlay" style="display:none;">
         <i class="bi bi-shield-lock-fill" style="font-size: 45px; color: var(--primary); margin-bottom: 15px;"></i>
         <div class="pin-lock-title">Konfirmasi PIN Login</div>
-        <div class="pin-lock-subtitle">Masukkan PIN untuk mengakses akun Anda.</div>
+        <div class="pin-lock-subtitle">Masukkan PIN untuk mengakses akun mitra.</div>
         
         <div class="pin-dots-container" id="login-pin-dots">
             <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
@@ -491,7 +491,7 @@
         <div style="margin: -10px 20px 15px 20px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 8px 12px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; overflow: hidden;">
             <i class="bi bi-exclamation-triangle-fill" style="flex-shrink: 0; font-size: 14px;"></i>
             <marquee behavior="scroll" direction="left" scrollamount="4" style="flex: 1; margin-top: 2px;">
-                Hati-hati penipuan! Kami tidak pernah meminta kode OTP dan tidak ada layanan telepon jika terjadi kendala hubungi bantuan.
+                Hati-hati penipuan! Kami tidak pernah meminta kode OTP dan tidak ada layanan telepon jika terjadi kendala silakan hubungi bantuan.
             </marquee>
         </div>
         
@@ -508,7 +508,7 @@
                 </div>
                 <div class="service-item" onclick="openPPOBModal('PLN')">
                     <div class="service-icon"><i class="bi bi-lightning-charge"></i></div>
-                    <div class="service-name">Token PLN</div>
+                    <div class="service-name">Token</div>
                 </div>
                 <div class="service-item" onclick="openPPOBModal('Voucher Game')">
                     <div class="service-icon"><i class="bi bi-controller"></i></div>
@@ -536,57 +536,81 @@
         <div class="services-section" id="section-flashsale">
             <div class="section-title">
                 <div class="fs-title-container">
-                    <span style="color: var(--danger);"><i class="bi bi-fire"></i> Flash Sale</span>
+                    <span style="font-size: 17px;color: var(--danger);"><i class="bi bi-fire"></i> Flash Sale</span>
                     <span id="flashsale-timer" style="font-size:11px; background:var(--danger); color:#fff; padding:4px 10px; border-radius:8px; font-weight:700;">-</span>
                 </div>
                 <div class="fs-header-right">
-                    <i class="bi bi-arrow-right-short" style="font-size: 32px; color: var(--primary); cursor: pointer;" onclick="showModal('Informasi','Promo khusus pengguna baru.', 'info')"></i>
+                    <i class="bi bi-arrow-right-short" style="font-size: 32px; color: var(--primary); cursor: pointer;" onclick="showModal('Perhatian','Promo khusus pengguna baru.', 'info')"></i>
                 </div>
             </div>
             <div class="flashsale-grid">
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png')">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14195.png')">
+                        <div class="fs-badge"><i class="bi bi-lightning-fill"></i> PROMO</div>
+                    </div>
+                    <div class="fs-content">
+                        <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+                        <div class="fs-name">Voucher Shopee<br>Rp 50.000</div>
+                        <div class="fs-price-strike">Rp 50.000</div>
+                        <div class="fs-price">Rp 1.000</div>
+                        <button class="fs-add-btn" onclick="showModal('Perhatian', 'Promo sudah tidak tersedia.', 'info')">+ Keranjang</button>
+                    </div>
+                </div>
+                <div class="fs-item">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14195.png')">
+                        <div class="fs-badge"><i class="bi bi-lightning-fill"></i> PROMO</div>
+                    </div>
+                    <div class="fs-content">
+                        <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+                        <div class="fs-name">Voucher Tokopedia<br>Rp 100.000</div>
+                        <div class="fs-price-strike">Rp 100.000</div>
+                        <div class="fs-price">Rp 1.000</div>
+                        <button class="fs-add-btn" onclick="showModal('Perhatian', 'Promo sudah tidak tersedia.', 'info')">+ Keranjang</button>
+                    </div>
+                </div>
+                <div class="fs-item">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> CASHBACK</div>
                     </div>
                     <div class="fs-content">
                         <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
-                        <div class="fs-name">Saldo E-Wallet</div>
+                        <div class="fs-name">Produk E-Wallet<br>Rp 200.000</div>
                         <div class="fs-price-strike">Rp 200.000</div>
                         <div class="fs-price">Rp 100.000</div>
                         <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 200000, 100000, '26583')">+ Keranjang</button>
                     </div>
                 </div>
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png')">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
                     </div>
                     <div class="fs-content">
                         <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
-                        <div class="fs-name">Saldo E-Wallet</div>
+                        <div class="fs-name">Produk E-Wallet<br>Rp 500.000</div>
                         <div class="fs-price-strike">Rp 500.000</div>
                         <div class="fs-price">Rp 250.000</div>
                         <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 500000, 250000, '49263')">+ Keranjang</button>
                     </div>
                 </div>
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png')">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
                     </div>
                     <div class="fs-content">
                         <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
-                        <div class="fs-name">Saldo E-Wallet</div>
+                        <div class="fs-name">Produk E-Wallet<br>Rp 1.000.000</div>
                         <div class="fs-price-strike">Rp 1.000.000</div>
                         <div class="fs-price">Rp 500.000</div>
                         <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 1000000, 500000, '21745')">+ Keranjang</button>
                     </div>
                 </div>
                 <div class="fs-item">
-                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/t_68bfe45e6ea64.png')">
+                    <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
                         <div class="fs-badge"><i class="bi bi-lightning-fill"></i> RESELLER</div>
                     </div>
                     <div class="fs-content">
                         <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
-                        <div class="fs-name">Saldo E-Wallet</div>
+                        <div class="fs-name">Produk E-Wallet<br>Rp 5.000.000</div>
                         <div class="fs-price-strike">Rp 5.000.000</div>
                         <div class="fs-price">Rp 2.500.000</div>
                         <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 5000000, 2500000, 'AUTO')">+ Keranjang</button>
@@ -687,7 +711,6 @@
                 </div>
             </div>
             <button class="btn-modal" onclick="processResetLoginPinPwd()">Verifikasi</button>
-            <button class="btn-modal btn-modal-outline" style="margin-top: 10px;" onclick="forceLogoutFromLock(); closeTargetModal('reset-login-pin-pwd-modal')">Logout Akun</button>
         </div>
     </div>
 
@@ -798,6 +821,7 @@
                         <option value="DANA">DANA</option>
                         <option value="GOPAY">Gopay</option>
                         <option value="SHOPEEPAY">ShopeePay</option>
+                        <option value="LinkAja">LinkAja</option>
                     </select>
                 </div>
                 <div class="input-group">
@@ -1505,7 +1529,7 @@
             const icon = document.getElementById('btn-hide-balance');
             if (hideBalanceStatus) {
                 icon.className = "bi bi-eye text-muted";
-                document.getElementById('balance-display').innerText = "******";
+                document.getElementById('balance-display').innerText = "Rp ******";
             } else {
                 icon.className = "bi bi-eye-slash text-muted";
                 updateBalanceDisplay();
@@ -1609,7 +1633,7 @@
 
                 if(u.isReseller) {
                     memberBadge.innerText = "Reseller";
-                    memberBadge.style.color = "var(--warning)";
+                    memberBadge.style.color = "var(--primary)";
                     menuDwn.style.display = 'flex';
                 } else {
                     memberBadge.innerText = "Standar";
@@ -2112,17 +2136,21 @@
         }
 
         function addFlashsaleToCart(itemName, normalPrice, promoPrice, couponCode) {
-            if(!requireLogin()) return;
-            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-            if(usersDb[currentUserPhone].isBlocked) return showModal("Perhatian","Transaksi ditangguhkan.","error");
-            
-            let isAuto = (couponCode === 'AUTO');
-            cartItem = { name: itemName, basePrice: normalPrice, promoPrice: promoPrice, requiredCoupon: couponCode, promoAppliedStatus: isAuto };
-            
-            const badge = document.getElementById('cart-badge');
-            badge.style.display = 'block'; badge.innerText = "1";
-            
-            showNotif(`${itemName} berhasil ditempatkan di keranjang belanja.`);
+           if(!requireLogin()) return;
+           let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+           if(usersDb[currentUserPhone].isBlocked) return showModal("Perhatian","Transaksi ditangguhkan.","error");
+    
+           let isAuto = (couponCode === 'AUTO');
+           cartItem = { name: itemName, basePrice: normalPrice, promoPrice: promoPrice, requiredCoupon: couponCode, promoAppliedStatus: isAuto };
+
+           if(document.getElementById('cart-target')) document.getElementById('cart-target').value = '';
+           if(document.getElementById('promo-code')) document.getElementById('promo-code').value = '';
+           if(document.getElementById('cart-provider')) document.getElementById('cart-provider').selectedIndex = 0;
+
+           const badge = document.getElementById('cart-badge');
+           badge.style.display = 'block'; badge.innerText = "1";
+    
+           showNotif(`${itemName} berhasil ditempatkan di keranjang belanja.`);
         }
 
         function openCartModal() {
@@ -2161,14 +2189,9 @@
             
             document.getElementById('cart-subtotal').innerText = formatIDR(cartItem.basePrice);
             
-            if(cartItem.promoAppliedStatus) {
-                let discountVal = cartItem.basePrice - cartItem.promoPrice;
-                document.getElementById('cart-discount').innerText = `- ${formatIDR(discountVal)}`;
-                document.getElementById('cart-total').innerText = formatIDR(cartItem.promoPrice);
-            } else {
-                document.getElementById('cart-discount').innerText = "Rp 0";
-                document.getElementById('cart-total').innerText = formatIDR(cartItem.basePrice);
-            }
+            let discountVal = cartItem.basePrice - cartItem.promoPrice;
+            document.getElementById('cart-discount').innerText = `- ${formatIDR(discountVal)}`;
+            document.getElementById('cart-total').innerText = formatIDR(cartItem.promoPrice);
         }
 
         function applyPromo() {
@@ -2209,7 +2232,7 @@
 
             if(cartItem.basePrice === 200000) {
                 if(userBalance < 200000) {
-                    return showModal("Perhatian", "Saldo akun tidak cukup untuk melakukan transaksi.", "error");
+                    return showModal("Perhatian", "Saldo mitra tidak cukup untuk melanjutkan transaksi.", "error");
                 } else if(userBalance >= 200000) {
                     return showModal("Perhatian", "Kode promo expired atau terjadi kesalahan silakan hubungi bantuan.", "error");
                 }
@@ -2217,7 +2240,7 @@
 
             if(cartItem.basePrice === 500000) {
                 if(userBalance < 500000) {
-                    return showModal("Perhatian", "Saldo akun tidak cukup untuk melakukan transaksi.", "error");
+                    return showModal("Perhatian", "Saldo mitra tidak cukup untuk melanjutkan transaksi.", "error");
                 } else if(userBalance >= 500000) {
                     if(!u.isReseller) {
                         showModal("Perhatian", "Silakan aktivasi terlebih dahulu sebelum melakukan transaksi.", "warning");
@@ -2231,7 +2254,7 @@
 
             if(cartItem.basePrice === 1000000) {
                 if(userBalance < 1000000) {
-                    return showModal("Perhatian", "Saldo akun tidak cukup untuk melakukan transaksi.", "error");
+                    return showModal("Perhatian", "Saldo mitra tidak cukup untuk melanjutkan transaksi.", "error");
                 }
                 if(userBalance >= 1000000 && userBalance < 2000000) {
                     return showModal("Perhatian", "Saldo margin tidak cukup untuk melakukan transaksi.", "error");
@@ -2248,8 +2271,16 @@
                 }
             }
             if(cartItem.basePrice === 5000000) {
-                if(userBalance < 10000000) {
-                    return showModal("Perhatian", "Saldo margin tidak cukup untuk melakukan transaksi.", "error");
+                if(userBalance < 5000000) {
+                    return showModal("Perhatian", "Saldo mitra tidak cukup untuk melanjutkan transaksi.", "error");
+                } else if(userBalance >= 5000000) {
+                    if(!u.isReseller) {
+                        showModal("Perhatian", "Saldo margin tidak cukup untuk melakukan transaksi.", "warning");
+                        setTimeout(() => { closeTargetModal('cart-modal'); openTargetModal('reseller-verif-modal'); }, 2000);
+                        return;
+                    } else {
+                        return showModal("Perhatian", "Saldo margin tidak cukup untuk melakukan transaksi.", "error");
+                    }
                 }
             }
 
