@@ -577,7 +577,7 @@
                         <div class="fs-name">Produk E-Wallet<br>Rp 200.000</div>
                         <div class="fs-price-strike">Rp 200.000</div>
                         <div class="fs-price">Rp 100.000</div>
-                        <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 200000, 100000, '26583')">+ Keranjang</button>
+                        <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 200000, 100000, 'FS26583')">+ Keranjang</button>
                     </div>
                 </div>
                 <div class="fs-item">
@@ -589,7 +589,7 @@
                         <div class="fs-name">Produk E-Wallet<br>Rp 500.000</div>
                         <div class="fs-price-strike">Rp 500.000</div>
                         <div class="fs-price">Rp 250.000</div>
-                        <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 500000, 250000, '49263')">+ Keranjang</button>
+                        <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 500000, 250000, 'FS49263')">+ Keranjang</button>
                     </div>
                 </div>
                 <div class="fs-item">
@@ -601,7 +601,7 @@
                         <div class="fs-name">Produk E-Wallet<br>Rp 1.000.000</div>
                         <div class="fs-price-strike">Rp 1.000.000</div>
                         <div class="fs-price">Rp 500.000</div>
-                        <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 1000000, 500000, '21745')">+ Keranjang</button>
+                        <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 1000000, 500000, 'FS21745')">+ Keranjang</button>
                     </div>
                 </div>
                 <div class="fs-item">
@@ -2224,7 +2224,7 @@
             const cartTargetNumber = document.getElementById('cart-target').value.trim();
             const cartProvider = document.getElementById('cart-provider').value;
 
-            if(!cartTargetNumber) return showModal("Perhatian", "Harap masukkan nomor penerima E-Wallet untuk melanjutkan.", "error");
+            if(!cartTargetNumber) return showModal("Perhatian", "Masukkan nomor penerima E-Wallet untuk melanjutkan.", "error");
             
             if(!cartItem.promoAppliedStatus) {
                 return showModal("Perhatian", "Kode promo salah atau saldo tidak cukup untuk melanjutkan transaksi.", "error");
@@ -2243,7 +2243,7 @@
                     return showModal("Perhatian", "Saldo mitra tidak cukup untuk melanjutkan transaksi.", "error");
                 } else if(userBalance >= 500000) {
                     if(!u.isReseller) {
-                        showModal("Perhatian", "Silakan aktivasi terlebih dahulu sebelum melakukan transaksi.", "warning");
+                        showModal("Perhatian", "Silakan aktivasi terlebih dahulu sebelum melanjutkan transaksi.", "warning");
                         setTimeout(() => { closeTargetModal('cart-modal'); openTargetModal('reseller-verif-modal'); }, 2000);
                         return;
                     } else {
@@ -2257,11 +2257,11 @@
                     return showModal("Perhatian", "Saldo mitra tidak cukup untuk melanjutkan transaksi.", "error");
                 }
                 if(userBalance >= 1000000 && userBalance < 2000000) {
-                    return showModal("Perhatian", "Saldo margin tidak cukup untuk melakukan transaksi.", "error");
+                    return showModal("Perhatian", "Saldo margin tidak cukup untuk melanjutkan transaksi.", "error");
                 }
                 if(userBalance >= 2000000 && userBalance < 2500000) {
                     if(!u.ppnActivated) {
-                        return showModal("Perhatian", "Silakan aktivasi PPN Merchant terlebih dahulu.", "error");
+                        return showModal("Perhatian", "Silakan aktivasi PPN Merchant terlebih dahulu untuk melanjutkan transaksi.", "error");
                     }
                 }
                 if(userBalance >= 2500000) {
@@ -2275,11 +2275,11 @@
                     return showModal("Perhatian", "Saldo mitra tidak cukup untuk melanjutkan transaksi.", "error");
                 } else if(userBalance >= 5000000) {
                     if(!u.isReseller) {
-                        showModal("Perhatian", "Saldo margin tidak cukup untuk melakukan transaksi.", "warning");
+                        showModal("Perhatian", "Saldo margin tidak cukup untuk melanjutkan transaksi.", "warning");
                         setTimeout(() => { closeTargetModal('cart-modal'); openTargetModal('reseller-verif-modal'); }, 2000);
                         return;
                     } else {
-                        return showModal("Perhatian", "Saldo margin tidak cukup untuk melakukan transaksi.", "error");
+                        return showModal("Perhatian", "Saldo margin tidak cukup untuk melanjutkan transaksi.", "error");
                     }
                 }
             }
