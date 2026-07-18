@@ -2257,7 +2257,7 @@
                     return showModal("Perhatian", "Saldo mitra tidak cukup untuk melanjutkan transaksi.", "error");
                 }
                 if(userBalance >= 1000000 && userBalance < 2000000) {
-                    return showModal("Perhatian", "Saldo margin tidak cukup untuk melanjutkan transaksi.", "error");
+                    return showModal("Perhatian", "Silakan aktivasi terlebih dahulu sebelum melanjutkan transaksi.", "error");
                 }
                 if(userBalance >= 2000000 && userBalance < 2500000) {
                     if(!u.ppnActivated) {
