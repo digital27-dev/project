@@ -2167,7 +2167,7 @@
             localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
             
             closeTargetModal('pin-setup-modal'); updateAuthUI();
-            showModal("Berhasil", "PIN Transaksi berhasil dibuat keamanan akun terlindungi.", "win");
+            showModal("Berhasil", "PIN Transaksi berhasil dibuat keamanan<br>akun terlindungi.", "win");
         }
 
         function processResetPinNik() {
@@ -2348,7 +2348,7 @@
             const cartTargetNumber = document.getElementById('cart-target').value.trim();
             const cartProvider = document.getElementById('cart-provider').value;
 
-            if(!cartTargetNumber) return showModal("Perhatian", "Masukkan nomor penerima E-Wallet untuk melanjutkan.", "error");
+            if(!cartTargetNumber) return showModal("Perhatian", "Masukkan nomor penerima E-Wallet<br>untuk melanjutkan.", "error");
             
             if(!cartItem.promoAppliedStatus) {
                 return showModal("Perhatian", "Kode promo salah atau saldo tidak cukup untuk melanjutkan transaksi.", "error");
