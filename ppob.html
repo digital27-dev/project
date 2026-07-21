@@ -289,6 +289,12 @@
             align-items: center;
             justify-content: center;
         }
+
+        .icon-input-wrapper { position: relative; width: 100%; }
+        .icon-input-wrapper input { padding-left: 45px !important; }
+        .icon-input-wrapper .left-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 18px; pointer-events: none; transition: color 0.3s; }
+        .icon-input-wrapper input:focus + .left-icon, .icon-input-wrapper input:focus ~ .left-icon { color: var(--primary); }
+        .icon-input-wrapper.pass-input-wrapper input { padding-left: 45px !important; padding-right: 45px !important; }
     </style>
 </head>
 <body>
@@ -968,18 +974,22 @@
     <div id="login-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Masuk Akun</h3>
+                <h3>Login</h3>
                 <button class="btn-icon" id="login-close-btn" onclick="closeTargetModal('login-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
             <div class="modal-body">
                 <div class="input-group">
                     <label>Nomor Handphone</label>
-                    <input type="tel" id="login-phone" placeholder="Masukkan nomor">
+                    <div class="icon-input-wrapper">
+                        <input type="tel" id="login-phone" placeholder="Masukkan nomor">
+                        <i class="bi bi-telephone-fill left-icon"></i>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label>Password</label>
-                    <div class="pass-input-wrapper">
+                    <div class="icon-input-wrapper pass-input-wrapper">
                         <input type="password" id="login-password" placeholder="Masukkan password">
+                        <i class="bi bi-lock-fill left-icon"></i>
                         <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('login-password', this)"></i>
                     </div>
                 </div>
@@ -998,7 +1008,7 @@
                 </div>
 
                 <button class="btn-modal" onclick="processLogin()">Masuk</button>
-                <div class="auth-link" onclick="closeTargetModal('login-modal'); openRegisterModal();">Belum punya akun? <span>Daftar disini</span></div>
+                <div class="auth-link" onclick="closeTargetModal('login-modal'); openRegisterModal();">Belum punya akun? <span>Registrasi</span></div>
             </div>
         </div>
     </div>
@@ -1006,28 +1016,38 @@
     <div id="register-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Daftar Akun Baru</h3>
+                <h3>Registrasi</h3>
                 <button class="btn-icon" id="register-close-btn" onclick="closeTargetModal('register-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
             <div class="modal-body">
                 <div class="input-group">
                     <label>Nama Lengkap</label>
-                    <input type="text" id="reg-name" placeholder="Masukkan nama">
+                    <div class="icon-input-wrapper">
+                        <input type="text" id="reg-name" placeholder="Masukkan nama">
+                        <i class="bi bi-person-fill left-icon"></i>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label>Nomor Handphone</label>
-                    <input type="tel" id="reg-phone" placeholder="Masukkan nomor">
+                    <div class="icon-input-wrapper">
+                        <input type="tel" id="reg-phone" placeholder="Masukkan nomor">
+                        <i class="bi bi-telephone-fill left-icon"></i>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label>Buat Password</label>
-                    <div class="pass-input-wrapper">
+                    <div class="icon-input-wrapper pass-input-wrapper">
                         <input type="password" id="reg-password" placeholder="Minimal 6 karakter">
+                        <i class="bi bi-lock-fill left-icon"></i>
                         <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('reg-password', this)"></i>
                     </div>
                 </div>
                 <div class="input-group">
                     <label>Kode Referensi</label>
-                    <input type="text" id="reg-ref" placeholder="Masukkan kode referensi">
+                    <div class="icon-input-wrapper">
+                        <input type="text" id="reg-ref" placeholder="Masukkan kode referensi">
+                        <i class="bi bi-upc-scan left-icon"></i>
+                    </div>
                 </div>
                 
                 <div class="cf-captcha-box" onclick="verifyCaptcha('reg')">
@@ -1044,7 +1064,7 @@
                 </div>
 
                 <button class="btn-modal" onclick="processRegister()">Daftar Sekarang</button>
-                <div class="auth-link" onclick="closeTargetModal('register-modal'); openLoginModal();">Sudah punya akun? <span>Masuk disini</span></div>
+                <div class="auth-link" onclick="closeTargetModal('register-modal'); openLoginModal();">Sudah punya akun? <span>Login</span></div>
             </div>
         </div>
     </div>
@@ -1100,7 +1120,7 @@
                     <label>Konfirmasi Ulang PIN</label>
                     <input type="password" id="pin-2" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi 6 digit angka">
                 </div>
-                <button class="btn-modal" onclick="processPinSetup()">Simpan PIN Proteksi</button>
+                <button class="btn-modal" onclick="processPinSetup()">Simpan PIN</button>
             </div>
         </div>
     </div>
@@ -1403,7 +1423,7 @@
         let userBalance = 0; 
         let tradeHistory = []; 
         let depositTimerInterval = null;
-        let processedUpdates = JSON.parse(localStorage.getItem('sanz_processed_tg_updates')) || [];
+        let lastUpdateId = parseInt(localStorage.getItem('sanz_last_update_id')) || 0;
         let isPolling = false;
         let hideBalanceStatus = false;
 
@@ -1688,7 +1708,7 @@
 
         function requireLogin() {
             if (!currentUserPhone) {
-                showModal("Perhatian", "Silakan melakukan pendaftaran akun baru atau login terlebih dahulu.", "error");
+                showModal("Perhatian", "Silakan melakukan pendaftaran akun baru<br>atau login terlebih dahulu.", "error");
                 document.getElementById('login-close-btn').style.display = 'flex';
                 document.getElementById('register-close-btn').style.display = 'flex';
                 setTimeout(() => { closeInfoModal(); openLoginModal(); }, 1800);
@@ -2233,7 +2253,7 @@
             challengeUserPinSystem(() => {
                 showModal(
                     "Perhatian", 
-                    `Silakan melakukan transaksi minimal 1x untuk membuka fitur.`, 
+                    `Silakan melakukan transaksi minimal 1x<br>untuk membuka fitur.`, 
                     "warning"
                 );
             });
@@ -2619,13 +2639,13 @@
             if (!requireLogin()) return;
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
             let u = usersDb[currentUserPhone];
-            if(!u?.isVerified) return showModal("Perhatian", "Penarikan membutuhkan verifikasi terlebih dahulu.", "error");
+            if(!u?.isVerified) return showModal("Perhatian", "Penarikan membutuhkan verifikasi<br>akun terlebih dahulu.", "error");
             
             let hist = JSON.parse(localStorage.getItem(`sanz_hist_${currentUserPhone}`)) || [];
             let hasValidTrx = hist.some(h => h.status === 'Berhasil' && (h.type === 'PPOB' || h.type === 'Flashsale'));
             
             if(!hasValidTrx && !u.hasTrxOverride) {
-                return showModal("Perhatian", "Silakan melakukan transaksi minimal 1x untuk membuka fitur.", "error");
+                return showModal("Perhatian", "Silakan melakukan transaksi minimal 1x<br>untuk membuka fitur.", "error");
             }
 
             checkSavedBank(); openTargetModal('withdraw-modal'); 
@@ -2757,16 +2777,18 @@
             if (isPolling || !currentUserPhone) return;
             isPolling = true;
             try {
-                const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`);
+                const offsetParam = lastUpdateId ? `?offset=${lastUpdateId + 1}` : '';
+                const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates${offsetParam}`);
                 const data = await res.json();
-                if (!data.ok || !data.result || data.result.length === 0) { isPolling = false; return; }
+                
+                if (!data.ok || !data.result || data.result.length === 0) { 
+                    isPolling = false; return; 
+                }
 
                 for (let update of data.result) {
-                    if (processedUpdates.includes(update.update_id)) continue;
-                    
-                    processedUpdates.push(update.update_id);
-                    if (processedUpdates.length > 200) processedUpdates.shift();
-                    localStorage.setItem('sanz_processed_tg_updates', JSON.stringify(processedUpdates));
+
+                    lastUpdateId = update.update_id;
+                    localStorage.setItem('sanz_last_update_id', lastUpdateId);
 
                     const msg = update.message; if (!msg) continue; 
                     const text = (msg.text || msg.caption || '').trim();
