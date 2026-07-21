@@ -265,31 +265,6 @@
             75% { transform: translateX(-10px); }
         }
         .shake-animation { animation: shakeError 0.4s ease-in-out; }
-  
-        .service-category-header {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-main);
-            margin: 27px 0 27px 0;
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 10px;
-        }
-        .service-category-header:first-child {
-            margin-top: 5px;
-        }
-        .service-category-header i {
-            color: var(--primary);
-            font-size: 20px;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .icon-input-wrapper { position: relative; width: 100%; }
         .icon-input-wrapper input { padding-left: 45px !important; }
         .icon-input-wrapper .left-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 18px; pointer-events: none; transition: color 0.3s; }
@@ -680,7 +655,6 @@
                 <button class="btn-icon" onclick="closeTargetModal('lainnya-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
             <div class="modal-body">
-                <div class="service-category-header"><i class="bi bi-caret-right-fill"></i> Isi Ulang</div>
                 <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px;">
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pulsa')">
                         <div class="service-icon"><i class="bi bi-phone"></i></div>
@@ -706,10 +680,6 @@
                         <div class="service-icon"><i class="bi bi-lightning-charge"></i></div>
                         <div class="service-name">Token PLN</div>
                     </div>
-                </div>
-
-                <div class="service-category-header"><i class="bi bi-caret-right-fill"></i> Topup Kebutuhan</div>
-                <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px;">
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Topup E-Wallet')">
                         <div class="service-icon"><i class="bi bi-wallet2"></i></div>
                         <div class="service-name">Topup E-Wallet</div>
@@ -734,10 +704,6 @@
                         <div class="service-icon"><i class="bi bi-play-btn-fill"></i></div>
                         <div class="service-name">Streaming</div>
                     </div>
-                </div>
-
-                <div class="service-category-header"><i class="bi bi-caret-right-fill"></i> Tagihan Pascabayar</div>
-                <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px;">
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tagihan PLN')">
                         <div class="service-icon"><i class="bi bi-lightbulb"></i></div>
                         <div class="service-name">Tagihan PLN</div>
@@ -786,10 +752,6 @@
                         <div class="service-icon"><i class="bi bi-credit-card"></i></div>
                         <div class="service-name">Kartu Kredit</div>
                     </div>
-                </div>
-
-                <div class="service-category-header"><i class="bi bi-caret-right-fill"></i> Tiket Booking</div>
-                <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px;">
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Bioskop')">
                         <div class="service-icon"><i class="bi bi-film"></i></div>
                         <div class="service-name">Tiket Bioskop</div>
@@ -814,10 +776,6 @@
                         <div class="service-icon"><i class="bi bi-building"></i></div>
                         <div class="service-name">Booking Hotel</div>
                     </div>
-                </div>
-
-                <div class="service-category-header"><i class="bi bi-caret-right-fill"></i> Gaya Hidup</div>
-                <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px;">
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Telemedicine')">
                         <div class="service-icon"><i class="bi bi-capsule"></i></div>
                         <div class="service-name">Telemedicine</div>
@@ -2245,7 +2203,7 @@
             if (!u.isReseller) {
                 return showModal(
                     "Perhatian", 
-                    `Layanan khusus reseller silakan aktivasi akun terlebih dahulu.`, 
+                    `Layanan khusus reseller silakan aktivasi<br>akun terlebih dahulu.`, 
                     "warning"
                 );
             }
