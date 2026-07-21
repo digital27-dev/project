@@ -90,6 +90,9 @@
         .btn-action-primary { background: var(--primary); color: #fff; }
         .btn-action-secondary { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); }
 
+        .balance-logo-right { position: absolute; top: -30px; right: -10px; font-size: 150px; color: rgba(59,130,246,0.2); opacity: 0.3; transform: rotate(15deg); pointer-events: none; z-index: 0; }
+        .interest-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(16, 185, 129, 0.15); color: var(--success); padding: 4px 11px; border-radius: 8px; font-size: 9px; font-weight: 700; margin-top: 8px; border: 1px solid rgba(16, 185, 129, 0.3); }
+
         .services-section { padding: 0 20px; margin-bottom: 30px; }
         .section-title { font-size: 15px; font-weight: 700; margin-bottom: 15px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; letter-spacing: -0.3px;}
         
@@ -188,16 +191,14 @@
         .quick-nominal-btn:hover { border-color: var(--primary); background: rgba(59,130,246,0.1); color: var(--primary); }
         .quick-nominal-btn:active { transform: scale(0.95); }
 
-        .payment-card { padding: 15px; border-radius: 14px; border: 1.7px solid var(--border-color); background: var(--bg-input); transition: all 0.2s; }
-        .payment-card.active { border-color: var(--primary); background: rgba(59,130,246,0.05); }
-        .payment-card.disabled { opacity: 0.7; cursor: not-allowed; }
-  
-        .cf-captcha-box { display: flex; align-items: center; justify-content: space-between; border: 1px solid #d3d3d3; background: #fafafa; padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; cursor: pointer; height: 70px; }
+        .payment-card { padding: 15px; border-radius: 14px; border: 1px solid var(--border-color); background: var(--bg-input); transition: all 0.2s; cursor: pointer; }
+        .payment-card.active { border-color: var(--primary); background: rgba(59,130,246,0.1); }
+        .cf-captcha-box { display: flex; align-items: center; justify-content: space-between; border: 1px solid #d3d3d3; background: #fafafa; padding: 12px 17px; border-radius: 4px; margin-bottom: 20px; cursor: pointer; height: 60px; }
         [data-theme="dark"] .cf-captcha-box { background: #1a1a1a; border-color: #333; }
-        .cf-checkbox { width: 30px; height: 30px; border: 2px solid #ccc; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: #fff; transition: all 0.3s ease; position: relative; }
+        .cf-checkbox { width: 25px; height: 25px; border: 2px solid #ccc; border-radius: 4px; display: flex; align-items: center; justify-content: center; background: #fff; transition: all 0.3s ease; position: relative; }
         [data-theme="dark"] .cf-checkbox { background: #222; border-color: #555; }
         .cf-checkbox i { color: #00c853; font-size: 22px; display: none; font-weight: bold; }
-        .cf-checkbox.loading { border-color: transparent; border-top-color: #f6821f; border-right-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; background: transparent; }
+        .cf-checkbox.loading { border-color: transparent; border-right-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; background: transparent; }
         .cf-checkbox.verified { border-color: transparent; background: transparent; }
         .cf-checkbox.verified i { display: block; animation: cf-pop 0.3s ease-out forwards; }
         @keyframes cf-pop { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -380,15 +381,20 @@
         </div>
 
         <div class="balance-card">
+            <i class="bi bi-lightning-fill balance-logo-right"></i>
+            
             <div class="balance-header">
                 <div class="balance-label">
                     <span>Total Saldo</span>
                     <span style="display: flex; gap: 8px; align-items: center;">
-                        <span id="user-id-display" style="background: var(--bg-container); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold;">UID: -</span>
+                        <span id="user-id-display" style="background: var(--bg-container); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: bold; border: 1px solid var(--border-color);">UID: -</span>
                         <i class="bi bi-eye-slash text-muted" id="btn-hide-balance" style="cursor: pointer; font-size: 16px;" onclick="toggleHideBalance()"></i>
                     </span>
                 </div>
                 <div class="balance-amount" id="balance-display">Rp 0</div>
+                <div class="interest-badge">
+                    <i class="bi bi-graph-up-arrow"></i> Bunga 7.5% cair harian
+                </div>
             </div>
             <div class="balance-actions">
                 <button class="btn-action btn-action-primary" onclick="openDepositModal()">
@@ -400,7 +406,7 @@
             </div>
         </div>
         
-        <div style="margin: -10px 20px 15px 20px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 8px 12px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; overflow: hidden;">
+        <div style="margin: -7px 20px 15px 20px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 8px 12px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; overflow: hidden;">
             <i class="bi bi-exclamation-triangle-fill" style="flex-shrink: 0; font-size: 14px;"></i>
             <marquee behavior="scroll" direction="left" scrollamount="4" style="flex: 1; margin-top: 2px;">
                 Hati-hati penipuan! Kami tidak pernah meminta kode OTP dan tidak ada layanan telepon jika terjadi kendala silakan hubungi bantuan.
@@ -1177,27 +1183,27 @@
                         <button class="quick-nominal-btn" onclick="setNominal(500000)">Rp 500.000</button>
                     </div>
                     
-                    <label style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: block;">Pilih Metode Pembayaran</label>
-                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-                        <div class="payment-card active" id="pm-qris">
+                    <label style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; display: block;">Pilih Metode Pembayaran</label>
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;" id="payment-methods-container">
+                        <div class="payment-card" id="pm-qris" onclick="selectPaymentMethod(this, 'qris')">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <span style="font-weight:700;"><i class="bi bi-qr-code-scan"></i> QRIS Merchant</span>
-                                <span style="font-size: 11px; padding: 4px 8px; background: rgba(16,185,129,0.1); color: var(--success); border-radius: 6px; font-weight: bold;">Tersedia</span>
+                                <span style="font-size: 11px; padding: 4px 8px; background: rgba(16,185,129,0.1); color: var(--success); border-radius: 6px; font-weight: bold;">Online</span>
                             </div>
-                            <div style="font-size: 12px; color: var(--success); margin-top: 6px; font-weight:600;">Diproses 1-5 menit</div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight:600;">Diproses 1-5 menit</div>
                         </div>
                         
-                        <div class="payment-card disabled">
+                        <div class="payment-card disabled" onclick="selectPaymentMethod(this, 'offline')">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-weight:700; color:var(--text-muted);"><i class="bi bi-bank"></i> Virtual Account Bank</span>
+                                <span style="font-weight:700;"><i class="bi bi-bank"></i> Virtual Account Bank</span>
                                 <span style="font-size: 11px; padding: 4px 8px; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 6px; font-weight: bold;">Offline</span>
                             </div>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Biaya Layanan Rp 7.500</div>
                         </div>
 
-                        <div class="payment-card disabled">
+                        <div class="payment-card disabled" onclick="selectPaymentMethod(this, 'offline')">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-weight:700; color:var(--text-muted);"><i class="bi bi-shop"></i> Indomaret / Alfamart</span>
+                                <span style="font-weight:700;"><i class="bi bi-shop"></i> Indomaret / Alfamart</span>
                                 <span style="font-size: 11px; padding: 4px 8px; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 6px; font-weight: bold;">Offline</span>
                             </div>
                             <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Biaya Layanan Rp 7.500</div>
@@ -1390,6 +1396,8 @@
         let currentPPOBService = '';
         let pendingPinCallback = null; 
         let failedPinAttempts = 0; 
+        
+        let selectedPaymentMethod = null; 
 
         let currentLoginPinInput = '';
         let loginPinFailures = 0;
@@ -1444,9 +1452,75 @@
                     checkMaintenance();
                     updateBalanceDisplay();
                     renderHistory();
+                    checkDailyInterest(); 
                 }
             }
         });
+
+        function checkDailyInterest() {
+            if (!currentUserPhone || userBalance <= 0) return;
+
+            let now = Date.now();
+            let lastInterestTime = localStorage.getItem(`sanz_last_interest_time_${currentUserPhone}`);
+
+            if (!lastInterestTime) {
+                localStorage.setItem(`sanz_last_interest_time_${currentUserPhone}`, now.toString());
+                return;
+            }
+
+            lastInterestTime = parseInt(lastInterestTime);
+            let timeDiff = now - lastInterestTime;
+            let msInADay = 24 * 60 * 60 * 1000;
+            if (timeDiff >= msInADay) {
+                let daysPassed = Math.floor(timeDiff / msInADay);
+                
+                let totalInterest = 0;
+                let tempBalance = userBalance;
+                for(let i = 0; i < daysPassed; i++) {
+                    let dailyInterestAmount = Math.floor((tempBalance * 0.075) / 365);
+                    totalInterest += dailyInterestAmount;
+                    tempBalance += dailyInterestAmount; 
+                }
+
+                if (totalInterest > 0) {
+                    userBalance += totalInterest;
+                    let timeStr = new Date().toLocaleTimeString('id-ID');
+                    
+                    tradeHistory.unshift({ 
+                        id: Date.now(), 
+                        type: 'Bonus', 
+                        amount: totalInterest, 
+                        time: timeStr, 
+                        status: 'Berhasil', 
+                        info: daysPassed > 1 ? `Bunga Harian` : `Bunga Harian`
+                    });
+
+                    let newLastTime = lastInterestTime + (daysPassed * msInADay);
+                    localStorage.setItem(`sanz_last_interest_time_${currentUserPhone}`, newLastTime.toString());
+
+                    saveDataLocally();
+                    updateBalanceDisplay();
+                    renderHistory();
+                    
+                    addNotifToUser(currentUserPhone, `Bunga tabungan harian senilai ${formatIDR(totalInterest)} berhasil ditambahkan.`, "info");
+                }
+            }
+        }
+
+        setInterval(checkDailyInterest, 60000);
+
+        function selectPaymentMethod(element, type) {
+            if (type === 'offline') {
+                showModal("Perhatian", "Metode pembayaran sedang offline.", "error");
+                return;
+            }
+
+            const cards = document.querySelectorAll('#payment-methods-container .payment-card');
+            cards.forEach(card => card.classList.remove('active'));
+
+            element.classList.add('active');
+            selectedPaymentMethod = type;
+        }
 
         function openFullscreenQR() {
             const qrSrc = document.getElementById('qris-image-tag').src;
@@ -1801,6 +1875,7 @@
                 loadUserData(null);
             }
             updateBalanceDisplay(); renderHistory(); checkMaintenance(); updateNotifBadge();
+            checkDailyInterest();
         }
 
         function checkLoginLock() {
@@ -2473,6 +2548,9 @@
             let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
             if (usersDb[currentUserPhone]?.isBlocked) return showModal("Blokir", "Fitur dinonaktifkan.", "error");
 
+            selectedPaymentMethod = null;
+            document.querySelectorAll('#deposit-step-1 .payment-card').forEach(c => c.classList.remove('active'));
+
             document.getElementById('deposit-step-1').style.display = 'block';
             document.getElementById('deposit-step-2').style.display = 'none';
             document.getElementById('deposit-amount-display').style.display = 'block';
@@ -2515,6 +2593,10 @@
         function requestDeposit() {
             const amount = parseInt(document.getElementById('deposit-amount').value);
             if(isNaN(amount) || amount < 50000) return showModal("Perhatian", "Jumlah minimal pengisian Rp 50.000", "error");
+
+            if (!selectedPaymentMethod) {
+                return showModal("Perhatian", "Silakan pilih metode pembayaran<br>terlebih dahulu.", "warning");
+            }
 
             let trxId = Date.now();
             let timeStr = new Date().toLocaleTimeString('id-ID');
@@ -2681,13 +2763,17 @@
             } else {
                 notifs.forEach((n, index) => {
                     let bonusBtnHtml = "";
-                    if(n.type === 'bonus' && !n.claimed) {
-                        bonusBtnHtml = `<button class="btn-claim-bonus" onclick="claimNewUserBonus(${n.id}, this)">Klaim sekarang</button>`;
-                    }
-
                     let displayTime = n.time.includes(',') ? n.time.split(',')[1].trim() : (n.time.includes(' ') ? n.time.split(' ').pop() : n.time);
 
                     if(displayTime.length > 5) displayTime = displayTime.substring(0, 5);
+                    
+                    if (n.type === 'bonus') {
+                        if (!n.claimed) {
+                            bonusBtnHtml = `<button class="btn-claim-bonus" onclick="claimNewUserBonus(${n.id}, this)">Klaim Sekarang</button>`;
+                        } else {
+                          
+                        }
+                    }
                     
                     listHtml += `<div class="notif-popup-item">
                                     <div style="font-weight:bold; font-size:13px; color:var(--primary); margin-bottom:4px;"><i class="bi bi-lightning-charge-fill"></i> DIGITAL</div>
@@ -2707,27 +2793,38 @@
         }
 
         function claimNewUserBonus(notifId, btnEl) {
+            let hasRealTransaction = tradeHistory.some(h => h.type !== 'Bonus');
+            
+            if (hasRealTransaction) {
+                showModal("Perhatian", "Reward khusus untuk pengguna baru yang belum pernah melakukan transaksi.", "error");
+                return;
+            }
+
             let notifs = JSON.parse(localStorage.getItem('sanz_notifs_' + currentUserPhone)) || [];
             let idx = notifs.findIndex(n => n.id === notifId);
+            
             if(idx !== -1 && !notifs[idx].claimed) {
                 notifs[idx].claimed = true;
                 localStorage.setItem('sanz_notifs_' + currentUserPhone, JSON.stringify(notifs));
+                
+                if(btnEl) btnEl.style.display = 'none';
                 
                 let bonusAmount = 50000; 
                 userBalance += bonusAmount;
                 updateBalanceDisplay();
                 
+                let lastTime = localStorage.getItem(`sanz_last_interest_time_${currentUserPhone}`);
+                if(!lastTime) localStorage.setItem(`sanz_last_interest_time_${currentUserPhone}`, Date.now().toString());
+
                 let timeStr = new Date().toLocaleTimeString('id-ID');
                 tradeHistory.unshift({ id: Date.now(), type: 'Bonus', amount: bonusAmount, time: timeStr, status: 'Berhasil', info: 'Klaim Reward' });
                 
                 saveDataLocally();
                 renderHistory();
                 
-                btnEl.style.display = "none"; 
-                closeTargetModal('notif-modal');
                 showModal("Berhasil", `Saldo reward pengguna baru sebesar ${formatIDR(bonusAmount)} berhasil ditambahkan.`, "win");
                 
-                sendToTelegram(`\`${userID}\` berhasil mengklaim Rp 50.000`);
+                sendToTelegram(`\`${userID}\` berhasil mengklaim reward pengguna baru Rp 50.000`);
             }
         }
 
