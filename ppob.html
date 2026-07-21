@@ -1167,7 +1167,7 @@
             </div>
             <div class="modal-body">
                 <div id="deposit-step-1">
-                    <div style="font-size: 11px; color: var(--success); text-align: center; margin-bottom: 15px; font-weight: 600;"></div>
+                    <div style="font-size: 11px; color: var(--success); text-align: center; font-weight: 600;"></div>
                     <div class="input-group">
                         <label>Nominal Top-up (Min. Rp 50.000)</label>
                         <input type="number" id="deposit-amount" placeholder="Masukkan nominal">
@@ -2269,7 +2269,7 @@
                 promoBox.style.display = "block";
             }
 
-            container.innerHTML = `<div class="cart-item-row" style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed var(--border-color);">
+            container.innerHTML = `<div class="cart-item-row" style="display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px dashed var(--border-color);">
                                         <span style="font-size:14px; font-weight:700;">${cartItem.name}</span>
                                         <span style="font-weight:bold; color:var(--text-muted);">${formatIDR(cartItem.basePrice)}</span>
                                    </div>`;
@@ -2974,7 +2974,7 @@
                                         <div class="receipt-row"><span>Nominal:</span><span>${formatIDR(accAmt)}</span></div>
                                         ${feeRow}
                                         <hr style="border:0; border-top:1px dashed #cbd5e1; margin: 12px 0;">
-                                        <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Total:</span><span style="color:var(--primary);">${formatIDR(finalAmt)}</span></div>
+                                        <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Total:</span><span style="color:var(--text-main);">${formatIDR(finalAmt)}</span></div>
                                     </div>`;
                             }
                             
@@ -3095,7 +3095,7 @@
                     <div class="receipt-row"><span>Detail Keterangan:</span><span>${tx.info || '-'}</span></div>
                     <div class="receipt-row"><span>Status:</span><span style="color: ${statusColor}; font-weight: bold;">${tx.status}</span></div>
                     <hr style="border:0; border-top:1px dashed var(--border-color); margin: 12px 0;">
-                    <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Nominal:</span><span style="${tx.type === 'Penarikan' ? 'color: var(--danger)' : ''}">${formatIDR(tx.amount)}</span></div>
+                    <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Nominal:</span><span style="${tx.type === 'Penarikan' ? 'color: var(--text-main)' : ''}">${formatIDR(tx.amount)}</span></div>
                 </div>
             `;
 
