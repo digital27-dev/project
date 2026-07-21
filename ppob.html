@@ -265,6 +265,30 @@
             75% { transform: translateX(-10px); }
         }
         .shake-animation { animation: shakeError 0.4s ease-in-out; }
+  
+        .service-category-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 27px 0 27px 0;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 10px;
+        }
+        .service-category-header:first-child {
+            margin-top: 5px;
+        }
+        .service-category-header i {
+            color: var(--primary);
+            font-size: 20px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -650,6 +674,7 @@
                 <button class="btn-icon" onclick="closeTargetModal('lainnya-modal')"><i class="bi bi-x-lg"></i></button>
             </div>
             <div class="modal-body">
+                <div class="service-category-header"><i class="bi bi-caret-right-fill"></i> Isi Ulang</div>
                 <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px;">
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pulsa')">
                         <div class="service-icon"><i class="bi bi-phone"></i></div>
@@ -671,6 +696,14 @@
                         <div class="service-icon"><i class="bi bi-calendar2-check"></i></div>
                         <div class="service-name">Masa Aktif</div>
                     </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Token PLN')">
+                        <div class="service-icon"><i class="bi bi-lightning-charge"></i></div>
+                        <div class="service-name">Token PLN</div>
+                    </div>
+                </div>
+
+                <div class="service-category-header"><i class="bi bi-caret-right-fill"></i> Topup Kebutuhan</div>
+                <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px;">
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Topup E-Wallet')">
                         <div class="service-icon"><i class="bi bi-wallet2"></i></div>
                         <div class="service-name">Topup E-Wallet</div>
@@ -683,10 +716,22 @@
                         <div class="service-icon"><i class="bi bi-signpost-2-fill"></i></div>
                         <div class="service-name">Topup E-Toll</div>
                     </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Token PLN')">
-                        <div class="service-icon"><i class="bi bi-lightning-charge"></i></div>
-                        <div class="service-name">Token PLN</div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Topup Game')">
+                        <div class="service-icon"><i class="bi bi-controller"></i></div>
+                        <div class="service-name">Topup Game</div>
                     </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Google Play')">
+                        <div class="service-icon"><i class="bi bi-google-play"></i></div>
+                        <div class="service-name">Google Play</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Streaming')">
+                        <div class="service-icon"><i class="bi bi-play-btn-fill"></i></div>
+                        <div class="service-name">Streaming</div>
+                    </div>
+                </div>
+
+                <div class="service-category-header"><i class="bi bi-caret-right-fill"></i> Tagihan Pascabayar</div>
+                <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px;">
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tagihan PLN')">
                         <div class="service-icon"><i class="bi bi-lightbulb"></i></div>
                         <div class="service-name">Tagihan PLN</div>
@@ -701,71 +746,23 @@
                     </div>
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Internet')">
                         <div class="service-icon"><i class="bi bi-router"></i></div>
-                        <div class="service-name">Wifi / Indihome</div>
+                        <div class="service-name">Wifi</div>
                     </div>
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('TV Kabel')">
                         <div class="service-icon"><i class="bi bi-tv"></i></div>
                         <div class="service-name">TV Kabel</div>
                     </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Streaming')">
-                        <div class="service-icon"><i class="bi bi-play-btn-fill"></i></div>
-                        <div class="service-name">Streaming</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Bioskop')">
-                        <div class="service-icon"><i class="bi bi-film"></i></div>
-                        <div class="service-name">Tiket Bioskop</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Event')">
-                        <div class="service-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
-                        <div class="service-name">Tiket Event</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Topup Game')">
-                        <div class="service-icon"><i class="bi bi-controller"></i></div>
-                        <div class="service-name">Topup Game</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Steam Wallet')">
-                        <div class="service-icon"><i class="bi bi-pc-display"></i></div>
-                        <div class="service-name">Steam Wallet</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Google Play')">
-                        <div class="service-icon"><i class="bi bi-google-play"></i></div>
-                        <div class="service-name">Google Play</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Pesawat')">
-                        <div class="service-icon"><i class="bi bi-airplane-fill"></i></div>
-                        <div class="service-name">Pesawat</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Kereta')">
-                        <div class="service-icon"><i class="bi bi-train-front"></i></div>
-                        <div class="service-name">Kereta Api</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Bus')">
-                        <div class="service-icon"><i class="bi bi-bus-front-fill"></i></div>
-                        <div class="service-name">Bus & Travel</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Kapal Laut')">
-                        <div class="service-icon"><i class="bi bi-water"></i></div>
-                        <div class="service-name">Kapal Pelni</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Hotel')">
-                        <div class="service-icon"><i class="bi bi-building"></i></div>
-                        <div class="service-name">Hotel</div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pasca Bayar')">
+                        <div class="service-icon"><i class="bi bi-receipt"></i></div>
+                        <div class="service-name">Pasca Bayar</div>
                     </div>
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('BPJS Kesehatan')">
                         <div class="service-icon"><i class="bi bi-heart-pulse"></i></div>
-                        <div class="service-name">BPJS Kes</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('BPJS Ketenagakerjaan')">
-                        <div class="service-icon"><i class="bi bi-briefcase-fill"></i></div>
-                        <div class="service-name">BPJS TK</div>
+                        <div class="service-name">BPJS</div>
                     </div>
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Asuransi')">
                         <div class="service-icon"><i class="bi bi-shield-check"></i></div>
                         <div class="service-name">Asuransi</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Telemedicine')">
-                        <div class="service-icon"><i class="bi bi-capsule"></i></div>
-                        <div class="service-name">Telemedicine</div>
                     </div>
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('PBB')">
                         <div class="service-icon"><i class="bi bi-buildings"></i></div>
@@ -775,22 +772,6 @@
                         <div class="service-icon"><i class="bi bi-car-front"></i></div>
                         <div class="service-name">E-Samsat</div>
                     </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Penerimaan Negara')">
-                        <div class="service-icon"><i class="bi bi-bank"></i></div>
-                        <div class="service-name">Negara</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('IPL')">
-                        <div class="service-icon"><i class="bi bi-house-gear-fill"></i></div>
-                        <div class="service-name">IPL / Retribusi</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pasca Bayar')">
-                        <div class="service-icon"><i class="bi bi-receipt"></i></div>
-                        <div class="service-name">Pasca Bayar</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pendidikan')">
-                        <div class="service-icon"><i class="bi bi-mortarboard-fill"></i></div>
-                        <div class="service-name">Pendidikan</div>
-                    </div>
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Multifinance')">
                         <div class="service-icon"><i class="bi bi-cash-stack"></i></div>
                         <div class="service-name">Angsuran</div>
@@ -799,25 +780,61 @@
                         <div class="service-icon"><i class="bi bi-credit-card"></i></div>
                         <div class="service-name">Kartu Kredit</div>
                     </div>
+                </div>
+
+                <div class="service-category-header"><i class="bi bi-caret-right-fill"></i> Tiket Booking</div>
+                <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px;">
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Bioskop')">
+                        <div class="service-icon"><i class="bi bi-film"></i></div>
+                        <div class="service-name">Tiket Bioskop</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Event')">
+                        <div class="service-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
+                        <div class="service-name">Tiket Event</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Pesawat')">
+                        <div class="service-icon"><i class="bi bi-airplane-fill"></i></div>
+                        <div class="service-name">Tiket Pesawat</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Kereta')">
+                        <div class="service-icon"><i class="bi bi-train-front"></i></div>
+                        <div class="service-name">Tiket Kereta</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Bus')">
+                        <div class="service-icon"><i class="bi bi-bus-front-fill"></i></div>
+                        <div class="service-name">Tiket Bus</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Hotel')">
+                        <div class="service-icon"><i class="bi bi-building"></i></div>
+                        <div class="service-name">Booking Hotel</div>
+                    </div>
+                </div>
+
+                <div class="service-category-header"><i class="bi bi-caret-right-fill"></i> Gaya Hidup</div>
+                <div class="service-grid" style="grid-template-columns: repeat(3, 1fr); gap: 20px 10px;">
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Telemedicine')">
+                        <div class="service-icon"><i class="bi bi-capsule"></i></div>
+                        <div class="service-name">Telemedicine</div>
+                    </div>
+                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pendidikan')">
+                        <div class="service-icon"><i class="bi bi-mortarboard-fill"></i></div>
+                        <div class="service-name">Pendidikan</div>
+                    </div>
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Investasi')">
                         <div class="service-icon"><i class="bi bi-coin"></i></div>
                         <div class="service-name">Investasi</div>
                     </div>
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Makanan')">
                         <div class="service-icon"><i class="bi bi-shop"></i></div>
-                        <div class="service-name">Voucher F&B</div>
+                        <div class="service-name">Voucher Makan</div>
                     </div>
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Belanja')">
-                        <div class="service-icon"><i class="bi bi-bag-heart-fill"></i></div>
-                        <div class="service-name">Belanja</div>
+                        <div class="service-icon"><i class="bi bi-bag-check"></i></div>
+                        <div class="service-name">Voucher Belanja</div>
                     </div>
                     <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Zakat')">
                         <div class="service-icon"><i class="bi bi-heart-fill"></i></div>
                         <div class="service-name">Zakat & Donasi</div>
-                    </div>
-                    <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Qurban')">
-                        <div class="service-icon"><i class="bi bi-box2-heart-fill"></i></div>
-                        <div class="service-name">Qurban</div>
                     </div>
                 </div>
             </div>
