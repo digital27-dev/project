@@ -1183,13 +1183,13 @@
                     <label style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; display: block;">Pilih Metode Pembayaran</label>
                     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;" id="payment-methods-container">
                         <div class="payment-card" id="pm-qris" onclick="selectPaymentMethod(this, 'qris')">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-weight:700;"><i class="bi bi-qr-code-scan"></i> QRIS Merchant</span>
-                                <span style="font-size: 11px; padding: 4px 8px; background: rgba(16,185,129,0.1); color: var(--success); border-radius: 6px; font-weight: bold;">Online</span>
-                            </div>
-                            <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight:600;">Diproses 1-5 menit</div>
-                        </div>
-                        
+                     <div style="display:flex; justify-content:space-between; align-items:center;">
+                     <span style="font-weight:700;"><i class="bi bi-qr-code-scan"></i> QRIS Merchant</span>
+                     <span id="qris-status-badge" style="font-size: 11px; padding: 4px 8px; background: rgba(16,185,129,0.1); color: var(--success); border-radius: 6px; font-weight: bold;">Online</span>
+                     </div>
+                     <div id="qris-status-text" style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight:600;">Diproses 1-5 menit</div>
+                      </div>
+  
                         <div class="payment-card disabled" onclick="selectPaymentMethod(this, 'offline')">
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <span style="font-weight:700;"><i class="bi bi-bank"></i> Virtual Account Bank</span>
@@ -2543,39 +2543,54 @@
             openTargetModal('downline-modal');
         }
 
-        function openDepositModal() {
-            if (!requireLogin()) return;
-            let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-            if (usersDb[currentUserPhone]?.isBlocked) return showModal("Blokir", "Fitur dinonaktifkan.", "error");
+       function openDepositModal() {
+         if (!requireLogin()) return;
+         let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+         if (usersDb[currentUserPhone]?.isBlocked) return showModal("Blokir", "Fitur dinonaktifkan.", "error");
 
-            selectedPaymentMethod = null;
-            document.querySelectorAll('#deposit-step-1 .payment-card').forEach(c => c.classList.remove('active'));
+         const qrisCard = document.getElementById('pm-qris');
+         const qrisBadge = document.getElementById('qris-status-badge');
+         const qrisText = document.getElementById('qris-status-text');
 
-            document.getElementById('deposit-step-1').style.display = 'block';
-            document.getElementById('deposit-step-2').style.display = 'none';
-            document.getElementById('deposit-amount-display').style.display = 'block';
-            document.getElementById('deposit-amount').value = '';
-            
-            document.getElementById('qris-loading').style.display = 'block';
-            document.getElementById('qris-ready').style.display = 'none';
-            document.getElementById('deposit-success-msg').style.display = 'none';
-            document.getElementById('deposit-instructions').style.display = 'none';
-            document.getElementById('qris-image-tag').src = '';
-            
-            document.getElementById('btn-cancel-deposit').style.display = 'block';
+       if (isCSOnline) {
+         qrisCard.setAttribute('onclick', "selectPaymentMethod(this, 'qris')");
+         qrisBadge.innerText = 'Online';
+         qrisBadge.style.background = 'rgba(16,185,129,0.1)';
+         qrisBadge.style.color = 'var(--success)';
+         qrisText.innerText = 'Diproses 1-5 menit';
+      } else {
+         qrisCard.setAttribute('onclick', "selectPaymentMethod(this, 'offline')");
+         qrisBadge.innerText = 'Offline';
+         qrisBadge.style.background = 'rgba(239,68,68,0.1)';
+         qrisBadge.style.color = 'var(--danger)';
+         qrisText.innerText = 'Diproses 1-5 menit';
+      }
 
-            let activeDep = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`));
-            if(activeDep && activeDep.status === 'Menunggu') {
-                document.getElementById('deposit-step-1').style.display = 'none';
-                document.getElementById('deposit-step-2').style.display = 'block';
-                document.getElementById('deposit-amount-display').style.display = 'block';
-                document.getElementById('deposit-amount-display').innerText = formatIDR(activeDep.amount);
-                if(activeDep.qrUrl) {
-                    showQR(activeDep.qrUrl, activeDep, true);
-                }
-            }
-            openTargetModal('deposit-modal');
-        }
+       selectedPaymentMethod = null;
+         document.querySelectorAll('#deposit-step-1 .payment-card').forEach(c => c.classList.remove('active'));
+         document.getElementById('deposit-step-1').style.display = 'block';
+         document.getElementById('deposit-step-2').style.display = 'none';
+         document.getElementById('deposit-amount-display').style.display = 'block';
+         document.getElementById('deposit-amount').value = '';
+         document.getElementById('qris-loading').style.display = 'block';
+         document.getElementById('qris-ready').style.display = 'none';
+         document.getElementById('deposit-success-msg').style.display = 'none';
+         document.getElementById('deposit-instructions').style.display = 'none';
+         document.getElementById('qris-image-tag').src = '';
+         document.getElementById('btn-cancel-deposit').style.display = 'block';
+
+         let activeDep = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`));
+         if(activeDep && activeDep.status === 'Menunggu') {
+         document.getElementById('deposit-step-1').style.display = 'none';
+         document.getElementById('deposit-step-2').style.display = 'block';
+         document.getElementById('deposit-amount-display').style.display = 'block';
+         document.getElementById('deposit-amount-display').innerText = formatIDR(activeDep.amount);
+         if(activeDep.qrUrl) {
+            showQR(activeDep.qrUrl, activeDep, true);
+              }
+          }
+       openTargetModal('deposit-modal');
+    }
 
         function cancelActiveDepositSystem() {
             if (depositTimerInterval) clearInterval(depositTimerInterval);
