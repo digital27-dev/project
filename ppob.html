@@ -3177,7 +3177,7 @@
           verifBtn.style.display = "flex";
           document.getElementById('nav-verif-text').innerText = "Menunggu Aktivasi";
           document.getElementById('nav-verif-icon').className = "bi bi-hourglass-split";
-          verifBtn.onclick = () => { toggleNav(); showModal("Perhatian", "Pengajuan Aktivasi sedang ditinjau.", "info"); };
+          verifBtn.onclick = () => { toggleNav(); showModal("Perhatian", "Pengajuan reseller sedang ditinjau.", "info"); };
         } else if (u.isVerified) {
           badge.innerText = "Verified"; badge.className = "sidenav-profile-badge badge-verified";
           verifBtn.style.display = "flex";
@@ -4713,7 +4713,7 @@
       if (!requireLogin()) return;
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
       if (usersDb[currentUserPhone].isVerified) return showModal("Berhasil", "Akun telah berstatus Verified.", "win");
-      if (usersDb[currentUserPhone].verifStatus === 'pending') return showModal("Perhatian", "Pengajuan Verifikasi sedang ditinjau.", "info");
+      if (usersDb[currentUserPhone].verifStatus === 'pending') return showModal("Perhatian", "Pengajuan verifikasi sedang ditinjau.", "info");
       
       document.getElementById('v-name').value = ''; document.getElementById('v-nik').value = ''; document.getElementById('v-file').value = '';
       openTargetModal('verif-ktp-modal');
@@ -4775,7 +4775,7 @@
         localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
         
         updateAuthUI();
-        showModal("Berhasil", "Berkas terkirim sedang dalam proses verifikasi.", "win");
+        showModal("Berhasil", "Sedang dalam proses verifikasi.", "win");
       } else {
         showModal("Perhatian", "Gagal mengirim berkas pastikan koneksi internet stabil dan silakan coba lagi.", "error");
       }
@@ -4796,7 +4796,7 @@
         localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
         
         updateAuthUI();
-        showModal("Berhasil", "Berkas terkirim harap tunggu konfirmasi aktivasi.", "win");
+        showModal("Berhasil", "Sedang dalam proses aktivasi.", "win");
       } else {
         showModal("Perhatian", "Gagal mengirim berkas pastikan koneksi internet stabil dan silakan coba lagi.", "error");
       }
