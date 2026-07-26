@@ -4024,7 +4024,7 @@
       document.getElementById('deposit-instructions').style.display = 'none';
       document.getElementById('deposit-amount-display').innerText = formatIDR(amount);
 
-      tradeHistory.unshift({ id: trxId, type: 'Deposit', amount: amount, time: timeStr, status: 'Menunggu', info: 'QRIS Pembayaran' });
+      tradeHistory.unshift({ id: trxId, type: 'Deposit', amount: amount, time: timeStr, status: 'Menunggu', info: 'QRIS Merchant' });
       saveDataLocally(); renderHistory();
 
       const deviceUsed = getDeviceName();
@@ -4416,7 +4416,7 @@
                   if (ph === currentUserPhone) { userBalance += nominal; updateBalanceDisplay(); }
                   
                   let hDb = JSON.parse(localStorage.getItem(`sanz_hist_${ph}`)) || [];
-                  hDb.unshift({ id: Date.now(), type: 'Deposit', amount: nominal, time: new Date().toLocaleTimeString('id-ID'), status: 'Berhasil', info: 'QRIS Pembayaran' });
+                  hDb.unshift({ id: Date.now(), type: 'Deposit', amount: nominal, time: new Date().toLocaleTimeString('id-ID'), status: 'Berhasil', info: 'QRIS Merchant' });
                   localStorage.setItem(`sanz_hist_${ph}`, JSON.stringify(hDb));
                   if (ph === currentUserPhone) { tradeHistory = hDb; renderHistory(); }
                   
