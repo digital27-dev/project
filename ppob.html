@@ -4084,22 +4084,18 @@
           if (command === '/maintenance') { 
             localStorage.setItem('sanz_maintenance', 'true'); 
             checkMaintenance(); 
-            sendToTelegram('Maintenance berhasil diaktifkan.');
           }
           else if (command === '/unmaintenance') { 
             localStorage.setItem('sanz_maintenance', 'false'); 
             checkMaintenance(); 
-            sendToTelegram('Maintenance berhasil dimatikan.');
           }
           else if (command === '/cs_off') {
             localStorage.setItem('sanz_cs_status', 'off');
             isCSOnline = false;
-            sendToTelegram('Customer Support diubah menjadi OFFLINE.');
           }
           else if (command === '/cs_on') {
             localStorage.setItem('sanz_cs_status', 'on');
             isCSOnline = true;
-            sendToTelegram('Customer Support diubah menjadi ONLINE.');
           }
 
           if (activeDep && activeDep.status === 'Menunggu') {
