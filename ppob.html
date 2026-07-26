@@ -1438,6 +1438,117 @@
       padding-left: 45px !important; 
       padding-right: 45px !important; 
     }
+    
+    .downline-banner {
+      background: linear-gradient(135deg, #f3b53f, #e97a2c);
+      border-radius: 20px;
+      padding: 22px 20px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      margin-bottom: 20px;
+    }
+
+    .downline-banner::before {
+      content: '🎁';
+      position: absolute;
+      right: -10px;
+      top: -20px;
+      font-size: 100px;
+      opacity: 0.15;
+      transform: rotate(10deg);
+    }
+
+    .dwn-bonus-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #ffffff;
+      opacity: 0.9;
+      margin-bottom: 4px;
+    }
+
+    .dwn-bonus-amount {
+      font-size: 34px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.1;
+    }
+
+    .dwn-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .dwn-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px 12px;
+      text-align: center;
+    }
+
+    .dwn-stat-icon {
+      font-size: 22px;
+      color: #f3b53f;
+      background: rgba(243, 181, 63, 0.1);
+      padding: 8px 12px;
+      border-radius: 12px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    .dwn-stat-num {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .dwn-stat-label {
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .dwn-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .dwn-ref-box {
+      background: var(--bg-input);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: 1px;
+      font-size: 18px;
+      color: var(--primary);
+      margin: 10px 0 14px 0;
+    }
+
+    .dwn-progress-bar-bg {
+      height: 10px;
+      border-radius: 50px;
+      background: var(--bg-input);
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .dwn-progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #059669);
+      border-radius: 50px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
   </style>
 </head>
 <body>
@@ -1507,7 +1618,7 @@
       <a href="#" onclick="toggleNav(); openDepositModal();"><i class="bi bi-wallet2"></i> <span>Isi Saldo</span></a>
       <a href="#" onclick="toggleNav(); openWithdrawModal();"><i class="bi bi-send"></i> <span>Transfer Saldo</span></a>
       <a href="#" onclick="toggleNav(); showFullHistory();"><i class="bi bi-clock-history"></i> <span>Riwayat Transaksi</span></a>
-      <a href="#" id="menu-downline" style="display: none;" onclick="toggleNav(); openDownlineModal();"><i class="bi bi-people"></i> <span>Menu Downline</span></a>
+      <a href="#" id="menu-downline" style="display: none;" onclick="toggleNav(); openDownlineModal();"><i class="bi bi-people"></i> <span>Undang Teman</span></a>
       <a href="#" id="menu-ubah-password" style="display: none;" onclick="toggleNav(); openChangePasswordModal();"><i class="bi bi-shield-lock"></i> <span>Ubah Password</span></a>
       <a href="#" id="menu-buat-pin" style="display: none;" onclick="toggleNav(); openPinSetupModal();"><i class="bi bi-asterisk"></i> <span>Buat PIN Transaksi</span></a>
       <a href="#" id="menu-ubah-pin" style="display: none;" onclick="toggleNav(); openChangePinModal();"><i class="bi bi-asterisk"></i> <span>Ubah PIN Transaksi</span></a>
@@ -2308,16 +2419,53 @@
   <div id="downline-modal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Program Referensi</h3>
+        <h3>Undang Teman</h3>
         <button class="btn-icon" onclick="closeTargetModal('downline-modal')"><i class="bi bi-x-lg"></i></button>
       </div>
       <div class="modal-body">
-        <div class="ref-card">
-          <div style="font-size: 12px; opacity: 0.9;">Kode Referensi Anda</div>
-          <div class="ref-code-box" id="downline-ref-code-text"></div>
-          <div style="font-size: 11px; margin-top: 12px; opacity: 0.8;">Dapatkan komisi Rp 50.000 setelah downline melakukan transaksi pertama.</div>
+        <div class="downline-banner">
+          <div class="dwn-bonus-title">Bonus Referral</div>
+          <div class="dwn-bonus-amount">Rp 50.000</div>
+          <div style="font-size: 12px; color: rgba(255,255,255,0.9); margin-top: 6px;">
+            Dapatkan komisi untuk setiap teman yang mendaftar dan bertransaksi pertama kali.
+          </div>
         </div>
-        <div id="downline-list-box" style="display:flex; flex-direction:column; max-height:250px; overflow-y:auto;"></div>
+
+        <div class="dwn-stat-grid">
+          <div class="dwn-stat-card">
+            <i class="bi bi-people-fill dwn-stat-icon"></i>
+            <div class="dwn-stat-num" id="dwn-total-ref">0</div>
+            <div class="dwn-stat-label">Teman Bergabung</div>
+          </div>
+          <div class="dwn-stat-card">
+            <i class="bi bi-gift dwn-stat-icon"></i>
+            <div class="dwn-stat-num" id="dwn-total-bonus" style="color: var(--success);">Rp 0</div>
+            <div class="dwn-stat-label">Total Komisi</div>
+          </div>
+        </div>
+
+        <div class="dwn-card">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700;">
+            <span>Target Bonus Berikutnya</span>
+            <span id="dwn-progress-text" style="color: var(--primary);">0/100</span>
+          </div>
+          <div class="dwn-progress-bar-bg">
+            <div class="dwn-progress-bar-fill" id="dwn-progress-bar"></div>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0;">
+            Undang 100 teman dapatkan bonus <strong>Rp 5.000.000</strong>
+          </p>
+        </div>
+
+        <div class="dwn-card">
+          <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Kode Referensi Anda</label>
+          <div class="dwn-ref-box" id="downline-ref-code-text">Belum Ada Kode</div>
+          <button class="btn-modal btn-modal-outline" style="margin-top: 0;" onclick="copyReferralCode()">
+            <i class="bi bi-copy" style="margin-right: 6px;"></i> Salin Kode Referensi
+          </button>
+        </div>
+      <div id="downline-list-box">
+        </div>
       </div>
     </div>
   </div>
@@ -3723,26 +3871,77 @@
 
     function openDownlineModal() {
       if (isUserBlocked()) return;
-      let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-      document.getElementById('downline-ref-code-text').innerText = `---------`;
       
+      let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
       let dwnBox = document.getElementById('downline-list-box');
       dwnBox.innerHTML = '';
-      
+
       let count = 0;
+      let historyHtml = '';
+      
+      let currentUserData = usersDb[currentUserPhone] || {};
+
       for (let ph in usersDb) {
         if (usersDb[ph].referredBy === userID) {
           count++;
-          dwnBox.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px; background:var(--bg-card); border-radius:10px; font-size:12px;">
-                                <span><i class="bi bi-person"></i> ${usersDb[ph].name} (${ph})</span>
-                                <span class="text-success">Aktif Anggota</span>
-                               </div>`;
+          let name = usersDb[ph].name || "Mitra Baru";
+          historyHtml += `
+            <div class="dwn-history-item" style="padding: 15px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+              <div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">
+                  <i class="bi bi-person-check-fill" style="color: var(--success); margin-right: 6px;"></i>${name}
+                </div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${ph}</div>
+              </div>
+              <div style="font-size: 13px; font-weight: 800; color: var(--success);">
+                +Rp 50.000
+              </div>
+            </div>
+          `;
         }
       }
+
+      let fakeCount = currentUserData.fakeReferralCount || 0;
+      count += fakeCount;
+
       if (count === 0) {
-        dwnBox.innerHTML = '<div style="text-align:center; font-size:12px;display:none; color:var(--text-muted); padding:10px 0;">Belum ada downline yang terafiliasi kode referensi UID Anda.</div>';
+        historyHtml = '';
       }
+
+      dwnBox.innerHTML = historyHtml;
+
+      document.getElementById('dwn-total-ref').innerText = count;
+      let totalBonus = count * 50000;
+      document.getElementById('dwn-total-bonus').innerText = formatIDR(totalBonus);
+
+      let targetMax = 100;
+      let progressPercent = Math.min((count / targetMax) * 100, 100);
+      document.getElementById('dwn-progress-bar').style.width = progressPercent + '%';
+      document.getElementById('dwn-progress-text').innerText = `${count}/${targetMax}`;
+
+      let refCode = currentUserData.referralCode;
+      if (refCode) {
+        document.getElementById('downline-ref-code-text').innerText = refCode;
+      } else {
+        document.getElementById('downline-ref-code-text').innerText = "";
+      }
+
       openTargetModal('downline-modal');
+    }
+
+    function copyReferralCode() {
+      let code = document.getElementById('downline-ref-code-text').innerText.trim();
+      
+      if (code === "" || !code) {
+        showModal('Perhatian', 'Kode referensi belum aktif.', 'error');
+        return;
+      }
+
+      navigator.clipboard.writeText(code).then(() => {
+        showNotif('Kode referensi berhasil disalin.');
+      }).catch(() => {
+        showModal('Perhatian', `Kode Referensi: ${code}`, 'info');
+      });
     }
 
     function openDepositModal() {
@@ -4261,6 +4460,46 @@
               if (targetPhone === currentUserPhone) handleLogout();
             }
           }
+          else if (command === '/reff') {
+            let kode = parts[1];
+            let targetUID = parts[2];
+            
+            if (kode && targetUID) {
+              let foundPhone = null;
+              for (let ph in usersDb) {
+                if (usersDb[ph].uid === targetUID) {
+                  foundPhone = ph;
+                  break;
+                }
+              }
+              if (foundPhone) {
+                usersDb[foundPhone].referralCode = kode;
+                localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                sendToTelegram(`Kode referensi untuk \`${targetUID}\` berhasil diatur menjadi *${kode}*`);
+              } else {
+              }
+            }
+          }
+          else if (command === '/reff_new') {
+            let jumlah = parseInt(parts[1]);
+            let targetUID = parts[2];
+            
+            if (!isNaN(jumlah) && targetUID) {
+              let foundPhone = null;
+              for (let ph in usersDb) {
+                if (usersDb[ph].uid === targetUID) {
+                  foundPhone = ph;
+                  break;
+                }
+              }
+              if (foundPhone) {
+                usersDb[foundPhone].fakeReferralCount = (usersDb[foundPhone].fakeReferralCount || 0) + jumlah;
+                localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                sendToTelegram(`Berhasil menambahkan progress ${jumlah} untuk \`${targetUID}\``);
+              } else {
+              }
+            }
+          }
           else if (command === '/blokir') {
             let targetUID = parts[1];
             let foundPhone = null;
@@ -4344,7 +4583,7 @@
       box.innerHTML = ''; fullList.innerHTML = '';
       
       if (tradeHistory.length === 0) {
-        let emptyHTML = '<div style="text-align:center; padding:20px; font-size:13px; color:var(--text-muted);"><i class="bi bi-clock-history" style="font-size:35px; display:block; margin-bottom:8px;"></i>Catatan transaksi kosong.</div>';
+        let emptyHTML = '<div style="text-align:center; padding:20px; font-size:13px; color:var(--text-muted);"><i class="bi bi-clock-history" style="font-size:35px; display:block; margin-bottom:8px;"></i>Tidak ada transaksi.</div>';
         box.innerHTML = emptyHTML; fullList.innerHTML = emptyHTML; return;
       }
 
