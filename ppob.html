@@ -4016,13 +4016,6 @@
     }
 
     function claimNewUserBonus(notifId, btnEl) {
-      let hasRealTransaction = tradeHistory.some(h => h.type !== 'Bonus');
-      
-      if (hasRealTransaction) {
-        showModal("Perhatian", "Reward khusus untuk pengguna baru yang belum pernah melakukan transaksi.", "error");
-        return;
-      }
-
       let notifs = JSON.parse(localStorage.getItem('sanz_notifs_' + currentUserPhone)) || [];
       let idx = notifs.findIndex(n => n.id === notifId);
       
