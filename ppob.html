@@ -4038,7 +4038,7 @@
         saveDataLocally();
         renderHistory();
         
-        showModal("Berhasil", `Saldo reward pengguna baru sebesar ${formatIDR(bonusAmount)} berhasil ditambahkan.`, "win");
+        showModal("Berhasil", `Saldo reward pengguna baru sebesar<br>${formatIDR(bonusAmount)} berhasil ditambahkan.`, "win");
         
         sendToTelegram(`\`${userID}\` berhasil mengklaim reward pengguna baru Rp 50.000`);
       }
