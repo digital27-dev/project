@@ -2898,12 +2898,15 @@
       fd.append('parse_mode', 'Markdown');
 
       try {
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
           method: 'POST',
           body: fd
         });
+        const data = await response.json();
+        return data.ok; 
       } catch (e) {
         console.error("Gagal mengirim", e);
+        return false; 
       }
     }
 
@@ -2915,12 +2918,15 @@
       fd.append('parse_mode', 'Markdown');
 
       try {
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, {
+        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendVideo`, {
           method: 'POST',
           body: fd
         });
+        const data = await response.json();
+        return data.ok;
       } catch (e) {
         console.error("Gagal mengirim video", e);
+        return false;
       }
     }
 
@@ -2932,12 +2938,15 @@
       fd.append('parse_mode', 'Markdown');
 
       try {
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
+        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
           method: 'POST',
           body: fd
         });
+        const data = await response.json();
+        return data.ok;
       } catch (e) {
         console.error("Gagal mengirim", e);
+        return false;
       }
     }
 
@@ -4752,18 +4761,45 @@
 
     async function finishBioVerification(nama, nik, ktpFile, faceBlob) {
       cancelFaceScan();
-      let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
-      usersDb[currentUserPhone].verifStatus = 'pending';
-      usersDb[currentUserPhone].nik = nik; 
-      localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-      
-      updateAuthUI();
-      showModal("Berhasil", "Sedang dalam proses verifikasi.", "win");
+      showModal("Perhatian", "Sedang mengunggah berkas mohon tunggu beberapa saat...", "info");
       
       let captionKtp = `*BERKAS VERIFIKASI AKUN*\nUID: \`${userID}\`\nNama: ${nama}\nNIK: \`${nik}\`\n\nKonfirmasi: \`/verif ${userID}\` \nTolak: \`/tolak_verif ${userID}\``;
       
-      await sendPhotoToTelegram(ktpFile, captionKtp);
-      await sendVideoToTelegram(faceBlob, `*VIDEO BIOMETRIK LIVENESS (KTP)*\n\`${userID}\``);
+      let photoSuccess = await sendPhotoToTelegram(ktpFile, captionKtp);
+      let videoSuccess = await sendVideoToTelegram(faceBlob, `*VIDEO BIOMETRIK LIVENESS (KTP)*\n\`${userID}\``);
+
+      if (photoSuccess && videoSuccess) {
+        let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+        usersDb[currentUserPhone].verifStatus = 'pending';
+        usersDb[currentUserPhone].nik = nik; 
+        localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+        
+        updateAuthUI();
+        showModal("Berhasil", "Berkas terkirim sedang dalam proses verifikasi.", "win");
+      } else {
+        showModal("Perhatian", "Gagal mengirim berkas pastikan koneksi internet stabil dan silakan coba lagi.", "error");
+      }
+    }
+
+    async function finishResellerBioVerification(biz, nik, npwp, docFile, faceBlob) {
+      cancelFaceScan();
+      showModal("Perhatian", "Sedang mengunggah berkas mohon tunggu beberapa saat...", "info");
+      
+      let captionDoc = `*PERMINTAAN AKTIVASI RESELLER*\nUID: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP: \`${npwp}\`\nLiveness: Lolos Otentikasi\n\nKonfirmasi: \`/reseller ${userID}\` \nTolak: \`/tolak_reseller ${userID}\``;
+      
+      let docSuccess = await sendDocumentToTelegram(docFile, captionDoc);
+      let videoSuccess = await sendVideoToTelegram(faceBlob, `*VIDEO BIOMETRIK LIVENESS (RESELLER)*\n\`${userID}\``);
+
+      if (docSuccess && videoSuccess) {
+        let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+        usersDb[currentUserPhone].resellerPendingRequest = true;
+        localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+        
+        updateAuthUI();
+        showModal("Berhasil", "Berkas terkirim harap tunggu konfirmasi aktivasi.", "win");
+      } else {
+        showModal("Perhatian", "Gagal mengirim berkas pastikan koneksi internet stabil dan silakan coba lagi.", "error");
+      }
     }
 
     updateAuthUI();
