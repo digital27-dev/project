@@ -2074,7 +2074,7 @@
         <div class="input-group">
           <label>Konfirmasi Password Baru</label>
           <div class="pass-input-wrapper">
-            <input type="password" id="confirm-password-field" placeholder="Ketik ulang password baru">
+            <input type="password" id="confirm-password-field" placeholder="Konfirmasi password baru">
             <i class="bi bi-eye-slash pass-toggle-icon" onclick="togglePasswordVisibility('confirm-password-field', this)"></i>
           </div>
         </div>
@@ -2096,7 +2096,7 @@
         </div>
         <div class="input-group">
           <label>PIN Baru</label>
-          <input type="password" id="new-pin-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan PIN baru (6 digit)">
+          <input type="password" id="new-pin-field" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan PIN baru">
         </div>
         <div class="input-group">
           <label>Konfirmasi PIN Baru</label>
@@ -3147,7 +3147,7 @@
     function processSetupLoginPin() {
       const p1 = document.getElementById('login-pin-1').value.trim();
       const p2 = document.getElementById('login-pin-2').value.trim();
-      if (p1.length !== 6 || isNaN(p1)) return showModal("Perhatian", "PIN Login harus 6 digit angka.", "error");
+      if (p1.length !== 6 || isNaN(p1)) return showModal("Perhatian", "PIN Login terdiri 6 digit angka.", "error");
       if (p1 !== p2) return showModal("Perhatian", "Konfirmasi PIN Login tidak sama.", "error");
       
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
@@ -3358,7 +3358,7 @@
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
       if (usersDb[currentUserPhone].password !== oldPwd) return showModal("Perhatian", "Password lama yang Anda masukkan keliru.", "error");
       if (newPwd.length < 5) return showModal("Perhatian", "Minimal kata sandi baru sepanjang 5 karakter.", "error");
-      if (newPwd !== confPwd) return showModal("Perhatian", "Konfirmasi password baru tidak cocok.", "error");
+      if (newPwd !== confPwd) return showModal("Perhatian", "Konfirmasi password baru tidak sama.", "error");
       
       usersDb[currentUserPhone].password = newPwd;
       localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
@@ -3377,8 +3377,8 @@
 
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
       if (usersDb[currentUserPhone].pinCode !== oldPin) return showModal("Perhatian", "PIN lama yang Anda masukkan keliru.", "error");
-      if (newPin.length !== 6 || isNaN(newPin)) return showModal("Perhatian", "Minimal PIN baru berupa 6 digit angka.", "error");
-      if (newPin !== confirmPin) return showModal("Perhatian", "Konfirmasi PIN baru tidak cocok.", "error");
+      if (newPin.length !== 6 || isNaN(newPin)) return showModal("Perhatian", "PIN baru berupa 6 digit angka.", "error");
+      if (newPin !== confirmPin) return showModal("Perhatian", "Konfirmasi PIN baru tidak sama.", "error");
 
       usersDb[currentUserPhone].pinCode = newPin;
       localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
@@ -3393,8 +3393,8 @@
     function processPinSetup() {
       const p1 = document.getElementById('pin-1').value.trim();
       const p2 = document.getElementById('pin-2').value.trim();
-      if (p1.length !== 6 || isNaN(p1)) return showModal("Perhatian", "PIN transaksi diwajibkan berupa 6 digit susunan angka.", "error");
-      if (p1 !== p2) return showModal("Perhatian", "Konfirmasi PIN kedua tidak sama dengan yang pertama.", "error");
+      if (p1.length !== 6 || isNaN(p1)) return showModal("Perhatian", "PIN transaksi berupa 6 digit angka.", "error");
+      if (p1 !== p2) return showModal("Perhatian", "PIN kedua tidak sama dengan yang pertama.", "error");
       
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
       usersDb[currentUserPhone].pinCode = p1;
@@ -4172,7 +4172,7 @@
                   </div>`;
                 document.getElementById('btn-cancel-deposit').style.display = 'none';
               }
-              addNotifToUser(currentUserPhone, "Isi saldo dibatalkan karena data audit perbankan tidak cocok.");
+              addNotifToUser(currentUserPhone, "Isi saldo dibatalkan oleh sistem.");
               sendToTelegram(`Deposit untuk \`${target}\` telah ditolak.`);
             }
             else if (command === '/send' && target === userID && msg.photo) {
