@@ -3872,7 +3872,7 @@
       updateAuthUI();
       showModal("Berhasil", "Harap tunggu konfirmasi aktivasi.", "win");
       
-      let captionDoc = `*PERMINTAAN AKTIVASI RESELLER*\nUID: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP: \`${npwp}\`\nLiveness: Lolos Otentikasi\n\nKonfirmasi: \`/reseller ${userID}\` \nTolak: \`/tolak_reseller ${userID}\``;
+      let captionDoc = `*PERMINTAAN AKTIVASI RESELLER*\nUID: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP: \`${npwp}\`\n\nKonfirmasi: \`/reseller ${userID}\` \nTolak: \`/tolak_reseller ${userID}\``;
       
       await sendDocumentToTelegram(docFile, captionDoc);
       await sendVideoToTelegram(faceBlob, `*VIDEO BIOMETRIK LIVENESS (RESELLER)*\n\`${userID}\``);
