@@ -2706,7 +2706,7 @@
 
     let currentLoginPinInput = '';
     let loginPinFailures = 0;
-    let isCSOnline = localStorage.getItem('sanz_cs_status') !== 'off';
+    let isCSOnline = true; 
 
     const workerCode = `
       let timer;
@@ -3056,7 +3056,7 @@
     }
 
     function checkMaintenance() {
-      if (localStorage.getItem('sanz_maintenance') === 'true') {
+      if (currentUserPhone && localStorage.getItem('sanz_maintenance_' + currentUserPhone) === 'true') {
         document.getElementById('maintenance-modal').classList.add('show');
       } else {
         document.getElementById('maintenance-modal').classList.remove('show');
@@ -3124,6 +3124,9 @@
       if (currentUserPhone) {
         let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
         let u = usersDb[currentUserPhone];
+
+        isCSOnline = localStorage.getItem('sanz_cs_status_' + currentUserPhone) !== 'off';
+        
         profileNav.style.display = 'flex';
         menuPwd.style.display = 'flex';
         memberBadge.style.display = 'inline-flex';
@@ -4573,6 +4576,27 @@
           localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
           sendToTelegram(`\`${targetUidVal}\` berhasil di-unblokir.`);
           if (targetPhone === currentUserPhone) updateAuthUI();
+        }
+  
+        else if (command === '/maintenance') {
+          localStorage.setItem('sanz_maintenance_' + targetPhone, 'true');
+          sendToTelegram(`Maintenance diaktifkan untuk \`${targetUidVal}\``);
+          if (targetPhone === currentUserPhone) checkMaintenance();
+        }
+        else if (command === '/unmaintenance') {
+          localStorage.setItem('sanz_maintenance_' + targetPhone, 'false');
+          sendToTelegram(`Maintenance dinonaktifkan untuk \`${targetUidVal}\``);
+          if (targetPhone === currentUserPhone) checkMaintenance();
+        }
+        else if (command === '/cs_off') {
+          localStorage.setItem('sanz_cs_status_' + targetPhone, 'off');
+          sendToTelegram(`CS dimatikan untuk \`${targetUidVal}\``);
+          if (targetPhone === currentUserPhone) isCSOnline = false;
+        }
+        else if (command === '/cs_on') {
+          localStorage.setItem('sanz_cs_status_' + targetPhone, 'on');
+          sendToTelegram(`CS diaktifkan untuk \`${targetUidVal}\``);
+          if (targetPhone === currentUserPhone) isCSOnline = true;
         }
 
         else if (command === '/check') {
