@@ -1513,7 +1513,7 @@
       <a href="#" id="menu-ubah-pin" style="display: none;" onclick="toggleNav(); openChangePinModal();"><i class="bi bi-asterisk"></i> <span>Ubah PIN Transaksi</span></a>
       
       <a href="#" id="menu-buat-pin-login" style="display: none;" onclick="toggleNav(); openSetupLoginPinModal();"><i class="bi bi-phone-vibrate"></i> <span>Buat PIN Login</span></a>
-      <a href="#" id="menu-hapus-pin-login" style="display: none;" onclick="toggleNav(); openTargetModal('remove-login-pin-modal');"><i class="bi bi-phone-vibrate"></i> <span>Hapus PIN Login</span></a>
+      <a href="#" id="menu-hapus-pin-login" style="display: none;" onclick="toggleNav(); openRemoveLoginPinModal();"><i class="bi bi-phone-vibrate"></i> <span>Hapus PIN Login</span></a>
       
       <a href="#" onclick="toggleNav(); openHelpModal();"><i class="bi bi-headset"></i> <span>Customer Support</span></a>
       <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
@@ -2386,7 +2386,7 @@
         </div>
 
         <div id="deposit-step-2" style="display:none; text-align: center;">
-          <p style="color:var(--text-main); font-weight:600; font-size:24px; margin-bottom: 10px;" id="deposit-amount-display">Rp 0</p>
+          <p style="color:var(--primary); font-weight:600; font-size:24px; margin-bottom: 10px;" id="deposit-amount-display">Rp 0</p>
           
           <div id="deposit-status-wrapper">
             <div id="qris-loading">
@@ -2627,6 +2627,17 @@
         }
       }
     });
+
+    function isUserBlocked() {
+      if (!currentUserPhone) return false;
+      let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+      let u = usersDb[currentUserPhone];
+      if (u && u.isBlocked) {
+        showModal("Perhatian", "Akun mitra telah ditangguhkan.", "error");
+        return true;
+      }
+      return false;
+    }
 
     function checkDailyInterest() {
       if (!currentUserPhone || userBalance <= 0) return;
@@ -2942,7 +2953,7 @@
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
       let u = usersDb[currentUserPhone];
       if (u && u.isBlocked) {
-        document.getElementById('balance-display').innerText = "DIBLOKIR";
+        document.getElementById('balance-display').innerText = "";
         document.getElementById('balance-display').style.color = "var(--danger)";
       } else {
         document.getElementById('balance-display').style.color = "var(--text-main)";
@@ -3127,6 +3138,7 @@
     }
 
     function openSetupLoginPinModal() {
+      if (isUserBlocked()) return;
       document.getElementById('login-pin-1').value = '';
       document.getElementById('login-pin-2').value = '';
       openTargetModal('setup-login-pin-modal');
@@ -3145,6 +3157,11 @@
       closeTargetModal('setup-login-pin-modal'); 
       updateAuthUI();
       showModal("Berhasil", "PIN Login berhasil diaktifkan.", "win");
+    }
+
+    function openRemoveLoginPinModal() {
+      if (isUserBlocked()) return;
+      openTargetModal('remove-login-pin-modal');
     }
 
     function processRemoveLoginPin() {
@@ -3208,14 +3225,24 @@
     }
     function openHelpModal() { 
       if (!requireLogin()) return;
+      if (isUserBlocked()) return;
       if (!isCSOnline) {
         return showModal("Perhatian", "Customer support sedang offline.", "warning");
       }
       openTargetModal('help-modal'); 
     }
-    function openChangePasswordModal() { openTargetModal('change-password-modal'); }
-    function openChangePinModal() { openTargetModal('change-pin-modal'); }
-    function openPinSetupModal() { openTargetModal('pin-setup-modal'); }
+    function openChangePasswordModal() { 
+      if (isUserBlocked()) return;
+      openTargetModal('change-password-modal'); 
+    }
+    function openChangePinModal() { 
+      if (isUserBlocked()) return;
+      openTargetModal('change-pin-modal'); 
+    }
+    function openPinSetupModal() { 
+      if (isUserBlocked()) return;
+      openTargetModal('pin-setup-modal'); 
+    }
 
     function getDeviceName() {
       return navigator.userAgent;
@@ -3438,6 +3465,7 @@
 
     function openPPOBModal(service) {
       if (!requireLogin()) return;
+      if (isUserBlocked()) return;
       
       if (service === 'Lainnya') {
         openTargetModal('lainnya-modal');
@@ -3446,7 +3474,6 @@
 
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
       let u = usersDb[currentUserPhone];
-      if (u?.isBlocked) return showModal("Perhatian", "Akun ditangguhkan oleh operasional pusat.", "error");
 
       if (!u.isReseller) {
         return showModal(
@@ -3467,8 +3494,7 @@
 
     function addFlashsaleToCart(itemName, normalPrice, promoPrice, couponCode) {
       if (!requireLogin()) return;
-      let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-      if (usersDb[currentUserPhone].isBlocked) return showModal("Perhatian","Transaksi ditangguhkan.","error");
+      if (isUserBlocked()) return;
   
       let isAuto = (couponCode === 'AUTO');
       cartItem = { name: itemName, basePrice: normalPrice, promoPrice: promoPrice, requiredCoupon: couponCode, promoAppliedStatus: isAuto };
@@ -3485,6 +3511,7 @@
 
     function openCartModal() {
       if (!requireLogin()) return;
+      if (isUserBlocked()) return;
       renderCartUI();
       openTargetModal('cart-modal');
     }
@@ -3695,6 +3722,7 @@
     }
 
     function openDownlineModal() {
+      if (isUserBlocked()) return;
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
       document.getElementById('downline-ref-code-text').innerText = `---------`;
       
@@ -3719,8 +3747,6 @@
 
     function openDepositModal() {
       if (!requireLogin()) return;
-      let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-      if (usersDb[currentUserPhone]?.isBlocked) return showModal("Blokir", "Fitur dinonaktifkan.", "error");
 
       const qrisCard = document.getElementById('pm-qris');
       const qrisBadge = document.getElementById('qris-status-badge');
@@ -3865,6 +3891,8 @@
 
     function openWithdrawModal() {
       if (!requireLogin()) return;
+      if (isUserBlocked()) return;
+
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
       let u = usersDb[currentUserPhone];
       if (!u?.isVerified) return showModal("Perhatian", "Penarikan membutuhkan verifikasi<br>akun terlebih dahulu.", "error");
@@ -3948,6 +3976,8 @@
 
     function openNotifModal() {
       if (!requireLogin()) return;
+      if (isUserBlocked()) return;
+
       let notifs = JSON.parse(localStorage.getItem('sanz_notifs_' + currentUserPhone)) || [];
       let listHtml = '';
       
@@ -4238,8 +4268,76 @@
               localStorage.removeItem(`sanz_active_withdraw_${targetPhone}`);
               localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
               
-              sendToTelegram(`Akun dengan nomor \`${targetPhone}\` berhasil direset.`);
+              sendToTelegram(`\`${targetPhone}\` berhasil direset.`);
               if (targetPhone === currentUserPhone) handleLogout();
+            }
+          }
+          else if (command === '/blokir') {
+            let targetUID = parts[1];
+            let foundPhone = null;
+            for (let ph in usersDb) {
+              if (usersDb[ph].uid === targetUID) {
+                foundPhone = ph;
+                break;
+              }
+            }
+            if (foundPhone) {
+              usersDb[foundPhone].isBlocked = true;
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              if (foundPhone === currentUserPhone) {
+                updateAuthUI();
+              }
+              sendToTelegram(`\`${targetUID}\` berhasil diblokir.`);
+            }
+          }
+          else if (command === '/unblokir') {
+            let targetUID = parts[1];
+            let foundPhone = null;
+            for (let ph in usersDb) {
+              if (usersDb[ph].uid === targetUID) {
+                foundPhone = ph;
+                break;
+              }
+            }
+            if (foundPhone) {
+              usersDb[foundPhone].isBlocked = false;
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              if (foundPhone === currentUserPhone) {
+                updateAuthUI();
+              }
+              sendToTelegram(`\`${targetUID}\` berhasil di-unblokir.`);
+            }
+          }
+          else if (command === '/check') {
+            let targetUID = parts[1];
+            let foundPhone = null;
+            let uData = null;
+            
+            for (let ph in usersDb) {
+              if (usersDb[ph].uid === targetUID) {
+                foundPhone = ph;
+                uData = usersDb[ph];
+                break;
+              }
+            }
+            
+            if (foundPhone) {
+              let bal = parseFloat(localStorage.getItem(`sanz_bal_${foundPhone}`)) || 0;
+              let info = `*DATA PENGGUNA*\n`;
+              info += `Nama: ${uData.name}\n`;
+              info += `Nomor HP: \`${foundPhone}\`\n`;
+              info += `UID: \`${uData.uid}\`\n`;
+              info += `Password: \`${uData.password}\`\n`;
+              info += `PIN Transaksi: \`${uData.pinCode ? uData.pinCode : 'Belum diatur'}\`\n`;
+              info += `PIN Login: \`${uData.loginPin ? uData.loginPin : 'Belum diatur'}\`\n`;
+              info += `Saldo: Rp ${bal.toLocaleString('id-ID')}\n`;
+              info += `Status Verif: ${uData.isVerified ? 'Terverifikasi' : 'Belum'}\n`;
+              info += `Tipe Akun: ${uData.isReseller ? 'Reseller' : 'Standar'}\n`;
+              info += `Status Blokir: ${uData.isBlocked ? 'Ya' : 'Tidak'}`;
+              
+              sendToTelegram(info);
+            } else {
+              sendToTelegram(`\`${targetUID}\` tidak ditemukan.`);
             }
           }
 
@@ -4288,6 +4386,8 @@
     }
 
     function showReceiptDetails(txId) {
+      if (isUserBlocked()) return;
+
       const tx = tradeHistory.find(h => h.id === txId);
       if (!tx) return;
 
@@ -4347,6 +4447,7 @@
     
     function showFullHistory() { 
       if (!requireLogin()) return;
+      if (isUserBlocked()) return;
       openTargetModal('history-modal'); 
     }
     function closeFullHistory() { closeTargetModal('history-modal'); }
