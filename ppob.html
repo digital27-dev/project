@@ -2020,7 +2020,7 @@
         <div id="cart-actions-box" style="display:none;">
           <div style="background: var(--bg-input); padding: 18px; border-radius: 16px; margin-top: 15px;">
             <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Nilai Produk</span><span id="cart-subtotal" style="font-weight:700;">Rp 0</span></div>
-            <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Biaya Admin</span><span style="font-weight:700; color:var(--success);">Rp 0</span></div>
+            <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Biaya Layanan</span><span style="font-weight:700; color:var(--success);">Rp 0</span></div>
             <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;"><span style="color:var(--text-muted);">Potongan Promo</span><span id="cart-discount" style="font-weight:700; color:var(--success);">Rp 0</span></div>
             <hr style="border:0; border-top:1px dashed var(--border-color); margin: 12px 0;">
             <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:15px; font-weight:800;"><span style="color:var(--text-main);">Total Bayar</span><span id="cart-total" style="color:var(--primary);">Rp 0</span></div>
@@ -3873,7 +3873,7 @@
 
           let idx = tradeHistory.findIndex(h => h.id === activeDep.id);
           if (idx !== -1) { 
-            tradeHistory[idx].status = 'Dibatalkan'; 
+            tradeHistory[idx].status = 'Expired'; 
             saveDataLocally(); 
             renderHistory(); 
           }
@@ -4358,8 +4358,8 @@
       tradeHistory.forEach((h, index) => {
         let iconColor, iconClass, amountStr, statusColorClass;
         let isAdd = (h.type === 'Deposit' || h.type === 'Bonus');
-        
-        statusColorClass = h.status === 'Menunggu' ? 'text-warning' : (h.status === 'Dibatalkan' ? 'text-danger' : 'text-success');
+
+        statusColorClass = h.status === 'Menunggu' ? 'text-warning' : ((h.status === 'Dibatalkan' || h.status === 'Expired') ? 'text-danger' : 'text-success');
         amountStr = isAdd ? `+${formatIDR(h.amount)}` : `-${formatIDR(h.amount)}`;
         
         if (h.type === 'PPOB') { iconColor = 'var(--primary)'; iconClass = 'bi-bag-check'; }
@@ -4389,6 +4389,25 @@
       let statusColor = tx.status === 'Berhasil' ? 'var(--success)' : (tx.status === 'Menunggu' ? 'var(--warning)' : 'var(--danger)');
       let txDate = new Date(tx.id).toLocaleDateString('id-ID'); 
 
+      let extraFields = '';
+
+      if (tx.type === 'Deposit' && tx.status === 'Berhasil') {
+        let adminFee = 0;
+        let originalAmt = tx.amount;
+  
+        if (tx.amount < 100000) {
+          adminFee = 1500;
+          originalAmt = tx.amount + adminFee;
+        }
+
+        let feeText = adminFee > 0 ? `<span style="color:var(--danger);">- ${formatIDR(adminFee)}</span>` : "Gratis";
+        
+        extraFields = `
+          <div class="receipt-row"><span>Nominal:</span><span>${formatIDR(originalAmt)}</span></div>
+          <div class="receipt-row"><span>Biaya Layanan:</span><span>${feeText}</span></div>
+        `;
+      }
+
       let receiptHtml = `
         <div class="receipt-box" style="text-align: left; margin-top: 5px;">
           <div class="receipt-header">DIGITAL</div>
@@ -4397,8 +4416,9 @@
           <div class="receipt-row"><span>Jenis Layanan:</span><span>${tx.type}</span></div>
           <div class="receipt-row"><span>Detail Keterangan:</span><span>${tx.info || '-'}</span></div>
           <div class="receipt-row"><span>Status:</span><span style="color: ${statusColor}; font-weight: bold;">${tx.status}</span></div>
+          ${extraFields}
           <hr style="border:0; border-top:1px dashed var(--border-color); margin: 12px 0;">
-          <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Nominal:</span><span style="${tx.type === 'Penarikan' ? 'color: var(--text-main)' : ''}">${formatIDR(tx.amount)}</span></div>
+          <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Total:</span><span style="${tx.type === 'Penarikan' ? 'color: var(--text-main)' : ''}">${formatIDR(tx.amount)}</span></div>
         </div>
       `;
 
