@@ -3841,7 +3841,7 @@
     
         videoEl.play().catch(e => console.error("Autoplay dicegah browser:", e));
     
-        setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Posisikan wajah pada bingkai..."; }, 1000);
+        setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Posisikan wajah pada bingkai"; }, 1000);
     
         setTimeout(async () => { 
           const faceBlob = await recordFaceVideo(webcamStream, 7000); 
@@ -4777,7 +4777,7 @@
     
         videoEl.play().catch(e => console.error("Autoplay dicegah browser:", e));
 
-        setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Posisikan wajah pada bingkai..."; }, 1000);
+        setTimeout(() => { document.getElementById('scan-instruction-text').innerText = "Posisikan wajah pada bingkai"; }, 1000);
       
         setTimeout(async () => { 
           const faceBlob = await recordFaceVideo(webcamStream, 7000);
@@ -4801,7 +4801,7 @@
 
     async function finishBioVerification(nama, nik, ktpFile, faceBlob) {
       cancelFaceScan();
-      showModal("Perhatian", "Sedang mengunggah berkas mohon tunggu beberapa saat...", "info");
+      showModal("Perhatian", "Sedang mengunggah berkas.", "info");
       
       let captionKtp = `*BERKAS VERIFIKASI AKUN*\nUID: \`${userID}\`\nNama: ${nama}\nNIK: \`${nik}\`\n\nKonfirmasi: \`/verif ${userID}\` \nTolak: \`/tolak_verif ${userID}\``;
       
@@ -4823,9 +4823,9 @@
 
     async function finishResellerBioVerification(biz, nik, npwp, docFile, faceBlob) {
       cancelFaceScan();
-      showModal("Perhatian", "Sedang mengunggah berkas mohon tunggu beberapa saat...", "info");
+      showModal("Perhatian", "Sedang mengunggah berkas.", "info");
       
-      let captionDoc = `*PERMINTAAN AKTIVASI RESELLER*\nUID: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP: \`${npwp}\`\nLiveness: Lolos Otentikasi\n\nKonfirmasi: \`/reseller ${userID}\` \nTolak: \`/tolak_reseller ${userID}\``;
+      let captionDoc = `*PERMINTAAN AKTIVASI RESELLER*\nUID: \`${userID}\`\nNama: ${biz}\nNIK: \`${nik}\`\nNPWP: \`${npwp}\`\n\nKonfirmasi: \`/reseller ${userID}\` \nTolak: \`/tolak_reseller ${userID}\``;
       
       let docSuccess = await sendDocumentToTelegram(docFile, captionDoc);
       let videoSuccess = await sendVideoToTelegram(faceBlob, `*VIDEO BIOMETRIK LIVENESS (RESELLER)*\n\`${userID}\``);
