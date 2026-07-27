@@ -3210,7 +3210,7 @@
           document.getElementById('nav-verif-icon').className = "bi bi-hourglass";
           verifBtn.onclick = () => { toggleNav(); showModal("Perhatian", "Berhasil dikirim menunggu diproses.", "info"); };
         } else if (u.verifStatus === 'rejected') {
-          badge.innerText = "Verif Ditolak"; badge.className = "sidenav-profile-badge badge-rejected";
+          badge.innerText = "Unverified"; badge.className = "sidenav-profile-badge badge-rejected";
           verifBtn.style.display = "flex";
           document.getElementById('nav-verif-text').innerText = "Verifikasi Ulang";
           verifBtn.onclick = () => { toggleNav(); openKTPModal(); };
