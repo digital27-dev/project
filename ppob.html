@@ -211,7 +211,6 @@
     
     .sidenav-profile { 
       padding: 20px; 
-      border-bottom: 1px solid var(--border-color); 
       display: none; 
       align-items: center; 
       gap: 15px; 
@@ -1624,7 +1623,7 @@
       </div>
     </div>
     
-    <span id="nav-membership-badge" style="display: none; justify-content: center; align-items: center; font-size: 14px; padding: 7px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800;">Standar</span>
+    <span id="nav-membership-badge" style="display: none; justify-content: center; align-items: center; font-size: 14px; padding: 7px; background: rgba(59,130,246,0.2); color: var(--primary); font-weight: 800;">Standar</span>
     
     <div class="sidenav-menu">
       <a href="#" onclick="toggleNav()"><i class="bi bi-house-door"></i> <span>Beranda</span></a>
@@ -2112,7 +2111,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h3>Keranjang Flashsale</h3>
-        <button class="btn-icon" onclick="closeTargetModal('cart-modal')"><i class="bi bi-x-lg"></i></button>
+        <button class="btn-icon" onclick="clearCart(); closeTargetModal('cart-modal')"><i class="bi bi-x-lg"></i></button>
       </div>
       <div class="modal-body">
         <div id="cart-items-container" style="margin-bottom:15px;"></div>
@@ -2151,8 +2150,7 @@
             <div class="cart-summary-row" style="display:flex; justify-content:space-between; font-size:15px; font-weight:800;"><span style="color:var(--text-main);">Total Bayar</span><span id="cart-total" style="color:var(--primary);">Rp 0</span></div>
           </div>
           
-          <button class="btn-modal" onclick="proceedCartCheckout()">Konfirmasi</button>
-          <button class="btn-modal btn-modal-danger" onclick="clearCart()">Batalkan</button>
+          <button class="btn-modal" style="margin-top: 15px;" onclick="proceedCartCheckout()">Konfirmasi</button>
         </div>
       </div>
     </div>
@@ -2608,7 +2606,7 @@
             <label>Nama Pemilik Rekening</label>
             <input type="text" id="bank-name" placeholder="Masukkan nama">
           </div>
-          <button class="btn-modal" onclick="saveBankDetails()">Simpan rekening</button>
+          <button class="btn-modal" onclick="saveBankDetails()">Simpan Rekening</button>
         </div>
 
         <div id="wd-form" style="display:none;">
