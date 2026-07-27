@@ -69,9 +69,11 @@
       min-height: 100vh; 
       position: relative; 
       padding-top: 75px; 
-      padding-bottom: 30px; 
+      padding-bottom: 0;
       transition: background 0.3s ease; 
       overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
     }
     
     .top-bar { 
@@ -619,7 +621,21 @@
     .flashsale-grid::-webkit-scrollbar { 
       display: none; 
     }
-    
+
+    .fs-label-new {
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      font-size: 10px; 
+      padding: 8px 12px 6px 12px; 
+      background: rgba(59,130,246,0.15); 
+      color: var(--primary); 
+      font-weight: 800; 
+      margin: -12px -12px 10px -12px;
+      line-height: 1;
+      letter-spacing: 0.5px;
+    }
+  
     .fs-item { 
       min-width: calc((100% - 15px) / 2); 
       background: var(--bg-card); 
@@ -655,7 +671,6 @@
       font-weight: 800; 
       padding: 4px 8px; 
       border-radius: 8px; 
-      border: 1px solid rgba(255, 255, 255, 0.3); 
     }
 
     .fs-content { 
@@ -666,7 +681,7 @@
     }
 
     .fs-name { 
-      font-size: 14px; 
+      font-size: 13px; 
       font-weight: 700; 
       color: var(--text-main); 
       margin-bottom: 10px; 
@@ -677,14 +692,14 @@
     }
 
     .fs-price-strike { 
-      font-size: 12px; 
+      font-size: 11.5px; 
       color: var(--text-muted); 
       text-align: center; 
       text-decoration: line-through;
     }
 
     .fs-price { 
-      font-size: 16px; 
+      font-size: 15px; 
       color: var(--danger); 
       text-align: center; 
       font-weight: 800; 
@@ -694,10 +709,10 @@
 
     .fs-add-btn { 
       width: 100%; 
-      padding: 10px; 
+      padding: 9px; 
       border-radius: 12px; 
-      background: rgba(239, 68, 68, 0.1); 
-      color: var(--danger); 
+      background: var(--primary); 
+      color: #fff; 
       border: none; 
       cursor: pointer; 
       font-weight: 700; 
@@ -706,7 +721,6 @@
     }
 
     .fs-add-btn:active { 
-      background: rgba(239, 68, 68, 0.2); 
       transform: scale(0.97); 
     }
 
@@ -1537,6 +1551,17 @@
       width: 0%;
       transition: width 0.4s ease;
     }
+    
+    .footer-copyright {
+      text-align: center;
+      padding: 15px;
+      margin-top: auto;
+      font-size: 11px;
+      background: var(--bg-card); 
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      font-weight: 500;
+    }
   </style>
 </head>
 <body>
@@ -1732,7 +1757,7 @@
             <div class="fs-badge"><i class="bi bi-lightning-fill"></i> PROMO</div>
           </div>
           <div class="fs-content">
-            <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+            <div class="fs-label-new">PENGGUNA BARU</div>
             <div class="fs-name">Voucher Shopee<br>Rp 50.000</div>
             <div class="fs-price-strike">Rp 50.000</div>
             <div class="fs-price">Rp 1.000</div>
@@ -1745,7 +1770,7 @@
             <div class="fs-badge"><i class="bi bi-lightning-fill"></i> PROMO</div>
           </div>
           <div class="fs-content">
-            <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+            <div class="fs-label-new">PENGGUNA BARU</div>
             <div class="fs-name">Voucher Tokopedia<br>Rp 100.000</div>
             <div class="fs-price-strike">Rp 100.000</div>
             <div class="fs-price">Rp 1.000</div>
@@ -1758,7 +1783,7 @@
             <div class="fs-badge"><i class="bi bi-lightning-fill"></i> CASHBACK</div>
           </div>
           <div class="fs-content">
-            <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+            <div class="fs-label-new">PENGGUNA BARU</div>
             <div class="fs-name">Produk E-Wallet<br>Rp 200.000</div>
             <div class="fs-price-strike">Rp 200.000</div>
             <div class="fs-price">Rp 100.000</div>
@@ -1771,7 +1796,7 @@
             <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
           </div>
           <div class="fs-content">
-            <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+            <div class="fs-label-new">PENGGUNA BARU</div>
             <div class="fs-name">Produk E-Wallet<br>Rp 500.000</div>
             <div class="fs-price-strike">Rp 500.000</div>
             <div class="fs-price">Rp 250.000</div>
@@ -1784,7 +1809,7 @@
             <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
           </div>
           <div class="fs-content">
-            <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+            <div class="fs-label-new">PENGGUNA BARU</div>
             <div class="fs-name">Produk E-Wallet<br>Rp 1.000.000</div>
             <div class="fs-price-strike">Rp 1.000.000</div>
             <div class="fs-price">Rp 500.000</div>
@@ -1797,7 +1822,7 @@
             <div class="fs-badge"><i class="bi bi-lightning-fill"></i> RESELLER</div>
           </div>
           <div class="fs-content">
-            <div style="display: flex; justify-content: center; align-items: center; font-size: 10px; padding: 6px; background: rgba(59,130,246,0.2); color: var(--primary); border-bottom: 1px solid var(--border-color); font-weight: 800; margin: -12px -12px 10px -12px;">PENGGUNA BARU</div>
+            <div class="fs-label-new">PENGGUNA BARU</div>
             <div class="fs-name">Produk E-Wallet<br>Rp 5.000.000</div>
             <div class="fs-price-strike">Rp 5.000.000</div>
             <div class="fs-price">Rp 2.500.000</div>
@@ -1823,7 +1848,6 @@
     </div>
 
     <div class="services-section">
-      <div class="section-title">PT Mitra Komunikasi Nusantara Tbk</div>
       <div class="app-info-grid">
         <div class="info-card-app">
           <img src="https://img91.wordpress.com/wp-content/uploads/2026/07/logo-ojk.png" alt="OJK">
@@ -1863,8 +1887,11 @@
       </div>
       <div class="history-list" id="history-box"></div>
     </div>
+  <div class="footer-copyright">
+      &copy; 2026 PT Mitra Komunikasi Nusantara
+    </div>
   </div>
-
+  
   <div id="setup-login-pin-modal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
@@ -2420,7 +2447,7 @@
 
         <div class="dwn-stat-grid">
           <div class="dwn-stat-card">
-            <i class="bi bi-people-fill dwn-stat-icon"></i>
+            <i class="bi bi-people dwn-stat-icon"></i>
             <div class="dwn-stat-num" id="dwn-total-ref">0</div>
             <div class="dwn-stat-label">Teman Bergabung</div>
           </div>
