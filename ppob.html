@@ -4566,6 +4566,16 @@
           if (targetPhone === currentUserPhone) updateAuthUI();
         }
 
+        else if (command === '/notif') {
+          let notifText = parts.slice(1, -1).join(' ');
+          
+          if (notifText) {
+            addNotifToUser(targetPhone, notifText, 'info');
+            sendToTelegram(`Notifikasi berhasil dikirim ke \`${targetUidVal}\` pesan: "${notifText}"`);
+          } else {
+          }
+        }
+
         else if (command === '/reset_akun') {
           delete usersDb[targetPhone];
           localStorage.removeItem(`sanz_bal_${targetPhone}`);
