@@ -3184,7 +3184,11 @@
           if (menuBuatPinLogin) menuBuatPinLogin.style.display = 'flex';
         }
 
-        if (u.isReseller) {
+        if (u.isBlocked) {
+          badge.innerText = "Diblokir";
+          badge.className = "sidenav-profile-badge badge-rejected";
+          verifBtn.style.display = "none";
+        } else if (u.isReseller) {
           badge.innerText = "Verified"; badge.className = "sidenav-profile-badge badge-verified";
           verifBtn.style.display = "none";
         } else if (u.resellerPendingRequest) {
@@ -3397,7 +3401,6 @@
     }
     function openHelpModal() { 
       if (!requireLogin()) return;
-      if (isUserBlocked()) return;
       if (!isCSOnline) {
         return showModal("Perhatian", "Customer support sedang offline.", "warning");
       }
