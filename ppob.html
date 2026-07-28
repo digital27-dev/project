@@ -400,7 +400,7 @@
     }
 
     .section-title { 
-      font-size: 15px; 
+      font-size: 14px; 
       font-weight: 700; 
       margin-bottom: 15px; 
       color: var(--text-main); 
@@ -632,6 +632,24 @@
       font-weight: 800; 
       margin: -12px -12px 10px -12px;
       line-height: 1;
+      letter-spacing: 0.5px;
+    }
+
+    .ribbon-cashback {
+      position: absolute;
+      top: 12px;
+      right: -40px;
+      width: 120px; 
+      background: var(--danger);
+      color: #ffffff;
+      padding: 4px 0;
+      font-size: 4px;
+      font-weight: 800;
+      text-transform: uppercase;
+      text-align: center; 
+      line-height: 1.2; 
+      transform: rotate(45deg);
+      z-index: 10;
       letter-spacing: 0.5px;
     }
   
@@ -983,6 +1001,14 @@
     .payment-card.active { 
       border-color: var(--primary); 
       background: rgba(59, 130, 246, 0.1); 
+    }
+
+    .payment-card .pm-icon {
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+    .payment-card.active .pm-icon {
+      color: var(--primary);
     }
 
     .cf-captcha-box { 
@@ -1753,8 +1779,9 @@
       
       <div class="flashsale-grid">
         <div class="fs-item">
+          <div class="ribbon-cashback">PROMO</div>
           <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14195.png')">
-            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> PROMO</div>
+            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 99% OFF</div>
           </div>
           <div class="fs-content">
             <div class="fs-label-new">PENGGUNA BARU</div>
@@ -1766,8 +1793,9 @@
         </div>
         
         <div class="fs-item">
+          <div class="ribbon-cashback">PROMO</div>
           <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14195.png')">
-            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> PROMO</div>
+            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 99% OFF</div>
           </div>
           <div class="fs-content">
             <div class="fs-label-new">PENGGUNA BARU</div>
@@ -1779,8 +1807,9 @@
         </div>
         
         <div class="fs-item">
+          <div class="ribbon-cashback">PROMO</div>
           <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
-            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> CASHBACK</div>
+            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 50% OFF</div>
           </div>
           <div class="fs-content">
             <div class="fs-label-new">PENGGUNA BARU</div>
@@ -1792,8 +1821,9 @@
         </div>
         
         <div class="fs-item">
+          <div class="ribbon-cashback">BIFAST</div>
           <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
-            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
+            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 50% OFF</div>
           </div>
           <div class="fs-content">
             <div class="fs-label-new">PENGGUNA BARU</div>
@@ -1805,8 +1835,9 @@
         </div>
         
         <div class="fs-item">
+          <div class="ribbon-cashback">BIFAST</div>
           <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
-            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> BIFAST</div>
+            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 50% OFF</div>
           </div>
           <div class="fs-content">
             <div class="fs-label-new">PENGGUNA BARU</div>
@@ -1818,8 +1849,9 @@
         </div>
         
         <div class="fs-item">
+          <div class="ribbon-cashback">BIFAST</div>
           <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
-            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> RESELLER</div>
+            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 50% OFF</div>
           </div>
           <div class="fs-content">
             <div class="fs-label-new">PENGGUNA BARU</div>
@@ -1883,7 +1915,7 @@
     <div class="services-section">
       <div class="section-title">
         Transaksi Terakhir
-        <a onclick="showFullHistory()" style="font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 700; cursor: pointer;">Lihat Semua</a>
+        <a onclick="showFullHistory()" style="font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 700; cursor: pointer;">Lihat Semua</a>
       </div>
       <div class="history-list" id="history-box"></div>
     </div>
@@ -2499,12 +2531,13 @@
       </div>
       <div class="modal-body">
         <div id="deposit-step-1">
-          <div style="font-size: 11px; color: var(--success); text-align: center; font-weight: 600;"></div>
           <div class="input-group">
-            <label>Nominal Top-up (Min. Rp 50.000)</label>
-            <input type="number" id="deposit-amount" placeholder="Masukkan nominal">
+            <div style="position: relative; display: flex; align-items: center;">
+              <span style="position: absolute; left: 16px; font-weight: 700; color: var(--text-main); font-size: 14px;">Rp</span>
+              <input type="number" id="deposit-amount" placeholder="Masukkan nominal" style="padding-left: 45px; width: 100%;">
+            </div>
           </div>
-          
+          <label style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; display: block;">Nominal Cepat</label>
           <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
             <button class="quick-nominal-btn" onclick="setNominal(50000)">Rp 50.000</button>
             <button class="quick-nominal-btn" onclick="setNominal(100000)">Rp 100.000</button>
@@ -2513,31 +2546,44 @@
             <button class="quick-nominal-btn" onclick="setNominal(250000)">Rp 250.000</button>
             <button class="quick-nominal-btn" onclick="setNominal(500000)">Rp 500.000</button>
           </div>
-          
-          <label style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; display: block;">Pilih Metode Pembayaran</label>
+          <label style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; display: block;">Metode Pembayaran</label>
           <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;" id="payment-methods-container">
-            <div class="payment-card" id="pm-qris" onclick="selectPaymentMethod(this, 'qris')">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:700;"><i class="bi bi-qr-code-scan"></i> QRIS Merchant</span>
-                <span id="qris-status-badge" style="font-size: 11px; padding: 4px 8px; background: rgba(16,185,129,0.1); color: var(--success); border-radius: 6px; font-weight: bold;">Online</span>
+            <div class="payment-card" id="pm-qris" onclick="selectPaymentMethod(this, 'qris')" style="display: flex; align-items: center; padding: 15px;">
+              <div class="pm-icon" style="font-size: 36px; margin-right: 15px; line-height: 1;">
+                <i class="bi bi-qr-code-scan"></i>
+               </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; font-size: 14px; color: var(--text-main); margin-bottom: 4px;">
+                  QRIS Merchant
+                </div>
+                <div id="qris-status-text" style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Diproses instant</div>
               </div>
-              <div id="qris-status-text" style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight:600;">Diproses 1-5 menit</div>
-            </div>
-  
-            <div class="payment-card disabled" onclick="selectPaymentMethod(this, 'offline')">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:700;"><i class="bi bi-bank"></i> Virtual Account Bank</span>
-                <span style="font-size: 11px; padding: 4px 8px; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 6px; font-weight: bold;">Offline</span>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div id="qris-status-badge" style="display: flex; align-items: center; gap: 5px; background: rgba(16, 185, 129, 0.15); padding: 4px 8px; border-radius: 12px;">
+                  <div id="qris-status-dot" style="width: 6px; height: 6px; border-radius: 50%; background: var(--success); animation: blink-dot 1.5s infinite;"></div>
+                  <span id="qris-status-text-inner" style="font-size: 10px; font-weight: 700; color: var(--success);">Online</span>
+                </div>
+                <i class="bi bi-chevron-right" style="font-size: 18px; color: var(--text-muted);"></i>
               </div>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Biaya Layanan Rp 7.500</div>
             </div>
 
-            <div class="payment-card disabled" onclick="selectPaymentMethod(this, 'offline')">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:700;"><i class="bi bi-shop"></i> Indomaret / Alfamart</span>
-                <span style="font-size: 11px; padding: 4px 8px; background: rgba(239,68,68,0.1); color: var(--danger); border-radius: 6px; font-weight: bold;">Offline</span>
+            <div class="payment-card disabled" onclick="selectPaymentMethod(this, 'offline')" style="display: flex; align-items: center; padding: 15px;">
+              <div style="font-size: 36px; color: var(--text-muted); margin-right: 15px; line-height: 1;">
+                <i class="bi bi-bank"></i>
               </div>
-              <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">Biaya Layanan Rp 7.500</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; font-size: 14px; color: var(--text-main); margin-bottom: 4px;">
+                  Virtual Account
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Biaya Rp 7.500</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 5px; background: rgba(239, 68, 68, 0.15); padding: 4px 8px; border-radius: 12px;">
+                  <div style="width: 6px; height: 6px; border-radius: 50%; background: var(--danger); animation: blink-dot 1.5s infinite;"></div>
+                  <span style="font-size: 10px; font-weight: 700; color: var(--danger);">Offline</span>
+                </div>
+                <i class="bi bi-chevron-right" style="font-size: 18px; color: var(--text-muted);"></i>
+              </div>
             </div>
           </div>
 
@@ -2610,7 +2656,6 @@
 
         <div id="wd-form" style="display:none;">
           <div style="background: var(--bg-input); padding: 15px; border-radius: 14px; margin-bottom: 15px;">
-            <div style="font-size:12px; color:var(--text-muted);">Rekening Penarikan</div>
             <div style="font-weight:bold;margin-top:5px; font-size:14px; color: var(--text-main);" id="saved-bank-name">NAMA</div>
             <div style="color:var(--primary);margin-top:3px; font-size:13px; font-weight:700;" id="saved-bank-info">BANK - 000</div>
             <a href="#" style="font-size:12px; color:var(--danger); text-decoration:none; display:inline-block; margin-top:8px;" onclick="resetBankDetails()">Hapus</a>
@@ -2673,7 +2718,7 @@
   <div id="history-modal" class="modal-overlay">
     <div class="history-modal-content">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-        <h2 style="font-size: 16px; color: var(--text-main);">Riwayat Transaksi</h2>
+        <h2 style="font-size: 15px; color: var(--text-main);">Riwayat Transaksi</h2>
         <button class="btn-icon" onclick="closeFullHistory()"><i class="bi bi-x-lg"></i></button>
       </div>
       <div id="full-history-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;"></div>
@@ -3975,20 +4020,26 @@
 
       const qrisCard = document.getElementById('pm-qris');
       const qrisBadge = document.getElementById('qris-status-badge');
+      const qrisDot = document.getElementById('qris-status-dot');
+      const qrisTextInner = document.getElementById('qris-status-text-inner');
       const qrisText = document.getElementById('qris-status-text');
 
       if (isCSOnline) {
         qrisCard.setAttribute('onclick', "selectPaymentMethod(this, 'qris')");
-        qrisBadge.innerText = 'Online';
-        qrisBadge.style.background = 'rgba(16,185,129,0.1)';
-        qrisBadge.style.color = 'var(--success)';
-        qrisText.innerText = 'Diproses 1-5 menit';
+        qrisBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+        qrisDot.style.background = 'var(--success)';
+        qrisDot.style.animation = 'blink-dot 1.5s infinite'; 
+        qrisTextInner.innerText = 'Online';
+        qrisTextInner.style.color = 'var(--success)';
+        qrisText.innerText = 'Diproses instant';
       } else {
         qrisCard.setAttribute('onclick', "selectPaymentMethod(this, 'offline')");
-        qrisBadge.innerText = 'Offline';
-        qrisBadge.style.background = 'rgba(239,68,68,0.1)';
-        qrisBadge.style.color = 'var(--danger)';
-        qrisText.innerText = 'Diproses 1-5 menit';
+        qrisBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+        qrisDot.style.background = 'var(--danger)';
+        qrisDot.style.animation = 'blink-dot 1.5s infinite'; 
+        qrisTextInner.innerText = 'Offline';
+        qrisTextInner.style.color = 'var(--danger)';
+        qrisText.innerText = 'Diproses instant';
       }
 
       selectedPaymentMethod = null;
