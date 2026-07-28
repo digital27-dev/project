@@ -2342,7 +2342,6 @@
           <input type="number" id="recovery-nik" placeholder="16 Digit NIK KTP Anda">
         </div>
         <button class="btn-modal" onclick="processNikRecovery()">Verifikasi</button>
-        <button class="btn-modal btn-modal-danger" onclick="closeTargetModal('recovery-modal'); showModal('Hubungi Bantuan','Gagal memverifikasi NIK KTP Harap hubungi Customer Support untuk reset pendaftaran nomor handphone Anda.','error')">Hubungi Bantuan</button>
       </div>
     </div>
   </div>
@@ -2360,7 +2359,6 @@
           <input type="number" id="reset-pin-nik-input" placeholder="Masukkan NIK Anda yang terdaftar">
         </div>
         <button class="btn-modal" onclick="processResetPinNik()">Verifikasi</button>
-        <button class="btn-modal btn-modal-danger" onclick="closeTargetModal('reset-pin-nik-modal'); showModal('Hubungi Bantuan','Jika Anda mengalami kendala atau NIK tidak sesuai harap hubungi Customer Support.','error')">Hubungi Bantuan</button>
       </div>
     </div>
   </div>
@@ -3597,7 +3595,7 @@
       } else {
         closeTargetModal('reset-pin-nik-modal');
         document.getElementById('reset-pin-nik-input').value = '';
-        showModal("Perhatian", "NIK tidak sesuai dengan data yang terdaftar hubungi bantuan customer support untuk mereset.", "error");
+        showModal("Perhatian", "NIK tidak sesuai dengan data yang terdaftar hubungi customer support untuk bantuan.", "error");
       }
     }
 
@@ -3616,7 +3614,7 @@
       const pinVal = document.getElementById('auth-pin-input').value.trim();
     
       if (!pinVal) {
-        return showModal("Perhatian", "PIN Transaksi tidak boleh kosong.", "error");
+        return showModal("Perhatian", "PIN transaksi tidak boleh kosong.", "error");
       }
 
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
