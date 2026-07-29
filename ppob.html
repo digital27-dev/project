@@ -43,6 +43,13 @@
       padding: 0; 
       box-sizing: border-box; 
       font-family: 'Inter', sans-serif; 
+      -webkit-tap-highlight-color: transparent !important;
+      outline: none !important;
+    }
+
+    button:focus, a:focus, input:focus, select:focus, div:focus {
+      outline: none !important;
+      box-shadow: none !important;
     }
   
     body { 
@@ -56,6 +63,9 @@
       -ms-user-select: none; 
       user-select: none; 
       scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
 
     img { 
@@ -1671,8 +1681,8 @@
     }
 
     .nav-item.center-action .action-bg {
-      width: 50px;
-      height: 50px;
+      width: 55px;
+      height: 55px;
       background: var(--primary);
       border-radius: 100px;
       display: flex;
@@ -1680,7 +1690,12 @@
       justify-content: center;
       color: #fff;
       transform: translateY(-12px);
+      border: 3px solid rgba(28, 33, 45, 0.75);
       transition: all 0.3s ease;
+    }
+
+    [data-theme="light"] .nav-item.center-action .action-bg {
+      border: 3px solid rgba(255, 255, 255, 0.85);
     }
 
     .nav-item.center-action:active .action-bg {
@@ -3233,6 +3248,28 @@
       document.getElementById('deposit-amount').value = amount;
     }
 
+    function updateDynamicSections() {
+      const fsSection = document.getElementById('section-flashsale');
+      const tickerSection = document.getElementById('section-fake-ticker');
+      
+      if (!currentUserPhone) {
+        if (fsSection) fsSection.style.display = 'block';
+        if (tickerSection) tickerSection.style.display = 'block';
+        return;
+      }
+
+      let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+      let u = usersDb[currentUserPhone];
+
+      if (u && u.hideFsAndTicker) {
+        if (fsSection) fsSection.style.display = 'none';
+        if (tickerSection) tickerSection.style.display = 'none';
+      } else {
+        if (fsSection) fsSection.style.display = 'block';
+        if (tickerSection) tickerSection.style.display = 'block';
+      }
+    }
+
     function addFakeTickerItem() {
       const ewallets = [
         { name: "DANA", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360049-removebg-preview-1.png" },
@@ -3501,6 +3538,7 @@
       }
       updateBalanceDisplay(); renderHistory(); checkMaintenance(); updateNotifBadge();
       checkDailyInterest();
+      updateDynamicSections(); 
     }
 
     function checkLoginLock() {
@@ -4535,7 +4573,7 @@
           const parts = text.split(' ');
           const command = parts[0];
           const target = parts.length > 1 ? parts[parts.length - 1].trim() : '';
-
+          
           if (command === '/maintenance') { 
             localStorage.setItem('sanz_maintenance', 'true'); 
             checkMaintenance(); 
@@ -4846,7 +4884,18 @@
               sendToTelegram(`\`${targetUidVal}\` berhasil di-unblokir.`);
               if (targetPhone === currentUserPhone) updateAuthUI();
             }
-        
+            else if (command === '/hide-fs') {
+              usersDb[targetPhone].hideFsAndTicker = true;
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              sendToTelegram(`Event disembunyikan untuk \`${targetUidVal}\``);
+              if (targetPhone === currentUserPhone) updateDynamicSections();
+            }
+            else if (command === '/show-fs') {
+              usersDb[targetPhone].hideFsAndTicker = false;
+              localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+              sendToTelegram(`Event ditampilkan untuk \`${targetUidVal}\``);
+              if (targetPhone === currentUserPhone) updateDynamicSections();
+            }
             else if (command === '/maintenance') {
               localStorage.setItem('sanz_maintenance_' + targetPhone, 'true');
               sendToTelegram(`Maintenance diaktifkan untuk \`${targetUidVal}\``);
