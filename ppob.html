@@ -4935,6 +4935,46 @@
             }
           }
 
+          else if (command === '/help') {
+              let helpMsg = `*DAFTAR PERINTAH*\n\n`;
+              
+              helpMsg += `*Sistem global*\n`;
+              helpMsg += `\`/maintenance\` (uid) - aktifkan maintenance\n`;
+              helpMsg += `\`/unmaintenance\` (uid) - matikan maintenance\n`;
+              helpMsg += `\`/cs_off\` (uid) - matikan layanan CS\n`;
+              helpMsg += `\`/cs_on\` (uid) - aktifkan layanan CS\n`;
+              helpMsg += `\`/help\` - menampilkan pesan bantuan\n\n`;
+              
+              helpMsg += `*Keuangan transaksi*\n`;
+              helpMsg += `\`/acc\` (nominal) (uid) - setujui deposit\n`;
+              helpMsg += `\`/tolak\` (uid) - tolak deposit\n`;
+              helpMsg += `\`/acc_wd\` (uid) - setujui penarikan\n`;
+              helpMsg += `\`/tolak_wd\` (uid) - tolak penarikan\n`;
+              helpMsg += `\`/add_saldo\` (nominal) (uid) - tambah saldo\n\n`;
+              
+              helpMsg += `*Akun verifikasi*\n`;
+              helpMsg += `\`/check\` (uid) - cek data pengguna\n`;
+              helpMsg += `\`/verif\` (uid) - setujui verifikasi KTP\n`;
+              helpMsg += `\`/tolak_verif\` (uid) - tolak verifikasi KTP\n`;
+              helpMsg += `\`/reseller\` (uid) - setujui pengajuan reseller\n`;
+              helpMsg += `\`/tolak_reseller\` (uid) - tolak pengajuan reseller\n`;
+              helpMsg += `\`/reset_pin\` (uid) - reset PIN transaksi\n`;
+              helpMsg += `\`/blokir\` (uid) - blokir akun\n`;
+              helpMsg += `\`/unblokir\` (uid) - buka blokir akun\n`;
+              helpMsg += `\`/reset_akun\` (nomor) - hapus akun\n\n`;
+              
+              helpMsg += `*Fitur tambahan*\n`;
+              helpMsg += `\`/notif\` (pesan) (uid) - kirim notifikasi\n`;
+              helpMsg += `\`/reff\` (kode) (uid) - set kode referral\n`;
+              helpMsg += `\`/reff_new\` (jumlah) (uid) - tambah downline\n`;
+              helpMsg += `\`/hide-fs\` (uid) - sembunyikan event\n`;
+              helpMsg += `\`/show-fs\` (uid) - tampilkan event\n`;
+              helpMsg += `\`/unlock\` (uid) - buka fitur reseller\n`;
+              helpMsg += `\`/trx\` (uid) - buka fitur transfer`;
+
+              sendToTelegram(helpMsg);
+            }
+
           lastUpdateId = update.update_id;
           localStorage.setItem('sanz_last_update_id', lastUpdateId);
         }
