@@ -69,7 +69,7 @@
       min-height: 100vh; 
       position: relative; 
       padding-top: 75px; 
-      padding-bottom: 0;
+      padding-bottom: 100px; 
       transition: background 0.3s ease; 
       overflow-x: hidden;
       display: flex;
@@ -1581,12 +1581,114 @@
     .footer-copyright {
       text-align: center;
       padding: 15px;
-      margin-top: auto;
+      margin-top: -20px;
       font-size: 11px;
-      background: var(--bg-card); 
       color: var(--text-muted);
-      border-top: 1px solid var(--border-color);
       font-weight: 500;
+    }
+
+    .bottom-blur-overlay {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      height: 110px; 
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 100%);
+      mask-image: linear-gradient(to top, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 100%);
+      background: linear-gradient(to top, var(--bg-body) 20%, transparent);
+      z-index: 997; 
+      pointer-events: none; 
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 25px; 
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 440px;
+      height: 65px;
+      background: rgba(28, 33, 45, 0.75); 
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px); 
+      border: 1px solid var(--border-color);
+      border-radius: 100px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 998;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      padding: 0 15px;
+      transition: background 0.3s ease;
+    }
+
+    [data-theme="light"] .bottom-nav {
+      background: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 600;
+      gap: 4px;
+      cursor: pointer;
+      flex: 1;
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .nav-item i {
+      font-size: 22px;
+      transition: transform 0.2s, color 0.2s;
+    }
+
+    .nav-item:active i {
+      transform: scale(0.85);
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    .nav-item.active i {
+      color: var(--primary);
+    }
+
+    .nav-item.center-action {
+      position: relative;
+    }
+
+    .nav-item.center-action .action-bg {
+      width: 55px;
+      height: 55px;
+      background: var(--primary);
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      transform: translateY(-12px);
+      border: 3px solid var(--bg-container);
+      transition: all 0.3s ease;
+    }
+
+    .nav-item.center-action:active .action-bg {
+      transform: translateY(-12px) scale(0.9);
+    }
+
+    .nav-item.center-action i {
+      font-size: 24px;
+      color: #fff !important;
     }
   </style>
 </head>
@@ -1721,7 +1823,7 @@
       </div>
     </div>
 
-    <div onclick="showModal('Perhatian', 'Hati-hati penipuan! Kami tidak pernah meminta kode OTP dan tidak ada layanan telepon jika terjadi kendala silakan hubungi bantuan.', 'info')" style="margin: -7px 20px 15px 20px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); color: var(--warning); padding: 7px 11px; border-radius: 12px; display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; overflow: hidden; cursor: pointer;">
+    <div onclick="showModal('Perhatian', 'Hati-hati penipuan! Kami tidak pernah meminta kode OTP dan tidak ada layanan telepon jika terjadi kendala silakan hubungi bantuan.', 'info')" style="margin: -7px 20px 15px 20px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); color: var(--warning); padding: 7px 11px; border-radius: 100px; display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; overflow: hidden; cursor: pointer;">
       <i class="bi bi-megaphone-fill" style="flex-shrink: 0; font-size: 14px;"></i>
       <marquee behavior="scroll" direction="left" scrollamount="4" style="flex: 1; margin-top: 2px;">
         Hati-hati penipuan! Kami tidak pernah meminta kode OTP dan tidak ada layanan telepon jika terjadi kendala silakan hubungi bantuan.
@@ -1785,21 +1887,7 @@
           </div>
           <div class="fs-content">
             <div class="fs-label-new">PENGGUNA BARU</div>
-            <div class="fs-name">Voucher Shopee<br>Rp 50.000</div>
-            <div class="fs-price-strike">Rp 50.000</div>
-            <div class="fs-price">Rp 1.000</div>
-            <button class="fs-add-btn" onclick="showModal('Perhatian', 'Promo sudah tidak tersedia.', 'info')">Beli Sekarang</button>
-          </div>
-        </div>
-        
-        <div class="fs-item">
-          <div class="ribbon-cashback">PROMO</div>
-          <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14195.png')">
-            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 99% OFF</div>
-          </div>
-          <div class="fs-content">
-            <div class="fs-label-new">PENGGUNA BARU</div>
-            <div class="fs-name">Voucher Tokopedia<br>Rp 100.000</div>
+            <div class="fs-name">Voucher Belanja<br>Rp 100.000</div>
             <div class="fs-price-strike">Rp 100.000</div>
             <div class="fs-price">Rp 1.000</div>
             <button class="fs-add-btn" onclick="showModal('Perhatian', 'Promo sudah tidak tersedia.', 'info')">Beli Sekarang</button>
@@ -1851,14 +1939,14 @@
         <div class="fs-item">
           <div class="ribbon-cashback">BIFAST</div>
           <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
-            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 50% OFF</div>
+            <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 25% OFF</div>
           </div>
           <div class="fs-content">
             <div class="fs-label-new">PENGGUNA BARU</div>
             <div class="fs-name">Produk E-Wallet<br>Rp 5.000.000</div>
             <div class="fs-price-strike">Rp 5.000.000</div>
-            <div class="fs-price">Rp 2.500.000</div>
-            <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 5000000, 2500000, 'AUTO')">Beli Sekarang</button>
+            <div class="fs-price">Rp 3.750.000</div>
+            <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 5000000, 3750000, 'AUTO')">Beli Sekarang</button>
           </div>
         </div>
       </div>
@@ -1919,8 +2007,36 @@
       </div>
       <div class="history-list" id="history-box"></div>
     </div>
-  <div class="footer-copyright">
+
+    <div class="footer-copyright">
       &copy; 2026 PT Mitra Komunikasi Nusantara
+    </div>
+
+    <div class="bottom-blur-overlay"></div>
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="window.scrollTo(0,0)">
+        <i class="bi bi-house-door-fill"></i>
+        <span>Beranda</span>
+      </div>
+      <div class="nav-item" onclick="showFullHistory()">
+        <i class="bi bi-clock-history"></i>
+        <span>Riwayat</span>
+      </div>
+      
+      <div class="nav-item center-action" onclick="openDepositModal()">
+        <div class="action-bg">
+          <i class="bi bi-qr-code-scan"></i>
+        </div>
+      </div>
+      
+      <div class="nav-item" onclick="openHelpModal()">
+        <i class="bi bi-headset"></i>
+        <span>Bantuan</span>
+      </div>
+      <div class="nav-item" onclick="toggleNav()">
+        <i class="bi bi-person-fill"></i>
+        <span>Akun</span>
+      </div>
     </div>
   </div>
   
@@ -4670,7 +4786,7 @@
               sendToTelegram(`\`${targetUidVal}\` berhasil di-unblokir.`);
               if (targetPhone === currentUserPhone) updateAuthUI();
             }
-      
+        
             else if (command === '/maintenance') {
               localStorage.setItem('sanz_maintenance_' + targetPhone, 'true');
               sendToTelegram(`Maintenance diaktifkan untuk \`${targetUidVal}\``);
@@ -4969,6 +5085,14 @@
       }
 
       sidenavElement.style.transform = '';
+    });
+    
+    // Script untuk mengganti efek active di menu bawah
+    document.querySelectorAll('.bottom-nav .nav-item:not(.center-action)').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => nav.classList.remove('active'));
+        this.classList.add('active');
+      });
     });
     
     window.onload = () => {
