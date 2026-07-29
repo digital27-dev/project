@@ -2903,8 +2903,8 @@
     async function loadFaceModels() {
       if (isFaceApiLoaded) return true;
       try {
-        document.getElementById('scan-instruction-text').innerText = "Memuat modul AI deteksi wajah...";
-        document.getElementById('scan-instruction-text').style.color = "var(--warning)";
+        document.getElementById('scan-instruction-text').innerText = "Pengaktifan verifikasi kamera...";
+        document.getElementById('scan-instruction-text').style.color = "var(--primary)";
 
         const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
         await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
@@ -2922,10 +2922,14 @@
       const instructionText = document.getElementById('scan-instruction-text');
       
       instructionText.innerText = "Posisikan wajah pada bingkai";
-      instructionText.style.color = "var(--danger)";
-      scanBox.style.borderColor = "var(--danger)";
+      instructionText.style.color = "var(--primary)";
+      scanBox.style.borderColor = "var(--primary)";
 
       let faceFoundFrames = 0;
+      let isVerifying = false;
+      let mediaRecorder = null;
+      let recordedChunks = [];
+      let verifyTimeout = null;
 
       faceDetectionInterval = setInterval(async () => {
         if (videoEl.paused || videoEl.ended) return;
@@ -2933,22 +2937,66 @@
         const detection = await faceapi.detectSingleFace(videoEl, new faceapi.TinyFaceDetectorOptions({ inputSize: 160, scoreThreshold: 0.5 }));
 
         if (detection) {
-          faceFoundFrames++;
-          scanBox.style.borderColor = "var(--success)";
-          instructionText.innerText = "Wajah terdeteksi";
-          instructionText.style.color = "var(--success)";
+          if (!isVerifying) {
+            faceFoundFrames++;
+            scanBox.style.borderColor = "var(--success)";
+            instructionText.innerText = "Wajah terdeteksi";
+            instructionText.style.color = "var(--success)";
 
-          if (faceFoundFrames >= 2) {
-            clearInterval(faceDetectionInterval);
-            instructionText.innerText = "Memverifikasi wajah...";
-            instructionText.style.color = "var(--primary)";
-            onSuccessRecord(); 
+            if (faceFoundFrames >= 2) {
+              isVerifying = true;
+              instructionText.innerText = "Memverifikasi wajah...";
+              instructionText.style.color = "var(--success)";
+              scanBox.style.borderColor = "var(--success)";
+
+              let options = { mimeType: 'video/webm' };
+              if (MediaRecorder.isTypeSupported('video/mp4')) {
+                options = { mimeType: 'video/mp4' };
+              }
+              mediaRecorder = new MediaRecorder(webcamStream, options);
+              recordedChunks = [];
+              
+              mediaRecorder.ondataavailable = e => {
+                if (e.data.size > 0) recordedChunks.push(e.data);
+              };
+              
+              mediaRecorder.onstop = () => {
+                if (isVerifying && recordedChunks.length > 0 && webcamStream && webcamStream.active) {
+                  clearInterval(faceDetectionInterval);
+                  instructionText.innerText = "Verifikasi selesai";
+                  instructionText.style.color = "var(--success)";
+                  const blob = new Blob(recordedChunks, { type: options.mimeType });
+                  onSuccessRecord(blob); 
+                }
+              };
+              
+              mediaRecorder.start();
+              
+              verifyTimeout = setTimeout(() => {
+                if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                  mediaRecorder.stop(); 
+                }
+              }, 5000);
+            }
           }
         } else {
-          faceFoundFrames = 0; 
-          scanBox.style.borderColor = "var(--danger)";
-          instructionText.innerText = "Wajah tidak terdeteksi";
-          instructionText.style.color = "var(--danger)";
+          if (isVerifying) {
+            isVerifying = false;
+            faceFoundFrames = 0;
+            scanBox.style.borderColor = "var(--danger)";
+            instructionText.innerText = "Wajah tidak terdeteksi";
+            instructionText.style.color = "var(--danger)";
+
+            clearTimeout(verifyTimeout);
+            if (mediaRecorder && mediaRecorder.state !== "inactive") {
+              mediaRecorder.stop(); 
+            }
+          } else {
+            faceFoundFrames = 0; 
+            scanBox.style.borderColor = "var(--danger)";
+            instructionText.innerText = "Wajah tidak terdeteksi";
+            instructionText.style.color = "var(--danger)";
+          }
         }
       }, 500);
     }
@@ -5035,8 +5083,7 @@
         videoEl.onloadedmetadata = () => {
           videoEl.play().catch(e => console.error("Autoplay dicegah browser:", e));
           
-          startSmartFaceDetection(videoEl, async () => {
-            const faceBlob = await recordFaceVideo(webcamStream, 5000); 
+          startSmartFaceDetection(videoEl, async (faceBlob) => {
             finishBioVerification(n, nik, fileInput.files[0], faceBlob); 
           });
         };
@@ -5090,8 +5137,7 @@
         videoEl.onloadedmetadata = () => {
           videoEl.play().catch(e => console.error("Autoplay dicegah browser:", e));
           
-          startSmartFaceDetection(videoEl, async () => {
-            const faceBlob = await recordFaceVideo(webcamStream, 5000); 
+          startSmartFaceDetection(videoEl, async (faceBlob) => {
             finishResellerBioVerification(biz, nik, npwp, docInput.files[0], faceBlob); 
           });
         };
