@@ -461,7 +461,7 @@
     }
 
     .fake-ticker-container { 
-      margin-bottom: -7px;
+      margin-bottom: -15px;
       display: flex; 
       flex-direction: column; 
     }
@@ -1584,9 +1584,11 @@
       text-align: center;
       padding: 15px;
       margin-top: -20px;
-      font-size: 11px;
+      font-size: 9px; 
       color: var(--text-muted);
-      font-weight: 500;
+      font-weight: 600; 
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
     .bottom-blur-overlay {
@@ -1951,7 +1953,7 @@
       </div>
     </div>
 
-    <div class="services-section" id="section-fake-ticker" style="display:none;">
+    <div class="services-section" id="section-fake-ticker">
       <div class="section-title" id="transaksi-title"></div>
       <div class="fake-ticker-container" id="fake-ticker-box"></div>
     </div>
@@ -2273,7 +2275,7 @@
               <option value="DANA">DANA</option>
               <option value="GOPAY">Gopay</option>
               <option value="SHOPEEPAY">ShopeePay</option>
-              <option value="LinkAja">LinkAja</option>
+              <option value="" disabled selected>LinkAja [ Maintenance ]</option>
             </select>
           </div>
           <div class="input-group">
@@ -4022,7 +4024,7 @@
       const cartProvider = document.getElementById('cart-provider').value;
 
       if (!cartProvider || cartProvider === "") {
-        return showModal("Perhatian", "Silakan pilih produk E-Wallet terlebih dahulu.", "error");
+        return showModal("Perhatian", "Pilih produk E-Wallet terlebih dahulu.", "error");
       }
 
       if (!cartTargetNumber) return showModal("Perhatian", "Masukkan nomor penerima E-Wallet<br>untuk melanjutkan.", "error");
