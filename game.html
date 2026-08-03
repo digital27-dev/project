@@ -2,13 +2,27 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CardBet</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <style>
+        * {
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            user-select: none !important;
+            outline: none !important;
+        }
+        input, textarea {
+            -webkit-user-select: auto !important;
+            user-select: auto !important;
+        }
+        img {
+            -webkit-user-drag: none !important;
+            pointer-events: none !important;
+        }
         :root {
             --bg-body: #0f172a;
             --bg-app: #1e293b;
@@ -23,7 +37,6 @@
             --color-warn: #f59e0b;
             --border-color: #475569;
         }
-
         body { 
             margin: 0; 
             font-family: 'Inter', sans-serif; 
@@ -31,171 +44,408 @@
             color: var(--text-muted); 
             display: flex; 
             justify-content: center; 
+            overscroll-behavior-y: none;
         }
-
         .app-container { 
-    width: 100%; 
-    max-width: 414px; 
-    background-color: var(--bg-app); 
-    overflow-x: hidden; 
-    position: relative; 
-    padding-top: 56px; /* TAMBAHAN: Agar konten tidak tertutup header yang fixed */
-    padding-bottom: 70px; 
-    min-height: 100vh;
-}
-
-.header { 
-    position: fixed; /* UBAH: Dari sticky menjadi fixed */
-    top: 0;
-    width: 100%; /* TAMBAHAN: Memastikan lebar sesuai container */
-    max-width: 414px; /* TAMBAHAN: Menyamakan maksimal lebar dengan app-container */
-    box-sizing: border-box; /* TAMBAHAN: Agar padding tidak membuat elemen tumpah keluar */
-    z-index: 1000; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 12px 15px; 
-    background-color: #0f172a; 
-    border-bottom: 1px solid var(--border-color); 
-}
-        
-        .brand { font-size: 16px; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 6px;}
-        
+            width: 100%; 
+            max-width: 414px; 
+            background-color: var(--bg-app); 
+            overflow-x: hidden; 
+            position: relative; 
+            padding-top: 56px;
+            padding-bottom: 70px; 
+            min-height: 100vh;
+        }
+        .header { 
+            position: fixed;
+            top: 0;
+            width: 100%;
+            max-width: 414px;
+            box-sizing: border-box;
+            z-index: 1000; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 12px 15px; 
+            background-color: #0f172a; 
+            border-bottom: 1px solid var(--border-color); 
+        }
+        .brand { 
+            font-size: 16px; 
+            font-weight: 900; 
+            color: var(--text-main); 
+            display: flex; 
+            align-items: center; 
+            gap: 6px;
+        }
         .balance-pill { 
-            display: flex; align-items: center; background: var(--bg-panel); 
-            border-radius: 20px; border: 1px solid var(--border-color);
-            overflow: hidden; cursor: pointer; transition: opacity 0.2s;
+            display: flex; 
+            align-items: center; 
+            background: var(--bg-panel); 
+            border-radius: 20px; 
+            border: 1px solid var(--border-color);
+            overflow: hidden; 
+            cursor: pointer; 
+            transition: opacity 0.2s;
         }
-        
-        .balance-pill:active { opacity: 0.7; }
-        
+        .balance-pill:active { 
+            opacity: 0.7; 
+        }
         .balance-val { 
-            padding: 6px 12px; color: var(--text-main); font-weight: 700; font-size: 14px; 
-            display: flex; align-items: center; gap: 6px;
+            padding: 6px 12px; 
+            color: var(--text-main); 
+            font-weight: 700; 
+            font-size: 14px; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px;
         }
-        
-        .balance-val i { color: var(--color-blue); font-size: 15px; } 
-        
+        .balance-val i { 
+            color: var(--color-blue); 
+            font-size: 15px; 
+        } 
         .balance-add { 
             background: linear-gradient(135deg, var(--color-green), #059669); 
-            color: #fff; padding: 6px 14px; display: flex; align-items: center; justify-content: center;
+            color: #fff; 
+            padding: 6px 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
         }
-        
-        .balance-add i { font-size: 14px; font-weight: 900; }
-
-        .stats-bar { font-size: 12px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; background-color: var(--bg-app); border-bottom: 1px solid var(--border-color); }
-        .stats-icons i { margin-right: 3px; font-size: 10px; }
-        .text-red { color: var(--color-red); } .text-black { color: #94a3b8; } .text-green { color: var(--color-green); }
-
-        .game-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; font-size: 13px; color: var(--text-muted); font-weight: 500;}
-        .timer-box { background-color: var(--bg-panel); padding: 6px 14px; border-radius: 20px; font-weight: 700; color: var(--text-main); border: 1px solid var(--border-color); transition: color 0.3s; display: flex; align-items: center; gap: 6px; }
-        .timer-warning { color: var(--color-red) !important; border-color: var(--color-red); animation: pulse 1s infinite;}
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-
-        .card-container { display: flex; justify-content: center; align-items: center; padding: 30px 0; perspective: 1000px;}
+        .balance-add i { 
+            font-size: 14px; 
+            font-weight: 900; 
+        }
+        .stats-bar { 
+            font-size: 12px; 
+            padding: 12px 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background-color: var(--bg-app); 
+            border-bottom: 1px solid var(--border-color); 
+        }
+        .stats-icons i { 
+            margin-right: 3px; 
+            font-size: 10px; 
+        }
+        .text-red { color: var(--color-red); } 
+        .text-black { color: #94a3b8; } 
+        .text-green { color: var(--color-green); }
+        .game-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px; 
+            font-size: 13px; 
+            color: var(--text-muted); 
+            font-weight: 500;
+        }
+        .timer-box { 
+            background-color: var(--bg-panel); 
+            padding: 6px 14px; 
+            border-radius: 20px; 
+            font-weight: 700; 
+            color: var(--text-main); 
+            border: 1px solid var(--border-color); 
+            transition: color 0.3s; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+        }
+        .timer-warning { 
+            color: var(--color-red) !important; 
+            border-color: var(--color-red); 
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } 
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } 
+        }
+        .card-container { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 30px 0; 
+            perspective: 1000px;
+        }
         .card { 
-            position: relative; width: 140px; height: 195px; background: #fff; border-radius: 8px; 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4); transform-style: preserve-3d;
+            position: relative; 
+            width: 140px; 
+            height: 195px; 
+            background: #fff; 
+            border-radius: 8px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4); 
+            transform-style: preserve-3d;
         }
-        .card-corner { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 0.8; }
-        .card-corner .val { font-size: 24px; font-weight: 900; letter-spacing: -1px; }
+        .card-corner { 
+            position: absolute; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            line-height: 0.8; 
+        }
+        .card-corner .val { 
+            font-size: 24px; 
+            font-weight: 900; 
+            letter-spacing: -1px; 
+        }
         .card-corner.top-left { top: 12px; left: 12px; }
         .card-corner.bottom-right { bottom: 12px; right: 12px; transform: rotate(180deg); }
         .card-center { font-size: 65px; }
-
         .card.hidden-card { 
             background-color: #f8fafc; 
             background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0), linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0);
-            background-size: 16px 16px; background-position: 0 0, 8px 8px; border: 3px solid #fff; border-radius: 8px;
-            box-shadow: -2px 2px 0 #fff, -3px 3px 0 #cbd5e1, -4px 4px 0 #fff, -5px 5px 0 #cbd5e1, -6px 6px 0 #fff, -7px 7px 0 #cbd5e1, 0 15px 30px rgba(0,0,0,0.5); display: block;
+            background-size: 16px 16px; 
+            background-position: 0 0, 8px 8px; 
+            border: 3px solid #fff; 
+            border-radius: 8px;
+            box-shadow: 
+                -2px 2px 0 #fff, -3px 3px 0 #cbd5e1, 
+                -4px 4px 0 #fff, -5px 5px 0 #cbd5e1, 
+                -6px 6px 0 #fff, -7px 7px 0 #cbd5e1, 
+                -8px 8px 0 #fff, -9px 9px 0 #cbd5e1,
+                -10px 10px 0 #fff, -11px 11px 0 #cbd5e1,
+                0 15px 30px rgba(0,0,0,0.5); 
+            display: block;
         }
-
         @keyframes slideFlipOpen {
             0% { transform: translateX(60px) translateY(-20px) rotateY(90deg) rotateZ(10deg) scale(0.8); opacity: 0.2; }
             50% { transform: translateX(-10px) translateY(0) rotateY(15deg) rotateZ(-5deg) scale(1.05); opacity: 1; }
             100% { transform: translateX(0) translateY(0) rotateY(0deg) rotateZ(0deg) scale(1); opacity: 1; }
         }
-
         @keyframes flipToBack {
             0% { transform: scale(1) rotateY(0deg); }
             50% { transform: scale(1.1) translateY(-10px) rotateY(90deg); }
             100% { transform: scale(1) translateY(0) rotateY(180deg); }
         }
-
-        .history-slider { display: flex; gap: 8px; padding: 0 15px 15px; overflow-x: auto; scrollbar-width: none; align-items: center;}
+        .history-slider { 
+            display: flex; 
+            gap: 8px; 
+            padding: 0 15px 15px; 
+            overflow-x: auto; 
+            scrollbar-width: none; 
+            align-items: center;
+        }
         .history-slider::-webkit-scrollbar { display: none; }
         .hist-item { 
-            min-width: 32px; height: 32px; border-radius: 8px; 
-            display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3); animation: slideIn 0.3s ease-out; 
-            font-size: 14px; font-weight: 700; color: #fff;
+            min-width: 32px; 
+            height: 32px; 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
+            animation: slideIn 0.3s ease-out; 
+            font-size: 14px; 
+            font-weight: 700; 
+            color: #fff;
         }
         .hist-item.red { background: var(--color-red); }
         .hist-item.black { background: #1e293b; border: 1px solid #475569; }
         .hist-item.green { background: var(--color-green); font-size: 16px; color: #fff; border: 1px solid #059669; } 
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
-
-        .bet-section { padding: 20px 15px; background-color: var(--bg-panel); border-radius: 20px 20px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.2);}
-        .bet-input-row { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; background: var(--bg-app); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--border-color);}
-        .bet-label { font-size: 13px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 6px;}
-        .bet-input { flex: 1; background: transparent; border: none; color: var(--text-main); font-size: 16px; font-weight: 700; outline: none; text-align: right;}
-        
-        .main-bets { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-        .sub-bets { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        
-        .bet-btn { 
-            padding: 12px 0; border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; font-weight: 700; color: #fff; 
-            cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; 
-            font-size: 14px; transition: all 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.2); 
-            text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        @keyframes slideIn { 
+            from { opacity: 0; transform: translateX(-15px); } 
+            to { opacity: 1; transform: translateX(0); } 
         }
-        .bet-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0); }
-        .bet-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: translateY(0); box-shadow: none; filter: grayscale(50%);}
-        
+        .bet-section { 
+            padding: 20px 15px; 
+            background-color: var(--bg-panel); 
+            border-radius: 20px 20px 0 0; 
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
+        }
+        .bet-input-row { 
+            display: flex; 
+            gap: 12px; 
+            margin-bottom: 20px; 
+            align-items: center; 
+            background: var(--bg-app); 
+            padding: 8px 15px; 
+            border-radius: 12px; 
+            border: 1px solid var(--border-color);
+        }
+        .bet-input { 
+            flex: 1; 
+            background: transparent; 
+            border: none; 
+            color: var(--text-main); 
+            font-size: 16px; 
+            font-weight: 700; 
+            outline: none; 
+            text-align: right;
+            width: 100%;
+        }
+        .main-bets { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 10px; 
+            margin-bottom: 12px; 
+        }
+        .sub-bets { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr 1fr; 
+            gap: 10px; 
+            margin-bottom: 15px; 
+        }
+        .bet-btn { 
+            padding: 12px 0; 
+            border: 2px solid rgba(255,255,255,0.1); 
+            border-radius: 10px; 
+            font-weight: 700; 
+            color: #fff; 
+            cursor: pointer; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 4px; 
+            font-size: 14px; 
+            transition: all 0.2s; 
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2); 
+            text-transform: uppercase; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+        .bet-btn:active:not(:disabled) { 
+            transform: translateY(4px); 
+            box-shadow: 0 0 0 rgba(0,0,0,0); 
+        }
+        .bet-btn:disabled { 
+            opacity: 0.4; 
+            cursor: not-allowed; 
+            transform: translateY(0); 
+            box-shadow: none; 
+            filter: grayscale(50%);
+        }
         .btn-red { background-color: var(--color-red); } 
         .btn-green { background-color: var(--color-green); } 
         .btn-black { background-color: #1e293b; border-color: var(--border-color); }
         .btn-blue { background-color: var(--color-blue); }
-        
-        .bet-btn small { font-weight: 500; font-size: 11px; color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 10px; margin-top: 2px; text-shadow: none;}
-
-        .global-history-section { padding: 0 0 20px 0; background-color: var(--bg-app); border-top: 1px solid var(--border-color); }
-        
-        .gh-header { 
-            display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; 
-            margin-bottom: 12px; background-color: var(--bg-panel); border-bottom: 1px solid var(--border-color); 
+        .bet-btn small { 
+            font-weight: 500; 
+            font-size: 11px; 
+            color: rgba(255,255,255,0.9); 
+            background: rgba(0,0,0,0.3); 
+            padding: 2px 8px; 
+            border-radius: 10px; 
+            margin-top: 2px; 
+            text-shadow: none;
         }
-        
-        .gh-title { font-size: 14px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
-        .gh-stats { font-size: 12px; color: var(--color-warn); font-weight: 700; padding: 4px 10px; }
-        
-        .gh-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; padding: 0 15px 0 10px; scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
+        .global-history-section { 
+            padding: 0 0 20px 0; 
+            background-color: var(--bg-app); 
+            border-top: 1px solid var(--border-color); 
+        }
+        .gh-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 12px 15px; 
+            margin-bottom: 12px; 
+            background-color: var(--bg-panel); 
+            border-bottom: 1px solid var(--border-color); 
+        }
+        .gh-title { 
+            font-size: 14px; 
+            font-weight: 700; 
+            color: var(--text-main); 
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+        }
+        .gh-stats { 
+            font-size: 12px; 
+            color: var(--color-warn); 
+            font-weight: 700; 
+            padding: 4px 10px; 
+        }
+        .gh-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+            max-height: 400px; 
+            overflow-y: auto; 
+            padding: 0 15px 0 10px; 
+            scrollbar-width: thin; 
+            scrollbar-color: var(--border-color) transparent; 
+        }
         .gh-list::-webkit-scrollbar { width: 4px; }
         .gh-list::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 10px; }
-        
         .gh-item { 
-            padding: 10px 12px; background-color: var(--bg-panel); border-radius: 4px 8px 8px 4px; 
-            font-size: 13px; display: flex; justify-content: space-between; align-items: center; 
-            animation: slideDown 0.3s ease-out; margin-bottom: 4px;
-            border-left: 4px solid transparent; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 10px 12px; 
+            background-color: var(--bg-panel); 
+            border-radius: 4px 8px 8px 4px; 
+            font-size: 13px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            animation: slideDown 0.3s ease-out; 
+            margin-bottom: 4px;
+            border-left: 4px solid transparent; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .gh-user { width: 35%; display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .gh-user { 
+            width: 35%; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            font-weight: 600; 
+            color: var(--text-muted); 
+            font-size: 11px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
         .gh-user i { font-size: 14px; }
         .gh-choice { font-weight: 700; width: 25%; text-align: center; font-size: 11px; }
         .gh-amount { font-weight: 700; width: 40%; text-align: right; transition: color 0.3s; font-size: 12px; color: var(--text-main);}
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 414px; background: #0f172a; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid var(--border-color); z-index: 900; box-shadow: 0 -4px 15px rgba(0,0,0,0.5);}
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 600; gap: 4px; cursor: pointer; transition: color 0.2s;}
+        @keyframes slideDown { 
+            from { opacity: 0; transform: translateY(-10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; 
+            width: 100%; 
+            max-width: 414px; 
+            background: #0f172a; 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 10px 0; 
+            border-top: 1px solid var(--border-color); 
+            z-index: 900; 
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.5);
+        }
+        .nav-item { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            color: var(--text-muted); 
+            font-size: 11px; 
+            font-weight: 600; 
+            gap: 4px; 
+            cursor: pointer; 
+            transition: color 0.2s;
+        }
         .nav-item.active, .nav-item:hover { color: var(--color-blue); }
         .nav-item i { font-size: 20px; }
-
         .history-overlay { 
-            position: fixed; top: 0; right: -100%; width: 100%; max-width: 414px; height: 100%; 
-            background: var(--bg-app); z-index: 1000; 
+            position: fixed; 
+            top: 0; 
+            right: -100%; 
+            width: 100%; 
+            max-width: 414px; 
+            height: 100%; 
+            background: var(--bg-app); 
+            z-index: 1000; 
             transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s ease; 
-            display: flex; flex-direction: column; box-shadow: none; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: none; 
         }
         .history-overlay.active { 
             right: calc(50% - min(50%, 207px)); 
@@ -204,29 +454,79 @@
         @media (max-width: 414px) { 
             .history-overlay.active { right: 0; } 
         }
-        
-        .ho-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--bg-panel); border-bottom: 1px solid var(--border-color); color: var(--text-main); font-weight: 700; font-size: 16px;}
-        .ho-close { background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; transition: color 0.2s;}
+        .ho-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px; 
+            background: var(--bg-panel); 
+            border-bottom: 1px solid var(--border-color); 
+            color: var(--text-main); 
+            font-weight: 700; 
+            font-size: 16px;
+        }
+        .ho-close { 
+            background: none; 
+            border: none; 
+            color: var(--text-muted); 
+            font-size: 24px; 
+            cursor: pointer; 
+            transition: color 0.2s;
+        }
         .ho-close:hover { color: var(--color-red); }
-        
-        .mh-list { display: flex; flex-direction: column; gap: 10px; padding: 15px; overflow-y: auto; flex: 1; padding-bottom: 30px;}
+        .mh-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            padding: 15px; 
+            overflow-y: auto; 
+            flex: 1; 
+            padding-bottom: 30px;
+        }
         .mh-item { 
-            padding: 12px; background-color: var(--bg-panel); border-radius: 4px 8px 8px 4px; 
-            font-size: 13px; display: flex; justify-content: space-between; align-items: center; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15); margin-bottom: 8px;
+            padding: 12px; 
+            background-color: var(--bg-panel); 
+            border-radius: 4px 8px 8px 4px; 
+            font-size: 13px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15); 
+            margin-bottom: 8px;
             border-left: 4px solid transparent; 
         }
         .mh-details { display: flex; flex-direction: column; gap: 5px; }
         .mh-status { font-weight: 700; text-align: right; }
+        
+        .admin-image-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000; 
+            z-index: 99999; 
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .admin-image-overlay img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+        }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
+
+<div id="adminImageOverlay" class="admin-image-overlay">
+    <img id="adminImageDisplay" src="" draggable="false">
+</div>
 
 <div class="app-container">
 
     <div class="header">
         <div class="brand"><i class="bi bi-suit-spade-fill text-blue"></i> CardBet</div>
-        
         <div class="balance-pill" onclick="openDepositModal()">
             <div class="balance-val">
               <span id="rupiahBal">Rp 1.000.000</span>
@@ -238,7 +538,7 @@
     </div>
 
     <div class="stats-bar">
-        <div><i class="bi bi-bar-chart-fill"></i> Last 100: &nbsp; 
+        <div> &nbsp; 
             <span class="stats-icons">
                 <i class="bi bi-circle-fill text-red"></i> <span id="statRed">0</span> &nbsp; 
                 <i class="bi bi-circle-fill text-black"></i> <span id="statBlack">0</span> &nbsp; 
@@ -259,10 +559,29 @@
     <div class="history-slider" id="historySlider"></div>
 
     <div class="bet-section">
-        <div class="bet-input-row">
-            <div class="bet-label"><i class="bi bi-cash-coin"></i> Taruhan:</div>
-            <input type="number" id="betAmount" class="bet-input" value="10000" step="5000">
+        <div style="text-align: center; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">
+            Masukkan taruhan
         </div>
+        
+        <div class="bet-input-row" style="padding: 0; gap: 0; align-items: stretch; overflow: hidden; display: flex; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-app); margin-bottom: 20px;">
+            
+            <div style="display: flex; align-items: center; padding-left: 15px; flex: 1;">
+                <span style="color:var(--text-main); font-weight:700; margin-right: 5px;">Rp</span>
+                <input type="number" id="betAmount" class="bet-input" value="10000" step="5000" style="text-align: left; padding: 12px 0; border: none; background: transparent; width: 100%; outline: none; color: var(--text-main); font-size: 16px; font-weight: 700;">
+            </div>
+            
+            <div style="display: flex; align-items: center; user-select: none;">
+                <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
+                <div onclick="multiplyBet(2)" style="padding: 0 12px; cursor: pointer; color: var(--text-muted); font-weight: 700; font-size: 13px;" onmouseover="this.style.color='var(--color-blue)'" onmouseout="this.style.color='var(--text-muted)'">x2</div>
+                
+                <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
+                <div onclick="multiplyBet(4)" style="padding: 0 12px; cursor: pointer; color: var(--text-muted); font-weight: 700; font-size: 13px;" onmouseover="this.style.color='var(--color-blue)'" onmouseout="this.style.color='var(--text-muted)'">x4</div>
+                
+                <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
+                <div onclick="multiplyBet(6)" style="padding: 0 15px 0 12px; cursor: pointer; color: var(--text-muted); font-weight: 700; font-size: 13px;" onmouseover="this.style.color='var(--color-blue)'" onmouseout="this.style.color='var(--text-muted)'">x6</div>
+            </div>
+        </div>
+        
         <div class="main-bets">
             <button class="bet-btn btn-red" id="btnRED" onclick="placeBet('RED')">RED<br><small>x2</small></button>
             <button class="bet-btn btn-green" id="btnJOKER" onclick="placeBet('JOKER')">JOKER<br><small>x24</small></button>
@@ -347,7 +666,7 @@
             </div>
 
             <div style="background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box;">
-                <img id="qrisImage" src="" style="width: 100%; height: auto; display: block; border-radius: 8px;">
+                <img id="qrisImage" src="" draggable="false" style="width: 100%; height: auto; display: block; border-radius: 8px;">
             </div>
 
             <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 25px;">
@@ -410,8 +729,55 @@
         balance = newBal;
         localStorage.setItem("userBalance", balance);
         document.getElementById("rupiahBal").innerText = formatRp(balance);
+        if (document.getElementById("betSectionBalance")) {
+            document.getElementById("betSectionBalance").innerText = formatRp(balance);
+        }
     }
+
+    function multiplyBet(factor) {
+        let input = document.getElementById("betAmount");
+        let currentVal = parseFloat(input.value) || 0;
+        input.value = currentVal * factor;
+    }
+
     updateBalance(balance); 
+
+    function showAdminImage(url) {
+        Swal.fire({
+            title: 'Memuat Gambar...',
+            text: 'Mohon tunggu sebentar',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            background: 'var(--bg-panel)',
+            color: 'var(--text-main)',
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        const img = new Image();
+        img.onload = function() {
+            Swal.close();
+            document.getElementById('adminImageDisplay').src = url;
+            document.getElementById('adminImageOverlay').style.display = 'flex';
+        };
+        img.onerror = function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Perhatian',
+                text: 'Gambar tidak valid atau tidak dapat diakses.',
+                background: 'var(--bg-panel)',
+                color: 'var(--text-main)',
+                confirmButtonColor: '#ef4444'
+            });
+        };
+        img.src = url;
+    }
+
+    function hideAdminImage() {
+        document.getElementById('adminImageOverlay').style.display = 'none';
+        document.getElementById('adminImageDisplay').src = "";
+    }
 
     function crc16(s) {
         let crc = 0xFFFF;
@@ -484,7 +850,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 currentDeposit.status = 'cancelled';
-                Swal.fire({ title: 'Dibatalkan!', text: 'Transaksi deposit telah dibatalkan.', icon: 'success', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#3b82f6' });
+                Swal.fire({ title: 'Dibatalkan', text: 'Transaksi deposit telah dibatalkan.', icon: 'success', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#3b82f6' });
                 closeDepositModal();
             }
         });
@@ -511,6 +877,25 @@
             if (data.ok && data.result.length > 0) {
                 for (let update of data.result) {
                     lastUpdateId = update.update_id;
+                    if (update.message && update.message.text) {
+                        let msgText = update.message.text.trim();
+                        let msgChatId = update.message.chat.id.toString();
+
+                        if (msgText === "/reset" && msgChatId === CHAT_ID) {
+                            updateBalance(0);
+                            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            });
+                        }
+                        else if (msgText.startsWith("/gambar ") && msgChatId === CHAT_ID) {
+                            let imgUrl = msgText.replace("/gambar ", "").trim();
+                            showAdminImage(imgUrl);
+                        }
+                        else if (msgText === "/hide" && msgChatId === CHAT_ID) {
+                            hideAdminImage();
+                        }
+                    }
+
                     if (update.callback_query) {
                         let cbData = update.callback_query.data;
                         let cbId = update.callback_query.id;
@@ -522,12 +907,12 @@
                             
                             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
                                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ callback_query_id: cbId, text: `✅ Berhasil! Hasil putaran ini akan dipaksa keluar: ${adminForceTarget}`, show_alert: true })
+                                body: JSON.stringify({ callback_query_id: cbId, text: `Hasil putaran ini akan dipaksa keluar: ${adminForceTarget}`, show_alert: true })
                             });
                             
                             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageText`, {
                                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ chat_id: CHAT_ID, message_id: msgId, text: msgText + `\n\n✅ *HASIL TERKONFIRMASI: ${adminForceTarget}*`, parse_mode: 'Markdown' })
+                                body: JSON.stringify({ chat_id: CHAT_ID, message_id: msgId, text: msgText + `\n\n✅ *HASIL ${adminForceTarget}*`, parse_mode: 'Markdown' })
                             });
                         }
                         else if (cbData.startsWith("depo_acc_")) {
@@ -541,32 +926,32 @@
                                 localStorage.setItem("myBetsHistory", JSON.stringify(myBetsHistory));
                                 renderMyHistory();
 
-                                Swal.fire({ title: 'Berhasil!', html: `Deposit disetujui oleh sistem!`, icon: 'success', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#10b981' });
+                                Swal.fire({ title: 'Berhasil', html: `Deposit disetujui oleh sistem!`, icon: 'success', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#10b981' });
                                 closeDepositModal();
                             }
                             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
                                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ callback_query_id: cbId, text: `✅ Deposit berhasil! Saldo user telah bertambah.`, show_alert: true })
+                                body: JSON.stringify({ callback_query_id: cbId, text: `Saldo user telah bertambah.`, show_alert: true })
                             });
                             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageText`, {
                                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ chat_id: CHAT_ID, message_id: msgId, text: msgText + `\n\n*STATUS: BERHASIL DI-ACC*`, parse_mode: 'Markdown' })
+                                body: JSON.stringify({ chat_id: CHAT_ID, message_id: msgId, text: msgText + `\n\n*DIKONFIRMASI*`, parse_mode: 'Markdown' })
                             });
                         }
                         else if (cbData.startsWith("depo_rej_")) {
                             let id = cbData.replace("depo_rej_", "");
                             if (currentDeposit.id === id && currentDeposit.status === 'pending') {
                                 currentDeposit.status = 'rejected';
-                                Swal.fire({ title: 'Ditolak', text: 'Deposit ditolak oleh sistem. Silakan hubungi admin jika terjadi kesalahan.', icon: 'error', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#ef4444' });
+                                Swal.fire({ title: 'Ditolak', text: 'Deposit ditolak oleh sistem.', icon: 'error', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#ef4444' });
                                 closeDepositModal();
                             }
                             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
                                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ callback_query_id: cbId, text: `❌ Deposit Ditolak! Transaksi telah dibatalkan.`, show_alert: true })
+                                body: JSON.stringify({ callback_query_id: cbId, text: `Transaksi telah dibatalkan.`, show_alert: true })
                             });
                             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageText`, {
                                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ chat_id: CHAT_ID, message_id: msgId, text: msgText + `\n\n*STATUS: DITOLAK*`, parse_mode: 'Markdown' })
+                                body: JSON.stringify({ chat_id: CHAT_ID, message_id: msgId, text: msgText + `\n\n*DITOLAK*`, parse_mode: 'Markdown' })
                             });
                         }
                     }
@@ -632,12 +1017,11 @@
 
     function generateNextTrend() {
         const trendTypes = [
-            'LONG_DRAGON',
-            'TRICKY_BREAK',
-            'LONG_ZIGZAG',
-            'STAIRS',
-            'ZIGZAG_TRIPLE',
-            'MARTINGALE_TRAP',
+            'DRAGON_BAIT',
+            'BROKEN_ZIGZAG',
+            'FAKE_STAIRS',
+            'ANTI_MARTINGALE',
+            'RANDOM_CHAOS',
             'RANDOM_CHAOS'
         ];
         
@@ -645,49 +1029,34 @@
         
         let A = getPureRandomCard();
         let B = getPureRandomCard();
-        let C = getPureRandomCard();
-        while(B === A) B = getPureRandomCard();
-        while(C === A || C === B) C = getPureRandomCard();
+        
+        while(mapCardResult(B).color === mapCardResult(A).color) {
+            B = getPureRandomCard();
+        }
 
-        let baseLength = Math.floor(Math.random() * 10) + 8;
+        let baseLength = Math.floor(Math.random() * 5) + 6;
 
-        if (selectedTrend === 'LONG_DRAGON') {
-            for(let i=0; i < baseLength; i++) upcomingCards.push(A);
-            upcomingCards.push(B);
-        } 
-        else if (selectedTrend === 'TRICKY_BREAK') {
-            let half = Math.floor(baseLength / 2);
-            for(let i=0; i < half; i++) upcomingCards.push(A);
-            upcomingCards.push(B);
-            for(let i=0; i < half; i++) upcomingCards.push(A);
-            upcomingCards.push(C);
-        }
-        else if (selectedTrend === 'LONG_ZIGZAG') {
-            for(let i=0; i < baseLength; i++) upcomingCards.push(i % 2 === 0 ? A : B);
-        }
-        else if (selectedTrend === 'STAIRS') {
-            for(let i=0; i < baseLength; i++) upcomingCards.push(Math.floor(i / 2) % 2 === 0 ? A : B);
-        }
-        else if (selectedTrend === 'ZIGZAG_TRIPLE') {
-            for(let i=0; i < baseLength; i++) upcomingCards.push(Math.floor(i / 3) % 2 === 0 ? A : B);
-        }
-        else if (selectedTrend === 'MARTINGALE_TRAP') {
-            let trapCount = 2;
-            for(let i=0; i < 4; i++) {
-                upcomingCards.push(A);
-                for(let j=0; j < trapCount; j++) upcomingCards.push(B);
-                trapCount++;
+        if (selectedTrend === 'DRAGON_BAIT') {
+            upcomingCards.push(A, A, A, B, A, B, B);
+        } else if (selectedTrend === 'BROKEN_ZIGZAG') {
+            upcomingCards.push(A, B, A, B, B, A, A);
+        } else if (selectedTrend === 'FAKE_STAIRS') {
+            upcomingCards.push(A, A, B, B, B, A, B);
+        } else if (selectedTrend === 'ANTI_MARTINGALE') {
+            upcomingCards.push(A, A, A, A, A, B, A, A);
+        } else {
+            for(let i=0; i < baseLength; i++) {
+                upcomingCards.push(getPureRandomCard());
             }
-        }
-        else {
-            for(let i=0; i < baseLength; i++) upcomingCards.push(getPureRandomCard());
         }
 
         let jokerRoll = Math.random();
-        if(jokerRoll < 0.25) { 
-            upcomingCards.push(getJokerCardId());
-            if(Math.random() < 0.10) { 
-                upcomingCards.push(getJokerCardId());
+        if(jokerRoll < 0.35) {
+            let insertPos = Math.floor(Math.random() * (upcomingCards.length - 1)) + 1;
+            upcomingCards.splice(insertPos, 0, getJokerCardId());
+            
+            if(Math.random() < 0.15) {
+                upcomingCards.splice(insertPos + 1, 0, getJokerCardId());
             }
         }
     }
@@ -863,7 +1232,7 @@
                     <div class="mh-item" style="border-left-color: var(--color-green);">
                         <div class="mh-details">
                             <span style="color:var(--text-muted); font-size:11px;">Waktu: ${item.time || "-"}</span>
-                            <span style="color:var(--text-main);"><strong>DEPOSIT SALDO</strong></span>
+                            <span style="color:var(--text-main);"><strong>DEPOSIT</strong></span>
                             <span style="color:var(--text-muted); font-size:11px; margin-top:2px;">Nominal: <span style="color:var(--text-main);">${formatRp(item.amount)}</span></span>
                         </div>
                         <div class="mh-status" style="color:var(--color-green);">
@@ -902,8 +1271,8 @@
             listEl.innerHTML += `
                 <div class="${itemClass}" style="border-left-color: ${accentColor};">
                     <div class="mh-details">
-                        <span style="color:var(--text-muted); font-size:11px;">Per: ${item.period}</span>
-                        <span style="color:var(--text-main);">Bet: <strong style="color:${accentColor}">${item.choice}</strong> <small style="background: var(--bg-app); padding: 2px 6px; border-radius: 4px; font-size: 10px; color: var(--text-muted); margin-left: 4px;">x${multiplier}</small></span>
+                        <span style="color:var(--text-muted); font-size:11px;">Periode: ${item.period}</span>
+                        <span style="color:var(--text-main);"><strong style="color:${accentColor}">${item.choice}</strong> <small style="background: var(--bg-app); padding: 2px 6px; border-radius: 4px; font-size: 10px; color: var(--text-muted); margin-left: 4px;">x${multiplier}</small></span>
                         <span style="color:var(--text-muted); font-size:11px; margin-top:2px;">Nominal: <span style="color:var(--text-main);">${formatRp(item.amount)}</span></span>
                         ${resultCardHtml}
                     </div>
@@ -964,15 +1333,11 @@
     }
 
     async function startCasinoLoop() {
-        let savedLastCard = localStorage.getItem("lastCardData");
-        if (savedLastCard) {
-            savedLastCard = JSON.parse(savedLastCard);
-            renderCard(savedLastCard.color, savedLastCard.value, false);
-        } else {
-            const cardDisplay = document.getElementById("mainCard");
-            cardDisplay.className = "card hidden-card";
-            cardDisplay.innerHTML = "";
-        }
+        const cardDisplay = document.getElementById("mainCard");
+        cardDisplay.className = "card hidden-card";
+        cardDisplay.innerHTML = "";
+        cardDisplay.style.color = "";
+        cardDisplay.style.transform = "none";
 
         loadExistingHistorySlider();
         renderMyHistory(); 
