@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CardBet</title>
+    <title>Sanz</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -24,9 +24,10 @@
             pointer-events: none !important;
         }
         :root {
-            --bg-body: #0f172a;
-            --bg-app: #1e293b;
-            --bg-panel: #334155;
+            /* TEMA LEBIH GELAP DAN ELEGAN */
+            --bg-body: #020617; /* Slate 950 */
+            --bg-app: #0f172a;  /* Slate 900 */
+            --bg-panel: #1e293b; /* Slate 800 */
             --bg-input: #0f172a;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
@@ -35,7 +36,7 @@
             --color-green: #10b981;
             --color-blue: #3b82f6;
             --color-warn: #f59e0b;
-            --border-color: #475569;
+            --border-color: #334155; /* Slate 700 */
         }
         body { 
             margin: 0; 
@@ -67,7 +68,7 @@
             justify-content: space-between; 
             align-items: center; 
             padding: 12px 15px; 
-            background-color: #0f172a; 
+            background-color: var(--bg-panel); 
             border-bottom: 1px solid var(--border-color); 
         }
         .brand { 
@@ -116,59 +117,25 @@
             font-size: 14px; 
             font-weight: 900; 
         }
-        .stats-bar { 
-            font-size: 12px; 
-            padding: 12px 15px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background-color: var(--bg-app); 
-            border-bottom: 1px solid var(--border-color); 
-        }
-        .stats-icons i { 
-            margin-right: 3px; 
-            font-size: 10px; 
-        }
         .text-red { color: var(--color-red); } 
         .text-black { color: #94a3b8; } 
         .text-green { color: var(--color-green); }
-        .game-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 15px; 
-            font-size: 13px; 
-            color: var(--text-muted); 
-            font-weight: 500;
-        }
-        .timer-box { 
-            background-color: var(--bg-panel); 
-            padding: 6px 14px; 
-            border-radius: 20px; 
-            font-weight: 700; 
-            color: var(--text-main); 
-            border: 1px solid var(--border-color); 
-            transition: color 0.3s; 
-            display: flex; 
-            align-items: center; 
-            gap: 6px; 
-        }
         .timer-warning { 
-            color: var(--color-red) !important; 
-            border-color: var(--color-red); 
+            color: var(--color-red) !important;
             animation: pulse 1s infinite;
         }
         @keyframes pulse { 
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 
-            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } 
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } 
+            0% { transform: translate(-50%, -50%) scale(1); } 
+            50% { transform: translate(-50%, -50%) scale(1.1); } 
+            100% { transform: translate(-50%, -50%) scale(1); } 
         }
         .card-container { 
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            padding: 30px 0; 
+            padding: 40px 0 40px 0; 
             perspective: 1000px;
+            position: relative;
         }
         .card { 
             position: relative; 
@@ -180,7 +147,7 @@
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6); 
             transform-style: preserve-3d;
         }
         .card-corner { 
@@ -212,7 +179,7 @@
                 -6px 6px 0 #fff, -7px 7px 0 #cbd5e1, 
                 -8px 8px 0 #fff, -9px 9px 0 #cbd5e1,
                 -10px 10px 0 #fff, -11px 11px 0 #cbd5e1,
-                0 15px 30px rgba(0,0,0,0.5); 
+                0 15px 30px rgba(0,0,0,0.6); 
             display: block;
         }
         @keyframes slideFlipOpen {
@@ -228,7 +195,7 @@
         .history-slider { 
             display: flex; 
             gap: 8px; 
-            padding: 0 15px 15px; 
+            padding: 0 15px 20px; 
             overflow-x: auto; 
             scrollbar-width: none; 
             align-items: center;
@@ -241,14 +208,14 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5); 
             animation: slideIn 0.3s ease-out; 
             font-size: 14px; 
             font-weight: 700; 
             color: #fff;
         }
         .hist-item.red { background: var(--color-red); }
-        .hist-item.black { background: #1e293b; border: 1px solid #475569; }
+        .hist-item.black { background: var(--bg-panel); border: 1px solid var(--border-color); }
         .hist-item.green { background: var(--color-green); font-size: 16px; color: #fff; border: 1px solid #059669; } 
         @keyframes slideIn { 
             from { opacity: 0; transform: translateX(-15px); } 
@@ -257,29 +224,8 @@
         .bet-section { 
             padding: 20px 15px; 
             background-color: var(--bg-panel); 
-            border-radius: 20px 20px 0 0; 
-            box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
-        }
-        .bet-input-row { 
-            display: flex; 
-            gap: 12px; 
-            margin-bottom: 20px; 
-            align-items: center; 
-            background: var(--bg-app); 
-            padding: 8px 15px; 
-            border-radius: 12px; 
-            border: 1px solid var(--border-color);
-        }
-        .bet-input { 
-            flex: 1; 
-            background: transparent; 
-            border: none; 
-            color: var(--text-main); 
-            font-size: 16px; 
-            font-weight: 700; 
-            outline: none; 
-            text-align: right;
-            width: 100%;
+            border-radius: 25px 25px 0 0; 
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.4);
         }
         .main-bets { 
             display: grid; 
@@ -291,11 +237,11 @@
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr 1fr; 
             gap: 10px; 
-            margin-bottom: 15px; 
+            margin-bottom: 0; /* Margin dihapus agar lebih proporsional dengan hilangnya statusMsg */
         }
         .bet-btn { 
             padding: 12px 0; 
-            border: 2px solid rgba(255,255,255,0.1); 
+            border: 2px solid rgba(255,255,255,0.05); 
             border-radius: 10px; 
             font-weight: 700; 
             color: #fff; 
@@ -306,7 +252,7 @@
             gap: 4px; 
             font-size: 14px; 
             transition: all 0.2s; 
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2); 
+            box-shadow: 0 4px 0 rgba(0,0,0,0.3); 
             text-transform: uppercase; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
         }
@@ -323,7 +269,7 @@
         }
         .btn-red { background-color: var(--color-red); } 
         .btn-green { background-color: var(--color-green); } 
-        .btn-black { background-color: #1e293b; border-color: var(--border-color); }
+        .btn-black { background-color: var(--bg-app); border-color: var(--border-color); }
         .btn-blue { background-color: var(--color-blue); }
         .bet-btn small { 
             font-weight: 500; 
@@ -386,7 +332,7 @@
             animation: slideDown 0.3s ease-out; 
             margin-bottom: 4px;
             border-left: 4px solid transparent; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .gh-user { 
             width: 35%; 
@@ -412,11 +358,12 @@
             bottom: 0; 
             width: 100%; 
             max-width: 414px; 
-            background: #0f172a; 
+            background: var(--bg-panel); 
             display: flex; 
             justify-content: space-around; 
             padding: 10px 0; 
             z-index: 900; 
+            border-top: 1px solid var(--border-color);
         }
         .nav-item { 
             display: flex; 
@@ -447,7 +394,7 @@
         }
         .history-overlay.active { 
             right: calc(50% - min(50%, 207px)); 
-            box-shadow: -5px 0 25px rgba(0,0,0,0.5); 
+            box-shadow: -5px 0 25px rgba(0,0,0,0.7); 
         } 
         @media (max-width: 414px) { 
             .history-overlay.active { right: 0; } 
@@ -489,7 +436,7 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15); 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3); 
             margin-bottom: 8px;
             border-left: 4px solid transparent; 
         }
@@ -513,6 +460,25 @@
             height: 100%;
             object-fit: contain; 
         }
+
+        /* PENYESUAIAN DESAIN SWEETALERT AGAR LEBIH MENARIK (RADIUS & WARNA) */
+        div:where(.swal2-container) div:where(.swal2-popup) {
+            border-radius: 24px !important;
+            background: var(--bg-panel) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6) !important;
+            color: var(--text-main) !important;
+        }
+        div:where(.swal2-container) h2:where(.swal2-title) {
+            color: var(--text-main) !important;
+        }
+        div:where(.swal2-container) div:where(.swal2-html-container) {
+            color: var(--text-muted) !important;
+        }
+        div:where(.swal2-container) button:where(.swal2-styled) {
+            border-radius: 12px !important;
+            font-weight: 700 !important;
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -524,10 +490,10 @@
 <div class="app-container">
 
     <div class="header">
-        <div class="brand"><i class="bi bi-suit-spade-fill text-blue"></i> CardBet</div>
+        <div class="brand"><i class="bi bi-lightning-fill" style="color: #fff;"></i>Sanz</div>
         <div class="balance-pill" onclick="openDepositModal()">
             <div class="balance-val">
-              <span id="rupiahBal">Rp 1.000.000</span>
+              <span id="rupiahBal">Rp 0</span>
             </div>
             <div class="balance-add">
                 <i class="bi bi-plus-lg"></i>
@@ -535,47 +501,33 @@
         </div>
     </div>
 
-    <div class="stats-bar">
-        <div> &nbsp; 
-            <span class="stats-icons">
-                <i class="bi bi-circle-fill text-red"></i> <span id="statRed">0</span> &nbsp; 
-                <i class="bi bi-circle-fill text-black"></i> <span id="statBlack">0</span> &nbsp; 
-                <i class="bi bi-circle-fill text-green"></i> <span id="statJoker">0</span>
-            </span>
-        </div>
-    </div>
-
-    <div class="game-header">
-        <div id="periodDisplay"><i class="bi bi-hash"></i>Menunggu...</div>
-        <div class="timer-box" id="timerDisplay"><i class="bi bi-stopwatch"></i> 00:00</div>
-    </div>
-
     <div class="card-container">
         <div class="card hidden-card" id="mainCard"></div>
+        <!-- Timer overlay di tengah kartu -->
+        <div id="cardTimerOverlay" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 30px; font-weight: 900; color: #0f172a; text-shadow: 0 0 15px rgba(255,255,255,1), 0 0 5px rgba(255,255,255,0.8); z-index: 10; pointer-events: none; transition: opacity 0.3s;">00:00</div>
     </div>
 
     <div class="history-slider" id="historySlider"></div>
 
     <div class="bet-section">
-        <div style="text-align: center; font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">
-            Masukkan taruhan
-        </div>
+        <!-- Periode dipindah ke atas -->
+        <div id="periodDisplay" style="text-align: center; font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 20px; letter-spacing: 1px;">Menunggu...</div>
         
-        <div class="bet-input-row" style="padding: 0; gap: 0; align-items: stretch; overflow: hidden; display: flex; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-app); margin-bottom: 20px;">
+        <!-- Desain input bergaya garis aplikasi (minimalis) -->
+        <div class="bet-input-row" style="padding: 0 0 8px 0; gap: 0; align-items: stretch; overflow: hidden; display: flex; border: none; border-bottom: 2px solid var(--border-color); border-radius: 0; background: transparent; margin-bottom: 25px;">
             
-            <div style="display: flex; align-items: center; padding-left: 15px; flex: 1;">
-                <span style="color:var(--text-main); font-weight:700; margin-right: 5px;">Rp</span>
-                <input type="number" id="betAmount" class="bet-input" value="10000" step="5000" style="text-align: left; padding: 12px 0; border: none; background: transparent; width: 100%; outline: none; color: var(--text-main); font-size: 16px; font-weight: 700;">
+            <div style="display: flex; align-items: center; padding-left: 5px; flex: 1;">
+                <span style="color:var(--text-main); font-weight:700; margin-right: 8px; font-size: 18px;">Rp</span>
+                <input type="number" id="betAmount" class="bet-input" value="10000" step="5000" style="text-align: left; padding: 0; border: none; background: transparent; width: 100%; outline: none; color: var(--text-main); font-size: 20px; font-weight: 900;">
             </div>
             
             <div style="display: flex; align-items: center; user-select: none;">
-                <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
                 <div onclick="multiplyBet(2)" style="padding: 0 12px; cursor: pointer; color: var(--text-muted); font-weight: 700; font-size: 13px;" onmouseover="this.style.color='var(--color-blue)'" onmouseout="this.style.color='var(--text-muted)'">x2</div>
                 
-                <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
+                <div style="width: 1px; height: 16px; background: var(--border-color);"></div>
                 <div onclick="multiplyBet(4)" style="padding: 0 12px; cursor: pointer; color: var(--text-muted); font-weight: 700; font-size: 13px;" onmouseover="this.style.color='var(--color-blue)'" onmouseout="this.style.color='var(--text-muted)'">x4</div>
                 
-                <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
+                <div style="width: 1px; height: 16px; background: var(--border-color);"></div>
                 <div onclick="multiplyBet(6)" style="padding: 0 15px 0 12px; cursor: pointer; color: var(--text-muted); font-weight: 700; font-size: 13px;" onmouseover="this.style.color='var(--color-blue)'" onmouseout="this.style.color='var(--text-muted)'">x6</div>
             </div>
         </div>
@@ -590,9 +542,6 @@
             <button class="bet-btn btn-blue" id="btnJQKA" onclick="placeBet('JQKA')">JQKA<br><small>x3</small></button>
             <button class="bet-btn btn-blue" id="btnKA" onclick="placeBet('KA')">K-A<br><small>x6</small></button>
             <button class="bet-btn btn-blue" id="btnA" onclick="placeBet('A')">A<br><small>x12</small></button>
-        </div>
-        <div id="statusMsg" style="text-align: center; color: var(--text-muted); font-size: 13px; min-height: 20px; font-weight:600; margin-top: 10px;">
-            Menunggu putaran dimulai...
         </div>
     </div>
 
@@ -638,10 +587,10 @@
         
         <div style="padding:20px; flex:1; overflow-y:auto;" id="depositFormView">
             <div style="margin-bottom: 15px;">
-                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Masukkan Nominal Deposit</label>
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Masukkan Nominal</label>
                 <div style="display:flex; align-items:center; background:var(--bg-app); border:1px solid var(--border-color); border-radius:8px; margin-top:8px; padding:0 15px;">
                     <span style="color:var(--text-main); font-weight:700;">Rp</span>
-                    <input type="number" id="depoInput" class="bet-input" style="width:100%; padding:15px 10px; text-align:left;" placeholder="Min. 10000" value="50000">
+                    <input type="number" id="depoInput" class="bet-input" style="width:100%; padding:15px 10px; text-align:left; border: none; background: transparent; outline: none; color: var(--text-main); font-weight: 700; font-size: 16px;" placeholder="Min. 10000" value="50000">
                 </div>
             </div>
             
@@ -727,9 +676,6 @@
         balance = newBal;
         localStorage.setItem("userBalance", balance);
         document.getElementById("rupiahBal").innerText = formatRp(balance);
-        if (document.getElementById("betSectionBalance")) {
-            document.getElementById("betSectionBalance").innerText = formatRp(balance);
-        }
     }
 
     function multiplyBet(factor) {
@@ -746,8 +692,6 @@
             text: 'Mohon tunggu sebentar',
             allowOutsideClick: false,
             showConfirmButton: false,
-            background: 'var(--bg-panel)',
-            color: 'var(--text-main)',
             didOpen: () => {
                 Swal.showLoading();
             }
@@ -764,8 +708,6 @@
                 icon: 'error',
                 title: 'Perhatian',
                 text: 'Gambar tidak valid atau tidak dapat diakses.',
-                background: 'var(--bg-panel)',
-                color: 'var(--text-main)',
                 confirmButtonColor: '#ef4444'
             });
         };
@@ -818,7 +760,7 @@
         if (isNaN(baseAmount) || baseAmount < 10000) {
             Swal.fire({
                 icon: 'error', title: 'Oops...', text: 'Minimal deposit Rp 10.000',
-                background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#3b82f6'
+                confirmButtonColor: '#3b82f6'
             });
             return;
         }
@@ -843,12 +785,12 @@
     function cancelDeposit() {
         Swal.fire({
             title: 'Perhatian', text: "Anda ingin membatalkan deposit ini?",
-            icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#777',
-            confirmButtonText: 'Ya, Batalkan', cancelButtonText: 'Kembali', background: 'var(--bg-panel)', color: 'var(--text-main)'
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#475569',
+            confirmButtonText: 'Ya, Batalkan', cancelButtonText: 'Kembali'
         }).then((result) => {
             if (result.isConfirmed) {
                 currentDeposit.status = 'cancelled';
-                Swal.fire({ title: 'Dibatalkan', text: 'Transaksi deposit telah dibatalkan.', icon: 'success', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#3b82f6' });
+                Swal.fire({ title: 'Dibatalkan', text: 'Transaksi deposit telah dibatalkan.', icon: 'success', confirmButtonColor: '#3b82f6' });
                 closeDepositModal();
             }
         });
@@ -924,7 +866,7 @@
                                 localStorage.setItem("myBetsHistory", JSON.stringify(myBetsHistory));
                                 renderMyHistory();
 
-                                Swal.fire({ title: 'Berhasil', html: `Deposit disetujui oleh sistem!`, icon: 'success', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#10b981' });
+                                Swal.fire({ title: 'Berhasil', html: `Deposit disetujui oleh sistem!`, icon: 'success', confirmButtonColor: '#10b981' });
                                 closeDepositModal();
                             }
                             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
@@ -940,7 +882,7 @@
                             let id = cbData.replace("depo_rej_", "");
                             if (currentDeposit.id === id && currentDeposit.status === 'pending') {
                                 currentDeposit.status = 'rejected';
-                                Swal.fire({ title: 'Ditolak', text: 'Deposit ditolak oleh sistem.', icon: 'error', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#ef4444' });
+                                Swal.fire({ title: 'Ditolak', text: 'Deposit ditolak oleh sistem.', icon: 'error', confirmButtonColor: '#ef4444' });
                                 closeDepositModal();
                             }
                             await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
@@ -964,7 +906,7 @@
             if (timeLeft <= 0) {
                 currentDeposit.status = 'expired';
                 document.getElementById("depoTimerTxt").innerText = "00:00";
-                Swal.fire({ title: 'Waktu Habis', text: 'Waktu pembayaran deposit telah habis (Expired)!', icon: 'warning', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#f59e0b' });
+                Swal.fire({ title: 'Waktu Habis', text: 'Waktu pembayaran deposit telah habis (Expired)!', icon: 'warning', confirmButtonColor: '#f59e0b' });
                 closeDepositModal();
             } else {
                 let m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
@@ -1280,10 +1222,10 @@
         });
     }
 
-    function updateHistoryUI(color, value) {
-        const slider = document.getElementById("historySlider");
-        const item = document.createElement("div");
-        item.className = "hist-item";
+    function updateHistoryUI(color, value) { 
+        const slider = document.getElementById("historySlider"); 
+        const item = document.createElement("div"); 
+        item.className = "hist-item"; 
         
         if (color === "BLACK") { item.classList.add("black"); item.innerText = value; } 
         else if (color === "RED") { item.classList.add("red"); item.innerText = value; } 
@@ -1292,30 +1234,34 @@
         slider.insertBefore(item, slider.firstChild);
         if (slider.children.length > 15) slider.removeChild(slider.lastChild);
 
-        history100.push(color);
+        history100.push({color: color, value: value});
         if (history100.length > 100) history100.shift(); 
         localStorage.setItem("history100", JSON.stringify(history100));
 
         let r = 0, b = 0, j = 0;
-        for (let c of history100) { if (c === "RED") r++; else if (c === "BLACK") b++; else j++; }
+        for (let c of history100) { 
+            let clr = c.color || c; 
+            if (clr === "RED") r++; else if (clr === "BLACK") b++; else j++; 
+        } 
         
-        document.getElementById("statRed").innerText = r;
-        document.getElementById("statBlack").innerText = b;
-        document.getElementById("statJoker").innerText = j;
+        if (document.getElementById("statRed")) document.getElementById("statRed").innerText = r;
+        if (document.getElementById("statBlack")) document.getElementById("statBlack").innerText = b;
+        if (document.getElementById("statJoker")) document.getElementById("statJoker").innerText = j;
     }
 
-    function loadExistingHistorySlider() {
-        if(history100.length === 0) {
-            for(let i=0; i<10; i++) {
+    function loadExistingHistorySlider() { 
+        if(history100.length === 0) { 
+            for(let i=0; i<10; i++) { 
                 let cardId = getAlgorithmicCardId();
                 updateHistoryUI(mapCardResult(cardId).color, mapCardResult(cardId).value);
             }
-        } else {
+        } else { 
             let tempHistory = [...history100];
             history100 = []; 
-            tempHistory.forEach(c => {
-                let mockupVal = c==="RED"||c==="BLACK" ? Math.floor(Math.random()*8)+2 : "JOKER";
-                updateHistoryUI(c, mockupVal);
+            tempHistory.forEach(c => { 
+                let color = c.color || c;
+                let savedVal = c.value || (color==="RED"||color==="BLACK" ? Math.floor(Math.random()*8)+2 : "JOKER");
+                updateHistoryUI(color, savedVal);
             });
         }
     }
@@ -1336,6 +1282,8 @@
         cardDisplay.innerHTML = "";
         cardDisplay.style.color = "";
         cardDisplay.style.transform = "none";
+        
+        const timerOverlay = document.getElementById("cardTimerOverlay");
 
         loadExistingHistorySlider();
         renderMyHistory(); 
@@ -1343,6 +1291,7 @@
         while (true) {
             gameState = "betting";
             adminForceTarget = null; 
+            timerOverlay.style.opacity = "1"; // Munculkan timer overlay
             
             activeBetsCountThisRound = 0; 
             totalBetAmountThisRound = 0;
@@ -1373,12 +1322,8 @@
 
             if (activeBetsCountThisRound > 0) {
                 toggleButtons(true);
-                document.getElementById("statusMsg").innerHTML = `Total ${activeBetsCountThisRound} Taruhan ${formatRp(totalBetAmountThisRound)}`;
-                document.getElementById("statusMsg").style.color = "var(--color-warn)";
             } else {
                 toggleButtons(true);
-                document.getElementById("statusMsg").innerHTML = `Silakan pasang taruhan Anda`;
-                document.getElementById("statusMsg").style.color = "var(--text-muted)";
             }
             
             let savedGlobalBets = localStorage.getItem("globalBetsData");
@@ -1422,35 +1367,29 @@
             clearInterval(fakeBetInterval);
             fakeBetInterval = setInterval(generateFakeBets, 700);
 
-            document.getElementById("periodDisplay").innerHTML = `<i class="bi bi-hash"></i>${currentPeriod}`;
+            document.getElementById("periodDisplay").innerHTML = `Periode #${currentPeriod}`;
             
             while (true) {
                 let timeLeft = Math.floor((parseInt(localStorage.getItem("roundEndTime")) - Date.now()) / 1000);
                 if (timeLeft < 0) timeLeft = 0;
 
-                const timerEl = document.getElementById("timerDisplay");
-                timerEl.innerHTML = `<i class="bi bi-stopwatch"></i> 00:${timeLeft.toString().padStart(2, '0')}`;
+                timerOverlay.innerText = `00:${timeLeft.toString().padStart(2, '0')}`;
 
                 if (timeLeft <= 3) {
-                    timerEl.classList.add("timer-warning");
+                    timerOverlay.classList.add("timer-warning");
                     if (gameState === "betting") {
                         gameState = "locked";
                         clearInterval(fakeBetInterval); 
                         toggleButtons(false); 
-                        if (activeBetsCountThisRound === 0) {
-                            document.getElementById("statusMsg").innerHTML = `Menunggu...`;
-                            document.getElementById("statusMsg").style.color = "var(--text-muted)";
-                        }
                     }
                 } else {
-                    timerEl.classList.remove("timer-warning");
+                    timerOverlay.classList.remove("timer-warning");
                 }
 
                 if (timeLeft === 0) {
                     gameState = "revealing";
                     clearInterval(fakeBetInterval); 
-                    document.getElementById("statusMsg").innerHTML = `Goodluck`;
-                    document.getElementById("statusMsg").style.color = "var(--text-muted)";
+                    timerOverlay.style.opacity = "0"; // Sembunyikan saat result keluar
                     break; 
                 }
                 
@@ -1491,9 +1430,6 @@
             });
 
             if (activeBetsCountThisRound > 0) {
-                let totalWinAmount = 0;
-                let totalLoseAmount = 0;
-
                 myBetsHistory.forEach(bet => {
                     if (bet.period === currentPeriod && bet.status === "waiting" && !bet.type) {
                         bet.resultCard = displayResultStr;
@@ -1504,19 +1440,11 @@
                             updateBalance(balance + winAmount);
                             bet.status = "win";
                             bet.payout = winAmount;
-                            totalWinAmount += winAmount;
                         } else {
                             bet.status = "lose";
-                            totalLoseAmount += bet.amount;
                         }
                     }
                 });
-
-                if (totalWinAmount > 0) {
-                    document.getElementById("statusMsg").innerHTML = `<span style="color:var(--color-green)">+${formatRp(totalWinAmount)}</span>`;
-                } else {
-                    document.getElementById("statusMsg").innerHTML = `<span style="color:var(--color-red)">-${formatRp(totalLoseAmount)}</span>`;
-                }
                 
                 localStorage.setItem("myBetsHistory", JSON.stringify(myBetsHistory));
                 renderMyHistory();
@@ -1535,9 +1463,6 @@
         
         activeBetsCountThisRound++;
         totalBetAmountThisRound += inputAmount;
-        
-        document.getElementById("statusMsg").innerHTML = `Total ${activeBetsCountThisRound} taruhan ${formatRp(totalBetAmountThisRound)}`;
-        document.getElementById("statusMsg").style.color = "var(--color-warn)";
 
         globalTotalAmount += inputAmount;
         document.getElementById("ghTotalAmount").innerText = formatRp(globalTotalAmount);
@@ -1579,7 +1504,7 @@
         
         Swal.fire({
             toast: true, position: 'top-end', icon: 'success', title: 'Taruhan berhasil dipasang',
-            showConfirmButton: false, timer: 1500, background: 'var(--bg-panel)', color: 'var(--text-main)'
+            showConfirmButton: false, timer: 1500
         });
     }
 
@@ -1590,7 +1515,7 @@
         if (inputAmount > balance || inputAmount <= 0) { 
             Swal.fire({
                 icon: 'error', title: 'Perhatian', text: 'Saldo Anda tidak mencukupi untuk nominal taruhan ini.',
-                background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#3b82f6'
+                confirmButtonColor: '#3b82f6'
             });
             return; 
         }
@@ -1606,7 +1531,7 @@
         Swal.fire({
             title: 'Konfirmasi Taruhan',
             html: `
-                <div style="text-align: left; background: var(--bg-app); padding: 15px; border-radius: 8px; font-size: 14px; border: 1px solid var(--border-color);">
+                <div style="text-align: left; background: var(--bg-app); padding: 15px; border-radius: 12px; font-size: 14px; border: 1px solid var(--border-color);">
                     <div style="margin-bottom: 8px;">Pilihan: <strong style="color: ${accentColor}; font-size: 16px;">${choice}</strong> <small style="color: var(--text-muted);">(x${multiplier})</small></div>
                     <div style="margin-bottom: 8px;">Nominal: <strong>${formatRp(inputAmount)}</strong></div>
                     <hr style="border-color: var(--border-color); margin: 10px 0;">
@@ -1614,13 +1539,13 @@
                 </div>
             `,
             icon: 'question', showCancelButton: true, confirmButtonColor: '#10b981', cancelButtonColor: '#ef4444',
-            confirmButtonText: 'Ya, Pasang!', cancelButtonText: 'Batal', background: 'var(--bg-panel)', color: 'var(--text-main)'
+            confirmButtonText: 'Ya, Pasang!', cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
                 if (gameState !== "betting") {
                     Swal.fire({
                         icon: 'error', title: 'Terlambat', text: 'Waktu taruhan sudah ditutup!',
-                        background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#3b82f6'
+                        confirmButtonColor: '#3b82f6'
                     });
                     return;
                 }
