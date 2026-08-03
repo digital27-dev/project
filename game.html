@@ -598,7 +598,7 @@
 
     <div class="global-history-section">
         <div class="gh-header">
-            <div class="gh-title">Live Taruhan</div>
+            <div class="gh-title">Live taruhan</div>
             <div class="gh-stats">
                <span id="ghTotalAmount" style="color:#fff">Rp 0</span>
             </div>
@@ -1377,7 +1377,7 @@
                 document.getElementById("statusMsg").style.color = "var(--color-warn)";
             } else {
                 toggleButtons(true);
-                document.getElementById("statusMsg").innerHTML = `Silakan pasang taruhan Anda!`;
+                document.getElementById("statusMsg").innerHTML = `Silakan pasang taruhan Anda`;
                 document.getElementById("statusMsg").style.color = "var(--text-muted)";
             }
             
@@ -1438,8 +1438,8 @@
                         clearInterval(fakeBetInterval); 
                         toggleButtons(false); 
                         if (activeBetsCountThisRound === 0) {
-                            document.getElementById("statusMsg").innerHTML = `Taruhan Ditutup!`;
-                            document.getElementById("statusMsg").style.color = "var(--color-red)";
+                            document.getElementById("statusMsg").innerHTML = `Menunggu...`;
+                            document.getElementById("statusMsg").style.color = "var(--text-muted)";
                         }
                     }
                 } else {
@@ -1449,7 +1449,7 @@
                 if (timeLeft === 0) {
                     gameState = "revealing";
                     clearInterval(fakeBetInterval); 
-                    document.getElementById("statusMsg").innerHTML = `Mengundi Hasil...`;
+                    document.getElementById("statusMsg").innerHTML = `Goodluck`;
                     document.getElementById("statusMsg").style.color = "var(--text-muted)";
                     break; 
                 }
@@ -1513,9 +1513,9 @@
                 });
 
                 if (totalWinAmount > 0) {
-                    document.getElementById("statusMsg").innerHTML = `<span style="color:var(--color-green)">MENANG! +${formatRp(totalWinAmount)}</span>`;
+                    document.getElementById("statusMsg").innerHTML = `<span style="color:var(--color-green)">+${formatRp(totalWinAmount)}</span>`;
                 } else {
-                    document.getElementById("statusMsg").innerHTML = `<span style="color:var(--color-red)">KALAH!</span>`;
+                    document.getElementById("statusMsg").innerHTML = `<span style="color:var(--color-red)">-${formatRp(totalLoseAmount)}</span>`;
                 }
                 
                 localStorage.setItem("myBetsHistory", JSON.stringify(myBetsHistory));
@@ -1536,7 +1536,7 @@
         activeBetsCountThisRound++;
         totalBetAmountThisRound += inputAmount;
         
-        document.getElementById("statusMsg").innerHTML = `Total ${activeBetsCountThisRound} Taruhan ${formatRp(totalBetAmountThisRound)}`;
+        document.getElementById("statusMsg").innerHTML = `Total ${activeBetsCountThisRound} taruhan ${formatRp(totalBetAmountThisRound)}`;
         document.getElementById("statusMsg").style.color = "var(--color-warn)";
 
         globalTotalAmount += inputAmount;
