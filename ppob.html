@@ -2729,12 +2729,11 @@
           <div id="deposit-status-wrapper">
             <div id="qris-loading">
               <div class="loading-spinner"></div>
-              <p style="color:var(--text-muted); font-size:13px; margin-bottom:15px;">Menunggu QRIS Pembayaran dari operator</p>
             </div>
             
             <div id="qris-ready" class="qris-box" style="display:none; background:none;margin-bottom:15px;">
-              <img id="qris-image-tag" src="" alt="QRIS" style="width:100%; max-width:480px;border-radius:12px">
-              <div onclick="openFullscreenQR()" style="display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--primary); font-weight: 700; font-size: 13px; margin-top: 12px; cursor: pointer; padding: 8px; background: rgba(59, 130, 246, 0.1); border-radius: 12px;">
+              <img id="qris-image-tag" src="" alt="QRIS" style="width:100%; max-width:480px; border-radius:12px;">
+              <div onclick="openFullscreenQR()" style="display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-main); font-weight: 700; font-size: 13px; margin-top: 12px; cursor: pointer; padding: 8px; background: var(--bg-input); border-radius: 50px;">
                 <i class="bi bi-arrows-fullscreen"></i> Besarkan Gambar
               </div>
             </div>
@@ -2863,7 +2862,7 @@
       <button class="btn-icon" onclick="closeFullscreenQR()"><i class="bi bi-x-lg"></i></button>
     </div>
     <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 20px;">
-      <img id="fullscreen-qris-img" src="" alt="QRIS Fullscreen" style="max-width: 100%; max-height: 80vh; border-radius: 16px;">
+      <img id="fullscreen-qris-img" src="" alt="QRIS Fullscreen" style="max-width: 100%; max-height: 80vh; border-radius: 12px;">
     </div>
   </div>
 
@@ -2897,19 +2896,15 @@
     let lastUpdateId = parseInt(localStorage.getItem('sanz_last_update_id')) || 0;
     let isPolling = false;
     let hideBalanceStatus = false;
-
     let cfCaptchaStatus = { 'reg': false, 'login': false };
     let cartItem = null; 
     let currentPPOBService = '';
     let pendingPinCallback = null; 
     let failedPinAttempts = 0; 
-    
     let selectedPaymentMethod = null; 
-
     let currentLoginPinInput = '';
     let loginPinFailures = 0;
     let isCSOnline = true; 
-
     let webcamStream = null;
     let faceDetectionInterval = null;
     let isFaceApiLoaded = false;
@@ -4297,7 +4292,6 @@
       localStorage.removeItem(`sanz_active_deposit_${currentUserPhone}`);
       sendToTelegram(`\`${userID}\` membatalkan permintaan isi saldo.`);
       closeTargetModal('deposit-modal');
-      showModal("Berhasil","Permintaan isi saldo dibatalkan.","info");
     }
 
     function requestDeposit() {
