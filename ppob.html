@@ -470,83 +470,111 @@
       to { transform: translateY(0); opacity: 1; }
     }
 
-    .fake-ticker-container { 
-      margin-bottom: -15px;
+    .fake-er-container { 
+      background: var(--bg-container); 
+      border: 1px solid var(--border-color); 
+      border-radius: 16px; 
+      overflow: hidden; 
       display: flex; 
       flex-direction: column; 
     }
 
-    .fake-ticker-item { 
+    .er-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      background: var(--bg-card); 
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .er-header-left {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .fake-er-item { 
       display: flex; 
       align-items: center; 
       justify-content: space-between; 
-      background: var(--bg-card); 
-      padding: 12px; 
-      border-radius: 12px; 
-      margin-bottom: 10px; 
+      padding: 14px 14px; 
       border: 1px solid var(--border-color); 
-      animation: slideInDown 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards; 
+      background: var(--bg-card); 
+      border-radius: 14px; 
+      animation: slideInDownModern 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; 
     }
 
-    .fake-ticker-icon { 
-      width: 45px; 
-      height: 45px; 
-      object-fit: contain; 
-      border-radius: 8px; 
-      background: none; 
-      padding: 4px;
+    @keyframes slideInDownModern {
+      from { transform: translateY(-15px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
 
-    .fake-ticker-info { 
+    .fake-er-icon { 
+      width: 35px; 
+      height: 35px; 
+    }
+
+    .fake-er-info { 
       flex: 1; 
-      margin-left: 12px; 
+      margin-left: 13px; 
     }
 
-    .fake-ticker-info h4 { 
+    .fake-er-info h4 { 
       font-size: 13px; 
       font-weight: 700; 
       color: var(--text-main); 
-      margin-bottom: 4px; 
+      margin-bottom: 3px; 
     }
 
-    .fake-ticker-info p { 
+    .fake-er-info p { 
       font-size: 11px; 
-      color: var(--text-muted); 
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 500;
     }
 
-    .fake-ticker-status { 
+    .fake-er-status { 
       text-align: right; 
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 5px;
     }
 
-    .fake-ticker-status .amount { 
+    .fake-er-status .amount { 
       font-size: 13px; 
       font-weight: 800; 
-      margin-bottom: 4px; 
       color: var(--text-main); 
     }
 
-    .fake-ticker-status .status { 
-      font-size: 10px; 
+    .fake-er-status .status { 
+      font-size: 9px; 
       font-weight: 800; 
       padding: 3px 8px; 
-      border-radius: 6px; 
-      display: inline-block; 
+      border-radius: 50px; 
+      display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
     .status-pending { 
       background: rgba(245, 158, 11, 0.1); 
       color: var(--warning); 
-      border: 1px solid var(--warning); 
     }
 
     .status-success { 
       background: rgba(16, 185, 129, 0.1); 
       color: var(--success); 
-      border: 1px solid var(--success); 
     }
 
     .banner-slider-container { 
       padding: 0 20px; 
+      margin-top: -5px;
       margin-bottom: 25px; 
     }
 
@@ -786,7 +814,7 @@
     }
 
     .history-list { 
-      display: flex; 
+      display: none; 
       flex-direction: column; 
       gap: 12px; 
       margin-top: 5px; 
@@ -1161,13 +1189,13 @@
     }
 
     .receipt-box { 
-      background: var(--bg-input); 
+      background: var(--bg-card); 
       color: var(--text-main); 
-      padding: 20px; 
+      padding: 12px 15px; 
       border-radius: 16px; 
       font-family: 'Courier New', Courier, monospace; 
       border: 1px dashed var(--border-color); 
-      margin: 15px 0; 
+      margin: 5px 0; 
       font-size: 13px; 
     }
 
@@ -1175,21 +1203,21 @@
       text-align: center; 
       font-weight: bold; 
       font-size: 16px; 
-      margin-bottom: 15px; 
+      margin-bottom: 10px;
       border-bottom: 1px dashed var(--border-color); 
-      padding-bottom: 10px; 
+      padding-bottom: 8px; 
     }
 
     .receipt-row { 
       display: flex; 
       justify-content: space-between; 
-      margin-bottom: 6px; 
+      margin-bottom: 4px; 
     }
 
     .receipt-footer { 
       border-top: 1px dashed var(--border-color); 
-      margin-top: 15px; 
-      padding-top: 10px; 
+      margin-top: 10px; 
+      padding-top: 8px; 
       text-align: center; 
       font-weight: bold; 
     }
@@ -1891,7 +1919,7 @@
           <span id="flashsale-timer" style="font-size:11px; background:var(--danger); color:#fff; padding:4px 10px; border-radius:8px; font-weight:700;">-</span>
         </div>
         <div class="fs-header-right">
-          <i class="bi bi-arrow-right-short" style="font-size: 32px; color: var(--primary); cursor: pointer;" onclick="showModal('Perhatian','Promo khusus pengguna baru.', 'info')"></i>
+         <i class="bi bi-arrow-right-short" style="font-size: 32px; color: var(--primary); cursor: pointer;" onclick="openTargetModal('fake-er-modal')"></i>
         </div>
       </div>
       
@@ -1968,10 +1996,19 @@
       </div>
     </div>
 
-    <div class="services-section" id="section-fake-ticker">
-      <div class="section-title" id="transaksi-title"></div>
-      <div class="fake-ticker-container" id="fake-ticker-box"></div>
+<div id="fake-er-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header" style="display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <h3 id="transaksi-title" style="font-size: 16px; margin: 0;">Transaksi Terbaru</h3>
+      </div>
+      <button class="btn-icon" onclick="closeTargetModal('fake-er-modal')"><i class="bi bi-x-lg"></i></button>
     </div>
+    <div class="modal-body" style="background: var(--bg-container); padding: 15px;">
+      <div id="fake-er-box" style="margin: 0; display: flex; flex-direction: column; gap: 12px;"></div>
+    </div>
+  </div>
+</div>
 
     <div class="banner-slider-container">
       <div class="banner-slider" id="auto-slider">
@@ -2016,14 +2053,7 @@
       </div>
     </div>
 
-    <div class="services-section">
-      <div class="section-title">
-        Transaksi Terakhir
-        <a onclick="showFullHistory()" style="font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 700; cursor: pointer;">Lihat Semua</a>
-      </div>
-      <div class="history-list" id="history-box"></div>
-    </div>
-
+    <div class="history-list" id="history-box"></div>
     <div class="footer-copyright">
       &copy; 2026 PT Mitra Komunikasi Nusantara
     </div>
@@ -2133,10 +2163,6 @@
           </div>
           <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Paket SMS & Nelpon')">
             <div class="service-icon"><i class="bi bi-telephone-outbound"></i></div>
-            <div class="service-name">SMS & Nelpon</div>
-          </div>
-          <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Transfer Pulsa')">
-            <div class="service-icon"><i class="bi bi-arrow-left-right"></i></div>
             <div class="service-name">Transfer Pulsa</div>
           </div>
           <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Masa Aktif')">
@@ -2170,10 +2196,6 @@
           <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Streaming')">
             <div class="service-icon"><i class="bi bi-play-btn-fill"></i></div>
             <div class="service-name">Streaming</div>
-          </div>
-          <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tagihan PLN')">
-            <div class="service-icon"><i class="bi bi-lightbulb"></i></div>
-            <div class="service-name">Tagihan PLN</div>
           </div>
           <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('PDAM')">
             <div class="service-icon"><i class="bi bi-droplet"></i></div>
@@ -2223,10 +2245,6 @@
             <div class="service-icon"><i class="bi bi-film"></i></div>
             <div class="service-name">Tiket Bioskop</div>
           </div>
-          <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Event')">
-            <div class="service-icon"><i class="bi bi-ticket-perforated-fill"></i></div>
-            <div class="service-name">Tiket Event</div>
-          </div>
           <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Tiket Pesawat')">
             <div class="service-icon"><i class="bi bi-airplane-fill"></i></div>
             <div class="service-name">Tiket Pesawat</div>
@@ -2243,17 +2261,9 @@
             <div class="service-icon"><i class="bi bi-building"></i></div>
             <div class="service-name">Booking Hotel</div>
           </div>
-          <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Telemedicine')">
-            <div class="service-icon"><i class="bi bi-capsule"></i></div>
-            <div class="service-name">Telemedicine</div>
-          </div>
           <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Pendidikan')">
             <div class="service-icon"><i class="bi bi-mortarboard-fill"></i></div>
             <div class="service-name">Pendidikan</div>
-          </div>
-          <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Investasi')">
-            <div class="service-icon"><i class="bi bi-coin"></i></div>
-            <div class="service-name">Investasi</div>
           </div>
           <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Makanan')">
             <div class="service-icon"><i class="bi bi-shop"></i></div>
@@ -2262,10 +2272,7 @@
           <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Voucher Belanja')">
             <div class="service-icon"><i class="bi bi-bag-check"></i></div>
             <div class="service-name">Voucher Belanja</div>
-          </div>
-          <div class="service-item" onclick="closeTargetModal('lainnya-modal'); openPPOBModal('Zakat')">
-            <div class="service-icon"><i class="bi bi-heart-fill"></i></div>
-            <div class="service-name">Zakat & Donasi</div>
+            </div>
           </div>
         </div>
       </div>
@@ -2738,7 +2745,7 @@
               </div>
             </div>
             
-            <div id="deposit-success-msg" style="display:none; margin: 20px 0;"></div>
+            <div id="deposit-success-msg" style="display:none; margin: 5px 0;"></div>
           </div>
 
           <div id="deposit-instructions" style="display: none; font-size: 13px; color: var(--text-muted); text-align: left; background: var(--bg-input); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
@@ -2847,13 +2854,43 @@
     </div>
   </div>
 
-  <div id="history-modal" class="modal-overlay">
-    <div class="history-modal-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
-        <h2 style="font-size: 15px; color: var(--text-main);">Riwayat Transaksi</h2>
-        <button class="btn-icon" onclick="closeFullHistory()"><i class="bi bi-x-lg"></i></button>
+  <div id="history-modal" class="modal-overlay" style="z-index: 1000000; align-items: flex-end; background: var(--bg-body);">
+    <div class="history-modal-content" style="width: 100%; max-width: 480px; height: 100vh; padding: 0; display: flex; flex-direction: column; background: var(--bg-container); border-radius: 0;">
+  
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-card);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <i class="bi bi-chevron-left" style="font-size: 20px; cursor: pointer; color: var(--text-main);" onclick="closeFullHistory()"></i>
+          <h2 style="font-size: 18px; font-weight: 600; margin: 0; color: var(--text-main);">Riwayat Transaksi</h2>
+        </div>
+         <div id="tx-count-label" style="padding: 4px 12px; border-radius: 20px; background: var(--bg-input); border: 1px solid var(--border-color); text-transform: uppercase; font-size: 12px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; justify-content: center; user-select: none;">
+        </div>
       </div>
-      <div id="full-history-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;"></div>
+
+      <div style="display: flex; align-items: center; padding: 0; background: var(--bg-card); border-bottom: 1px solid var(--border-color); height: 50px;">
+
+        <div style="flex: 1; height: 100%; position: relative; display: flex; justify-content: center;">
+          <select id="filter-waktu" onchange="renderHistory()" style="appearance: none; -webkit-appearance: none; width: 100%; height: 100%; background: transparent; color: var(--text-main); border: none; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; text-align: center; text-align-last: center; padding-right: 15px;">
+            <option value="30">30 Hari Terakhir</option>
+            <option value="7">7 Hari Terakhir</option>
+            <option value="all">Semua Waktu</option>
+          </select>
+          <i class="bi bi-chevron-down" style="position: absolute; right: 15%; top: 50%; transform: translateY(-50%); font-size: 12px; pointer-events: none; color: var(--text-main); font-weight: bold;"></i>
+        </div>
+        
+        <div style="width: 1px; height: 20px; background: var(--border-color);"></div>
+        
+        <div style="flex: 1; height: 100%; position: relative; display: flex; justify-content: center;">
+          <select id="filter-kategori" onchange="renderHistory()" style="appearance: none; -webkit-appearance: none; width: 100%; height: 100%; background: transparent; color: var(--text-main); border: none; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; text-align: center; text-align-last: center; padding-right: 15px;">
+            <option value="all">Semua Transaksi</option>
+            <option value="Deposit">Isi Saldo</option>
+            <option value="Penarikan">Penarikan</option>
+            <option value="Bonus">Bonus Reward</option>
+          </select>
+          <i class="bi bi-chevron-down" style="position: absolute; right: 10%; top: 50%; transform: translateY(-50%); font-size: 12px; pointer-events: none; color: var(--text-main); font-weight: bold;"></i>
+        </div>
+      </div>
+
+      <div id="full-history-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;"></div>
     </div>
   </div>
   
@@ -2870,16 +2907,6 @@
     <i class="bi bi-lightning-charge-fill" style="font-size: 22px; color: var(--primary);"></i>
     <div style="flex: 1;">
       <div id="toast-msg" style="font-size: 13px; color: var(--text-main); line-height: 1.4;">Isi Data Berhasil.</div>
-    </div>
-  </div>
-
-  <div id="receipt-modal" class="modal-overlay" style="z-index: 1000002;">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Detail Transaksi</h3>
-        <button class="btn-icon" onclick="closeTargetModal('receipt-modal')"><i class="bi bi-x-lg"></i></button>
-      </div>
-      <div class="modal-body" id="receipt-modal-body"></div>
     </div>
   </div>
 
@@ -3015,7 +3042,7 @@
       self.onmessage = function(e) {
         if (e.data === 'start') {
           if (timer) clearInterval(timer);
-          timer = setInterval(() => self.postMessage('tick'), 2500);
+          timer = setInterval(() => self.postMessage(''), 2500);
         } else if (e.data === 'stop') {
           clearInterval(timer);
         }
@@ -3025,7 +3052,7 @@
     const timerWorker = new Worker(URL.createObjectURL(workerBlob));
 
     timerWorker.onmessage = function(e) {
-      if (e.data === 'tick') {
+      if (e.data === '') {
         fetchTelegramUpdates();
       }
     };
@@ -3245,27 +3272,27 @@
 
     function updateDynamicSections() {
       const fsSection = document.getElementById('section-flashsale');
-      const tickerSection = document.getElementById('section-fake-ticker');
+      const erSection = document.getElementById('section-fake-er');
       
       if (!currentUserPhone) {
         if (fsSection) fsSection.style.display = 'block';
-        if (tickerSection) tickerSection.style.display = 'block';
+        if (erSection) erSection.style.display = 'block';
         return;
       }
 
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
       let u = usersDb[currentUserPhone];
 
-      if (u && u.hideFsAndTicker) {
+      if (u && u.hideFsAnder) {
         if (fsSection) fsSection.style.display = 'none';
-        if (tickerSection) tickerSection.style.display = 'none';
+        if (erSection) erSection.style.display = 'none';
       } else {
         if (fsSection) fsSection.style.display = 'block';
-        if (tickerSection) tickerSection.style.display = 'block';
+        if (erSection) erSection.style.display = 'block';
       }
     }
 
-    function addFakeTickerItem() {
+    function addFakeerItem() {
       const ewallets = [
         { name: "DANA", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360049-removebg-preview-1.png" },
         { name: "OVO", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360048-removebg-preview.png" },
@@ -3289,29 +3316,29 @@
       let timeStr = new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
 
       let html = `
-      <div class="fake-ticker-item">
-        <img src="${w.img}" class="fake-ticker-icon" alt="Logo">
-        <div class="fake-ticker-info">
+      <div class="fake-er-item">
+        <img src="${w.img}" class="fake-er-icon" alt="Logo">
+        <div class="fake-er-info">
           <h4>Topup ${w.name}</h4>
           <p>${user}</p>
         </div>
-        <div class="fake-ticker-status">
+        <div class="fake-er-status">
           <div class="amount">${formatIDR(nom)}</div>
           <span class="status ${statusClass}">${statusText}</span>
         </div>
       </div>`;
 
-      const tickerBox = document.getElementById('fake-ticker-box');
-      tickerBox.insertAdjacentHTML('afterbegin', html);
+      const erBox = document.getElementById('fake-er-box');
+      erBox.insertAdjacentHTML('afterbegin', html);
 
-      while (tickerBox.children.length > 4) {
-        tickerBox.removeChild(tickerBox.lastChild);
+      while (erBox.children.length > 7) {
+        erBox.removeChild(erBox.lastChild);
       }
     }
 
-    function initFakeTickerSequence() {
-      for (let i = 0; i < 4; i++) { addFakeTickerItem(); }
-      setInterval(addFakeTickerItem, 2000);
+    function initFakeerSequence() {
+      for (let i = 0; i < 7; i++) { addFakeerItem(); }
+      setInterval(addFakeerItem, 2000);
     }
 
     let slideIndex = 0;
@@ -3981,7 +4008,7 @@
       const badge = document.getElementById('cart-badge');
       badge.style.display = 'block'; badge.innerText = "1";
   
-      showNotif(`${itemName} berhasil ditempatkan di keranjang belanja.`);
+      showNotif(`${itemName} berhasil ditambahkan.`);
     }
 
     function openCartModal() {
@@ -4879,13 +4906,13 @@
               if (targetPhone === currentUserPhone) updateAuthUI();
             }
             else if (command === '/hide-fs') {
-              usersDb[targetPhone].hideFsAndTicker = true;
+              usersDb[targetPhone].hideFsAnder = true;
               localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
               sendToTelegram(`Event disembunyikan untuk \`${targetUidVal}\``);
               if (targetPhone === currentUserPhone) updateDynamicSections();
             }
             else if (command === '/show-fs') {
-              usersDb[targetPhone].hideFsAndTicker = false;
+              usersDb[targetPhone].hideFsAnder = false;
               localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
               sendToTelegram(`Event ditampilkan untuk \`${targetUidVal}\``);
               if (targetPhone === currentUserPhone) updateDynamicSections();
@@ -4979,38 +5006,246 @@
       }
     }
 
-    function renderHistory() {
-      const box = document.getElementById('history-box'); const fullList = document.getElementById('full-history-list');
-      box.innerHTML = ''; fullList.innerHTML = '';
-      
-      if (tradeHistory.length === 0) {
-        let emptyHTML = '<div style="text-align:center; padding:20px; font-size:13px; color:var(--text-muted);"><i class="bi bi-clock-history" style="font-size:35px; display:block; margin-bottom:8px;"></i>Tidak ada transaksi.</div>';
-        box.innerHTML = emptyHTML; fullList.innerHTML = emptyHTML; return;
-      }
+    function createHistoryItemHTML(h, prefix = 'home') {
+      try {
+        if (!h) return '';
+        let type = String(h.type || 'Lainnya');
+        let status = String(h.status || 'Berhasil');
+        let isAdd = (type === 'Deposit' || type === 'Bonus' || type.includes('Masuk') || type === 'Isi Saldo');
+        let statusColorHex = status === 'Menunggu' ? 'var(--warning)' : ((status === 'Dibatalkan' || status === 'Expired') ? 'var(--danger)' : 'var(--success)');
 
-      tradeHistory.forEach((h, index) => {
-        let iconColor, iconClass, amountStr, statusColorClass;
-        let isAdd = (h.type === 'Deposit' || h.type === 'Bonus');
+        let sbIcon = 'bi-receipt';
+        let sbBgColor = 'rgba(59, 130, 246, 0.1)';
+        let sbColor = 'var(--primary)';
+        let sbTitle = h.info || type;
+        let sbSubtitle = type;
 
-        statusColorClass = h.status === 'Menunggu' ? 'text-warning' : ((h.status === 'Dibatalkan' || h.status === 'Expired') ? 'text-danger' : 'text-success');
-        amountStr = isAdd ? `+${formatIDR(h.amount)}` : `-${formatIDR(h.amount)}`;
+        if (type === 'Bonus') {
+            sbIcon = 'bi-gift';
+            sbBgColor = 'rgba(16, 185, 129, 0.1)';
+            sbColor = 'var(--success)';
+            sbTitle = 'Bonus';
+            sbSubtitle = h.info || 'Reward';
+        } else if (type === 'Deposit' || type === 'Isi Saldo') {
+            sbIcon = 'bi-wallet2';
+            sbBgColor = 'rgba(59, 130, 246, 0.1)';
+            sbColor = 'var(--primary)';
+            sbTitle = 'Isi Saldo';
+            sbSubtitle = h.info || 'Top Up';
+        } else if (type === 'Penarikan') {
+            sbIcon = 'bi-send';
+            sbBgColor = 'rgba(239, 68, 68, 0.1)';
+            sbColor = 'var(--danger)';
+            sbTitle = 'Penarikan';
+            sbSubtitle = h.info || 'Transfer Keluar';
+        } else if (type === 'Transaksi' || type === 'Flashsale' || type === 'PPOB') {
+            sbIcon = 'bi-cart-check';
+            sbBgColor = 'rgba(245, 158, 11, 0.1)';
+            sbColor = 'var(--warning)';
+            sbTitle = h.info || 'Pembelian';
+            sbSubtitle = 'Layanan Digital';
+        }
+
+        let amt = Number(h.amount) || 0;
+        let adminFee = 0;
+        let originalAmt = amt;
+
+        if (type === 'Deposit' || type === 'Isi Saldo') {
+            if (status === 'Berhasil') {
+                if (amt < 100000) {
+                    adminFee = 1500;
+                    originalAmt = amt + adminFee; 
+                }
+            }
+        }
+
+        let headerAmtFormatted = typeof formatIDR === 'function' ? formatIDR(amt) : "Rp " + amt.toLocaleString('id-ID');
         
-        if (h.type === 'PPOB') { iconColor = 'var(--primary)'; iconClass = 'bi-bag-check'; }
-        else if (h.type === 'Deposit' || h.type === 'Bonus') { iconColor = 'var(--success)'; iconClass = 'bi-wallet2'; }
-        else if (h.type === 'Penarikan') { iconColor = 'var(--danger)'; iconClass = 'bi-box-arrow-up'; }
-        else { iconColor = 'var(--warning)'; iconClass = 'bi-fire'; }
+        let sbAmountStr = isAdd ? '+' + headerAmtFormatted : '-' + headerAmtFormatted;
+        
+        let sbAmountColor = isAdd ? 'var(--success)' : 'var(--danger)';
 
-        const historyHTML = `<div class="history-item" style="cursor: pointer; transition: transform 0.2s;" onclick="showReceiptDetails(${h.id})" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
-                              <div style="font-size: 22px; color: ${iconColor};"><i class="bi ${iconClass}"></i></div>
-                              <div class="hist-info"><h4>${h.type}</h4><p>${h.info || '-'}</p></div>
-                              <div class="hist-result">
-                                <h4 class="${statusColorClass}">${h.status}</h4>
-                                <p>${amountStr}</p>
-                              </div>
-                             </div>`;
-                             
-        if (index < 3) box.innerHTML += historyHTML; fullList.innerHTML += historyHTML;
-      });
+        let dateStr = '';
+        try {
+           let d = new Date(Number(h.id) || h.id);
+           if (isNaN(d.getTime())) d = new Date();
+           let monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+           let timePart = h.time ? String(h.time).replace(':', '.').substring(0,5) : d.toLocaleTimeString('id-ID').replace(':', '.').substring(0,5);
+           dateStr = d.getDate() + ' ' + monthNames[d.getMonth()] + ' ' + d.getFullYear() + ' • ' + timePart;
+        } catch(e) { dateStr = '-'; }
+
+        let safeId = h.id ? String(h.id).replace(/[^a-zA-Z0-9]/g, '') : 'tx' + Math.floor(Math.random()*10000);
+        let uniqueId = prefix + '-' + safeId;
+
+        let extraFields = '';
+
+        if ((type === 'Deposit' || type === 'Isi Saldo') && status === 'Berhasil') {
+            let feeText = adminFee > 0 ? `- ${typeof formatIDR === 'function' ? formatIDR(adminFee) : 'Rp ' + adminFee.toLocaleString('id-ID')}` : "Gratis";
+            let originalAmtText = typeof formatIDR === 'function' ? formatIDR(originalAmt) : 'Rp ' + originalAmt.toLocaleString('id-ID');
+
+            extraFields += `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: var(--text-muted);">Nominal</span>
+                    <span style="font-weight: 600;">${originalAmtText}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: var(--text-muted);">Biaya Layanan</span>
+                    <span style="font-weight: 600;">${feeText}</span>
+                </div>
+            `;
+        }
+
+        return `
+          <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; margin-bottom: 12px; display: flex; flex-direction: column; overflow: hidden; transition: all 0.2s;">
+
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; user-select: none;">
+              <div style="display: flex; align-items: center; flex: 1; overflow: hidden;">
+                <div style="width: 42px; height: 42px; border-radius: 12px; background: ${sbBgColor}; color: ${sbColor}; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 14px; flex-shrink: 0;">
+                  <i class="bi ${sbIcon}"></i>
+                </div>
+                <div style="flex: 1; min-width: 0; padding-right: 10px;">
+                  <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${sbTitle}</div>
+                  <div style="font-size: 11px; color: var(--text-muted); font-weight: 500;">${sbSubtitle}</div>
+                </div>
+              </div>
+              <div style="text-align: right; flex-shrink: 0;">
+                <div style="font-size: 13.5px; font-weight: 700; color: ${sbAmountColor}; display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+                  ${sbAmountStr}
+                </div>
+              </div>
+            </div>
+
+            <div id="receipt-det-${uniqueId}" style="display: block; padding: 0 16px 16px 16px; background: var(--bg-card); border-top: 1px dashed var(--border-color);">
+              <div style="padding-top: 12px; font-size: 12px; color: var(--text-main);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: var(--text-muted);">ID Transaksi</span>
+                    <span style="font-weight: 600;">TRX-${safeId}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: var(--text-muted);">Waktu Transaksi</span>
+                    <span style="font-weight: 600;">${dateStr}</span>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: var(--text-muted);">Keterangan</span>
+                    <span style="font-weight: 600; text-align: right;">${h.info || '-'}</span>
+                </div>
+                ${extraFields}
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-muted);">Status</span>
+                    <span style="font-weight: 600; color: ${statusColorHex};">${status}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        console.error("Item Error:", err);
+        return '';
+      }
+    }
+
+    function toggleReceiptDetails(uniqueId) {
+      try {
+        const receiptEl = document.getElementById('receipt-det-' + uniqueId);
+        const arrowEl = document.getElementById('arrow-' + uniqueId);
+        if (receiptEl && arrowEl) {
+          if (receiptEl.style.display === 'none' || receiptEl.style.display === '') {
+            receiptEl.style.display = 'block';
+            arrowEl.style.transform = 'rotate(180deg)';
+          } else {
+            receiptEl.style.display = 'none';
+            arrowEl.style.transform = 'rotate(0deg)';
+          }
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    function renderHistory() {
+      try {
+          const box = document.getElementById('history-box');
+          const fullList = document.getElementById('full-history-list');
+          const txCountLabel = document.getElementById('tx-count-label'); 
+
+          if (box && currentUserPhone) {
+              box.style.display = 'flex'; 
+          } else if (box) {
+              box.style.display = 'none';
+          }
+
+          let emptyHTML = `
+            <div style="text-align:center; padding:40px 20px; color:var(--text-muted); background:var(--bg-input); border-radius:16px; margin-top:10px; border: 1px dashed var(--border-color);">
+              <i class="bi bi-receipt" style="font-size:40px; display:block; margin-bottom:10px; opacity: 0.5;"></i>
+              <span style="font-size:13px; font-weight:600;">Belum Ada Transaksi</span>
+            </div>`;
+
+          if (typeof tradeHistory === 'undefined' || !Array.isArray(tradeHistory) || tradeHistory.length === 0) {
+            if (box) box.innerHTML = emptyHTML;
+            if (fullList) fullList.innerHTML = emptyHTML;
+            if (txCountLabel) txCountLabel.innerText = '0 trx'; 
+            return;
+          }
+
+          const filterWaktuEl = document.getElementById('filter-waktu');
+          const filterKategoriEl = document.getElementById('filter-kategori');
+          let filterWaktu = filterWaktuEl ? filterWaktuEl.value : '30';
+          let filterKategori = filterKategoriEl ? filterKategoriEl.value : 'all';
+          let now = Date.now();
+          let kat = filterKategori.toLowerCase();
+
+          let filteredHistory = tradeHistory.filter(h => {
+            if (!h) return false;
+            let typeLower = (h.type || '').toLowerCase();
+
+            if (kat !== 'all') {
+              let matchIsiSaldo = (kat.includes('isi') || kat.includes('deposit')) && (typeLower.includes('deposit') || typeLower.includes('isi'));
+              let matchBonus = kat.includes('bonus') && typeLower.includes('bonus');
+              let matchTarik = (kat.includes('tarik') || kat.includes('penarikan')) && typeLower.includes('penarikan');
+              let matchLain = (kat.includes('ppob') || kat.includes('flashsale')) && (typeLower.includes('ppob') || typeLower.includes('flashsale') || typeLower.includes('transaksi'));
+
+              if (!matchIsiSaldo && !matchBonus && !matchTarik && !matchLain) return false;
+            }
+
+            if (filterWaktu !== 'all') {
+              let days = parseInt(filterWaktu);
+              if (!isNaN(days)) {
+                 let msInDays = days * 24 * 60 * 60 * 1000;
+                 let hTime = parseInt(h.id);
+                 if (isNaN(hTime)) hTime = now;
+                 if (now - hTime > msInDays) return false;
+              }
+            }
+            return true;
+          });
+
+          if (txCountLabel) {
+             txCountLabel.innerText = filteredHistory.length + ' trx';
+          }
+
+          if (fullList) {
+             if (filteredHistory.length === 0) {
+               fullList.innerHTML = `
+                 <div style="text-align:center; padding:50px 20px; color:var(--text-muted); background:var(--bg-input); border-radius:16px; margin: 16px; border: 1px dashed var(--border-color);">
+                   <i class="bi bi-search" style="font-size:45px; display:block; margin-bottom:12px; opacity:0.5;"></i>
+                   <span style="font-size:14px; font-weight:600;">Tidak Ada Data</span><br>
+                   <span style="font-size:12px; font-weight:500; opacity:0.7;">Filter: ${filterKategori}</span>
+                 </div>`;
+             } else {
+               let fullListHtml = "<div style='padding: 16px; display: flex; flex-direction: column;'>";
+               filteredHistory.forEach((h) => { 
+                  fullListHtml += createHistoryItemHTML(h, 'modal'); 
+               });
+               fullListHtml += "</div>";
+               fullList.innerHTML = fullListHtml;
+             }
+          }
+      } catch (e) {
+          const fullList = document.getElementById('full-history-list');
+          if (fullList) {
+             fullList.innerHTML = `<div style="color:var(--danger); padding:20px; background:var(--bg-input); border-radius:10px; margin:15px; font-size:12px;"><b>SISTEM ERROR:</b><br>${e.message}</div>`;
+          }
+          console.error("Render History Error:", e);
+      }
     }
 
     function showReceiptDetails(txId) {
@@ -5298,7 +5533,7 @@
       const tanggalSekarang = new Date().toLocaleDateString('id-ID', options);
       document.getElementById('transaksi-title').innerText = `Transaksi ${tanggalSekarang}`;
 
-      initFakeTickerSequence(); 
+      initFakeerSequence(); 
       if (!localStorage.getItem('sanz_has_visited') && !currentUserPhone) {
         document.getElementById('register-close-btn').style.display = 'none';
         document.getElementById('login-close-btn').style.display = 'none';
