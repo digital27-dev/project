@@ -5244,7 +5244,7 @@
       } catch (e) {
           const fullList = document.getElementById('full-history-list');
           if (fullList) {
-             fullList.innerHTML = `<div style="color:var(--danger); padding:20px; background:var(--bg-input); border-radius:10px; margin:15px; font-size:12px;">${e.message}</div>`;
+             fullList.innerHTML = `<div style="color:var(--danger); padding:20px; background:var(--bg-container); margin:15px; font-size:12px;">${e.message}</div>`;
           }
           console.error("Render History Error:", e);
       }
