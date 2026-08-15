@@ -4652,8 +4652,13 @@
                   tHist[idx].amount = finalAmt; 
                   localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist));
                 }
-                
+
                 addNotifToUser(targetPhone, `Isi saldo berhasil diproses senilai ${formatIDR(finalAmt)}`);
+
+                if (adminFee > 0) {
+                  addNotifToUser(targetPhone, "Isi saldo di atas Rp 100.000 gratis biaya layanan.");
+                }
+
                 sendToTelegram(`Deposit sejumlah Rp ${accAmt.toLocaleString('id-ID')} telah disetujui untuk \`${target}\``);
 
                 if (targetPhone === currentUserPhone) {
@@ -4673,7 +4678,7 @@
                     let txDate = new Date(activeDep.id).toLocaleDateString('id-ID');
                     let txTime = new Date(activeDep.id).toLocaleTimeString('id-ID');
                     let feeRow = adminFee > 0 
-                      ? `<div class="receipt-row"><span>Biaya Layanan:</span><span style="color:var(--danger);">- ${formatIDR(adminFee)}</span></div>` 
+                      ? `<div class="receipt-row"><span>Biaya Layanan:</span><span style="color:var(--text-main);">- ${formatIDR(adminFee)}</span></div>` 
                       : `<div class="receipt-row"><span>Biaya Layanan:</span><span>Gratis</span></div>`;
 
                     document.getElementById('deposit-success-msg').innerHTML = `
