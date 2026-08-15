@@ -802,7 +802,7 @@
     .auth-link { 
       text-align: center; 
       font-size: 13px; 
-      color: var(--primary); 
+      color: var(--text-main); 
       margin-top: 15px; 
       cursor: pointer; 
       font-weight: 600; 
@@ -810,6 +810,7 @@
     }
 
     .auth-link span { 
+      color: var(--primary); 
       text-decoration: underline; 
     }
 
@@ -5174,13 +5175,15 @@
           }
 
           let emptyHTML = `
-            <div style="text-align:center; padding:40px 20px; color:var(--text-muted); background:var(--bg-input); border-radius:16px; margin-top:10px; border: 1px dashed var(--border-color);">
+            <div style="text-align:center; padding:40px 20px; color:var(--text-muted); background:var(--bg-container); margin-top:10px;">
               <i class="bi bi-receipt" style="font-size:40px; display:block; margin-bottom:10px; opacity: 0.5;"></i>
-              <span style="font-size:13px; font-weight:600;">Belum Ada Transaksi</span>
+              <span style="font-size:13px; font-weight:600;">Belum ada transaksi</span>
             </div>`;
 
           if (typeof tradeHistory === 'undefined' || !Array.isArray(tradeHistory) || tradeHistory.length === 0) {
-            if (box) box.innerHTML = emptyHTML;
+
+            if (box) box.innerHTML = ''; 
+            
             if (fullList) fullList.innerHTML = emptyHTML;
             if (txCountLabel) txCountLabel.innerText = '0 trx'; 
             return;
@@ -5225,10 +5228,9 @@
           if (fullList) {
              if (filteredHistory.length === 0) {
                fullList.innerHTML = `
-                 <div style="text-align:center; padding:50px 20px; color:var(--text-muted); background:var(--bg-input); border-radius:16px; margin: 16px; border: 1px dashed var(--border-color);">
+                 <div style="text-align:center; padding:50px 20px; color:var(--text-muted); background:var(--bg-container); margin: 16px;">
                    <i class="bi bi-search" style="font-size:45px; display:block; margin-bottom:12px; opacity:0.5;"></i>
-                   <span style="font-size:14px; font-weight:600;">Tidak Ada Data</span><br>
-                   <span style="font-size:12px; font-weight:500; opacity:0.7;">Filter: ${filterKategori}</span>
+                   <span style="font-size:14px; font-weight:600;">Tidak ada transaksi</span><br>
                  </div>`;
              } else {
                let fullListHtml = "<div style='padding: 16px; display: flex; flex-direction: column;'>";
@@ -5242,7 +5244,7 @@
       } catch (e) {
           const fullList = document.getElementById('full-history-list');
           if (fullList) {
-             fullList.innerHTML = `<div style="color:var(--danger); padding:20px; background:var(--bg-input); border-radius:10px; margin:15px; font-size:12px;"><b>SISTEM ERROR:</b><br>${e.message}</div>`;
+             fullList.innerHTML = `<div style="color:var(--danger); padding:20px; background:var(--bg-input); border-radius:10px; margin:15px; font-size:12px;">${e.message}</div>`;
           }
           console.error("Render History Error:", e);
       }
