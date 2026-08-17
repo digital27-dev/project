@@ -1735,6 +1735,125 @@
       font-size: 24px;
       color: #fff !important;
     }
+    
+.custom-select-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-input);
+  color: var(--text-main);
+  border: 1px solid transparent;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.custom-select-trigger:active {
+  transform: scale(0.98);
+  border-color: var(--primary);
+}
+.custom-select-trigger .select-text {
+  flex: 1;
+  text-align: left;
+}
+.custom-select-trigger i {
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+.select-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--overlay);
+  display: none;
+  justify-content: center;
+  align-items: flex-end; 
+  z-index: 1000000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+.select-modal-overlay.show {
+  display: flex;
+  opacity: 1;
+}
+.select-modal-content {
+  background: var(--bg-card);
+  width: 100%;
+  max-width: 480px;
+  border-radius: 24px 24px 0 0;
+  padding: 0;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+}
+.select-modal-overlay.show .select-modal-content {
+  transform: translateY(0);
+}
+.select-modal-header {
+  padding: 20px 25px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+.select-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-main);
+  font-weight: 700;
+}
+.select-modal-body {
+  padding: 15px 20px 30px;
+  overflow-y: auto;
+  background: var(--bg-container);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.select-option-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.select-option-item:active {
+  transform: scale(0.98);
+}
+.select-option-item.selected {
+  border-color: var(--primary);
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--primary);
+}
+.select-option-item.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  background: var(--bg-input);
+}
+.select-option-item i.check-icon {
+  display: none;
+  color: var(--primary);
+  font-size: 18px;
+}
+.select-option-item.selected i.check-icon {
+  display: block;
+}
   </style>
 </head>
 <body>
@@ -2292,14 +2411,13 @@
         <div id="cart-provider-box" style="display:none;">
           <div class="input-group">
             <label>Pilih E-Wallet Penerima</label>
-            <select id="cart-provider">
-              <option value="" disabled selected>-- Pilih Produk --</option>
-              <option value="OVO">OVO</option>
-              <option value="DANA">DANA</option>
-              <option value="GOPAY">Gopay</option>
-              <option value="SHOPEEPAY">ShopeePay</option>
-              <option value="" disabled selected>LinkAja [ Maintenance ]</option>
-            </select>
+<div onclick="openCustomSelect('modal-cart-provider')">
+  <div class="custom-select-trigger" id="trigger-cart-provider">
+    <span class="select-text">-- Pilih Produk --</span>
+    <i class="bi bi-chevron-down"></i>
+  </div>
+  <input type="hidden" id="cart-provider" value="">
+</div>
           </div>
           <div class="input-group">
             <label>Nomor Penerima E-Wallet</label>
@@ -2773,15 +2891,13 @@
         <div id="wd-setup-bank">
           <div class="input-group">
             <label>Pilih Instansi Perbankan / E-Wallet</label>
-            <select id="bank-provider">
-              <option value="BCA">Bank BCA</option>
-              <option value="BRI">Bank BRI</option>
-              <option value="MANDIRI">Bank Mandiri</option>
-              <option value="OVO">OVO</option>
-              <option value="DANA">DANA</option>
-              <option value="GOPAY">GoPay</option>
-              <option value="ShopeePay">ShopeePay</option>
-            </select>
+<div onclick="openCustomSelect('modal-bank-provider')">
+  <div class="custom-select-trigger" id="trigger-bank-provider">
+    <span class="select-text">Bank BCA</span>
+    <i class="bi bi-chevron-down"></i>
+  </div>
+  <input type="hidden" id="bank-provider" value="BCA">
+</div>
           </div>
           <div class="input-group">
             <label>Nomor Rekening </label>
@@ -2869,31 +2985,128 @@
 
       <div style="display: flex; align-items: center; padding: 0; background: var(--bg-card); border-bottom: 1px solid var(--border-color); height: 50px;">
 
-        <div style="flex: 1; height: 100%; position: relative; display: flex; justify-content: center;">
-          <select id="filter-waktu" onchange="renderHistory()" style="appearance: none; -webkit-appearance: none; width: 100%; height: 100%; background: transparent; color: var(--text-main); border: none; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; text-align: center; text-align-last: center; padding-right: 15px;">
-            <option value="30">30 Hari Terakhir</option>
-            <option value="7">7 Hari Terakhir</option>
-            <option value="all">Semua Waktu</option>
-          </select>
-          <i class="bi bi-chevron-down" style="position: absolute; right: 15%; top: 50%; transform: translateY(-50%); font-size: 12px; pointer-events: none; color: var(--text-main); font-weight: bold;"></i>
-        </div>
-        
-        <div style="width: 1px; height: 20px; background: var(--border-color);"></div>
-        
-        <div style="flex: 1; height: 100%; position: relative; display: flex; justify-content: center;">
-          <select id="filter-kategori" onchange="renderHistory()" style="appearance: none; -webkit-appearance: none; width: 100%; height: 100%; background: transparent; color: var(--text-main); border: none; font-size: 14px; font-weight: 500; cursor: pointer; outline: none; text-align: center; text-align-last: center; padding-right: 15px;">
-            <option value="all">Semua Transaksi</option>
-            <option value="Deposit">Isi Saldo</option>
-            <option value="Penarikan">Penarikan</option>
-            <option value="Bonus">Bonus Reward</option>
-          </select>
-          <i class="bi bi-chevron-down" style="position: absolute; right: 10%; top: 50%; transform: translateY(-50%); font-size: 12px; pointer-events: none; color: var(--text-main); font-weight: bold;"></i>
-        </div>
-      </div>
+<div style="flex: 1; height: 100%; position: relative; display: flex; justify-content: center;">
+  <div onclick="openCustomSelect('modal-filter-waktu')" id="trigger-filter-waktu" style="width: 100%; height: 100%; background: transparent; color: var(--text-main); font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+    <span class="select-text">30 Hari Terakhir</span>
+    <i class="bi bi-chevron-down" style="font-size: 12px; font-weight: bold;"></i>
+  </div>
+  <input type="hidden" id="filter-waktu" value="30">
+</div>
 
+<div style="width: 1px; height: 20px; background: var(--border-color);"></div>
+
+<div style="flex: 1; height: 100%; position: relative; display: flex; justify-content: center;">
+  <div onclick="openCustomSelect('modal-filter-kategori')" id="trigger-filter-kategori" style="width: 100%; height: 100%; background: transparent; color: var(--text-main); font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+    <span class="select-text">Semua Transaksi</span>
+    <i class="bi bi-chevron-down" style="font-size: 12px; font-weight: bold;"></i>
+  </div>
+  <input type="hidden" id="filter-kategori" value="all">
+</div>
+</div>
       <div id="full-history-list" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;"></div>
     </div>
   </div>
+
+<div id="modal-cart-provider" class="select-modal-overlay" onclick="closeCustomSelect(event, 'modal-cart-provider')">
+  <div class="select-modal-content" onclick="event.stopPropagation()">
+    <div class="select-modal-header">
+      <h3>Pilih E-Wallet Penerima</h3>
+      <button class="btn-icon" onclick="closeCustomSelect(null, 'modal-cart-provider')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="select-modal-body">
+      <div class="select-option-item" onclick="selectOption('cart-provider', 'OVO', 'OVO', 'modal-cart-provider')">
+        <span>OVO</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('cart-provider', 'DANA', 'DANA', 'modal-cart-provider')">
+        <span>DANA</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('cart-provider', 'GOPAY', 'GoPay', 'modal-cart-provider')">
+        <span>GoPay</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('cart-provider', 'SHOPEEPAY', 'ShopeePay', 'modal-cart-provider')">
+        <span>ShopeePay</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item disabled">
+        <span>LinkAja [ Maintenance ]</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-bank-provider" class="select-modal-overlay" onclick="closeCustomSelect(event, 'modal-bank-provider')">
+  <div class="select-modal-content" onclick="event.stopPropagation()">
+    <div class="select-modal-header">
+      <h3>Pilih Instansi / E-Wallet</h3>
+      <button class="btn-icon" onclick="closeCustomSelect(null, 'modal-bank-provider')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="select-modal-body">
+      <div class="select-option-item selected" onclick="selectOption('bank-provider', 'BCA', 'Bank BCA', 'modal-bank-provider')">
+        <span>Bank BCA</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('bank-provider', 'BRI', 'Bank BRI', 'modal-bank-provider')">
+        <span>Bank BRI</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('bank-provider', 'MANDIRI', 'Bank Mandiri', 'modal-bank-provider')">
+        <span>Bank Mandiri</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('bank-provider', 'OVO', 'OVO', 'modal-bank-provider')">
+        <span>OVO</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('bank-provider', 'DANA', 'DANA', 'modal-bank-provider')">
+        <span>DANA</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('bank-provider', 'GOPAY', 'GoPay', 'modal-bank-provider')">
+        <span>GoPay</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('bank-provider', 'ShopeePay', 'ShopeePay', 'modal-bank-provider')">
+        <span>ShopeePay</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-filter-waktu" class="select-modal-overlay" onclick="closeCustomSelect(event, 'modal-filter-waktu')">
+  <div class="select-modal-content" onclick="event.stopPropagation()">
+    <div class="select-modal-header">
+      <h3>Filter Waktu</h3>
+      <button class="btn-icon" onclick="closeCustomSelect(null, 'modal-filter-waktu')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="select-modal-body">
+      <div class="select-option-item selected" onclick="selectOption('filter-waktu', '30', '30 Hari Terakhir', 'modal-filter-waktu')">
+        <span>30 Hari Terakhir</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('filter-waktu', '7', '7 Hari Terakhir', 'modal-filter-waktu')">
+        <span>7 Hari Terakhir</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('filter-waktu', 'all', 'Semua Waktu', 'modal-filter-waktu')">
+        <span>Semua Waktu</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-filter-kategori" class="select-modal-overlay" onclick="closeCustomSelect(event, 'modal-filter-kategori')">
+  <div class="select-modal-content" onclick="event.stopPropagation()">
+    <div class="select-modal-header">
+      <h3>Filter Kategori</h3>
+      <button class="btn-icon" onclick="closeCustomSelect(null, 'modal-filter-kategori')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="select-modal-body">
+      <div class="select-option-item selected" onclick="selectOption('filter-kategori', 'all', 'Semua Transaksi', 'modal-filter-kategori')">
+        <span>Semua Transaksi</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('filter-kategori', 'Deposit', 'Isi Saldo', 'modal-filter-kategori')">
+        <span>Isi Saldo</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('filter-kategori', 'Penarikan', 'Penarikan', 'modal-filter-kategori')">
+        <span>Penarikan</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+      <div class="select-option-item" onclick="selectOption('filter-kategori', 'Bonus', 'Bonus Reward', 'modal-filter-kategori')">
+        <span>Bonus Reward</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
+    </div>
+  </div>
+</div>
   
   <div id="fullscreen-qris-modal" class="modal-overlay" style="z-index: 10000000; background: rgba(0,0,0,0.95); flex-direction: column;">
     <div class="modal-header" style="width: 100%; max-width: 480px; justify-content: flex-end; padding: 20px; margin-bottom: 0; background: transparent; border: none;">
@@ -5534,6 +5747,41 @@
         this.classList.add('active');
       });
     });
+    
+function openCustomSelect(modalId) {
+  const modal = document.getElementById(modalId);
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function closeCustomSelect(event, modalId) {
+  if (event && event.target !== event.currentTarget) return;
+  const modal = document.getElementById(modalId);
+  modal.classList.remove('show');
+  setTimeout(() => modal.style.display = 'none', 300);
+}
+
+function selectOption(inputId, value, label, modalId) {
+  const inputEl = document.getElementById(inputId);
+  if(inputEl) inputEl.value = value;
+
+  const triggerText = document.querySelector(`#trigger-${inputId} .select-text`);
+  if (triggerText) triggerText.innerText = label;
+
+  const modal = document.getElementById(modalId);
+  const items = modal.querySelectorAll('.select-option-item');
+  items.forEach(item => item.classList.remove('selected'));
+  
+  if(window.event && window.event.currentTarget) {
+    window.event.currentTarget.classList.add('selected');
+  }
+
+  closeCustomSelect(null, modalId);
+
+  if (inputId === 'filter-waktu' || inputId === 'filter-kategori') {
+    renderHistory();
+  }
+}
     
     window.onload = () => {
       const options = { day: 'numeric', month: 'long', year: 'numeric' };
