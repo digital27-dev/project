@@ -1736,42 +1736,39 @@
       color: #fff !important;
     }
 /* -- Animasi Face ID ala iPhone -- */
+    /* -- Animasi Face ID ala iPhone (Minimalis & Clean) -- */
     .face-id-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(11, 14, 20, 0.85); z-index: 10000001;
+      background: rgba(0, 0, 0, 0.5); /* Gelap transparan ala iOS */
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      z-index: 10000001;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.3s;
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      opacity: 0; pointer-events: none; transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     }
     .face-id-overlay.show {
       opacity: 1; pointer-events: auto;
     }
-    .face-id-box {
-      width: 130px; height: 130px; border-radius: 35px;
-      background: rgba(255,255,255,0.05);
+    .face-id-minimal-box {
       display: flex; align-items: center; justify-content: center;
-      position: relative; overflow: hidden;
-      box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
-      border: 2px solid rgba(59, 130, 246, 0.5);
     }
     .face-id-icon-anim {
-      font-size: 60px; color: #fff; z-index: 2;
+      font-size: 65px; color: #ffffff;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .face-id-scan-line {
-      position: absolute; top: 0; left: 0; width: 100%; height: 3px;
-      background: var(--primary); z-index: 3;
-      box-shadow: 0 0 15px var(--primary), 0 0 5px var(--primary);
-      animation: scanFace 1.5s infinite linear alternate;
+    .face-id-icon-anim.scanning {
+      animation: faceIdPulse 2s infinite ease-in-out;
     }
-    @keyframes scanFace {
-      0% { top: 5%; opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { top: 95%; opacity: 0; }
+    @keyframes faceIdPulse {
+      0% { transform: scale(0.95); opacity: 0.7; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.7; }
     }
-    .face-id-text {
-      margin-top: 25px; color: #fff; font-weight: 700; font-size: 16px; letter-spacing: 0.5px;
+    .face-id-cancel {
+      position: absolute; bottom: 50px;
+      font-size: 15px; font-weight: 600; color: #ffffff;
+      cursor: pointer; opacity: 0.8; transition: opacity 0.2s;
     }
+    .face-id-cancel:active { opacity: 1; transform: scale(0.95); }
   </style>
 </head>
 <body>
@@ -1811,13 +1808,12 @@
   </div>
   
   <div id="face-id-overlay" class="face-id-overlay">
-    <div class="face-id-box" id="face-id-box">
-      <video id="face-id-video" autoplay playsinline style="position:absolute; width:100%; height:100%; object-fit:cover; opacity:0; z-index: 1;"></video>
+    <div class="face-id-minimal-box">
+      <!-- Video berjalan di latar belakang tapi tidak ditampilkan agar clean -->
+      <video id="face-id-video" autoplay playsinline style="display: none;"></video>
       <i class="bi bi-person-bounding-box face-id-icon-anim" id="face-id-center-icon"></i>
-      <div class="face-id-scan-line" id="face-id-scan-line"></div>
     </div>
-    <div class="face-id-text" id="face-id-text">Face ID</div>
-    <div style="margin-top: 30px; font-size: 14px; font-weight: 700; color: var(--danger); cursor: pointer; background: rgba(239,68,68,0.15); padding: 8px 20px; border-radius: 50px;" onclick="closeFaceID()">Batalkan</div>
+    <div class="face-id-cancel" onclick="closeFaceID()">Batalkan</div>
   </div>
 
   <div id="maintenance-modal" class="modal-overlay" style="z-index: 9999999; background: var(--bg-body);">
@@ -5599,88 +5595,92 @@
       if (!u) return;
 
       const overlay = document.getElementById('face-id-overlay');
-      const textEl = document.getElementById('face-id-text');
       const iconEl = document.getElementById('face-id-center-icon');
       const videoEl = document.getElementById('face-id-video');
-      const scanLine = document.getElementById('face-id-scan-line');
 
-      // Setup UI awal
+      // Setup UI awal ke mode Scanning
       overlay.classList.add('show');
-      iconEl.className = "bi bi-person-bounding-box face-id-icon-anim";
+      iconEl.className = "bi bi-person-bounding-box face-id-icon-anim scanning";
       iconEl.style.color = "#ffffff";
       iconEl.style.transform = "scale(1)";
-      scanLine.style.display = "block";
-      videoEl.style.opacity = "0";
+      iconEl.style.opacity = "1";
 
       let hasFaceKey = !!u.faceDescriptor;
-      textEl.innerText = hasFaceKey ? "Memverifikasi wajah..." : "Pindai wajah baru...";
 
       try {
-        await loadFaceModels();
+        await loadFaceModels(); // Memastikan fungsi loadFaceModels() sebelumnya sudah benar
         faceIdStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
         videoEl.srcObject = faceIdStream;
 
         videoEl.onloadedmetadata = () => {
           videoEl.play();
-          // Fade in sedikit kamera ke box (opsional estetika)
-          setTimeout(() => { videoEl.style.opacity = "0.35"; }, 500);
 
           faceIdInterval = setInterval(async () => {
-            // Deteksi Wajah + Extract Descriptor
             const detection = await faceapi.detectSingleFace(videoEl, new faceapi.TinyFaceDetectorOptions())
                                            .withFaceLandmarks().withFaceDescriptor();
 
             if (detection) {
               if (!hasFaceKey) {
-                // REGISTRASI KEY WAJAH BARU
+                // REGISTRASI KEY WAJAH BARU (Diam-diam mendaftar tanpa text)
                 clearInterval(faceIdInterval);
-                u.faceDescriptor = Array.from(detection.descriptor); // Simpan ke array DB
+                u.faceDescriptor = Array.from(detection.descriptor);
                 localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
                 
-                successFaceIDAnim(iconEl, scanLine, textEl, "Wajah berhasil diverifikasi");
-                setTimeout(() => { 
-                  closeFaceID(); 
-                  document.getElementById('pin-lock-overlay').style.display = 'none'; 
-                }, 1500);
+                successFaceIDAnim(iconEl);
               } else {
                 // VERIFIKASI WAJAH (Unlock)
                 const savedDescriptor = new Float32Array(u.faceDescriptor);
                 const distance = faceapi.euclideanDistance(detection.descriptor, savedDescriptor);
 
-                // Threshold jarak 0.55 (semakin kecil semakin mirip)
                 if (distance < 0.55) { 
+                  // Berhasil - Wajah Cocok
                   clearInterval(faceIdInterval);
-                  successFaceIDAnim(iconEl, scanLine, textEl, "Terbuka");
-                  loginPinFailures = 0; // Reset percobaan PIN
-                  setTimeout(() => { 
-                    closeFaceID(); 
-                    document.getElementById('pin-lock-overlay').style.display = 'none'; 
-                  }, 1000);
+                  successFaceIDAnim(iconEl);
+                  loginPinFailures = 0; 
                 } else {
-                  textEl.innerText = "Wajah tidak dikenali";
+                  // Gagal - Efek Shake (Goyang) ala iPhone
+                  iconEl.classList.remove('scanning');
                   iconEl.style.color = "var(--danger)";
+                  
+                  // Animasi shake manual cepat
+                  iconEl.style.transform = "translateX(-15px)";
+                  setTimeout(() => iconEl.style.transform = "translateX(15px)", 80);
+                  setTimeout(() => iconEl.style.transform = "translateX(-15px)", 160);
+                  setTimeout(() => {
+                    iconEl.style.transform = "translateX(0)";
+                    iconEl.classList.add('scanning');
+                    iconEl.style.color = "#ffffff";
+                  }, 240);
                 }
               }
-            } else {
-              textEl.innerText = "Posisikan wajah pada bingkai";
-              iconEl.style.color = "#ffffff";
             }
-          }, 600);
+          }, 400); // Dipercepat menjadi 400ms agar sangat responsif
         };
       } catch (e) {
-        textEl.innerText = "Kamera tidak dapat diakses";
-        scanLine.style.display = "none";
-        setTimeout(() => closeFaceID(), 2000);
+        // Jika kamera ditolak atau error
+        iconEl.classList.remove('scanning');
+        iconEl.className = "bi bi-exclamation-circle face-id-icon-anim";
+        iconEl.style.color = "var(--danger)";
+        setTimeout(() => closeFaceID(), 1500);
       }
     }
 
-    function successFaceIDAnim(iconEl, scanLine, textEl, msg) {
-      scanLine.style.display = "none";
-      iconEl.className = "bi bi-unlock-fill face-id-icon-anim";
-      iconEl.style.color = "var(--success)";
-      iconEl.style.transform = "scale(1.2)";
-      iconEl.style.transition = "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-      textEl.innerText = msg;
+    function successFaceIDAnim(iconEl) {
+      iconEl.classList.remove('scanning');
+      iconEl.style.opacity = "0"; // Fade out icon wajah
+      
+      setTimeout(() => {
+        // Ganti ke icon gembok terbuka
+        iconEl.className = "bi bi-unlock-fill face-id-icon-anim";
+        iconEl.style.color = "#ffffff"; 
+        iconEl.style.opacity = "1";
+        iconEl.style.transform = "scale(1.2)"; // Pop effect
+        
+        setTimeout(() => { 
+          closeFaceID(); 
+          document.getElementById('pin-lock-overlay').style.display = 'none'; 
+        }, 600); // Delay sebelum overlay tertutup agar memanjakan mata
+      }, 200);
     }
 
     function closeFaceID() {
