@@ -1735,40 +1735,6 @@
       font-size: 24px;
       color: #fff !important;
     }
-/* -- Animasi Face ID ala iPhone -- */
-    /* -- Animasi Face ID ala iPhone (Minimalis & Clean) -- */
-    .face-id-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5); /* Gelap transparan ala iOS */
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      z-index: 10000001;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      opacity: 0; pointer-events: none; transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-    .face-id-overlay.show {
-      opacity: 1; pointer-events: auto;
-    }
-    .face-id-minimal-box {
-      display: flex; align-items: center; justify-content: center;
-    }
-    .face-id-icon-anim {
-      font-size: 65px; color: #ffffff;
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .face-id-icon-anim.scanning {
-      animation: faceIdPulse 2s infinite ease-in-out;
-    }
-    @keyframes faceIdPulse {
-      0% { transform: scale(0.95); opacity: 0.7; }
-      50% { transform: scale(1.05); opacity: 1; }
-      100% { transform: scale(0.95); opacity: 0.7; }
-    }
-    .face-id-cancel {
-      position: absolute; bottom: 50px;
-      font-size: 15px; font-weight: 600; color: #ffffff;
-      cursor: pointer; opacity: 0.8; transition: opacity 0.2s;
-    }
-    .face-id-cancel:active { opacity: 1; transform: scale(0.95); }
   </style>
 </head>
 <body>
@@ -1797,23 +1763,13 @@
       <button class="key-btn" onclick="pressLoginKeypad('7')">7</button>
       <button class="key-btn" onclick="pressLoginKeypad('8')">8</button>
       <button class="key-btn" onclick="pressLoginKeypad('9')">9</button>
-      <button class="key-btn" onclick="handleFaceUnlock()">
-  <i class="bi bi-person-bounding-box" style="font-size: 32px; color: var(--primary);"></i>
-</button>
+      <button class="key-btn text-key" onclick="loginWithBiometrics()">
+      <i class="bi bi-fingerprint" style="font-size: 32px; color: var(--primary);"></i></button>
       <button class="key-btn" onclick="pressLoginKeypad('0')">0</button>
       <button class="key-btn text-key" onclick="pressLoginKeypad('DEL')">
         <i class="bi bi-backspace-fill" style="font-size: 22px;"></i>
       </button>
     </div>
-  </div>
-  
-  <div id="face-id-overlay" class="face-id-overlay">
-    <div class="face-id-minimal-box">
-      <!-- Video berjalan di latar belakang tapi tidak ditampilkan agar clean -->
-      <video id="face-id-video" autoplay playsinline style="display: none;"></video>
-      <i class="bi bi-person-bounding-box face-id-icon-anim" id="face-id-center-icon"></i>
-    </div>
-    <div class="face-id-cancel" onclick="closeFaceID()">Batalkan</div>
   </div>
 
   <div id="maintenance-modal" class="modal-overlay" style="z-index: 9999999; background: var(--bg-body);">
@@ -2985,17 +2941,11 @@
     async function loadFaceModels() {
       if (isFaceApiLoaded) return true;
       try {
-        const instruction = document.getElementById('scan-instruction-text');
-        if(instruction) {
-          instruction.innerText = "Pengaktifan sensor biometrik...";
-          instruction.style.color = "var(--primary)";
-        }
-        
+        document.getElementById('scan-instruction-text').innerText = "Pengaktifan verifikasi kamera...";
+        document.getElementById('scan-instruction-text').style.color = "var(--primary)";
+
         const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
         await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-        // Tambahan model untuk mengenali/menyimpan kunci wajah
-        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
         
         isFaceApiLoaded = true;
         return true;
@@ -5586,113 +5536,69 @@
       });
     });
     
-    let faceIdStream = null;
-    let faceIdInterval = null;
-
-    async function handleFaceUnlock() {
-      let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
-      let u = usersDb[currentUserPhone];
-      if (!u) return;
-
-      const overlay = document.getElementById('face-id-overlay');
-      const iconEl = document.getElementById('face-id-center-icon');
-      const videoEl = document.getElementById('face-id-video');
-
-      // Setup UI awal ke mode Scanning
-      overlay.classList.add('show');
-      iconEl.className = "bi bi-person-bounding-box face-id-icon-anim scanning";
-      iconEl.style.color = "#ffffff";
-      iconEl.style.transform = "scale(1)";
-      iconEl.style.opacity = "1";
-
-      let hasFaceKey = !!u.faceDescriptor;
-
-      try {
-        await loadFaceModels(); // Memastikan fungsi loadFaceModels() sebelumnya sudah benar
-        faceIdStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        videoEl.srcObject = faceIdStream;
-
-        videoEl.onloadedmetadata = () => {
-          videoEl.play();
-
-          faceIdInterval = setInterval(async () => {
-            const detection = await faceapi.detectSingleFace(videoEl, new faceapi.TinyFaceDetectorOptions())
-                                           .withFaceLandmarks().withFaceDescriptor();
-
-            if (detection) {
-              if (!hasFaceKey) {
-                // REGISTRASI KEY WAJAH BARU (Diam-diam mendaftar tanpa text)
-                clearInterval(faceIdInterval);
-                u.faceDescriptor = Array.from(detection.descriptor);
-                localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-                
-                successFaceIDAnim(iconEl);
-              } else {
-                // VERIFIKASI WAJAH (Unlock)
-                const savedDescriptor = new Float32Array(u.faceDescriptor);
-                const distance = faceapi.euclideanDistance(detection.descriptor, savedDescriptor);
-
-                if (distance < 0.55) { 
-                  // Berhasil - Wajah Cocok
-                  clearInterval(faceIdInterval);
-                  successFaceIDAnim(iconEl);
-                  loginPinFailures = 0; 
-                } else {
-                  // Gagal - Efek Shake (Goyang) ala iPhone
-                  iconEl.classList.remove('scanning');
-                  iconEl.style.color = "var(--danger)";
-                  
-                  // Animasi shake manual cepat
-                  iconEl.style.transform = "translateX(-15px)";
-                  setTimeout(() => iconEl.style.transform = "translateX(15px)", 80);
-                  setTimeout(() => iconEl.style.transform = "translateX(-15px)", 160);
-                  setTimeout(() => {
-                    iconEl.style.transform = "translateX(0)";
-                    iconEl.classList.add('scanning');
-                    iconEl.style.color = "#ffffff";
-                  }, 240);
-                }
-              }
-            }
-          }, 400); // Dipercepat menjadi 400ms agar sangat responsif
-        };
-      } catch (e) {
-        // Jika kamera ditolak atau error
-        iconEl.classList.remove('scanning');
-        iconEl.className = "bi bi-exclamation-circle face-id-icon-anim";
-        iconEl.style.color = "var(--danger)";
-        setTimeout(() => closeFaceID(), 1500);
-      }
-    }
-
-    function successFaceIDAnim(iconEl) {
-      iconEl.classList.remove('scanning');
-      iconEl.style.opacity = "0"; // Fade out icon wajah
+    async function loginWithBiometrics() {
+  // 1. Cek apakah browser & perangkat mendukung Web Authentication API
+  if (window.PublicKeyCredential) {
+    try {
+      // 2. Pastikan perangkat memiliki sensor biometrik (Sidik Jari / Wajah) yang aktif
+      const isAvailable = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
       
-      setTimeout(() => {
-        // Ganti ke icon gembok terbuka
-        iconEl.className = "bi bi-unlock-fill face-id-icon-anim";
-        iconEl.style.color = "#ffffff"; 
-        iconEl.style.opacity = "1";
-        iconEl.style.transform = "scale(1.2)"; // Pop effect
+      if (isAvailable) {
+        // Membuat challenge acak (Syarat keamanan dari WebAuthn)
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
         
-        setTimeout(() => { 
-          closeFaceID(); 
-          document.getElementById('pin-lock-overlay').style.display = 'none'; 
-        }, 600); // Delay sebelum overlay tertutup agar memanjakan mata
-      }, 200);
-    }
+        const userId = new Uint8Array(16);
+        window.crypto.getRandomValues(userId);
 
-    function closeFaceID() {
-      if (faceIdInterval) clearInterval(faceIdInterval);
-      if (faceIdStream) {
-        faceIdStream.getTracks().forEach(t => t.stop());
-        faceIdStream = null;
+        // 3. Memanggil sensor biometrik bawaan HP (Native OS Prompt)
+        // Karena ini tanpa database backend (hanya HTML lokal), kita menggunakan mode dummy 'create' 
+        // untuk memaksa sensor hardware perangkat muncul.
+        await navigator.credentials.create({
+          publicKey: {
+            challenge: challenge,
+            rp: { name: "DIGITAL" }, // Nama aplikasi yang muncul di popup sidik jari
+            user: {
+              id: userId,
+              name: currentUserPhone || "mitra@digital.app",
+              displayName: currentUserName || "Mitra"
+            },
+            pubKeyCredParams: [{ type: "public-key", alg: -7 }], // Algoritma standar (ES256)
+            authenticatorSelection: {
+              authenticatorAttachment: "platform", // Mewajibkan sensor hardware internal HP (bukan token eksternal)
+              userVerification: "required" // Memaksa harus verifikasi berhasil
+            },
+            timeout: 60000 // Waktu tunggu sensor (60 detik)
+          }
+        });
+
+        // ==========================================
+        // 4. JIKA SIDIK JARI COCOK DAN BERHASIL
+        // ==========================================
+        document.getElementById('pin-lock-overlay').style.display = 'none';
+        loginPinFailures = 0;
+        showNotif("Login biometrik berhasil.");
+        
+      } else {
+        // Jika HP tidak ada sensor sidik jari atau belum diatur di pengaturan HP
+        showModal("Perhatian", "Perangkat Anda belum mengaktifkan kunci sidik jari/wajah. Silakan atur di Pengaturan HP Anda.", "error");
       }
-      const videoEl = document.getElementById('face-id-video');
-      if (videoEl) videoEl.srcObject = null;
-      document.getElementById('face-id-overlay').classList.remove('show');
+    } catch (error) {
+      // ==========================================
+      // 5. JIKA GAGAL / DIBATALKAN OLEH PENGGUNA
+      // ==========================================
+      console.error("Biometrik Error:", error);
+      
+      // Jika error bukan karena pengguna membatalkan popup
+      if (error.name !== 'NotAllowedError') {
+         showModal("Gagal", "Pemindaian biometrik dibatalkan atau gagal. Silakan gunakan PIN Login.", "error");
+      }
     }
+  } else {
+    // Jika diakses dari browser jadul yang tidak mendukung
+    showModal("Perhatian", "Browser Anda tidak mendukung pemindai sidik jari bawaan.", "error");
+  }
+}
     
     window.onload = () => {
       const options = { day: 'numeric', month: 'long', year: 'numeric' };
