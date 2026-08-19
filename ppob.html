@@ -1234,7 +1234,7 @@
 
     .btn-claim-bonus { 
       padding: 8px 16px; 
-      background: var(--success); 
+      background: var(--primary); 
       border: none; 
       border-radius: 8px; 
       color: #fff; 
@@ -1411,7 +1411,7 @@
     .pin-dots-container { 
       display: flex; 
       gap: 15px; 
-      margin-bottom: 40px; 
+      margin-bottom: 70px; 
     }
 
     .pin-dot { 
@@ -1428,44 +1428,55 @@
       border-color: var(--primary); 
     }
     
-    .keypad-grid { 
-      display: grid; 
-      grid-template-columns: repeat(3, 1fr); 
-      gap: 20px; 
-      width: 100%; 
-      max-width: 300px; 
-      margin-bottom: 20px; 
-    }
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px 25px; 
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto 20px auto;
+}
 
-    .key-btn { 
-      background: transparent; 
-      border: none; 
-      color: var(--text-main); 
-      font-size: 27px; 
-      font-weight: 600; 
-      height: 70px; 
-      border-radius: 50px; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      cursor: pointer; 
-      transition: background 0.1s; 
-    }
+.key-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 26px;
+  font-weight: 700;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: auto;
+  transition: all 0.15s ease;
+}
 
-    .key-btn:active { 
-      background: rgba(255, 255, 255, 0.1); 
-      transform: scale(0.95); 
-    }
+[data-theme="light"] .key-btn {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
 
-    [data-theme="light"] .key-btn:active { 
-      background: rgba(0, 0, 0, 0.05); 
-    }
+.key-btn:active {
+  background: var(--primary);
+  color: #ffffff;
+  transform: scale(0.9);
+  border-color: var(--primary);
+}
 
-    .key-btn.text-key { 
-      font-size: 15px; 
-      font-weight: 700; 
-      color: var(--text-muted); 
-    }
+.key-btn.text-key {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--text-muted);
+}
+
+.key-btn.text-key:active {
+  color: var(--danger);
+  transform: scale(0.9);
+}
 
     @keyframes shakeError {
       0%, 100% { transform: translateX(0); }
@@ -1642,7 +1653,7 @@
       -webkit-backdrop-filter: blur(16px);
       -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 100%);
       mask-image: linear-gradient(to top, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 100%);
-      background: linear-gradient(to top, var(--bg-body) 20%, transparent);
+      background: linear-gradient(to top, var(--bg-container) 20%, transparent);
       z-index: 997; 
       pointer-events: none; 
     }
@@ -1854,6 +1865,145 @@
 .select-option-item.selected i.check-icon {
   display: block;
 }
+
+.testimoni-section {
+  padding: 0 20px;
+  margin-bottom: 30px;
+}
+.testimoni-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  animation: slideInDown 0.4s ease;
+}
+.testimoni-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.testimoni-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.testimoni-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+.testimoni-uid {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text-main);
+}
+.testimoni-stars {
+  color: var(--warning);
+  font-size: 11px;
+  display: flex;
+  gap: 2px;
+}
+.testimoni-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  font-style: italic;
+}
+.rating-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 15px 0 10px;
+}
+.rating-star-btn {
+  font-size: 32px;
+  color: var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rating-star-btn.active {
+  color: var(--warning);
+  transform: scale(1.1);
+}
+.rating-label {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 20px;
+  min-height: 20px;
+}
+
+.quick-review-btn {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.quick-review-btn:active {
+  transform: scale(0.95);
+  background: rgba(59, 130, 246, 0.3);
+}
+/* --- TAB AKTIVITAS PUBLIK --- */
+.public-tabs {
+  display: flex;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+}
+.public-tab-btn {
+  flex: 1;
+  padding: 15px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.public-tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+.badge-type {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.badge-reseller {
+  background-color: rgba(255, 193, 7, 0.15);
+  color: #ffc107; 
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+.badge-standar {
+  background-color: rgba(59, 130, 246, 0.15); /* Biru transparan */
+  color: var(--primary); /* Teks biru utama */
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.hidden {
+  display: none !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
   </style>
 </head>
 <body>
@@ -1873,21 +2023,21 @@
     </div>
 
     <div class="keypad-grid">
-      <button class="key-btn" onclick="pressLoginKeypad('1')">1</button>
-      <button class="key-btn" onclick="pressLoginKeypad('2')">2</button>
-      <button class="key-btn" onclick="pressLoginKeypad('3')">3</button>
-      <button class="key-btn" onclick="pressLoginKeypad('4')">4</button>
-      <button class="key-btn" onclick="pressLoginKeypad('5')">5</button>
-      <button class="key-btn" onclick="pressLoginKeypad('6')">6</button>
-      <button class="key-btn" onclick="pressLoginKeypad('7')">7</button>
-      <button class="key-btn" onclick="pressLoginKeypad('8')">8</button>
-      <button class="key-btn" onclick="pressLoginKeypad('9')">9</button>
-      <div></div>
-      <button class="key-btn" onclick="pressLoginKeypad('0')">0</button>
-      <button class="key-btn text-key" onclick="pressLoginKeypad('DEL')">
-        <i class="bi bi-backspace-fill" style="font-size: 22px;"></i>
-      </button>
-    </div>
+  <button class="key-btn" onclick="pressLoginKeypad('1')">1</button>
+  <button class="key-btn" onclick="pressLoginKeypad('2')">2</button>
+  <button class="key-btn" onclick="pressLoginKeypad('3')">3</button>
+  <button class="key-btn" onclick="pressLoginKeypad('4')">4</button>
+  <button class="key-btn" onclick="pressLoginKeypad('5')">5</button>
+  <button class="key-btn" onclick="pressLoginKeypad('6')">6</button>
+  <button class="key-btn" onclick="pressLoginKeypad('7')">7</button>
+  <button class="key-btn" onclick="pressLoginKeypad('8')">8</button>
+  <button class="key-btn" onclick="pressLoginKeypad('9')">9</button>
+  <div></div> 
+  <button class="key-btn" onclick="pressLoginKeypad('0')">0</button>
+  <button class="key-btn text-key" onclick="pressLoginKeypad('DEL')">
+    <i class="bi bi-backspace-fill" style="font-size: 26px;"></i>
+  </button>
+</div>
   </div>
 
   <div id="maintenance-modal" class="modal-overlay" style="z-index: 9999999; background: var(--bg-body);">
@@ -1923,6 +2073,7 @@
       <a href="#" onclick="toggleNav(); openDepositModal();"><i class="bi bi-wallet2"></i> <span>Isi Saldo</span></a>
       <a href="#" onclick="toggleNav(); openWithdrawModal();"><i class="bi bi-send"></i> <span>Transfer Saldo</span></a>
       <a href="#" onclick="toggleNav(); showFullHistory();"><i class="bi bi-clock-history"></i> <span>Riwayat Transaksi</span></a>
+      <a href="#" onclick="openPublicHistory('ulasan');"><i class="bi bi-star"></i> <span>Ulasan Testimoni</span></a>
       <a href="#" id="menu-downline" style="display: none;" onclick="toggleNav(); openDownlineModal();"><i class="bi bi-people"></i> <span>Undang Teman</span></a>
       <a href="#" id="menu-ubah-password" style="display: none;" onclick="toggleNav(); openChangePasswordModal();"><i class="bi bi-shield-lock"></i> <span>Ubah Password</span></a>
       <a href="#" id="menu-buat-pin" style="display: none;" onclick="toggleNav(); openPinSetupModal();"><i class="bi bi-asterisk"></i> <span>Buat PIN Transaksi</span></a>
@@ -2039,7 +2190,7 @@
           <span id="flashsale-timer" style="font-size:11px; background:var(--danger); color:#fff; padding:4px 10px; border-radius:8px; font-weight:700;">-</span>
         </div>
         <div class="fs-header-right">
-         <i class="bi bi-arrow-right-short" style="font-size: 32px; color: var(--primary); cursor: pointer;" onclick="openTargetModal('fake-er-modal')"></i>
+         <i class="bi bi-arrow-right-short" style="font-size: 32px; color: var(--primary); cursor: pointer;" onclick="#"></i>
         </div>
       </div>
       
@@ -2172,7 +2323,7 @@
         </div>
       </div>
     </div>
-
+    
     <div class="history-list" id="history-box"></div>
     <div class="footer-copyright">
       &copy; 2026 PT Mitra Komunikasi Nusantara
@@ -2680,12 +2831,39 @@
         <h3>Konfirmasi PIN</h3>
         <button class="btn-icon" onclick="closeTargetModal('pin-auth-modal')"><i class="bi bi-x-lg"></i></button>
       </div>
-      <div class="modal-body">
-        <div class="input-group">
-          <label>Masukkan PIN Transaksi Anda</label>
-          <input type="password" id="auth-pin-input" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="------" style="text-align: center; letter-spacing: 10px; font-size: 20px;">
+      <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; padding-top: 30px;">
+        
+        <div style="text-align: center; margin-bottom: 25px;">
+          <i class="bi bi-shield-lock-fill" style="font-size: 48px; color: var(--primary);"></i>
+          <h4 style="margin-top: 10px; font-size: 17px;color: var(--text-main); font-weight: 700;">Konfirmasi PIN Transaksi</h4>
+          <p style="color: var(--text-muted); font-size: 13px; margin-top: 5px;">Masukkan PIN untuk melanjutkan transaksi</p>
         </div>
-        <button class="btn-modal" onclick="verifyPinAction()">Verifikasi</button>
+
+        <div class="pin-dots-container" id="trx-pin-dots" style="margin-bottom: 70px;">
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+          <div class="pin-dot"></div>
+        </div>
+
+        <div class="keypad-grid" style="margin-bottom: 20px;">
+          <button class="key-btn" onclick="pressTrxKeypad('1')">1</button>
+          <button class="key-btn" onclick="pressTrxKeypad('2')">2</button>
+          <button class="key-btn" onclick="pressTrxKeypad('3')">3</button>
+          <button class="key-btn" onclick="pressTrxKeypad('4')">4</button>
+          <button class="key-btn" onclick="pressTrxKeypad('5')">5</button>
+          <button class="key-btn" onclick="pressTrxKeypad('6')">6</button>
+          <button class="key-btn" onclick="pressTrxKeypad('7')">7</button>
+          <button class="key-btn" onclick="pressTrxKeypad('8')">8</button>
+          <button class="key-btn" onclick="pressTrxKeypad('9')">9</button>
+          <div></div> 
+          <button class="key-btn" onclick="pressTrxKeypad('0')">0</button>
+          <button class="key-btn text-key" onclick="pressTrxKeypad('DEL')">
+            <i class="bi bi-backspace-fill" style="font-size: 26px;"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -2971,7 +3149,7 @@
     </div>
   </div>
 
-  <div id="history-modal" class="modal-overlay" style="z-index: 1000000; align-items: flex-end; background: var(--bg-body);">
+  <div id="history-modal" class="modal-overlay" style="z-index: 1000000; align-items: flex-end; background: var(--bg-container);">
     <div class="history-modal-content" style="width: 100%; max-width: 480px; height: 100vh; padding: 0; display: flex; flex-direction: column; background: var(--bg-container); border-radius: 0;">
   
       <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-card);">
@@ -3116,6 +3294,77 @@
       <img id="fullscreen-qris-img" src="" alt="QRIS Fullscreen" style="max-width: 100%; max-height: 80vh; border-radius: 12px;">
     </div>
   </div>
+
+<div id="write-testimoni-modal" class="modal-overlay" style="z-index: 1000002;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Berikan Penilaian</h3>
+      <button class="btn-icon" onclick="closeTargetModal('write-testimoni-modal')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="rating-container" id="rating-stars-input">
+        <i class="bi bi-star-fill rating-star-btn" onclick="setRating(1)"></i>
+        <i class="bi bi-star-fill rating-star-btn" onclick="setRating(2)"></i>
+        <i class="bi bi-star-fill rating-star-btn" onclick="setRating(3)"></i>
+        <i class="bi bi-star-fill rating-star-btn" onclick="setRating(4)"></i>
+        <i class="bi bi-star-fill rating-star-btn" onclick="setRating(5)"></i>
+      </div>
+      <div class="rating-label" id="rating-label-text">Pilih Bintang</div>
+      <input type="hidden" id="selected-rating-val" value="0">
+      <button class="btn-modal" onclick="submitTestimoni()">Konfirmasi</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Lihat Semua Testimoni -->
+<div id="all-testimoni-modal" class="modal-overlay" style="z-index: 1000001; align-items: flex-end;">
+  <div class="history-modal-content" style="width: 100%; max-width: 480px; height: 90vh; padding: 0; display: flex; flex-direction: column; background: var(--bg-container); border-radius: 24px 24px 0 0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; background: var(--bg-card); border-bottom: 1px solid var(--border-color); border-radius: 24px 24px 0 0;">
+      <h3 style="margin: 0; font-size: 18px; color: var(--text-main);">Semua Ulasan</h3>
+      <button class="btn-icon" onclick="closeTargetModal('all-testimoni-modal')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" id="all-testimoni-list" style="padding: 20px; overflow-y: auto; flex: 1;">
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AKTIVITAS PUBLIK (TRANSAKSI & ULASAN) -->
+<div id="public-history-modal" class="modal-overlay" style="z-index: 1000000; align-items: flex-end; background: var(--bg-container);">
+  <div class="history-modal-content" style="width: 100%; max-width: 480px; height: 100vh; padding: 0; display: flex; flex-direction: column; background: var(--bg-container); border-radius: 0;">
+    
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-card);">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <i class="bi bi-chevron-left" style="font-size: 20px; cursor: pointer; color: var(--text-main);" onclick="closeTargetModal('public-history-modal')"></i>
+        <h2 style="font-size: 18px; font-weight: 600; margin: 0; color: var(--text-main);">Ulasan Testimoni</h2>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="public-tabs">
+      <div class="public-tab-btn active" id="tab-btn-trx" onclick="switchPublicTab('trx')">Event Transaksi</div>
+      <div class="public-tab-btn" id="tab-btn-ulasan" onclick="switchPublicTab('ulasan')">Ulasan Pengguna</div>
+    </div>
+
+    <!-- Tab 1: Live Transaksi -->
+    <div id="public-trx-content" style="flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: var(--bg-container);">
+       <!-- Item fake transaksi akan otomatis di-generate di sini -->
+    </div>
+
+    <!-- Tab 2: Ulasan Pengguna -->
+    <div id="public-ulasan-content" style="flex: 1; overflow-y: auto; padding: 15px; display: none; flex-direction: column; background: var(--bg-container);">
+       <!-- Item fake ulasan akan otomatis di-generate di sini -->
+    </div>
+
+    <!-- Button Aksi Bawah -->
+    <div style="padding: 15px; background: var(--bg-card); border-top: 1px solid var(--border-color);">
+      <button class="btn-modal btn-modal-outline" style="background: var(--bg-input); border-style: dashed; padding: 12px;" onclick="openWriteTestimoniModal()">
+        <i class="bi bi-pencil-square" style="margin-right: 6px;"></i> Tulis ulasan
+      </button>
+    </div>
+
+  </div>
+</div>
 
   <div id="toast-notif" class="toast-notif">
     <i class="bi bi-lightning-charge-fill" style="font-size: 22px; color: var(--primary);"></i>
@@ -3506,49 +3755,217 @@
       }
     }
 
-    function addFakeerItem() {
-      const ewallets = [
-        { name: "DANA", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360049-removebg-preview-1.png" },
-        { name: "OVO", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360048-removebg-preview.png" },
-        { name: "ShopeePay", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360050-removebg-preview.png" },
-        { name: "GoPay", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360051-removebg-preview.png" }
-      ];
-      const nominals = [200000, 500000, 1000000, 5000000];
+function setQuickReview(text) {
+  document.getElementById('testimoni-text-input').value = text;
+}
+
+function openPublicHistory(tab) {
+  // Tambahkan baris ini untuk mengecek status login
+  if (!requireLogin()) return; 
   
+  toggleNav(); // Tutup sidebar jika diklik dari menu
+  openTargetModal('public-history-modal');
+  switchPublicTab(tab);
+}
+
+function switchPublicTab(tab) {
+  // Reset tab & konten
+  document.getElementById('tab-btn-trx').classList.remove('active');
+  document.getElementById('tab-btn-ulasan').classList.remove('active');
+  document.getElementById('public-trx-content').style.display = 'none';
+  document.getElementById('public-ulasan-content').style.display = 'none';
+  
+  if (tab === 'trx') {
+     document.getElementById('tab-btn-trx').classList.add('active');
+     document.getElementById('public-trx-content').style.display = 'flex';
+  } else {
+     document.getElementById('tab-btn-ulasan').classList.add('active');
+     document.getElementById('public-ulasan-content').style.display = 'flex';
+     renderPublicTestimoni(); // Render ulasan saat tab diklik
+  }
+}
+
+function addFakeerItem() {
+  const ewallets = [
+    { name: "DANA", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360049-removebg-preview-1.png" },
+    { name: "OVO", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360048-removebg-preview.png" },
+    { name: "ShopeePay", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360050-removebg-preview.png" },
+    { name: "GoPay", img: "https://digital6301.wordpress.com/wp-content/uploads/2026/01/1000360051-removebg-preview.png" }
+  ];
+  const nominals = [200000, 500000, 1000000, 5000000];
+
       let rand1 = Math.floor(Math.random() * 9) + 1; 
       let rand2 = Math.floor(Math.random() * 10);    
       let rand3 = Math.floor(Math.random() * 900) + 100; 
-      let user = `08${rand1}${rand2}***${rand3}`;
-      
-      let w = ewallets[Math.floor(Math.random()*ewallets.length)];
-      let nom = nominals[Math.floor(Math.random()*nominals.length)];
-      
-      let isPending = (nom <= 200000);
-      let statusClass = isPending ? 'status-pending' : 'status-success';
-      let statusText = isPending ? 'Pending' : 'Berhasil';
-      
-      let timeStr = new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+      let user = `+628${rand1}${rand2}***${rand3}`;
+  
+  let w = ewallets[Math.floor(Math.random()*ewallets.length)];
+  let nom = nominals[Math.floor(Math.random()*nominals.length)];
+  
+  let isPending = (nom <= 200000);
+  let statusClass = isPending ? 'status-pending' : 'status-success';
+  let statusText = isPending ? 'Pending' : 'Berhasil';
+  
+  let html = `
+  <div class="fake-er-item" style="animation: slideInDownModern 0.5s forwards;">
+    <img src="${w.img}" class="fake-er-icon" alt="Logo">
+    <div class="fake-er-info">
+      <h4>Topup ${w.name}</h4>
+      <p>${user}</p>
+    </div>
+    <div class="fake-er-status">
+      <div class="amount">${formatIDR(nom)}</div>
+      <span class="status ${statusClass}">${statusText}</span>
+    </div>
+  </div>`;
 
-      let html = `
-      <div class="fake-er-item">
-        <img src="${w.img}" class="fake-er-icon" alt="Logo">
-        <div class="fake-er-info">
-          <h4>Topup ${w.name}</h4>
-          <p>${user}</p>
-        </div>
-        <div class="fake-er-status">
-          <div class="amount">${formatIDR(nom)}</div>
-          <span class="status ${statusClass}">${statusText}</span>
-        </div>
-      </div>`;
+  // Append ke modal mini / Home Widget
+  const erBox = document.getElementById('fake-er-box');
+  if (erBox) {
+    erBox.insertAdjacentHTML('afterbegin', html);
+    while (erBox.children.length > 7) { erBox.removeChild(erBox.lastChild); }
+  }
 
-      const erBox = document.getElementById('fake-er-box');
-      erBox.insertAdjacentHTML('afterbegin', html);
+  // Append ke Tab 'Live Transaksi' di Modal Publik
+  const pubTrxBox = document.getElementById('public-trx-content');
+  if (pubTrxBox) {
+    pubTrxBox.insertAdjacentHTML('afterbegin', html);
+    while (pubTrxBox.children.length > 20) { pubTrxBox.removeChild(pubTrxBox.lastChild); } // Maksimal 20 list di modal
+  }
+}
 
-      while (erBox.children.length > 7) {
-        erBox.removeChild(erBox.lastChild);
-      }
+// --- FUNGSI GENERATE & RENDER FAKE ULASAN (TESTIMONI) ---
+let testimoniLimit = 20;
+let fakeTestimoniData = [];
+
+const bintang5 = [
+  "Transaksi sangat cepat dan lancar!",
+  "Harga agen paling murah dan terpercaya.",
+  "Aplikasi terbaik untuk jualan PPOB.",
+  "CS sangat responsif dan ramah.",
+  "Sangat puas pakai aplikasi ini.",
+  "Fitur PPOB sangat cepat cocok buat jualan lagi.",
+  "Harga berani bersaing bintang 5 deh!",
+  "Bagus banget sistemnya mudah dipahami.",
+  "Tidak memberikan text ulasan."
+];
+const bintang4 = ["Bagus, transaksi cukup lancar.", "Aplikasi sangat membantu konter saya.", "Lumayan memuaskan, CS responsif.", "Proses deposit normal.", "Harga agen bersaing, recommended.", "Cukup bagus dan mudah dipahami.", "Tidak memberikan text ulasan.", "Transaksi cepat."];
+const bintang3 = ["Tidak memberikan text ulasan.", "Cukup lumayan, kadang agak lambat.", "Lumayan buat dipake harian.", "Biasa saja.", "Bisa dipakai, tapi perlu perbaikan.", "Prosesnya lumayan, gak terlalu cepat.", "Harga standar.", "Boleh lah."];
+const bintang2 = ["Tidak memberikan text ulasan.", "Tidak memberikan text ulasan.", "Tidak memberikan text ulasan.", "Cs tidak membantu.", "Tidak memberikan text ulasan.", "Terkadang pending lama."];
+const bintang1 = ["Sangat mengecewakan.", "Sistemnya jelek banget.", "Cs agak lama tidak merespon.", "Tidak memberikan text ulasan.", "Tidak memberikan text ulasan.", "Gak direkomendasikan.", "Tolong perbaiki lagi."];
+
+function getRandomItem(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function generateFakeTestimoniData(limit = 10000) { // Ubah limit default menjadi 500
+  let fakes = [];
+  for(let i=0; i<limit; i++) {
+    let randStar = Math.random() * 100;
+    let stars = 5;
+    
+    // Filter rate baru: 55% bintang 5, 25% bintang 4, 10% bintang 3, 5% bintang 2, 5% bintang 1
+    if(randStar <= 70) stars = 5;
+    else if(randStar <= 80) stars = 4;
+    else if(randStar <= 90) stars = 3;
+    else if(randStar <= 95) stars = 2;
+    else stars = 1;
+
+    let text = "";
+    if(stars === 5) {
+      text = getRandomItem(bintang5);
+    } else if(stars === 4) {
+      text = getRandomItem(bintang4);
+    } else if(stars === 3) {
+      text = getRandomItem(bintang3);
+    } else if(stars === 2) {
+      text = getRandomItem(bintang2);
+    } else {
+      text = getRandomItem(bintang1);
     }
+
+    // Ganti nomor dengan UID 6 digit acak
+    let randomUID = Math.floor(100000 + Math.random() * 900000); 
+    let user = `UID-${randomUID}`;
+
+    let isReseller = Math.random() < 0.5; // 85% peluang badge Reseller
+
+    let d = new Date();
+    d.setDate(d.getDate() - Math.floor(Math.random() * 7));
+    let dateText = d.toLocaleDateString('id-ID');
+
+    fakes.push({ uid: user, stars: stars, text: text, time: dateText, isReseller: isReseller });
+  }
+  return fakes;
+}
+
+function getStarHTML(count) {
+  let html = '';
+  for(let i = 1; i <= 5; i++) {
+    if(i <= count) {
+      html += '<i class="bi bi-star-fill" style="color: var(--warning);"></i>'; 
+    } else {
+      html += '<i class="bi bi-star" style="color: var(--border-color);"></i>';
+    }
+  }
+  return html;
+}
+
+function renderPublicTestimoni() {
+  let testimoniDb = JSON.parse(localStorage.getItem('sanz_testimoni_db')) || [];
+  
+  if (fakeTestimoniData.length === 0) {
+    fakeTestimoniData = generateFakeTestimoniData(10000); 
+  }
+  
+  // Menggabungkan review asli dari pengguna (kalau ada) dan data dummy
+  let combinedData = [...testimoniDb, ...fakeTestimoniData];
+  
+  const box = document.getElementById('public-ulasan-content');
+  if (box) {
+    let htmlString = '';
+    let dataToRender = combinedData.slice(0, testimoniLimit);
+
+    dataToRender.forEach(t => {
+      let dateText = t.time || new Date(t.id).toLocaleDateString('id-ID');
+      
+      let isRes = t.isReseller !== undefined ? t.isReseller : (Math.random() < 0.85);
+      let badgeHtml = isRes 
+        ? '<span class="badge-type badge-reseller">Reseller</span>' 
+        : '<span class="badge-type badge-standar">Standar</span>';
+
+      htmlString += `
+        <div class="testimoni-card" style="margin-bottom: 12px; box-shadow: none;">
+          <div class="testimoni-header">
+            <div class="testimoni-user">
+              <div class="testimoni-avatar"><i class="bi bi-person"></i></div>
+              <div>
+                <div style="display: flex; align-items: center;">
+                  <span class="testimoni-uid">${t.uid}</span>
+                  ${badgeHtml}
+                </div>
+              </div>
+            </div>
+            <div class="testimoni-stars">${getStarHTML(t.stars)}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    if (combinedData.length > testimoniLimit) {
+        htmlString += `
+        <button onclick="loadMoreTestimoni()" style="margin-top: 10px; width: 100%; padding: 12px; border-radius: 12px; background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); font-weight: 700; cursor: pointer; transition: 0.2s;">
+            Muat lebih banyak ulasan
+        </button>`;
+    }
+    box.innerHTML = htmlString;
+  }
+}
+
+function loadMoreTestimoni() {
+    testimoniLimit += 20; 
+    renderPublicTestimoni(); 
+}
 
     function initFakeerSequence() {
       for (let i = 0; i < 7; i++) { addFakeerItem(); }
@@ -3631,7 +4048,7 @@
 
     function requireLogin() {
       if (!currentUserPhone) {
-        showModal("Perhatian", "Silakan melakukan pendaftaran akun baru<br>atau login terlebih dahulu.", "error");
+        showModal("Perhatian", "Silakan melakukan pendaftaran akun<br>atau login terlebih dahulu.", "error");
         document.getElementById('login-close-btn').style.display = 'flex';
         document.getElementById('register-close-btn').style.display = 'flex';
         setTimeout(() => { closeInfoModal(); openLoginModal(); }, 1800);
@@ -4141,22 +4558,59 @@
       }
     }
 
+    let currentTrxPinInput = '';
+
+    function resetTrxPinPad() {
+      currentTrxPinInput = '';
+      const container = document.getElementById('trx-pin-dots');
+      if (container) {
+          container.classList.remove('shake-animation');
+      }
+      updateTrxPinDots();
+    }
+
+    function updateTrxPinDots() {
+      const dots = document.getElementById('trx-pin-dots').children;
+      for (let i = 0; i < 6; i++) {
+        if (i < currentTrxPinInput.length) {
+          dots[i].classList.add('filled');
+        } else {
+          dots[i].classList.remove('filled');
+        }
+      }
+    }
+
+    function pressTrxKeypad(val) {
+      if (val === 'DEL') {
+        currentTrxPinInput = currentTrxPinInput.slice(0, -1);
+      } else {
+        if (currentTrxPinInput.length < 6) {
+          currentTrxPinInput += val;
+        }
+      }
+      updateTrxPinDots();
+      
+      if (currentTrxPinInput.length === 6) {
+        setTimeout(() => { verifyPinAction(); }, 150);
+      }
+    }
+
     function challengeUserPinSystem(successCallback) {
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
       let u = usersDb[currentUserPhone];
       if (u && u.pinCode) {
         pendingPinCallback = successCallback;
         failedPinAttempts = 0; 
-        document.getElementById('auth-pin-input').value = '';
+        resetTrxPinPad();
         openTargetModal('pin-auth-modal');
       } else { successCallback(); }
     }
 
     function verifyPinAction() {
-      const pinVal = document.getElementById('auth-pin-input').value.trim();
+      const pinVal = currentTrxPinInput;
     
-      if (!pinVal) {
-        return showModal("Perhatian", "PIN transaksi tidak boleh kosong.", "error");
+      if (!pinVal || pinVal.length !== 6) {
+        return; 
       }
 
       let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
@@ -4168,13 +4622,24 @@
         failedPinAttempts++;
         let sisaPercobaan = 3 - failedPinAttempts;
 
+        const dotsContainer = document.getElementById('trx-pin-dots');
+        dotsContainer.classList.add('shake-animation');
+        
+        setTimeout(() => { 
+          dotsContainer.classList.remove('shake-animation'); 
+          resetTrxPinPad(); 
+        }, 400);
+
         if (failedPinAttempts >= 3) {
-          closeTargetModal('pin-auth-modal');
-          showModal("Perhatian", "Anda salah memasukkan PIN transaksi silakan verifikasi untuk mereset.", "error");
-          setTimeout(() => { openTargetModal('reset-pin-nik-modal'); }, 1800);
+          setTimeout(() => {
+            closeTargetModal('pin-auth-modal');
+            showModal("Perhatian", "Anda salah memasukkan PIN transaksi silakan verifikasi untuk mereset.", "error");
+            setTimeout(() => { openTargetModal('reset-pin-nik-modal'); }, 1800);
+          }, 500);
         } else {
-          document.getElementById('auth-pin-input').value = ''; 
-          showModal("Perhatian", `PIN yang Anda masukkan salah sisa ${sisaPercobaan}x percobaan.`, "error");
+          setTimeout(() => {
+            showModal("Perhatian", `PIN yang Anda masukkan salah sisa ${sisaPercobaan}x percobaan.`, "error");
+          }, 500);
         }
       }
     }
@@ -5782,6 +6247,134 @@ function selectOption(inputId, value, label, modalId) {
     renderHistory();
   }
 }
+
+function openWriteTestimoniModal() {
+  if (!requireLogin()) return;
+  if (isUserBlocked()) return;
+  
+  openTargetModal('write-testimoni-modal');
+}
+
+// 2. FUNGSI KLIK BINTANG (UI RATING)
+function setRating(val) {
+  // Simpan nilai ke input tersembunyi
+  document.getElementById('selected-rating-val').value = val;
+  
+  // Ubah warna bintang
+  const stars = document.querySelectorAll('#rating-stars-input .rating-star-btn');
+  stars.forEach((star, index) => {
+    if (index < val) {
+      star.classList.add('active'); // Bintang menyala
+    } else {
+      star.classList.remove('active'); // Bintang mati
+    }
+  });
+
+  // Ubah teks label di bawah bintang
+  const labels = ["Sangat Buruk", "Buruk", "Cukup", "Bagus", "Sangat Bagus!"];
+  document.getElementById('rating-label-text').innerText = labels[val - 1];
+}
+
+// 3. FUNGSI KLIK "KIRIM ULASAN" (DENGAN PENGECEKAN/ALERT)
+function submitTestimoni() {
+  // Cek 1: Apakah pengguna sudah login?
+  if (!requireLogin()) {
+    closeTargetModal('write-testimoni-modal'); // Tutup modal rating agar alert login terlihat
+    return;
+  }
+
+  // Cek 2: Apakah akun pengguna diblokir?
+  if (isUserBlocked()) {
+    closeTargetModal('write-testimoni-modal');
+    return;
+  }
+
+  // Cek 3: Apakah pengguna pernah transaksi 'Berhasil'?
+  let hist = JSON.parse(localStorage.getItem(`sanz_hist_${currentUserPhone}`)) || [];
+  let hasFlashsale = hist.some(h => 
+    h.status === 'Berhasil' && 
+    h.info && 
+    h.info.includes('Flashsale')
+  );
+
+  if (!hasFlashsale) {
+    closeTargetModal('write-testimoni-modal');
+    return showModal(
+      "Perhatian", 
+      "Silakan melakukan transaksi minimal 1x untuk mengirimkan ulasan.", 
+      "warning"
+    );
+  }
+
+  // Cek 4: Apakah pengguna sudah memilih bintang dan mengisi teks?
+  let rating = parseInt(document.getElementById('selected-rating-val').value) || 0;
+  let text = document.getElementById('testimoni-text-input').value.trim();
+
+  if (rating === 0) {
+    return showModal("Perhatian", "Silakan pilih bintang penilaian terlebih dahulu.", "warning");
+  }
+  if (text.length < 5) {
+    return showModal("Perhatian", "Ulasan terlalu pendek, minimal tuliskan 5 karakter.", "warning");
+  }
+
+  // JIKA SEMUA SYARAT TERPENUHI (Simpan Ulasan)
+  let testimoniDb = JSON.parse(localStorage.getItem('sanz_testimoni_db')) || [];
+  
+  // Ambil nama pengguna dan sensor sedikit untuk privasi (contoh: Agus -> Ag***)
+  let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+  let u = usersDb[currentUserPhone];
+  let userName = u ? u.name : "Pengguna";
+  let maskedName = userName.substring(0, 2) + "***";
+
+  // Simpan data ulasan baru ke bagian paling atas (unshift)
+  testimoniDb.unshift({
+    id: Date.now(),
+    uid: maskedName,
+    stars: rating,
+    text: text,
+    time: new Date().toLocaleDateString('id-ID')
+  });
+  localStorage.setItem('sanz_testimoni_db', JSON.stringify(testimoniDb));
+
+  // Tutup form dan reset kembali ke kosong
+  closeTargetModal('write-testimoni-modal');
+  document.getElementById('selected-rating-val').value = '0';
+  document.getElementById('testimoni-text-input').value = '';
+  document.getElementById('rating-label-text').innerText = 'Pilih Bintang';
+  document.querySelectorAll('#rating-stars-input .rating-star-btn').forEach(star => {
+      star.classList.remove('active');
+  });
+
+  // Tampilkan notifikasi ulasan terkirim
+  showModal("Berhasil", "Terima kasih! Ulasan Anda telah berhasil dikirim.", "win");
+  
+  // Langsung render ulang tab ulasan jika sedang terbuka agar otomatis muncul
+  if (typeof renderPublicTestimoni === 'function') {
+    renderPublicTestimoni();
+  }
+}
+
+window.botAddTestimoni = function(text, stars) {
+  let testimoniDb = JSON.parse(localStorage.getItem('sanz_testimoni_db')) || [];
+  let fakeUid = 'UID-' + Math.floor(100000 + Math.random() * 900000);
+  
+  testimoniDb.unshift({
+    id: Date.now(),
+    uid: fakeUid,
+    stars: stars,
+    text: text,
+    time: 'Baru saja'
+  });
+  
+  localStorage.setItem('sanz_testimoni_db', JSON.stringify(testimoniDb));
+  renderTestimoni();
+  showNotif("Testimoni baru ditambahkan oleh " + fakeUid);
+};
+
+// Panggil inisialisasi setelah window dimuat
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initTestimoni, 1000);
+});
     
     window.onload = () => {
       const options = { day: 'numeric', month: 'long', year: 'numeric' };
