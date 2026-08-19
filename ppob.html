@@ -3760,10 +3760,10 @@ function setQuickReview(text) {
 }
 
 function openPublicHistory(tab) {
-  // Tambahkan baris ini untuk mengecek status login
   if (!requireLogin()) return; 
   
-  toggleNav(); // Tutup sidebar jika diklik dari menu
+  testimoniLimit = 20; // Reset ke 20 saat dibuka
+  toggleNav(); 
   openTargetModal('public-history-modal');
   switchPublicTab(tab);
 }
@@ -6003,11 +6003,17 @@ function loadMoreTestimoni() {
       closeTargetModal('verif-face-modal');
     }
 
-    function closeTargetModal(id) { 
-      const el = document.getElementById(id); 
-      el.classList.remove('show'); 
-      setTimeout(() => el.style.display = 'none', 250); 
-      resetBottomNav(); 
+    function closeTargetModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('show');
+        setTimeout(() => el.style.display = 'none', 300);
+
+        // RESET LIMIT TESTIMONI JIKA MODAL DITUTUP
+        if (id === 'public-history-modal' || id === 'all-testimoni-modal') {
+          testimoniLimit = 20;
+        }
+      }
     }
     
     function resetBottomNav() {
