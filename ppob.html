@@ -3935,7 +3935,7 @@ function generateFakeTestimoniData(limit = 10000) {
     let randomUID = Math.floor(100000 + Math.random() * 900000); 
     let user = `UID-${randomUID}`;
 
-    let isReseller = Math.random() < 0.5; 
+    let isReseller = Math.random() < 0.4; 
 
     let d = new Date();
     d.setDate(d.getDate() - Math.floor(Math.random() * 7));
