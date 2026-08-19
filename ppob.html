@@ -2860,7 +2860,7 @@ img {
 <div id="pin-auth-modal" class="modal-overlay" style="z-index: 99999;">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>Konfirmasi PIN</h3>
+      <h3>PIN Transaksi</h3>
       <button class="btn-icon" onclick="closeTargetModal('pin-auth-modal')"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; padding-top: 30px;">
@@ -4447,7 +4447,7 @@ function processRegister() {
   if (name.length < 3) return showModal("Perhatian", "Pendaftaran nama lengkap minimal 3 karakter.", "error");
   if (phone.length < 10) return showModal("Perhatian", "Pendaftaran nomor handphone minimal 10 digit angka.", "error");
   if (ref !== "REF57183") return showModal("Perhatian", "Kode referensi tidak valid.", "error");
-  if (!cfCaptchaStatus['reg']) return showModal("Perhatian", "Selesaikan verifikasi captcha terlebih dahulu.", "error");
+  if (!cfCaptchaStatus['reg']) return showModal("Perhatian", "Selesaikan verifikasi terlebih dahulu.", "error");
   
   let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
   if (usersDb[phone]) {
@@ -6315,7 +6315,7 @@ function processLogin() {
   const pass = document.getElementById('login-password').value.trim();
 
   if (!phone || !pass) return showModal("Perhatian", "Silakan masukkan nomor handphone dan password.", "error");
-  if (!cfCaptchaStatus['login']) return showModal("Perhatian", "Selesaikan verifikasi captcha terlebih dahulu.", "error");
+  if (!cfCaptchaStatus['login']) return showModal("Perhatian", "Selesaikan verifikasi terlebih dahulu.", "error");
 
   let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
 
