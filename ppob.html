@@ -3245,7 +3245,7 @@ img {
 <div id="modal-bank-provider" class="select-modal-overlay" onclick="closeCustomSelect(event, 'modal-bank-provider')">
   <div class="select-modal-content" onclick="event.stopPropagation()">
     <div class="select-modal-header">
-      <h3>Pilih Instansi / E-Wallet</h3>
+      <h3>Pilih Instansi Tersedia</h3>
       <button class="btn-icon" onclick="closeCustomSelect(null, 'modal-bank-provider')"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="select-modal-body">
@@ -3757,10 +3757,14 @@ function setNominal(amount) {
 function updateDynamicSections() {
   const fsSection = document.getElementById('section-flashsale');
   const erSection = document.getElementById('section-fake-er');
+  const pubTrxBox = document.getElementById('public-trx-content');
   
   if (!currentUserPhone) {
     if (fsSection) fsSection.style.display = 'block';
     if (erSection) erSection.style.display = 'block';
+    if (pubTrxBox && pubTrxBox.innerHTML.includes('Tidak ada data transaksi')) {
+      pubTrxBox.innerHTML = '';
+    }
     return;
   }
 
@@ -3770,9 +3774,19 @@ function updateDynamicSections() {
   if (u && u.hideFsAnder) {
     if (fsSection) fsSection.style.display = 'none';
     if (erSection) erSection.style.display = 'none';
+    if (pubTrxBox) {
+      pubTrxBox.innerHTML = `
+        <div style="text-align:center; padding:50px 20px; color:var(--text-muted); background:var(--bg-container); margin: 16px;">
+          <i class="bi bi-search" style="font-size:45px; display:block; margin-bottom:12px; opacity:0.5;"></i>
+          <span style="font-size:14px; font-weight:600;">Tidak ada data transaksi</span>
+        </div>`;
+    }
   } else {
     if (fsSection) fsSection.style.display = 'block';
     if (erSection) erSection.style.display = 'block';
+    if (pubTrxBox && pubTrxBox.innerHTML.includes('Tidak ada data transaksi')) {
+      pubTrxBox.innerHTML = '';
+    }
   }
 }
 
@@ -3839,16 +3853,35 @@ function addFakeerItem() {
     </div>
   </div>`;
 
+  let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+  let u = currentUserPhone ? usersDb[currentUserPhone] : null;
+  let isHidden = u && u.hideFsAnder;
+
   const erBox = document.getElementById('fake-er-box');
   if (erBox) {
-    erBox.insertAdjacentHTML('afterbegin', html);
-    while (erBox.children.length > 7) { erBox.removeChild(erBox.lastChild); }
+    if (isHidden) {
+      erBox.innerHTML = '';
+    } else {
+      erBox.insertAdjacentHTML('afterbegin', html);
+      while (erBox.children.length > 7) { erBox.removeChild(erBox.lastChild); }
+    }
   }
 
   const pubTrxBox = document.getElementById('public-trx-content');
   if (pubTrxBox) {
-    pubTrxBox.insertAdjacentHTML('afterbegin', html);
-    while (pubTrxBox.children.length > 20) { pubTrxBox.removeChild(pubTrxBox.lastChild); }
+    if (isHidden) {
+      pubTrxBox.innerHTML = `
+        <div style="text-align:center; padding:50px 20px; color:var(--text-muted); background:var(--bg-container); margin: 16px;">
+          <i class="bi bi-search" style="font-size:45px; display:block; margin-bottom:12px; opacity:0.5;"></i>
+          <span style="font-size:14px; font-weight:600;">Tidak ada data transaksi</span>
+        </div>`;
+    } else {
+      if (pubTrxBox.innerHTML.includes('Tidak ada data transaksi')) {
+        pubTrxBox.innerHTML = '';
+      }
+      pubTrxBox.insertAdjacentHTML('afterbegin', html);
+      while (pubTrxBox.children.length > 20) { pubTrxBox.removeChild(pubTrxBox.lastChild); }
+    }
   }
 }
 
@@ -4102,7 +4135,7 @@ function updateBalanceDisplay() {
   let u = usersDb[currentUserPhone];
   
   if (u && u.isBlocked) {
-    document.getElementById('balance-display').innerText = "Diblokir";
+    document.getElementById('balance-display').innerText = "";
     document.getElementById('balance-display').style.color = "var(--danger)";
   } else {
     document.getElementById('balance-display').style.color = "var(--text-main)";
