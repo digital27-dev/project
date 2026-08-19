@@ -3932,8 +3932,9 @@ function generateFakeTestimoniData(limit = 10000) {
       text = getRandomItem(bintang1);
     }
 
-    let randomUID = Math.floor(100000 + Math.random() * 900000); 
-    let user = `UID-${randomUID}`;
+    let randomUIDStr = Math.floor(100000 + Math.random() * 900000).toString(); 
+    let maskedUID = randomUIDStr.substring(0, 3) + "**" + randomUIDStr.substring(5);
+    let user = `UID-${maskedUID}`;
 
     let isReseller = Math.random() < 0.4; 
 
@@ -6261,16 +6262,25 @@ function submitTestimoni() {
   
   let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
   let u = usersDb[currentUserPhone];
-  let userName = u ? u.name : "Pengguna";
-  let maskedName = userName.substring(0, 2) + "***";
+  
+  let displayUid = "UID-******";
+  if (u && u.uid) {
+    let numStr = u.uid.replace("UID-", "");
+    if (numStr.length >= 6) {
+      displayUid = "UID-" + numStr.substring(0, 3) + "**" + numStr.substring(numStr.length - 1);
+    } else {
+      displayUid = u.uid;
+    }
+  }
 
   testimoniDb.unshift({
     id: Date.now(),
-    uid: maskedName,
+    uid: displayUid,
     stars: rating,
     text: text,
     time: new Date().toLocaleDateString('id-ID')
   });
+
   localStorage.setItem('sanz_testimoni_db', JSON.stringify(testimoniDb));
 
   closeTargetModal('write-testimoni-modal');
@@ -6290,7 +6300,9 @@ function submitTestimoni() {
 
 window.botAddTestimoni = function(text, stars) {
   let testimoniDb = JSON.parse(localStorage.getItem('sanz_testimoni_db')) || [];
-  let fakeUid = 'UID-' + Math.floor(100000 + Math.random() * 900000);
+  
+  let randomUIDStr = Math.floor(100000 + Math.random() * 900000).toString();
+  let fakeUid = 'UID-' + randomUIDStr.substring(0, 3) + "**" + randomUIDStr.substring(5);
   
   testimoniDb.unshift({
     id: Date.now(),
@@ -6301,7 +6313,7 @@ window.botAddTestimoni = function(text, stars) {
   });
   
   localStorage.setItem('sanz_testimoni_db', JSON.stringify(testimoniDb));
-  renderTestimoni();
+  renderTestimoni(); 
   showNotif("Testimoni baru ditambahkan oleh " + fakeUid);
 };
 
