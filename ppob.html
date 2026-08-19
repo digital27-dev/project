@@ -3885,7 +3885,7 @@ function generateFakeTestimoniData(limit = 10000) {
     else if(randStar <= 80) stars = 4;
     else if(randStar <= 90) stars = 3;
     else if(randStar <= 95) stars = 2;
-    else stars = 1;
+    else stars = 3;
 
     let text = "";
     if(stars === 5) {
@@ -5927,18 +5927,6 @@ function createHistoryItemHTML(h, prefix = 'home') {
       closeTargetModal('verif-face-modal');
     }
 
-    function closeTargetModal(id) {
-      const el = document.getElementById(id);
-      if (el) {
-        el.classList.remove('show');
-        setTimeout(() => el.style.display = 'none', 300);
-
-        if (id === 'public-history-modal' || id === 'all-testimoni-modal') {
-          testimoniLimit = 20;
-        }
-      }
-    }
-    
     function resetBottomNav() {
       document.querySelectorAll('.bottom-nav .nav-item').forEach(nav => nav.classList.remove('active'));
       const berandaMenu = document.querySelector('.bottom-nav .nav-item');
@@ -6347,6 +6335,90 @@ function handleLogout() {
   
   updateAuthUI();
   showModal("Berhasil", "Anda telah berhasil keluar dari akun.", "win");
+}
+
+function processPinSetup() {
+  const pin1 = document.getElementById('pin-1').value.trim();
+  const pin2 = document.getElementById('pin-2').value.trim();
+
+  if (pin1.length !== 6 || isNaN(pin1)) return showModal("Perhatian", "PIN harus terdiri dari 6 digit angka.", "error");
+  if (pin1 !== pin2) return showModal("Perhatian", "Konfirmasi PIN tidak cocok.", "error");
+
+  let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+  usersDb[currentUserPhone].pinCode = pin1;
+  localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+
+  closeTargetModal('pin-setup-modal');
+  document.getElementById('pin-1').value = '';
+  document.getElementById('pin-2').value = '';
+  
+  updateAuthUI();
+  showModal("Berhasil", "PIN Transaksi berhasil dibuat.", "win");
+}
+
+function processChangePassword() {
+  const oldPass = document.getElementById('old-password-field').value.trim();
+  const newPass = document.getElementById('new-password-field').value.trim();
+  const confPass = document.getElementById('confirm-password-field').value.trim();
+
+  let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+  let u = usersDb[currentUserPhone];
+
+  if (!oldPass || !newPass || !confPass) return showModal("Perhatian", "Harap lengkapi semua kolom password.", "error");
+  if (u.password !== oldPass) return showModal("Perhatian", "Password lama yang Anda masukkan salah.", "error");
+  if (newPass !== confPass) return showModal("Perhatian", "Konfirmasi password baru tidak cocok.", "error");
+  if (newPass.length < 6) return showModal("Perhatian", "Password baru minimal 6 karakter.", "error");
+
+  u.password = newPass;
+  localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+
+  closeTargetModal('change-password-modal');
+  document.getElementById('old-password-field').value = '';
+  document.getElementById('new-password-field').value = '';
+  document.getElementById('confirm-password-field').value = '';
+  
+  showModal("Berhasil", "Password akun berhasil diubah.", "win");
+}
+
+function processChangePin() {
+  const oldPin = document.getElementById('old-pin-field').value.trim();
+  const newPin = document.getElementById('new-pin-field').value.trim();
+  const confPin = document.getElementById('confirm-pin-field').value.trim();
+
+  let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+  let u = usersDb[currentUserPhone];
+
+  if (oldPin.length !== 6 || newPin.length !== 6) return showModal("Perhatian", "PIN harus 6 digit angka.", "error");
+  if (u.pinCode !== oldPin) return showModal("Perhatian", "PIN lama yang Anda masukkan salah.", "error");
+  if (newPin !== confPin) return showModal("Perhatian", "Konfirmasi PIN baru tidak cocok.", "error");
+
+  u.pinCode = newPin;
+  localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+
+  closeTargetModal('change-pin-modal');
+  document.getElementById('old-pin-field').value = '';
+  document.getElementById('new-pin-field').value = '';
+  document.getElementById('confirm-pin-field').value = '';
+  
+  showModal("Berhasil", "PIN Transaksi berhasil diubah.", "win");
+}
+
+function closeTargetModal(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.classList.remove('show');
+    setTimeout(() => el.style.display = 'none', 300);
+
+    if (id === 'public-history-modal' || id === 'all-testimoni-modal') {
+      testimoniLimit = 20;
+    }
+    
+    if (id === 'history-modal' || id === 'help-modal') {
+      if (typeof resetBottomNav === 'function') {
+        resetBottomNav();
+      }
+    }
+  }
 }
     
     window.onload = () => {
