@@ -2069,30 +2069,30 @@
     <span id="nav-membership-badge" style="display: none; justify-content: center; align-items: center; font-size: 14px; padding: 7px; background: rgba(59,130,246,0.2); color: var(--primary); font-weight: 800;">Standar</span>
     
     <div class="sidenav-menu">
-      <a href="#" onclick="toggleNav()"><i class="bi bi-house-door"></i> <span>Beranda</span></a>
-      <a href="#" onclick="toggleNav(); openDepositModal();"><i class="bi bi-wallet2"></i> <span>Isi Saldo</span></a>
-      <a href="#" onclick="toggleNav(); openWithdrawModal();"><i class="bi bi-send"></i> <span>Transfer Saldo</span></a>
-      <a href="#" onclick="toggleNav(); showFullHistory();"><i class="bi bi-clock-history"></i> <span>Riwayat Transaksi</span></a>
-      <a href="#" onclick="openPublicHistory('ulasan');"><i class="bi bi-star"></i> <span>Ulasan Testimoni</span></a>
-      <a href="#" id="menu-downline" style="display: none;" onclick="toggleNav(); openDownlineModal();"><i class="bi bi-people"></i> <span>Undang Teman</span></a>
-      <a href="#" id="menu-ubah-password" style="display: none;" onclick="toggleNav(); openChangePasswordModal();"><i class="bi bi-shield-lock"></i> <span>Ubah Password</span></a>
-      <a href="#" id="menu-buat-pin" style="display: none;" onclick="toggleNav(); openPinSetupModal();"><i class="bi bi-asterisk"></i> <span>Buat PIN Transaksi</span></a>
-      <a href="#" id="menu-ubah-pin" style="display: none;" onclick="toggleNav(); openChangePinModal();"><i class="bi bi-asterisk"></i> <span>Ubah PIN Transaksi</span></a>
+      <a onclick="toggleNav()"><i class="bi bi-house-door"></i> <span>Beranda</span></a>
+      <a onclick="toggleNav(); openDepositModal();"><i class="bi bi-wallet2"></i> <span>Isi Saldo</span></a>
+      <a onclick="toggleNav(); openWithdrawModal();"><i class="bi bi-send"></i> <span>Transfer Saldo</span></a>
+      <a onclick="toggleNav(); showFullHistory();"><i class="bi bi-clock-history"></i> <span>Riwayat Transaksi</span></a>
+      <a onclick="openPublicHistory('ulasan');"><i class="bi bi-star"></i> <span>Ulasan Testimoni</span></a>
+      <a id="menu-downline" style="display: none;" onclick="toggleNav(); openDownlineModal();"><i class="bi bi-people"></i> <span>Undang Teman</span></a>
+      <a id="menu-ubah-password" style="display: none;" onclick="toggleNav(); openChangePasswordModal();"><i class="bi bi-shield-lock"></i> <span>Ubah Password</span></a>
+      <a id="menu-buat-pin" style="display: none;" onclick="toggleNav(); openPinSetupModal();"><i class="bi bi-asterisk"></i> <span>Buat PIN Transaksi</span></a>
+      <a id="menu-ubah-pin" style="display: none;" onclick="toggleNav(); openChangePinModal();"><i class="bi bi-asterisk"></i> <span>Ubah PIN Transaksi</span></a>
       
-      <a href="#" id="menu-buat-pin-login" style="display: none;" onclick="toggleNav(); openSetupLoginPinModal();"><i class="bi bi-phone-vibrate"></i> <span>Buat PIN Login</span></a>
-      <a href="#" id="menu-hapus-pin-login" style="display: none;" onclick="toggleNav(); openRemoveLoginPinModal();"><i class="bi bi-phone-vibrate"></i> <span>Hapus PIN Login</span></a>
+      <a id="menu-buat-pin-login" style="display: none;" onclick="toggleNav(); openSetupLoginPinModal();"><i class="bi bi-phone-vibrate"></i> <span>Buat PIN Login</span></a>
+      <a id="menu-hapus-pin-login" style="display: none;" onclick="toggleNav(); openRemoveLoginPinModal();"><i class="bi bi-phone-vibrate"></i> <span>Hapus PIN Login</span></a>
       
-      <a href="#" onclick="toggleNav(); openHelpModal();"><i class="bi bi-headset"></i> <span>Customer Support</span></a>
+      <a onclick="toggleNav(); openHelpModal();"><i class="bi bi-headset"></i> <span>Customer Support</span></a>
       <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 5px 0;">
       
       <div id="nav-auth-links">
-        <a href="#" onclick="toggleNav(); openLoginModal();"><i class="bi bi-box-arrow-in-right"></i> <span>Masuk / Login</span></a>
-        <a href="#" onclick="toggleNav(); openRegisterModal();"><i class="bi bi-person-plus"></i> <span>Daftar Akun Baru</span></a>
+        <a onclick="toggleNav(); openLoginModal();"><i class="bi bi-box-arrow-in-right"></i> <span>Masuk / Login</span></a>
+        <a onclick="toggleNav(); openRegisterModal();"><i class="bi bi-person-plus"></i> <span>Daftar Akun Baru</span></a>
       </div>
       
       <div id="nav-logout-link">
-        <a href="#" id="nav-verif-btn" style="color: var(--primary);"><i id="nav-verif-icon" class="bi bi-person-vcard"></i> <span id="nav-verif-text">Verifikasi Akun</span></a>
-        <a href="#" onclick="toggleNav(); handleLogout();" style="color: var(--danger);"><i class="bi bi-box-arrow-right"></i> <span>Keluar Akun</span></a>
+        <a id="nav-verif-btn" style="color: var(--primary);"><i id="nav-verif-icon" class="bi bi-person-vcard"></i> <span id="nav-verif-text">Verifikasi Akun</span></a>
+        <a onclick="toggleNav(); handleLogout();" style="color: var(--danger);"><i class="bi bi-box-arrow-right"></i> <span>Keluar Akun</span></a>
       </div>
     </div>
   </div>
@@ -3092,7 +3092,7 @@
           <div style="background: var(--bg-input); padding: 15px; border-radius: 14px; margin-bottom: 15px;">
             <div style="font-weight:bold;margin-top:5px; font-size:14px; color: var(--text-main);" id="saved-bank-name">NAMA</div>
             <div style="color:var(--primary);margin-top:3px; font-size:13px; font-weight:700;" id="saved-bank-info">BANK - 000</div>
-            <a href="#" style="font-size:12px; color:var(--danger); text-decoration:none; display:inline-block; margin-top:8px;" onclick="resetBankDetails()">Hapus</a>
+            <a style="font-size:12px; color:var(--danger); text-decoration:none; display:inline-block; margin-top:8px;" onclick="resetBankDetails()">Hapus</a>
           </div>
           <div class="input-group">
             <label>Nominal Penarikan (Min. Rp 50.000)</label>
