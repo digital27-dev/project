@@ -926,10 +926,6 @@ img {
 
 .modal-header .btn-icon { 
   font-size: 24px; 
-  background: var(--bg-input); 
-  width: 36px; 
-  height: 36px; 
-  border-radius: 50%; 
   color: var(--text-muted); 
 }
 
@@ -2084,7 +2080,7 @@ img {
 <div class="sidenav" id="sidenav">
   <div class="sidenav-header">
     <h3><i class="bi bi-lightning-charge-fill"></i> DIGITAL</h3>
-    <button class="btn-icon" onclick="toggleNav()"><i class="bi bi-x-lg"></i></button>
+    <button class="btn-icon" style="color: var(--text-muted); font-size: 24px;" onclick="toggleNav()"><i class="bi bi-x-lg"></i></button>
   </div>
 
   <div class="sidenav-profile" id="nav-user-info">
@@ -2639,7 +2635,7 @@ img {
           <span style="font-size: 11px; font-weight: 700; color: var(--success);">Online</span>
         </div>
       </div>
-      <button class="btn-icon" style="color: #64748b; font-size: 26px;" onclick="closeTargetModal('help-modal')">
+      <button class="btn-icon" style="color: var(--text-muted); font-size: 24px;" onclick="closeTargetModal('help-modal')">
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
