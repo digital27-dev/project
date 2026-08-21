@@ -2050,12 +2050,11 @@ img {
 }
 
 .slider-captcha-content {
-  background: var(--bg-container);
+  background: var(--bg-card);
   width: 90%;
   max-width: 340px;
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2070,7 +2069,7 @@ img {
   width: 300px;
   height: 150px;
   position: relative;
-  background-color: var(--bg-input);
+  background-color: var(--bg-body);
   background-size: 300px 150px;
   border-radius: 8px;
   overflow: hidden;
@@ -2080,15 +2079,13 @@ img {
   width: 45px;
   height: 45px;
   position: absolute;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.4);
 }
 .sc-piece {
   width: 45px;
   height: 45px;
   position: absolute;
   background-size: 300px 150px;
-  border-radius: 6px;
   z-index: 10;
   left: 0;
 }
@@ -6761,6 +6758,13 @@ function closeTargetModal(id) {
 let currentCaptchaType = '';
 let scHoleX = 0; 
 
+const captchaShapes = [
+  'inset(0% 0% 0% 0% round 6px)', 
+  'circle(50% at 50% 50%)', 
+  'polygon(50% 0%, 0% 100%, 100% 100%)',
+  'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)' 
+];
+
 function verifyCaptcha(type) {
   if (cfCaptchaStatus[type]) return; 
   
@@ -6774,18 +6778,40 @@ function verifyCaptcha(type) {
   }, 600);
 }
 
-function openSliderCaptcha() {
-  const modal = document.getElementById('slider-captcha-modal');
+function loadCaptchaImage() {
   const imgContainer = document.getElementById('sc-image-container');
   const piece = document.getElementById('sc-piece');
-  const hole = document.getElementById('sc-hole');
-  const slider = document.getElementById('sc-slider-input');
+
+  imgContainer.style.backgroundImage = 'none';
+  piece.style.backgroundImage = 'none';
 
   let randId = Math.floor(Math.random() * 1000);
   let imgUrl = `https://picsum.photos/300/150?random=${randId}`;
 
-  imgContainer.style.backgroundImage = `url('${imgUrl}')`;
-  piece.style.backgroundImage = `url('${imgUrl}')`;
+  let img = new Image();
+  img.onload = function() {
+    imgContainer.style.backgroundImage = `url('${imgUrl}')`;
+    piece.style.backgroundImage = `url('${imgUrl}')`;
+  };
+  img.onerror = function() {
+    loadCaptchaImage();
+  };
+  img.src = imgUrl;
+}
+
+function openSliderCaptcha() {
+  const modal = document.getElementById('slider-captcha-modal');
+  const hole = document.getElementById('sc-hole');
+  const piece = document.getElementById('sc-piece');
+  const slider = document.getElementById('sc-slider-input');
+
+  const randomShape = captchaShapes[Math.floor(Math.random() * captchaShapes.length)];
+  hole.style.clipPath = randomShape;
+  hole.style.webkitClipPath = randomShape;
+  piece.style.clipPath = randomShape;
+  piece.style.webkitClipPath = randomShape;
+
+  loadCaptchaImage();
 
   scHoleX = Math.floor(Math.random() * 130) + 120; 
   let scHoleY = Math.floor(Math.random() * 75) + 15; 
@@ -6798,6 +6824,7 @@ function openSliderCaptcha() {
   piece.style.left = '0px'; 
 
   slider.value = 0;
+  updatePiecePosition(0);
 
   modal.style.display = 'flex';
   setTimeout(() => modal.classList.add('show'), 10);
@@ -6829,7 +6856,11 @@ function validateSliderCaptcha() {
     
     const container = document.getElementById('sc-slider-container');
     container.classList.add('shake-animation');
-    setTimeout(() => container.classList.remove('shake-animation'), 400);
+    
+    setTimeout(() => {
+        container.classList.remove('shake-animation');
+        openSliderCaptcha();
+    }, 400);
   }
 }
     
