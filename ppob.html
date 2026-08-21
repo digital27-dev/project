@@ -2042,6 +2042,88 @@ img {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.slider-captcha-content {
+  background: var(--bg-container);
+  width: 90%;
+  max-width: 340px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: scale(0.9);
+  transition: transform 0.2s ease;
+  border: 1px solid var(--border-color);
+}
+.modal-overlay.show .slider-captcha-content {
+  transform: scale(1);
+}
+.sc-image-container {
+  width: 300px;
+  height: 150px;
+  position: relative;
+  background-color: var(--bg-input);
+  background-size: 300px 150px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.sc-hole {
+  width: 45px;
+  height: 45px;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+}
+.sc-piece {
+  width: 45px;
+  height: 45px;
+  position: absolute;
+  background-size: 300px 150px;
+  border-radius: 6px;
+  z-index: 10;
+  left: 0;
+}
+.sc-slider-container {
+  width: 300px;
+  height: 44px;
+  background: var(--bg-input);
+  border-radius: 50px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border-color);
+}
+.sc-slider-text {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  pointer-events: none;
+  user-select: none;
+}
+.sc-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+}
+.sc-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 44px;
+  height: 44px;
+  background: var(--primary) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23fff" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z"/></svg>') center no-repeat;
+  background-size: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -3420,6 +3502,26 @@ img {
     </div>
     <div class="modal-body" style="padding: 15px; overflow-y: auto; flex: 1; background: var(--bg-container);">
       <div class="all-flashsale-grid" id="all-flashsale-container"></div>
+    </div>
+  </div>
+</div>
+
+<div id="slider-captcha-modal" class="modal-overlay" style="z-index: 100000000; align-items: center; justify-content: center;">
+  <div class="slider-captcha-content" onclick="event.stopPropagation()">
+    <div style="font-weight: 700; margin-bottom: 15px; font-size: 15px; color: var(--text-main);">Verifikasi keamanan</div>
+    
+    <div class="sc-image-container" id="sc-image-container">
+      <div class="sc-hole" id="sc-hole"></div>
+      <div class="sc-piece" id="sc-piece"></div>
+    </div>
+    
+    <div class="sc-slider-container" id="sc-slider-container">
+      <div class="sc-slider-text">Geser untuk melengkapi</div>
+
+      <input type="range" min="0" max="255" value="0" class="sc-slider" id="sc-slider-input" 
+             oninput="updatePiecePosition(this.value)" 
+             onchange="validateSliderCaptcha()" 
+             ontouchend="validateSliderCaptcha()">
     </div>
   </div>
 </div>
@@ -6642,6 +6744,80 @@ function closeTargetModal(id) {
         resetBottomNav();
       }
     }
+  }
+}
+
+let currentCaptchaType = '';
+let scHoleX = 0; 
+
+function verifyCaptcha(type) {
+  if (cfCaptchaStatus[type]) return; 
+  
+  const box = document.getElementById(`cf-box-${type}`);
+  box.style.borderTopColor = "var(--primary)";
+  box.classList.add('loading');
+  
+  setTimeout(() => {
+    currentCaptchaType = type;
+    openSliderCaptcha();
+  }, 600);
+}
+
+function openSliderCaptcha() {
+  const modal = document.getElementById('slider-captcha-modal');
+  const imgContainer = document.getElementById('sc-image-container');
+  const piece = document.getElementById('sc-piece');
+  const hole = document.getElementById('sc-hole');
+  const slider = document.getElementById('sc-slider-input');
+
+  let randId = Math.floor(Math.random() * 1000);
+  let imgUrl = `https://picsum.photos/300/150?random=${randId}`;
+
+  imgContainer.style.backgroundImage = `url('${imgUrl}')`;
+  piece.style.backgroundImage = `url('${imgUrl}')`;
+
+  scHoleX = Math.floor(Math.random() * 130) + 120; 
+  let scHoleY = Math.floor(Math.random() * 75) + 15; 
+
+  hole.style.left = scHoleX + 'px';
+  hole.style.top = scHoleY + 'px';
+
+  piece.style.top = scHoleY + 'px';
+  piece.style.backgroundPosition = `-${scHoleX}px -${scHoleY}px`;
+  piece.style.left = '0px'; 
+
+  slider.value = 0;
+
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+
+function updatePiecePosition(val) {
+  document.getElementById('sc-piece').style.left = val + 'px';
+}
+
+function validateSliderCaptcha() {
+  const slider = document.getElementById('sc-slider-input');
+  let userX = parseInt(slider.value);
+  
+  if (Math.abs(userX - scHoleX) <= 6) {
+    const modal = document.getElementById('slider-captcha-modal');
+    modal.classList.remove('show');
+    setTimeout(() => modal.style.display = 'none', 300);
+
+    const box = document.getElementById(`cf-box-${currentCaptchaType}`);
+    box.classList.remove('loading');
+    box.classList.add('verified');
+    cfCaptchaStatus[currentCaptchaType] = true;
+    
+    showNotif("Verifikasi keamanan berhasil.");
+  } else {
+    slider.value = 0;
+    updatePiecePosition(0);
+    
+    const container = document.getElementById('sc-slider-container');
+    container.classList.add('shake-animation');
+    setTimeout(() => container.classList.remove('shake-animation'), 400);
   }
 }
     
