@@ -1110,8 +1110,14 @@ img {
 }
 
 .cf-checkbox.verified { 
-  border-color: transparent; 
-  background: transparent; 
+  border-color: #ccc !important; 
+  border-radius: 4px !important; 
+  background: #fff; 
+}
+
+[data-theme="dark"] .cf-checkbox.verified {
+  border-color: #555 !important;
+  background: #222;
 }
 
 .cf-checkbox.verified i { 
@@ -4550,12 +4556,17 @@ function processResetLoginPinPwd() {
   }
 }
 
-function verifyCaptcha(type) {
+function verifyCaptcha(type) { 
   if (cfCaptchaStatus[type]) return; 
-  const box = document.getElementById(`cf-box-${type}`);
-  box.style.borderTopColor = "var(--primary)";
-  box.classList.add('loading');
-  setTimeout(() => { box.classList.remove('loading'); box.classList.add('verified'); cfCaptchaStatus[type] = true; }, 1000);
+  const box = document.getElementById(`cf-box-${type}`); 
+  box.style.borderTopColor = "var(--primary)"; 
+  box.classList.add('loading'); 
+  setTimeout(() => { 
+    box.classList.remove('loading'); 
+    box.classList.add('verified'); 
+    box.style.borderTopColor = ""; 
+    cfCaptchaStatus[type] = true; 
+  }, 1000); 
 }
 
 function openLoginModal() { 
@@ -6660,7 +6671,7 @@ function handleLogout() {
   localStorage.removeItem('sanz_current_name');
   
   updateAuthUI();
-  showModal("Berhasil", "Anda telah berhasil keluar dari akun.", "win");
+  showModal("Berhasil", "Anda telah keluar dari akun.", "win");
 }
 
 function processPinSetup() {
@@ -6808,6 +6819,7 @@ function validateSliderCaptcha() {
     const box = document.getElementById(`cf-box-${currentCaptchaType}`);
     box.classList.remove('loading');
     box.classList.add('verified');
+    box.style.borderTopColor = ""; 
     cfCaptchaStatus[currentCaptchaType] = true;
     
     showNotif("Verifikasi keamanan berhasil.");
