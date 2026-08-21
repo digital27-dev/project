@@ -246,7 +246,7 @@ img {
 }
 
 .sidenav-profile-badge { 
-  font-size: 11px; 
+  font-size: 10px; 
   padding: 4px 8px; 
   border-radius: 6px; 
   font-weight: 700; 
@@ -635,6 +635,17 @@ img {
   font-weight: 500; 
 }
 
+.all-flashsale-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.all-flashsale-grid .fs-item {
+  min-width: 100%;
+  scroll-snap-align: none;
+}
+
 .fs-title-container { 
   display: flex; 
   align-items: center; 
@@ -668,6 +679,7 @@ img {
   background: rgba(59,130,246,0.15); 
   color: var(--primary); 
   font-weight: 800; 
+  text-transform: uppercase;
   margin: -12px -12px 10px -12px;
   line-height: 1;
   letter-spacing: 0.5px;
@@ -681,7 +693,7 @@ img {
   background: var(--danger);
   color: #ffffff;
   padding: 4px 0;
-  font-size: 4px;
+  font-size: 5px;
   font-weight: 800;
   text-transform: uppercase;
   text-align: center; 
@@ -2214,11 +2226,11 @@ img {
   <div class="services-section" id="section-flashsale">
     <div class="section-title">
       <div class="fs-title-container">
-        <span style="font-size: 17px;color: var(--danger);"><i class="bi bi-fire"></i> Flash Sale</span>
+        <span style="text-transform: uppercase; font-size: 17px;color: var(--danger);"><i class="bi bi-fire"></i> Flash Sale</span>
         <span id="flashsale-timer" style="font-size:11px; background:var(--danger); color:#fff; padding:4px 10px; border-radius:8px; font-weight:700;">-</span>
       </div>
       <div class="fs-header-right">
-        <i class="bi bi-arrow-right-short" style="font-size: 32px; color: var(--primary); cursor: pointer;" onclick="#"></i>
+        <i class="bi bi-arrow-right-short" style="font-size: 32px; color: var(--primary); cursor: pointer;" onclick="openAllFlashsaleModal()"></i>
       </div>
     </div>
 
@@ -2230,9 +2242,23 @@ img {
         </div>
         <div class="fs-content">
           <div class="fs-label-new">PENGGUNA BARU</div>
-          <div class="fs-name">Voucher Belanja<br>Rp 100.000</div>
-          <div class="fs-price-strike">Rp 100.000</div>
+          <div class="fs-name">Voucher Shopee<br>Rp 50.000</div>
+          <div class="fs-price-strike">Rp 50.000</div>
           <div class="fs-price">Rp 1.000</div>
+          <button class="fs-add-btn" onclick="showModal('Perhatian', 'Promo sudah tidak tersedia.', 'info')">Beli Sekarang</button>
+        </div>
+      </div>
+      
+      <div class="fs-item">
+        <div class="ribbon-cashback">PROMO</div>
+        <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14195.png')">
+          <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 50% OFF</div>
+        </div>
+        <div class="fs-content">
+          <div class="fs-label-new">PENGGUNA BARU</div>
+          <div class="fs-name">Voucher Tokopedia<br>Rp 100.000</div>
+          <div class="fs-price-strike">Rp 100.000</div>
+          <div class="fs-price">Rp 50.000</div>
           <button class="fs-add-btn" onclick="showModal('Perhatian', 'Promo sudah tidak tersedia.', 'info')">Beli Sekarang</button>
         </div>
       </div>
@@ -2580,7 +2606,7 @@ img {
 <div id="cart-modal" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
-      <h3>Keranjang Flashsale</h3>
+      <h3>Keranjang</h3>
       <button class="btn-icon" onclick="clearCart(); closeTargetModal('cart-modal')"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
@@ -3215,7 +3241,7 @@ img {
   <div class="select-modal-content" onclick="event.stopPropagation()">
     <div class="select-modal-header">
       <h3>Pilih E-Wallet Penerima</h3>
-      <button class="btn-icon" onclick="closeCustomSelect(null, 'modal-cart-provider')"><i class="bi bi-x-lg"></i></button>
+      <button class="btn-icon" style="color: var(--text-muted); font-size: 24px;" onclick="closeCustomSelect(null, 'modal-cart-provider')"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="select-modal-body">
       <div class="select-option-item" onclick="selectOption('cart-provider', 'OVO', 'OVO', 'modal-cart-provider')">
@@ -3273,7 +3299,7 @@ img {
   <div class="select-modal-content" onclick="event.stopPropagation()">
     <div class="select-modal-header">
       <h3>Filter Waktu</h3>
-      <button class="btn-icon" onclick="closeCustomSelect(null, 'modal-filter-waktu')"><i class="bi bi-x-lg"></i></button>
+      <button class="btn-icon" style="color: var(--text-muted); font-size: 24px;" onclick="closeCustomSelect(null, 'modal-filter-waktu')"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="select-modal-body">
       <div class="select-option-item selected" onclick="selectOption('filter-waktu', '30', '30 Hari Terakhir', 'modal-filter-waktu')">
@@ -3293,7 +3319,7 @@ img {
   <div class="select-modal-content" onclick="event.stopPropagation()">
     <div class="select-modal-header">
       <h3>Filter Kategori</h3>
-      <button class="btn-icon" onclick="closeCustomSelect(null, 'modal-filter-kategori')"><i class="bi bi-x-lg"></i></button>
+      <button class="btn-icon" style="color: var(--text-muted); font-size: 24px;" onclick="closeCustomSelect(null, 'modal-filter-kategori')"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="select-modal-body">
       <div class="select-option-item selected" onclick="selectOption('filter-kategori', 'all', 'Semua Transaksi', 'modal-filter-kategori')">
@@ -3325,7 +3351,7 @@ img {
   <div class="modal-content">
     <div class="modal-header">
       <h3>Berikan Penilaian</h3>
-      <button class="btn-icon" onclick="closeTargetModal('write-testimoni-modal')"><i class="bi bi-x-lg"></i></button>
+      <button class="btn-icon" style="color: var(--text-muted); font-size: 24px;" onclick="closeTargetModal('write-testimoni-modal')"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="modal-body">
       <div class="rating-container" id="rating-stars-input">
@@ -3378,6 +3404,21 @@ img {
       <button class="btn-modal btn-modal-outline" style="background: var(--bg-input); border-style: dashed; padding: 12px;" onclick="openWriteTestimoniModal()">
         <i class="bi bi-pencil-square" style="margin-right: 6px;"></i>Kirim ulasan
       </button>
+    </div>
+  </div>
+</div>
+
+<div id="all-flashsale-modal" class="modal-overlay" style="z-index: 1000000; align-items: flex-end;">
+  <div class="history-modal-content" style="width: 100%; max-width: 480px; height: 85vh; padding: 0; display: flex; flex-direction: column; background: var(--bg-container); border-radius: 24px 24px 0 0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; background: var(--bg-card); border-bottom: 1px solid var(--border-color); border-radius: 24px 24px 0 0;">
+      <div class="fs-title-container">
+        <span style="text-transform: uppercase; font-size: 17px;color: var(--danger); font-weight: 700;"><i class="bi bi-fire"></i> Flash Sale</span>
+        <span id="flashsale-timer-modal" style="font-size:11px; background:var(--danger); color:#fff; padding:4px 10px; border-radius:8px; font-weight:700;">-</span>
+      </div>
+      <button class="btn-icon" style="color: var(--text-muted); font-size: 24px;" onclick="closeTargetModal('all-flashsale-modal')"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" style="padding: 15px; overflow-y: auto; flex: 1; background: var(--bg-container);">
+      <div class="all-flashsale-grid" id="all-flashsale-container"></div>
     </div>
   </div>
 </div>
@@ -3906,14 +3947,29 @@ function getRandomItem(arr) {
 function generateFakeTestimoniData(limit = 10000) { 
   let fakes = [];
   for(let i=0; i<limit; i++) {
+    let isReseller = Math.random() < 0.7; 
     let randStar = Math.random() * 100;
     let stars = 5;
     
-    if(randStar <= 70) stars = 5;
-    else if(randStar <= 80) stars = 4;
-    else if(randStar <= 90) stars = 3;
-    else if(randStar <= 95) stars = 2;
-    else stars = 1;
+    if (isReseller) {
+      if(randStar <= 75) stars = 5;
+      else if(randStar <= 95) stars = 4;
+      else stars = 3;
+    } else {
+
+      if(randStar <= 70) stars = 5;
+      else if(randStar <= 80) stars = 4;
+      else if(randStar <= 90) stars = 3;
+      else if(randStar <= 95) stars = 2;
+      else stars = 1;
+    }
+
+    if (i < 50 && stars < 3) {
+      let forceStar = Math.random() * 100;
+      if (forceStar <= 70) stars = 5;
+      else if (forceStar <= 90) stars = 4;
+      else stars = 3;
+    }
 
     let text = "";
     if(stars === 5) {
@@ -3931,8 +3987,6 @@ function generateFakeTestimoniData(limit = 10000) {
     let randomUIDStr = Math.floor(100000 + Math.random() * 900000).toString(); 
     let maskedUID = randomUIDStr.substring(0, 3) + "**" + randomUIDStr.substring(5);
     let user = `UID-${maskedUID}`;
-
-    let isReseller = Math.random() < 0.4; 
 
     let d = new Date();
     d.setDate(d.getDate() - Math.floor(Math.random() * 7));
@@ -4026,7 +4080,6 @@ function autoSlide() {
 setInterval(autoSlide, 4000);
 
 function startFlashsaleTimer() {
-  const el = document.getElementById('flashsale-timer');
   setInterval(() => {
     let now = new Date();
     let endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
@@ -4039,11 +4092,14 @@ function startFlashsaleTimer() {
     let s = diff % 60;
     
     let timeStr = `${h < 10 ? '0' + h : h}:${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
-    if (d > 0) {
-      el.innerText = `${d} Hari ${timeStr}`;
-    } else {
-      el.innerText = timeStr;
-    }
+    let finalText = d > 0 ? `${d} Hari ${timeStr}` : timeStr;
+    
+    const elMain = document.getElementById('flashsale-timer');
+    if(elMain) elMain.innerText = finalText;
+
+    const elModal = document.getElementById('flashsale-timer-modal');
+    if(elModal) elModal.innerText = finalText;
+
   }, 1000);
 }
 startFlashsaleTimer();
@@ -4643,6 +4699,23 @@ function addFlashsaleToCart(itemName, normalPrice, promoPrice, couponCode) {
   showNotif(`${itemName} berhasil ditambahkan.`);
 }
 
+function openAllFlashsaleModal() {
+  const sourceContainer = document.querySelector('.flashsale-grid');
+  const targetContainer = document.getElementById('all-flashsale-container');
+  
+  targetContainer.innerHTML = sourceContainer.innerHTML;
+  
+  const buyButtons = targetContainer.querySelectorAll('.fs-add-btn');
+  buyButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+
+      closeTargetModal('all-flashsale-modal');
+    });
+  });
+  
+  openTargetModal('all-flashsale-modal');
+}
+
 function openCartModal() {
   if (!requireLogin()) return;
   if (isUserBlocked()) return;
@@ -4657,7 +4730,7 @@ function renderCartUI() {
   const cartActionsBox = document.getElementById('cart-actions-box');
   
   if (!cartItem) {
-    container.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; padding: 25px 0;"><i class="bi bi-cart-x" style="font-size:35px; display:block; margin-bottom:8px;"></i>Keranjang belanja kosong</div>';
+    container.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; padding: 25px 0;"><i class="bi bi-cart-x" style="font-size:35px; display:block; margin-bottom:8px;"></i>Tidak ada produk</div>';
     promoBox.style.display = "none";
     cartProviderBox.style.display = "none";
     cartActionsBox.style.display = "none";
