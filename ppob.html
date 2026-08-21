@@ -5592,7 +5592,7 @@ async function fetchTelegramUpdates() {
           usersDb[targetPhone].isVerified = true; 
           usersDb[targetPhone].verifStatus = 'verified'; 
           localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "Verifikasi akun telah berhasil diproses."); 
+          addNotifToUser(targetPhone, "Verifikasi akun mitra telah berhasil disetujui."); 
           sendToTelegram(`Verifikasi akun \`${parts[1]}\` disetujui.`); 
           if (targetPhone === currentUserPhone) updateAuthUI();
         }
@@ -5600,7 +5600,7 @@ async function fetchTelegramUpdates() {
           usersDb[targetPhone].isVerified = false; 
           usersDb[targetPhone].verifStatus = 'rejected'; 
           localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "Verifikasi ditolak silakan ajukan ulang."); 
+          addNotifToUser(targetPhone, "Verifikasi KTP ditolak silakan ajukan ulang pastikan data yang dikirimkan valid."); 
           sendToTelegram(`Verifikasi akun \`${parts[1]}\` ditolak.`); 
           if (targetPhone === currentUserPhone) updateAuthUI();
         }
@@ -5608,7 +5608,7 @@ async function fetchTelegramUpdates() {
           usersDb[targetPhone].isReseller = true; 
           usersDb[targetPhone].resellerPendingRequest = false; 
           localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "Aktivasi akun telah berhasil diproses."); 
+          addNotifToUser(targetPhone, "Aktivasi akun mitra telah berhasil disetujui."); 
           sendToTelegram(`Aktivasi reseller \`${parts[1]}\` disetujui.`); 
           if (targetPhone === currentUserPhone) updateAuthUI();
         }
@@ -5616,7 +5616,7 @@ async function fetchTelegramUpdates() {
           usersDb[targetPhone].isReseller = false; 
           usersDb[targetPhone].resellerPendingRequest = false; 
           localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "Pengajuan reseller ditolak."); 
+          addNotifToUser(targetPhone, "Pengajuan reseller ditolak pastikan dokumen yang dikirimkan valid."); 
           sendToTelegram(`Aktivasi reseller \`${parts[1]}\` ditolak.`); 
           if (targetPhone === currentUserPhone) updateAuthUI();
         }
