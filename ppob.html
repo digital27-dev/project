@@ -49,7 +49,6 @@
 
 button:focus, a:focus, input:focus, select:focus, div:focus {
   outline: none !important;
-  box-shadow: none !important;
 }
 
 body { 
@@ -1477,7 +1476,6 @@ img {
 .key-btn.text-key {
   background: transparent !important;
   border: none !important;
-  box-shadow: none !important;
   color: var(--text-muted);
 }
 
@@ -3334,6 +3332,9 @@ img {
       <div class="select-option-item" onclick="selectOption('filter-kategori', 'Bonus', 'Bonus Reward', 'modal-filter-kategori')">
         <span>Bonus Reward</span><i class="bi bi-check-circle-fill check-icon"></i>
       </div>
+      <div class="select-option-item" onclick="selectOption('filter-kategori', 'PPOB', 'Pembelian', 'modal-filter-kategori')">
+        <span>Pembelian</span><i class="bi bi-check-circle-fill check-icon"></i>
+      </div>
     </div>
   </div>
 </div>
@@ -4032,7 +4033,7 @@ function renderPublicTestimoni() {
         : '<span class="badge-type badge-standar">Standar</span>';
 
       htmlString += `
-        <div class="testimoni-card" style="margin-bottom: 12px; box-shadow: none;">
+        <div class="testimoni-card" style="margin-bottom: 12px;">
           <div class="testimoni-header">
             <div class="testimoni-user">
               <div class="testimoni-avatar"><i class="bi bi-person"></i></div>
@@ -5327,7 +5328,7 @@ async function fetchTelegramUpdates() {
       } else {
 
         for (let ph in usersDb) {
-          if (usersDb[ph].uid === target || usersDb[ph].uid === parts[1] || usersDb[ph].uid === parts[2]) {
+          if (usersDb[ph].uid === target || usersDb[ph].uid === parts[1] || usersDb[ph].uid === parts[2] || usersDb[ph].uid === parts[3]) {
             targetPhone = ph;
             targetUidVal = usersDb[ph].uid;
             break;
@@ -5509,6 +5510,79 @@ async function fetchTelegramUpdates() {
               userBalance += nominal;
               tradeHistory = tHist;
               updateBalanceDisplay();
+              renderHistory();
+            }
+          }
+        }
+        
+        else if (command === '/addtrx') {
+          let provider = 'ShopeePay';
+          let nominalIdx = 1;
+          let inputNominal = parseInt(parts[1]);
+          
+          if (isNaN(inputNominal)) {
+              provider = parts[1];
+              nominalIdx = 2;
+              inputNominal = parseInt(parts[2]);
+          }
+          
+          let uidIdx = nominalIdx + 1;
+          let uidParam = parts[uidIdx];
+
+          if (!isNaN(inputNominal) && uidParam === targetUidVal) {
+            let paidAmount;
+            
+            if (inputNominal >= 5000000) {
+                paidAmount = inputNominal * 0.75; 
+            } else {
+                paidAmount = inputNominal * 0.50; 
+            }
+            
+            let customDateStr = '';
+            let customTimeStr = '';
+            let trxId = Date.now();
+            
+            if (parts.length > uidIdx + 1) {
+                customDateStr = parts[uidIdx + 1];
+                if (parts.length > uidIdx + 2) {
+                    customTimeStr = parts[uidIdx + 2];
+                }
+                try {
+                    let [dd, mm, yyyy] = customDateStr.split('/');
+                    let [hh, min] = customTimeStr ? customTimeStr.split(':') : ['00', '00'];
+                    if(dd && mm && yyyy) {
+                        let parsedDate = new Date(`${yyyy}-${mm}-${dd}T${hh}:${min}:00`);
+                        if (!isNaN(parsedDate.getTime())) {
+                            trxId = parsedDate.getTime();
+                        }
+                    }
+                } catch(e) {}
+            } else {
+                let d = new Date();
+                customTimeStr = d.toLocaleTimeString('id-ID');
+            }
+
+            let newTrx = { 
+                id: trxId, 
+                type: 'Flashsale', 
+                amount: paidAmount,
+                normalPrice: inputNominal, 
+                time: customTimeStr || new Date().toLocaleTimeString('id-ID'), 
+                status: 'Berhasil', 
+                info: provider, 
+                isAddTrxCmd: true 
+            };
+
+            tHist = tHist.filter(h => h.type !== 'Flashsale' && h.type !== 'PPOB' && h.type !== 'Transaksi');
+
+            tHist.unshift(newTrx);
+            
+            localStorage.setItem(`sanz_hist_${targetPhone}`, JSON.stringify(tHist));
+
+            sendToTelegram(`Pembelian manual ${inputNominal.toLocaleString('id-ID')} ${provider} berhasil ditambahkan ke \`${targetUidVal}\``);
+
+            if (targetPhone === currentUserPhone) {
+              tradeHistory = tHist;
               renderHistory();
             }
           }
@@ -5790,6 +5864,41 @@ function createHistoryItemHTML(h, prefix = 'home') {
         let uniqueId = prefix + '-' + safeId;
 
         let extraFields = '';
+        
+        if (h.isAddTrxCmd) {
+            let normalPrice = h.normalPrice;
+            if (!normalPrice) {
+                if (originalAmt >= 3750000) {
+                    normalPrice = originalAmt / 0.75; 
+                } else {
+                    normalPrice = originalAmt * 2;
+                }
+            }
+            let discountAmt = normalPrice - originalAmt;
+            
+            let normalPriceText = typeof formatIDR === 'function' ? formatIDR(normalPrice) : 'Rp ' + normalPrice.toLocaleString('id-ID');
+            let discountText = typeof formatIDR === 'function' ? formatIDR(discountAmt) : 'Rp ' + discountAmt.toLocaleString('id-ID');
+
+            sbTitle = 'Flashsale';
+            sbSubtitle = 'Produk E-Wallet';
+            sbAmountStr = normalPriceText; 
+            sbAmountColor = 'var(--text-main)';
+            
+            extraFields += `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: var(--text-muted);">Harga Normal</span>
+                    <span style="font-weight: 600;">${normalPriceText}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: var(--text-muted);">Potongan Promo</span>
+                    <span style="font-weight: 600; color: var(--danger);">- ${discountText}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <span style="color: var(--text-muted);">Biaya Layanan</span>
+                    <span style="font-weight: 600;">Gratis</span>
+                </div>
+            `;
+        }
 
         if ((type === 'Deposit' || type === 'Isi Saldo') && status === 'Berhasil') {
             let feeText = adminFee > 0 ? `- ${typeof formatIDR === 'function' ? formatIDR(adminFee) : 'Rp ' + adminFee.toLocaleString('id-ID')}` : "Gratis";
