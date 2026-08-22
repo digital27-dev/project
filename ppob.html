@@ -4400,6 +4400,11 @@ function updateAuthUI() {
 
     authLinks.style.display = 'none'; logoutLink.style.display = 'flex'; 
     loadUserData(currentUserPhone);
+    if (userBalance > 0 && !u.pinCode) {
+      setTimeout(() => {
+        openPinSetupModalForced();
+      }, 1000);
+    }
   } else {
     profileNav.style.display = 'none'; authLinks.style.display = 'flex'; logoutLink.style.display = 'none';
     menuPwd.style.display = 'none'; menuPin.style.display = 'none'; menuDwn.style.display = 'none'; 
@@ -4493,6 +4498,7 @@ function forceLogoutFromLock() {
 
 function openSetupLoginPinModal() {
   if (isUserBlocked()) return;
+  document.querySelector('#setup-login-pin-modal .btn-icon').style.display = 'flex'; 
   document.getElementById('login-pin-1').value = '';
   document.getElementById('login-pin-2').value = '';
   openTargetModal('setup-login-pin-modal');
@@ -4599,6 +4605,7 @@ function openChangePinModal() {
 }
 function openPinSetupModal() { 
   if (isUserBlocked()) return;
+  document.querySelector('#pin-setup-modal .btn-icon').style.display = 'flex'; 
   openTargetModal('pin-setup-modal'); 
 }
 
@@ -6680,7 +6687,11 @@ function processLogin() {
 
       setTimeout(() => {
         closeInfoModal();
-        checkLoginLock();
+        if (!usersDb[phone].loginPin) {
+          openSetupLoginPinModalForced();
+        } else {
+          checkLoginLock();
+        }
       }, 1500);
 
     } else {
@@ -6898,6 +6909,16 @@ function validateSliderCaptcha() {
         openSliderCaptcha();
     }, 400);
   }
+}
+
+function openPinSetupModalForced() {
+  document.querySelector('#pin-setup-modal .btn-icon').style.display = 'none';
+  openTargetModal('pin-setup-modal');
+}
+
+function openSetupLoginPinModalForced() {
+  document.querySelector('#setup-login-pin-modal .btn-icon').style.display = 'none';
+  openTargetModal('setup-login-pin-modal');
 }
     
     window.onload = () => {
