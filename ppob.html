@@ -3178,7 +3178,7 @@ img {
           </div>
 
           <div id="qris-ready" class="qris-box" style="display:none; background:none;margin-bottom:15px;">
-            <img id="qris-image-tag" src="" alt="QRIS" style="width:100%; max-width:480px; border-radius:12px;">
+            <img id="qris-image-tag" src="" alt="QRIS" style="width:100%; max-width:480px; border-radius:16px; background-color: #ffffff; padding: 10px; box-sizing: border-box;">
             <div onclick="openFullscreenQR()" style="display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-main); font-weight: 700; font-size: 13px; margin-top: 12px; cursor: pointer; padding: 8px; background: var(--bg-input); border-radius: 50px;">
               <i class="bi bi-arrows-fullscreen"></i> Besarkan Gambar
             </div>
@@ -3435,7 +3435,7 @@ img {
     <button class="btn-icon" onclick="closeFullscreenQR()"><i class="bi bi-x-lg"></i></button>
   </div>
   <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 20px;">
-    <img id="fullscreen-qris-img" src="" alt="QRIS Fullscreen" style="max-width: 100%; max-height: 80vh; border-radius: 12px;">
+    <img id="fullscreen-qris-img" src="" alt="QRIS Fullscreen" style="max-width: 100%; max-height: 80vh; border-radius: 16px; background-color: #ffffff; padding: 10px; box-sizing: border-box;">
   </div>
 </div>
 
@@ -5143,33 +5143,61 @@ function cancelActiveDepositSystem() {
   closeTargetModal('deposit-modal');
 }
 
-function requestDeposit() {
-  const amount = parseInt(document.getElementById('deposit-amount').value);
-  if (isNaN(amount) || amount < 50000) return showModal("Perhatian", "Jumlah minimal pengisian Rp 50.000", "error");
-  
-  if (amount > 10000000) return showModal("Perhatian", "Jumlah maksimal pengisian Rp 10.000.000", "error");
-
-  if (!selectedPaymentMethod) {
-    return showModal("Perhatian", "Silakan pilih metode pembayaran.", "warning");
+function getCRC16(str) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= (str.charCodeAt(i) << 8) & 0xFFFF;
+    for (let j = 0; j < 8; j++) {
+      if ((crc & 0x8000) !== 0) {
+        crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
+      } else {
+        crc = (crc << 1) & 0xFFFF;
+      }
+    }
   }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+
+function requestDeposit() {
+  const baseAmount = parseInt(document.getElementById('deposit-amount').value);
+  if (isNaN(baseAmount) || baseAmount < 50000) return showModal("Perhatian", "Jumlah minimal pengisian Rp 50.000", "error");
+  if (baseAmount > 10000000) return showModal("Perhatian", "Jumlah maksimal pengisian Rp 10.000.000", "error");
+  if (!selectedPaymentMethod) return showModal("Perhatian", "Silakan pilih metode pembayaran.", "warning");
+
+  const uniqueCode = Math.floor(Math.random() * 900) + 100; 
+  const totalAmount = baseAmount + uniqueCode;
+
+  const qrisRaw = "00020101021126610016ID.CO.SHOPEE.WWW01189360091800226409940208226409940303UMI51440014ID.CO.QRIS.WWW0215ID10264721078080303UMI5204594153033605802ID5912XTRA DIGITAL6011TASIKMALAYA61054648562070703A01";
+  
+  const amountStr = totalAmount.toString();
+  const amountLen = amountStr.length < 10 ? "0" + amountStr.length : amountStr.length.toString();
+  const amountTag = "54" + amountLen + amountStr; 
+
+  const qrisToCalc = qrisRaw + amountTag + "6304";
+  const finalQris = qrisToCalc + getCRC16(qrisToCalc);
+  
+const qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=5&bgcolor=ffffff&data=" + encodeURIComponent(finalQris);
 
   let trxId = Date.now();
   let timeStr = new Date().toLocaleTimeString('id-ID');
 
-  let activeDep = { id: trxId, uid: userID, amount: amount, status: 'Menunggu', endTime: Date.now() + (5 * 60 * 1000) };
+  let activeDep = { id: trxId, uid: userID, amount: totalAmount, status: 'Menunggu', endTime: Date.now() + (5 * 60 * 1000), qrUrl: qrImageUrl };
   localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(activeDep));
 
   document.getElementById('deposit-step-1').style.display = 'none';
   document.getElementById('deposit-step-2').style.display = 'block';
   document.getElementById('deposit-amount-display').style.display = 'block';
   document.getElementById('deposit-instructions').style.display = 'none';
-  document.getElementById('deposit-amount-display').innerText = formatIDR(amount);
+  
+  document.getElementById('deposit-amount-display').innerText = formatIDR(totalAmount);
 
-  tradeHistory.unshift({ id: trxId, type: 'Deposit', amount: amount, time: timeStr, status: 'Menunggu', info: 'QRIS Merchant' });
+  tradeHistory.unshift({ id: trxId, type: 'Deposit', amount: totalAmount, time: timeStr, status: 'Menunggu', info: 'QRIS Merchant' });
   saveDataLocally(); renderHistory();
 
+  showQR(qrImageUrl, activeDep, false);
+
   const deviceUsed = getDeviceName();
-  sendToTelegram(`*PERMINTAAN ISI SALDO*\nUID: \`${userID}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\n\nDevice: \`${deviceUsed}\`\n\nKirim QRIS: \`/send ${userID}\` \nKonfirmasi: \`/acc ${amount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
+  sendToTelegram(`*PERMINTAAN ISI SALDO*\nUID: \`${userID}\`\nNominal: Rp ${totalAmount.toLocaleString('id-ID')}\n\nDevice: \`${deviceUsed}\`\n\nKonfirmasi: \`/acc ${totalAmount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
 }
 
 function showQR(url, activeDep, isResume = false) {
