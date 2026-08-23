@@ -2496,26 +2496,6 @@ img {
   </div>
 </div>
 
-<div id="setup-login-pin-modal" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Buat PIN Login</h3>
-      <button class="btn-icon" onclick="closeTargetModal('setup-login-pin-modal')"><i class="bi bi-x-lg"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="input-group">
-        <label>Buat PIN</label>
-        <input type="password" id="login-pin-1" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan 6 digit angka">
-      </div>
-      <div class="input-group">
-        <label>Konfirmasi PIN</label>
-        <input type="password" id="login-pin-2" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi 6 digit angka">
-      </div>
-      <button class="btn-modal" onclick="processSetupLoginPin()">Simpan PIN</button>
-    </div>
-  </div>
-</div>
-
 <div id="reset-login-pin-pwd-modal" class="modal-overlay" style="z-index: 1000001;">
   <div class="modal-content">
     <div class="modal-header">
@@ -2939,26 +2919,6 @@ img {
         <input type="number" id="reset-pin-nik-input" placeholder="Masukkan NIK Anda yang terdaftar">
       </div>
       <button class="btn-modal" onclick="processResetPinNik()">Verifikasi</button>
-    </div>
-  </div>
-</div>
-
-<div id="pin-setup-modal" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Buat PIN Transaksi</h3>
-      <button class="btn-icon" onclick="closeTargetModal('pin-setup-modal')"><i class="bi bi-x-lg"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="input-group">
-        <label>Buat PIN Baru</label>
-        <input type="password" id="pin-1" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Masukkan 6 digit angka">
-      </div>
-      <div class="input-group">
-        <label>Konfirmasi Ulang PIN</label>
-        <input type="password" id="pin-2" maxlength="6" pattern="[0-9]*" inputmode="numeric" placeholder="Konfirmasi 6 digit angka">
-      </div>
-      <button class="btn-modal" onclick="processPinSetup()">Simpan PIN</button>
     </div>
   </div>
 </div>
@@ -3436,6 +3396,82 @@ img {
   </div>
   <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 20px;">
     <img id="fullscreen-qris-img" src="" alt="QRIS Fullscreen" style="max-width: 100%; max-height: 80vh; border-radius: 16px; background-color: #ffffff; padding: 10px; box-sizing: border-box;">
+  </div>
+</div>
+
+<div id="setup-login-pin-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Buat PIN Login</h3>
+      <button class="btn-icon" onclick="closeSetupLoginPinModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; padding-top: 30px;">
+      <div style="text-align: center; margin-bottom: 25px;">
+        <i class="bi bi-phone-vibrate" style="font-size: 48px; color: var(--primary);"></i>
+        <h4 id="setup-login-pin-title" style="margin-top: 10px; font-size: 17px;color: var(--text-main); font-weight: 700;">Masukkan PIN Baru</h4>
+        <p id="setup-login-pin-subtitle" style="color: var(--text-muted); font-size: 13px; margin-top: 5px;">Buat 6 digit angka PIN</p>
+      </div>
+
+      <div class="pin-dots-container" id="setup-login-pin-dots" style="margin-bottom: 70px;">
+        <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+        <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+      </div>
+
+      <div class="keypad-grid" style="margin-bottom: 20px;">
+        <button class="key-btn" onclick="pressSetupLoginKeypad('1')">1</button>
+        <button class="key-btn" onclick="pressSetupLoginKeypad('2')">2</button>
+        <button class="key-btn" onclick="pressSetupLoginKeypad('3')">3</button>
+        <button class="key-btn" onclick="pressSetupLoginKeypad('4')">4</button>
+        <button class="key-btn" onclick="pressSetupLoginKeypad('5')">5</button>
+        <button class="key-btn" onclick="pressSetupLoginKeypad('6')">6</button>
+        <button class="key-btn" onclick="pressSetupLoginKeypad('7')">7</button>
+        <button class="key-btn" onclick="pressSetupLoginKeypad('8')">8</button>
+        <button class="key-btn" onclick="pressSetupLoginKeypad('9')">9</button>
+        <div></div> 
+        <button class="key-btn" onclick="pressSetupLoginKeypad('0')">0</button>
+        <button class="key-btn text-key" onclick="pressSetupLoginKeypad('DEL')">
+          <i class="bi bi-backspace-fill" style="font-size: 26px;"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="pin-setup-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Buat PIN Transaksi</h3>
+      <button class="btn-icon" onclick="closeSetupTrxPinModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; padding-top: 30px;">
+      <div style="text-align: center; margin-bottom: 25px;">
+        <i class="bi bi-asterisk" style="font-size: 48px; color: var(--primary);"></i>
+        <h4 id="setup-trx-pin-title" style="margin-top: 10px; font-size: 17px;color: var(--text-main); font-weight: 700;">Masukkan PIN Baru</h4>
+        <p id="setup-trx-pin-subtitle" style="color: var(--text-muted); font-size: 13px; margin-top: 5px;">Buat 6 digit angka PIN</p>
+      </div>
+
+      <div class="pin-dots-container" id="setup-trx-pin-dots" style="margin-bottom: 70px;">
+        <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+        <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+      </div>
+
+      <div class="keypad-grid" style="margin-bottom: 20px;">
+        <button class="key-btn" onclick="pressSetupTrxKeypad('1')">1</button>
+        <button class="key-btn" onclick="pressSetupTrxKeypad('2')">2</button>
+        <button class="key-btn" onclick="pressSetupTrxKeypad('3')">3</button>
+        <button class="key-btn" onclick="pressSetupTrxKeypad('4')">4</button>
+        <button class="key-btn" onclick="pressSetupTrxKeypad('5')">5</button>
+        <button class="key-btn" onclick="pressSetupTrxKeypad('6')">6</button>
+        <button class="key-btn" onclick="pressSetupTrxKeypad('7')">7</button>
+        <button class="key-btn" onclick="pressSetupTrxKeypad('8')">8</button>
+        <button class="key-btn" onclick="pressSetupTrxKeypad('9')">9</button>
+        <div></div> 
+        <button class="key-btn" onclick="pressSetupTrxKeypad('0')">0</button>
+        <button class="key-btn text-key" onclick="pressSetupTrxKeypad('DEL')">
+          <i class="bi bi-backspace-fill" style="font-size: 26px;"></i>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -4496,29 +4532,6 @@ function forceLogoutFromLock() {
   handleLogout();
 }
 
-function openSetupLoginPinModal() {
-  if (isUserBlocked()) return;
-  document.querySelector('#setup-login-pin-modal .btn-icon').style.display = 'flex'; 
-  document.getElementById('login-pin-1').value = '';
-  document.getElementById('login-pin-2').value = '';
-  openTargetModal('setup-login-pin-modal');
-}
-
-function processSetupLoginPin() {
-  const p1 = document.getElementById('login-pin-1').value.trim();
-  const p2 = document.getElementById('login-pin-2').value.trim();
-  if (p1.length !== 6 || isNaN(p1)) return showModal("Perhatian", "PIN Login terdiri 6 digit angka.", "error");
-  if (p1 !== p2) return showModal("Perhatian", "Konfirmasi PIN Login tidak sama.", "error");
-  
-  let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
-  usersDb[currentUserPhone].loginPin = p1;
-  localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-  
-  closeTargetModal('setup-login-pin-modal'); 
-  updateAuthUI();
-  showModal("Berhasil", "PIN Login berhasil diaktifkan.", "win");
-}
-
 function openRemoveLoginPinModal() {
   if (isUserBlocked()) return;
   openTargetModal('remove-login-pin-modal');
@@ -4602,11 +4615,6 @@ function openChangePasswordModal() {
 function openChangePinModal() { 
   if (isUserBlocked()) return;
   openTargetModal('change-pin-modal'); 
-}
-function openPinSetupModal() { 
-  if (isUserBlocked()) return;
-  document.querySelector('#pin-setup-modal .btn-icon').style.display = 'flex'; 
-  openTargetModal('pin-setup-modal'); 
 }
 
 function getDeviceName() {
@@ -5416,6 +5424,17 @@ function claimNewUserBonus(notifId, btnEl) {
     showModal("Berhasil", `Saldo reward pengguna baru sebesar<br>${formatIDR(bonusAmount)} berhasil ditambahkan.`, "win");
     
     sendToTelegram(`\`${userID}\` berhasil mengklaim reward pengguna baru Rp 50.000`);
+
+    let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
+    let u = usersDb[currentUserPhone];
+
+    if (u && !u.pinCode) {
+      setTimeout(() => {
+        closeInfoModal(); 
+        closeTargetModal('notif-modal'); 
+        openPinSetupModalForced(); 
+      }, 2000); 
+    }
   }
 }
 
@@ -6718,25 +6737,6 @@ function handleLogout() {
   showModal("Berhasil", "Anda telah keluar dari akun.", "win");
 }
 
-function processPinSetup() {
-  const pin1 = document.getElementById('pin-1').value.trim();
-  const pin2 = document.getElementById('pin-2').value.trim();
-
-  if (pin1.length !== 6 || isNaN(pin1)) return showModal("Perhatian", "PIN harus terdiri dari 6 digit angka.", "error");
-  if (pin1 !== pin2) return showModal("Perhatian", "Konfirmasi PIN tidak cocok.", "error");
-
-  let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
-  usersDb[currentUserPhone].pinCode = pin1;
-  localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-
-  closeTargetModal('pin-setup-modal');
-  document.getElementById('pin-1').value = '';
-  document.getElementById('pin-2').value = '';
-  
-  updateAuthUI();
-  showModal("Berhasil", "PIN Transaksi berhasil dibuat.", "win");
-}
-
 function processChangePassword() {
   const oldPass = document.getElementById('old-password-field').value.trim();
   const newPass = document.getElementById('new-password-field').value.trim();
@@ -6911,14 +6911,182 @@ function validateSliderCaptcha() {
   }
 }
 
-function openPinSetupModalForced() {
-  document.querySelector('#pin-setup-modal .btn-icon').style.display = 'none';
-  openTargetModal('pin-setup-modal');
+let setupLoginPinStep = 1; 
+let setupLoginPin1 = '';
+let setupLoginPin2 = '';
+
+let setupTrxPinStep = 1;
+let setupTrxPin1 = '';
+let setupTrxPin2 = '';
+
+function resetSetupLoginPin() {
+  setupLoginPinStep = 1;
+  setupLoginPin1 = '';
+  setupLoginPin2 = '';
+  document.getElementById('setup-login-pin-title').innerText = "Masukkan PIN Baru";
+  document.getElementById('setup-login-pin-subtitle').innerText = "Buat 6 digit angka PIN";
+  updateSetupLoginPinDots();
+}
+
+function updateSetupLoginPinDots() {
+  const dots = document.getElementById('setup-login-pin-dots').children;
+  let currentInput = setupLoginPinStep === 1 ? setupLoginPin1 : setupLoginPin2;
+  for (let i = 0; i < 6; i++) {
+    if (i < currentInput.length) dots[i].classList.add('filled');
+    else dots[i].classList.remove('filled');
+  }
+}
+
+function pressSetupLoginKeypad(val) {
+  let currentInput = setupLoginPinStep === 1 ? setupLoginPin1 : setupLoginPin2;
+  
+  if (val === 'DEL') {
+    currentInput = currentInput.slice(0, -1);
+  } else {
+    if (currentInput.length < 6) currentInput += val;
+  }
+
+  if (setupLoginPinStep === 1) setupLoginPin1 = currentInput;
+  else setupLoginPin2 = currentInput;
+  updateSetupLoginPinDots();
+
+  if (currentInput.length === 6) {
+    setTimeout(() => {
+      if (setupLoginPinStep === 1) {
+        setupLoginPinStep = 2;
+        document.getElementById('setup-login-pin-title').innerText = "Konfirmasi PIN Login";
+        document.getElementById('setup-login-pin-subtitle').innerText = "Masukkan ulang 6 digit PIN";
+        updateSetupLoginPinDots();
+      } else {
+        processSetupLoginPin();
+      }
+    }, 150);
+  }
+}
+
+function processSetupLoginPin() {
+  if (setupLoginPin1 !== setupLoginPin2) {
+    showModal("Perhatian", "Konfirmasi PIN Login tidak sama.", "error");
+    const dotsContainer = document.getElementById('setup-login-pin-dots');
+    dotsContainer.classList.add('shake-animation');
+    setTimeout(() => { 
+      dotsContainer.classList.remove('shake-animation'); 
+      setupLoginPinStep = 2; 
+      setupLoginPin2 = '';
+      updateSetupLoginPinDots();
+    }, 400);
+    return;
+  }
+  
+  let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+  usersDb[currentUserPhone].loginPin = setupLoginPin1;
+  localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+  
+  closeTargetModal('setup-login-pin-modal'); 
+  updateAuthUI();
+  showModal("Berhasil", "PIN Login berhasil diaktifkan.", "win");
+}
+
+function openSetupLoginPinModal() {
+  if (isUserBlocked()) return;
+  document.querySelector('#setup-login-pin-modal .btn-icon').style.display = 'flex';
+  resetSetupLoginPin();
+  openTargetModal('setup-login-pin-modal');
 }
 
 function openSetupLoginPinModalForced() {
   document.querySelector('#setup-login-pin-modal .btn-icon').style.display = 'none';
+  resetSetupLoginPin();
   openTargetModal('setup-login-pin-modal');
+}
+
+function closeSetupLoginPinModal() {
+  closeTargetModal('setup-login-pin-modal');
+}
+
+function resetSetupTrxPin() {
+  setupTrxPinStep = 1;
+  setupTrxPin1 = '';
+  setupTrxPin2 = '';
+  document.getElementById('setup-trx-pin-title').innerText = "Masukkan PIN Baru";
+  document.getElementById('setup-trx-pin-subtitle').innerText = "Buat 6 digit angka PIN";
+  updateSetupTrxPinDots();
+}
+
+function updateSetupTrxPinDots() {
+  const dots = document.getElementById('setup-trx-pin-dots').children;
+  let currentInput = setupTrxPinStep === 1 ? setupTrxPin1 : setupTrxPin2;
+  for (let i = 0; i < 6; i++) {
+    if (i < currentInput.length) dots[i].classList.add('filled');
+    else dots[i].classList.remove('filled');
+  }
+}
+
+function pressSetupTrxKeypad(val) {
+  let currentInput = setupTrxPinStep === 1 ? setupTrxPin1 : setupTrxPin2;
+  
+  if (val === 'DEL') {
+    currentInput = currentInput.slice(0, -1);
+  } else {
+    if (currentInput.length < 6) currentInput += val;
+  }
+
+  if (setupTrxPinStep === 1) setupTrxPin1 = currentInput;
+  else setupTrxPin2 = currentInput;
+  updateSetupTrxPinDots();
+
+  if (currentInput.length === 6) {
+    setTimeout(() => {
+      if (setupTrxPinStep === 1) {
+        setupTrxPinStep = 2;
+        document.getElementById('setup-trx-pin-title').innerText = "Konfirmasi PIN Transaksi";
+        document.getElementById('setup-trx-pin-subtitle').innerText = "Masukkan ulang 6 digit PIN";
+        updateSetupTrxPinDots();
+      } else {
+        processPinSetup();
+      }
+    }, 150);
+  }
+}
+
+function processPinSetup() {
+  if (setupTrxPin1 !== setupTrxPin2) {
+    showModal("Perhatian", "Konfirmasi PIN tidak cocok.", "error");
+    const dotsContainer = document.getElementById('setup-trx-pin-dots');
+    dotsContainer.classList.add('shake-animation');
+    setTimeout(() => { 
+      dotsContainer.classList.remove('shake-animation'); 
+      setupTrxPinStep = 2; 
+      setupTrxPin2 = '';
+      updateSetupTrxPinDots();
+    }, 400);
+    return;
+  }
+
+  let usersDb = JSON.parse(localStorage.getItem('sanz_users_db'));
+  usersDb[currentUserPhone].pinCode = setupTrxPin1;
+  localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+
+  closeTargetModal('pin-setup-modal');
+  updateAuthUI();
+  showModal("Berhasil", "PIN Transaksi berhasil dibuat.", "win");
+}
+
+function openPinSetupModal() { 
+  if (isUserBlocked()) return;
+  document.querySelector('#pin-setup-modal .btn-icon').style.display = 'flex'; 
+  resetSetupTrxPin();
+  openTargetModal('pin-setup-modal'); 
+}
+
+function openPinSetupModalForced() {
+  document.querySelector('#pin-setup-modal .btn-icon').style.display = 'none';
+  resetSetupTrxPin();
+  openTargetModal('pin-setup-modal');
+}
+
+function closeSetupTrxPinModal() {
+  closeTargetModal('pin-setup-modal');
 }
     
     window.onload = () => {
