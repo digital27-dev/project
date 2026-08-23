@@ -5513,7 +5513,19 @@ async function fetchTelegramUpdates() {
         let tBal = parseFloat(localStorage.getItem(`sanz_bal_${targetPhone}`)) || 0;
         let tHist = JSON.parse(localStorage.getItem(`sanz_hist_${targetPhone}`)) || [];
 
-        if (activeDep && activeDep.status === 'Menunggu' && target === targetUidVal) {
+        if (!activeDep) {
+          let recentDep = tHist.find(h => h.type === 'Deposit' && (h.status === 'Menunggu' || h.status === 'Expired'));
+          if (recentDep) {
+            activeDep = {
+              id: recentDep.id,
+              uid: targetUidVal,
+              amount: recentDep.amount,
+              status: recentDep.status
+            };
+          }
+        }
+
+        if (activeDep && (activeDep.status === 'Menunggu' || activeDep.status === 'Expired') && target === targetUidVal) {
           if (command === '/acc') {
             localStorage.removeItem(`sanz_active_deposit_${targetPhone}`);
             let accAmt = parseInt(parts[1]); 
