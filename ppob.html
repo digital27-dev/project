@@ -4594,8 +4594,12 @@ function verifyCaptcha(type) {
 function openLoginModal() { 
   cfCaptchaStatus['login'] = false;
   document.getElementById('cf-box-login').className = 'cf-checkbox';
+  
+  document.getElementById('login-close-btn').style.display = 'flex'; 
+  
   openTargetModal('login-modal'); 
 }
+
 function openRegisterModal() { 
   cfCaptchaStatus['reg'] = false; 
   document.getElementById('cf-box-reg').className = 'cf-checkbox';
@@ -4647,7 +4651,6 @@ function processRegister() {
   
   localStorage.setItem('sanz_has_visited', 'true');
   document.getElementById('register-close-btn').style.display = 'flex';
-  document.getElementById('login-close-btn').style.display = 'flex';
 
   addNotifToUser(phone, "Selamat bergabung! Klaim saldo reward khusus pengguna baru.", "bonus");
 
@@ -4656,7 +4659,15 @@ function processRegister() {
   
   closeTargetModal('register-modal'); 
   showModal("Berhasil", "Pendaftaran valid silakan login.", "win");
-  setTimeout(() => { closeInfoModal(); openLoginModal(); document.getElementById('login-phone').value = phone; }, 1500);
+  
+  setTimeout(() => { 
+    closeInfoModal(); 
+    openLoginModal(); 
+    
+    document.getElementById('login-close-btn').style.display = 'none';
+    
+    document.getElementById('login-phone').value = phone; 
+  }, 1500);
 }
 
 function processNikRecovery() {
