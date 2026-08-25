@@ -6796,6 +6796,13 @@ function handleLogout() {
   
   updateAuthUI();
   showModal("Berhasil", "Anda telah keluar dari akun.", "win");
+
+  setTimeout(() => {
+    closeInfoModal();
+    if (!currentUserPhone) {
+      openLoginModal();
+    }
+  }, 2000);
 }
 
 function processChangePassword() {
@@ -7150,22 +7157,28 @@ function closeSetupTrxPinModal() {
   closeTargetModal('pin-setup-modal');
 }
     
-    window.onload = () => {
-      const options = { day: 'numeric', month: 'long', year: 'numeric' };
-      const tanggalSekarang = new Date().toLocaleDateString('id-ID', options);
-      document.getElementById('transaksi-title').innerText = `Transaksi ${tanggalSekarang}`;
+window.onload = () => {
+  const options = { day: 'numeric', month: 'long', year: 'numeric' };
+  const tanggalSekarang = new Date().toLocaleDateString('id-ID', options);
+  document.getElementById('transaksi-title').innerText = `Transaksi ${tanggalSekarang}`;
 
-      initFakeerSequence(); 
-      if (!localStorage.getItem('sanz_has_visited') && !currentUserPhone) {
-        document.getElementById('register-close-btn').style.display = 'none';
-        document.getElementById('login-close-btn').style.display = 'none';
-        openRegisterModal();
-      } else {
-        document.getElementById('register-close-btn').style.display = 'flex';
-        document.getElementById('login-close-btn').style.display = 'flex';
-        checkLoginLock();
-      }
-    };
-  </script>
+  initFakeerSequence(); 
+  if (!localStorage.getItem('sanz_has_visited') && !currentUserPhone) {
+    document.getElementById('register-close-btn').style.display = 'none';
+    document.getElementById('login-close-btn').style.display = 'none';
+    openRegisterModal();
+  } else {
+    document.getElementById('register-close-btn').style.display = 'flex';
+    document.getElementById('login-close-btn').style.display = 'flex';
+    checkLoginLock();
+    
+    if (!currentUserPhone) {
+      setTimeout(() => {
+        openLoginModal();
+      }, 2000);
+    }
+  }
+};
+</script>
 </body>
 </html>
