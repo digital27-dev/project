@@ -231,7 +231,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 .tab-btn { background: none; border: none; font-size: 1.1rem; color: var(--text-sec); border-bottom: 2px solid transparent; margin-bottom: 15px; border-radius:0; padding-bottom: 5px; width: auto; font-weight: 600;}
 .tab-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
 .tabs-container { display: flex; justify-content: space-around; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
-
 </style>
 </head>
 <body>
@@ -248,7 +247,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     <h1>Anonymous</h1>
     <div class="subtitle">Ngobrol santai dengan orang baru</div>
 
-    <!-- Foto Profil Saat Login -->
     <div style="text-align: center; margin-bottom: 15px;">
         <img id="loginProfilePic" src="https://via.placeholder.com/80/10b981/ffffff?text=+" class="avatar-large" style="width:80px; height:80px; cursor:pointer;" onclick="document.getElementById('profilePicInput').click()" />
         <p style="font-size:0.8rem; color:var(--text-sec); margin-top:5px;">Pasang Foto (Opsional)</p>
@@ -313,7 +311,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <div id="chat">
   <div class="header">
     <div style="display: flex; align-items: center;">
-      <!-- Foto Partner -->
+      <!-- Hanya Foto Partner (kiri) -->
       <img id="headerPartnerPic" class="avatar-header" src="https://via.placeholder.com/40/10b981/ffffff?text=?" onclick="openProfile('partner')" />
       <div class="partner-info">
         <div class="partner-name" id="partnerName">Menghubungkan</div>
@@ -321,13 +319,9 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       </div>
     </div>
     <div style="display:flex; gap:16px; font-size:1.4rem; align-items:center;">
-      <i class="bi bi-arrow-clockwise" id="refreshBtn" onclick="refreshChat()" style="display:none; cursor:pointer"></i>
-      <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer"></i>
-      
-      <!-- Foto Saya -->
-      <img id="headerMyPic" class="avatar-header my-pic" src="https://via.placeholder.com/40/34d399/ffffff?text=Me" onclick="openProfile('me')" style="margin-left: 5px; margin-right: 0;" />
-      
-      <i class="bi bi-box-arrow-right" onclick="showDisconnectModal()" style="cursor:pointer; color:#f87171"></i>
+      <i class="bi bi-arrow-clockwise" id="refreshBtn" onclick="refreshChat()" style="display:none; cursor:pointer;" title="Cari partner baru"></i>
+      <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer" title="Video Call"></i>
+      <i class="bi bi-box-arrow-right" onclick="showDisconnectModal()" style="cursor:pointer; color:#f87171" title="Putus Hubungan"></i>
     </div>
   </div>
 
@@ -485,7 +479,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   </div>
 </div>
 
-<!-- Modal Profil dengan Tab Story -->
 <div id="profileModal" class="modal">
   <div class="modal-box" style="text-align:left; max-width: 400px; padding: 20px;">
     
@@ -524,25 +517,30 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <!-- Story Viewer Modal -->
 <div id="storyViewerModal" class="modal" style="z-index: 500;">
    <div class="modal-box" style="padding:0; background: #000; height: 80vh; max-width: 400px; display:flex; flex-direction:column; position:relative; border:none; overflow:hidden;">
-      <div style="padding: 15px; display:flex; justify-content:space-between; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); position:absolute; top:0; width:100%; z-index:10;">
+      <div style="padding: 15px; display:flex; justify-content:space-between; align-items:center; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); position:absolute; top:0; width:100%; z-index:10;">
          <span id="storyViewerAuthor" style="color:white; font-weight:bold; font-size:1.1rem;">Name</span>
-         <i class="bi bi-x-lg" onclick="closeStoryViewer()" style="color:white; cursor:pointer; font-size:1.2rem;"></i>
+         <div>
+            <!-- Tombol Hapus (Khusus My Story) -->
+            <i class="bi bi-trash" id="deleteStoryBtn" onclick="deleteCurrentStory()" style="color:#ef4444; cursor:pointer; font-size:1.2rem; margin-right:15px; display:none;" title="Hapus Story"></i>
+            <i class="bi bi-x-lg" onclick="closeStoryViewer()" style="color:white; cursor:pointer; font-size:1.2rem;"></i>
+         </div>
       </div>
       <img id="storyViewerImg" style="width:100%; height:100%; object-fit:contain;" />
       
-      <!-- List Viewers (Khusus My Story) -->
+      <!-- List Viewers (Khusus My Story) mirip WA (Mata 1) -->
       <div id="storyViewersListContainer" style="position:absolute; bottom:0; width:100%; background:rgba(0,0,0,0.7); padding:15px; color:white; max-height: 40%; overflow-y:auto; display:none;">
-         <h4 style="margin-bottom:10px; border-bottom:1px solid #555; padding-bottom:5px;">Dilihat oleh:</h4>
+         <h4 style="margin-bottom:10px; border-bottom:1px solid #555; padding-bottom:5px;">
+           <i class="bi bi-eye"></i> Dilihat oleh:
+         </h4>
          <ul id="storyViewersList" style="list-style:none; padding:0; margin:0; font-size:0.9rem;"></ul>
       </div>
    </div>
 </div>
 
-<!-- Konfirmasi Keluar Modal -->
 <div id="disconnectConfirmModal" class="modal">
   <div class="modal-box">
     <h3 style="color:var(--danger); margin-bottom:1rem;">Putus Hubungan?</h3>
-    <p id="disconnectConfirmText" style="margin-bottom:1.5rem; font-size:1rem;">Apakah ingin memutus hubungan dengan partner yang sudah terhubung sebelumnya?</p>
+    <p id="disconnectConfirmText" style="margin-bottom:1.5rem; font-size:1rem;">Apakah ingin memutus hubungan dengan partner secara permanen?</p>
     <div style="display:flex; gap:10px;">
       <button onclick="confirmDisconnect()" style="background:var(--danger); flex:1;">Ya, Putus</button>
       <button onclick="closeDisconnectModal()" style="flex:1; background:#374151;">Batal</button>
@@ -583,7 +581,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   </div>
 </div>
 
-<!-- File Preview Modal -->
 <div id="filePreviewModal" class="modal" style="display:none;">
   <div class="modal-box" style="max-width: 400px; padding: 24px 20px;">
     <h3 style="margin-bottom: 1.2rem;">Pratinjau Gambar</h3>
@@ -623,7 +620,14 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <div id="actionToast"></div>
 
 <script>
-const socket = io("https://chat-bzd5.onrender.com"); // GANTI dengan URL server yang sesuai jika perlu
+const socket = io("https://chat-bzd5.onrender.com"); // GANTI URL JIKA PERLU
+
+// -- GENERATE PERMANENT UUID UNTUK SESI USER --
+let myUserId = localStorage.getItem('myUserId');
+if (!myUserId) {
+    myUserId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2,9);
+    localStorage.setItem('myUserId', myUserId);
+}
 
 // -- VARIABLES & CONSTANTS --
 let isDraggingPip = false;
@@ -642,17 +646,18 @@ let partnerMicEnabled = true;
 let isInVideoCall = false;        
 let replyingTo = null;          
 let myProfilePicURL = localStorage.getItem('myProfilePic') || "";
+let currentViewedStoryId = null; 
 
 // Minta izin notifikasi sejak awal
 if ("Notification" in window && Notification.permission !== "granted") {
     Notification.requestPermission();
 }
 
-// Global Image Upload helper to Cloudinary
+// Upload helper to Cloudinary
 function uploadToCloudinary(file, onProgress) {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "sanz-chat"); // Harus sama dengan preset Cloudinary Anda
+    formData.append("upload_preset", "sanz-chat"); // Preset Anda
     const CLOUD_NAME = "davgb7tjm";
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
@@ -673,8 +678,6 @@ function uploadToCloudinary(file, onProgress) {
     });
 }
 
-// ----------------------------------------------------------------------
-// LOGIN & SETTINGS
 function showLoginForm() {
   document.getElementById("welcomeContent").style.display = "none";
   document.getElementById("loginForm").classList.remove("hidden");
@@ -704,7 +707,6 @@ async function start() {
   const fileInput = document.getElementById('profilePicInput');
   let finalPicUrl = myProfilePicURL;
   
-  // Jika upload dari menu login
   if (fileInput.files && fileInput.files[0]) {
       try {
           showToast("Mengunggah foto profil...");
@@ -716,18 +718,13 @@ async function start() {
       }
   }
 
-  window.userData = { name, age, gender, job, server, profilePic: finalPicUrl };
+  window.userData = { userId: myUserId, name, age, gender, job, server, profilePic: finalPicUrl };
   socket.emit("join", window.userData);
 
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("searching").style.display = "flex";
-  
-  if (finalPicUrl) {
-      document.getElementById('headerMyPic').src = finalPicUrl;
-  }
 }
 
-// --- PROFILE & STORIES LOGIC ---
 function openProfile(tab = 'partner') {
   if (!partner && tab === 'partner') return;
   switchProfileTab(tab);
@@ -747,7 +744,6 @@ function openProfile(tab = 'partner') {
   document.getElementById("myNameTxt").innerText = window.userData?.name || "Kamu";
   document.getElementById("profileModal").style.display = "grid";
   
-  // Ambil data stories
   socket.emit('get-stories');
 }
 
@@ -799,7 +795,6 @@ async function uploadMyPic(input) {
         const url = await uploadToCloudinary(input.files[0]);
         myProfilePicURL = url;
         localStorage.setItem('myProfilePic', url);
-        document.getElementById('headerMyPic').src = url;
         socket.emit('update-profile-pic', url);
         showToast("Foto profil berhasil diubah");
     } catch(err) { showAlert("Gagal upload foto"); }
@@ -817,20 +812,23 @@ async function uploadStory(input) {
 }
 
 function openStoryViewer(story, authorName, isMine) {
+    currentViewedStoryId = story.id; 
     document.getElementById('storyViewerModal').style.display = 'grid';
     document.getElementById('storyViewerAuthor').innerText = authorName;
     document.getElementById('storyViewerImg').src = story.url;
     
     const viewersListDiv = document.getElementById('storyViewersListContainer');
     const ul = document.getElementById('storyViewersList');
+    const deleteBtn = document.getElementById('deleteStoryBtn');
     ul.innerHTML = '';
     
     if (isMine) {
         viewersListDiv.style.display = 'block';
+        deleteBtn.style.display = 'inline-block';
         if (story.viewers && story.viewers.length > 0) {
             story.viewers.forEach(v => {
                 const li = document.createElement('li');
-                li.innerText = v.name;
+                li.innerHTML = `<i class="bi bi-person-fill" style="color:var(--accent);"></i> ${v.name}`;
                 li.style.padding = '4px 0';
                 ul.appendChild(li);
             });
@@ -839,11 +837,24 @@ function openStoryViewer(story, authorName, isMine) {
         }
     } else {
         viewersListDiv.style.display = 'none';
+        deleteBtn.style.display = 'none';
         socket.emit('view-story', story.id);
     }
 }
 
-function closeStoryViewer() { document.getElementById('storyViewerModal').style.display = 'none'; }
+function closeStoryViewer() { 
+    document.getElementById('storyViewerModal').style.display = 'none'; 
+    currentViewedStoryId = null;
+}
+
+function deleteCurrentStory() {
+    if (currentViewedStoryId) {
+        socket.emit('delete-story', currentViewedStoryId);
+        closeStoryViewer();
+        setTimeout(() => socket.emit('get-stories'), 500); 
+        showToast("Story dihapus");
+    }
+}
 
 socket.on('partner-profile-updated', (url) => {
     if (partner) {
@@ -852,18 +863,16 @@ socket.on('partner-profile-updated', (url) => {
     }
 });
 
-// Konfirmasi Logout / Putus Hubungan
 function showDisconnectModal() {
-    document.getElementById('disconnectConfirmText').innerText = `Apakah ingin memutus hubungan dengan ${partner ? partner.name : 'partner'} yang sudah terhubung sebelumnya?`;
+    document.getElementById('disconnectConfirmText').innerText = `Apakah ingin memutus hubungan dengan ${partner ? partner.name : 'partner'}?`;
     document.getElementById('disconnectConfirmModal').style.display = 'grid';
 }
 function closeDisconnectModal() { document.getElementById('disconnectConfirmModal').style.display = 'none'; }
 function confirmDisconnect() {
-    socket.disconnect();
+    socket.emit('putus-hubungan');
     location.reload();
 }
 
-// ----------------------------------------------------------------------
 socket.on('message-confirmed', ({ id }) => {
   const lastMsg = document.querySelector('.msg.me:last-child');
   if (lastMsg && lastMsg.dataset.msgId && lastMsg.dataset.msgId.startsWith('temp-')) {
@@ -893,21 +902,21 @@ function setPartnerButtonsEnabled(enabled) {
     if (enabled) {
         videoBtn.style.pointerEvents   = "auto";
         videoBtn.style.cursor          = "pointer";
-        videoBtn.title                 = "Mulai video call";
+        videoBtn.style.opacity         = "1";
 
         partnerPic.style.pointerEvents = "auto";
         partnerPic.style.cursor        = "pointer";
     } else {
         videoBtn.style.pointerEvents   = "none";
         videoBtn.style.cursor          = "default";
-        videoBtn.title                 = "Tidak ada partner";
+        videoBtn.style.opacity         = "0.4";
 
         partnerPic.style.pointerEvents = "none";
         partnerPic.style.cursor        = "default";
     }
 }
 
-// -- TOUCH REPLIES --
+// Touch replies
 document.getElementById('messages').addEventListener('touchstart', handleTouchStart, false);
 document.getElementById('messages').addEventListener('touchmove', handleTouchMove, false);
 document.getElementById('messages').addEventListener('touchend', handleTouchEnd, false);
@@ -970,8 +979,7 @@ function cancelReply() {
 
 function updateMicIcons() {
   const localOverlay = document.getElementById("micStatusLocal");
-  localOverlay?.classList.toggle("hidden", !!myMicEnabled); // reverse logika
-
+  localOverlay?.classList.toggle("hidden", !!myMicEnabled); 
   const remoteOverlay = document.getElementById("micStatusRemote");
   remoteOverlay?.classList.toggle("hidden", !!partnerMicEnabled); 
 }
@@ -1003,18 +1011,6 @@ document.getElementById("miniRemoteVideoContainer")?.addEventListener("click", f
   }
   resetVideoLayout();
 });
-
-let isVideoMinimized = false;
-function minimizeVideoCall() {
-  if (!localStream) return;
-  isVideoMinimized = true;
-  document.getElementById("videoScreen").style.display = "none";
-  const miniContainer = document.getElementById("miniLocalVideoContainer");
-  const miniVideo     = document.getElementById("miniLocalVideo");
-  miniVideo.srcObject = localStream;
-  miniVideo.play().catch(e => console.log(e));
-  miniContainer.style.display = "block";
-}
 
 function makePipDraggable(videoElement) {
   if (!videoElement) return;
@@ -1107,7 +1103,7 @@ function showToast(msg) {
 function showAlert(text) { document.getElementById("alertText").textContent = text; document.getElementById("alertModal").style.display = "grid"; }
 function closeAlert() { document.getElementById("alertModal").style.display = "none"; }
 
-// -- VIEW ONCE --
+// View Once Timer
 let viewOnceTimer = null, viewOnceInterval = null;
 function startViewOnceTimer() {
   const countdownEl    = document.getElementById("voCountdown");
@@ -1169,14 +1165,19 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// -- CHAT --
-function addMsg(data, side, time = timeNow()) {
+// Chat Engine
+function addMsg(data, side, timeStr) {
   const div = document.createElement("div");
   div.className = `msg ${side}`;
 
   let msgId = data.id || ('temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9));
   div.dataset.msgId = msgId;
   messagesMap[msgId] = div;
+
+  if (!timeStr) {
+      const d = data.timestamp ? new Date(data.timestamp) : new Date();
+      timeStr = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0");
+  }
 
   let quoteHtml = '';
   if (data.replyTo && messagesMap[data.replyTo]) {
@@ -1186,14 +1187,14 @@ function addMsg(data, side, time = timeNow()) {
     const quotedSender = isQuotedMe ? (window.userData?.name || "Kamu") : (partner?.name || "Partner");
     let quotedPreview = '';
     
-    if (quotedMsg.classList.contains('deleted-msg') || quotedBubble.classList.contains('deleted-msg')) {
+    if (quotedMsg.classList.contains('deleted-msg') || (quotedBubble && quotedBubble.classList.contains('deleted-msg'))) {
       quotedPreview = 'Pesan ini telah dihapus';
     } else if (quotedMsg.dataset.isViewonce === 'true') {
       quotedPreview = '[Foto sekali lihat]';
     } else if (quotedMsg.dataset.fileUrl) {
       quotedPreview = '[Gambar]';
       if (quotedMsg.dataset.caption) quotedPreview += ' ' + quotedMsg.dataset.caption.substring(0, 50).trim() + '...';
-    } else {
+    } else if (quotedBubble) {
       quotedPreview = quotedBubble.textContent.trim().substring(0, 80);
       if (quotedPreview.length === 80) quotedPreview += '...';
     }
@@ -1223,7 +1224,7 @@ function addMsg(data, side, time = timeNow()) {
     content = `<div class="bubble deleted-msg">Pesan ini telah dihapus</div>`;
   }
 
-  div.innerHTML = `${content}<div class="time">${time}</div>`;
+  div.innerHTML = `${content}<div class="time">${timeStr}</div>`;
 
   if (side === 'me' && data.type !== 'deleted') {
     const action = document.createElement('div');
@@ -1266,11 +1267,6 @@ function addMsg(data, side, time = timeNow()) {
   document.getElementById("messages").appendChild(div);
   div.scrollIntoView({ behavior: "smooth", block: "end" });
   return div;
-}
-
-function timeNow() {
-  const d = new Date();
-  return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0");
 }
 
 function sendMessage() {
@@ -1369,11 +1365,11 @@ function updateMsgAsDeleted(msgId) {
   clone.style.cursor = 'default';
 }
 
+// Sockets Chat Event Handling
 socket.on("matched", p => {
     partner = p;
     document.getElementById("searching").style.display = "none";
     document.getElementById("chat").style.display = "flex";
-    document.getElementById("messages").innerHTML = "";
     document.getElementById("partnerName").textContent = p.name;
     document.getElementById("partnerStatus").textContent = "Online";
     document.getElementById("partnerStatus").className = "partner-status status-online";
@@ -1381,7 +1377,6 @@ socket.on("matched", p => {
     document.querySelector(".footer button").disabled = false;
     document.getElementById("refreshBtn").style.display = "none";
     
-    // Update foto partner (jika dia punya foto dari profil/sessionnya)
     if (p.profilePic) document.getElementById("headerPartnerPic").src = p.profilePic;
     else document.getElementById("headerPartnerPic").src = "https://via.placeholder.com/40/10b981/ffffff?text=?";
 
@@ -1390,11 +1385,19 @@ socket.on("matched", p => {
     updateVideoCallButton();          
 });
 
+socket.on("chat-history", historyArr => {
+    document.getElementById("messages").innerHTML = "";
+    messagesMap = {};
+    historyArr.forEach(msg => {
+        const side = msg.from === myUserId ? 'me' : 'other';
+        addMsg(msg, side);
+    });
+});
+
 socket.on("message", data => {
-  const side = data.fromMe ? "me" : "other";  
+  const side = data.from === myUserId ? "me" : "other";  
   addMsg(data, side);
 
-  // NOTIFIKASI BACKGROUND jika Web (minimize) Web2App menangkap Notifikasi ini
   if (side === 'other' && document.hidden && Notification.permission === "granted") {
       new Notification(partner?.name || "Pesan Baru", {
           body: data.type === 'file' ? '📸 Mengirim gambar' : data.text,
@@ -1412,14 +1415,35 @@ socket.on("typing", () => {
 });
 document.getElementById("msg").oninput = () => socket.emit("typing");
 
-socket.on("partner-left", () => {
+// Status Sesi Permanen
+socket.on("partner-online", () => {
+    document.getElementById("partnerStatus").textContent = "Online";
+    document.getElementById("partnerStatus").className = "partner-status status-online";
+    setPartnerButtonsEnabled(true);
+    document.getElementById("msg").disabled = false;
+    document.querySelector(".footer button").disabled = false;
+});
+
+socket.on("partner-offline", (data) => {
+    const d = new Date(data.lastSeen);
+    const timeStr = d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
+    document.getElementById("partnerStatus").textContent = "Terakhir dilihat " + timeStr;
+    document.getElementById("partnerStatus").className = "partner-status status-offline";
+    setPartnerButtonsEnabled(false);
+    document.getElementById("msg").disabled = true;
+    document.querySelector(".footer button").disabled = true;
+    if (isInVideoCall) { showToast("Partner offline"); endCall(true); }
+});
+
+socket.on("partner-disconnected", () => {
     document.getElementById("partnerStatus").textContent = "Offline";
     document.getElementById("partnerStatus").className = "partner-status status-offline";
     document.getElementById("msg").disabled = true;
     document.querySelector(".footer button").disabled = true;
-    document.getElementById("refreshBtn").style.display = "block";
-    if (isInVideoCall) { showToast("Video call ditutup otomatis"); endCall(true); }
+    document.getElementById("refreshBtn").style.display = "block"; // Muncul untuk Refresh (Cari Baru)
     setPartnerButtonsEnabled(false);
+    if (isInVideoCall) { showToast("Video call ditutup otomatis"); endCall(true); }
+    partner = null; 
 });
 
 // -- WEBRTC & VIDEO CALL --
