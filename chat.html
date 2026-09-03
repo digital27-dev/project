@@ -11,14 +11,24 @@
 
 <style> 
 :root { --bg: #0d1117; --surface: #161b22; --surface-2: #1f2937; --accent: #10b981; --accent-dark:#059669; --danger: #ef4444; --warning: #f59e0b; --success: #10b981; --text: #e2e8f0; --text-sec: #94a3b8; --border: #30363d; --me: #065f46; --other: #1e293b; } 
-* { margin: 0; padding: 0; box-sizing: border-box; } 
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent !important; } 
 html, body { height: 100%; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; } 
-.view-once-wrapper img, .normal-image-wrapper img { pointer-events: none; user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; } 
-.view-once-wrapper, .normal-image-wrapper { -webkit-user-drag: none; user-drag: none; -webkit-touch-callout: none; } 
+
+/* Mencegah highlight text/warna biru saat tekan tombol/icon lama */
+button, i, .btn-accept, .btn-reject, .msg, .view-once-wrapper, .normal-image-wrapper { 
+    user-select: none; 
+    -webkit-user-select: none; 
+    -webkit-touch-callout: none; 
+}
+input, textarea { 
+    user-select: auto; 
+    -webkit-user-select: auto; 
+}
+
+.view-once-wrapper img, .normal-image-wrapper img { pointer-events: none; -webkit-user-drag: none; user-drag: none; touch-action: manipulation; } 
 .view-once-blur { pointer-events: none; } 
 #viewOnceModal { -webkit-user-select: none; user-select: none; } 
 #viewOnceModal img.vo-img { pointer-events: none; -webkit-touch-callout: none; -webkit-user-drag: none; user-drag: none; touch-action: manipulation; } 
-#viewOnceModal * { -webkit-touch-callout: none !important; user-select: none !important; } 
 #callName { font-weight: 600 !important; } 
 #miniRemoteVideoContainer { position: fixed; bottom: 100px; right: 16px; z-index: 250; cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; border-radius: 16px; overflow: hidden; width: 120px !important; height: 160px !important; } 
 #miniRemoteVideo { width: 100%; height: 100%; object-fit: cover; background: rgba(0,0,0,0.9); border-radius: 16px; border: none; } 
@@ -152,7 +162,7 @@ button:active { transform: translateY(0); }
 @keyframes spin { to { transform: rotate(360deg); } } 
 #chat { display: none; flex-direction: column; height: 100dvh; } 
 .header { height: 64px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-weight: 500; } 
-.partner-info { line-height: 1.3; } 
+.partner-info { line-height: 1.3; margin-left: 10px;} 
 .partner-name { font-size: 1.1rem; font-weight: 600; } 
 .partner-status { font-size: 0.82rem; opacity: 0.8; } 
 .status-online { color: #34d399; } 
@@ -212,6 +222,16 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     .video-header .net-pill { padding: 4px 10px; font-size: 0.78rem; } 
     #localVideo.pip, #remoteVideo.pip { width: 100px !important; height: 133px !important; bottom: 16px; right: 16px; } 
 } 
+
+/* Styles Profile Avatars & Stories */
+.avatar-header { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #10b981; border: 2px solid transparent; cursor: pointer; }
+.avatar-header.my-pic { margin-right: 12px; border-color: #34d399;}
+.story-thumb { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 3px solid #10b981; margin: 5px; cursor: pointer; display: inline-block;}
+.story-container { white-space: nowrap; overflow-x: auto; padding: 10px 0; text-align: left; }
+.tab-btn { background: none; border: none; font-size: 1.1rem; color: var(--text-sec); border-bottom: 2px solid transparent; margin-bottom: 15px; border-radius:0; padding-bottom: 5px; width: auto; font-weight: 600;}
+.tab-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+.tabs-container { display: flex; justify-content: space-around; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
+
 </style>
 </head>
 <body>
@@ -226,7 +246,15 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
   <div class="card hidden" id="loginForm">
     <h1>Anonymous</h1>
-  <div class="subtitle">Ngobrol santai dengan orang baru</div>
+    <div class="subtitle">Ngobrol santai dengan orang baru</div>
+
+    <!-- Foto Profil Saat Login -->
+    <div style="text-align: center; margin-bottom: 15px;">
+        <img id="loginProfilePic" src="https://via.placeholder.com/80/10b981/ffffff?text=+" class="avatar-large" style="width:80px; height:80px; cursor:pointer;" onclick="document.getElementById('profilePicInput').click()" />
+        <p style="font-size:0.8rem; color:var(--text-sec); margin-top:5px;">Pasang Foto (Opsional)</p>
+        <input type="file" id="profilePicInput" accept="image/*" style="display:none;" onchange="previewLoginPic()" />
+    </div>
+
     <input id="name" placeholder="Nama (opsional)" autocomplete="off"/>
     
     <div style="display:flex; justify-content:space-between; align-items:center; margin:8px 0 4px; font-weight:500; color:var(--text-sec)">
@@ -284,15 +312,22 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
 <div id="chat">
   <div class="header">
-    <div class="partner-info">
-      <div class="partner-name" id="partnerName">Menghubungkan</div>
-      <div class="partner-status" id="partnerStatus">Online</div>
+    <div style="display: flex; align-items: center;">
+      <!-- Foto Partner -->
+      <img id="headerPartnerPic" class="avatar-header" src="https://via.placeholder.com/40/10b981/ffffff?text=?" onclick="openProfile('partner')" />
+      <div class="partner-info">
+        <div class="partner-name" id="partnerName">Menghubungkan</div>
+        <div class="partner-status" id="partnerStatus">Online</div>
+      </div>
     </div>
-    <div style="display:flex; gap:16px; font-size:1.4rem;">
+    <div style="display:flex; gap:16px; font-size:1.4rem; align-items:center;">
       <i class="bi bi-arrow-clockwise" id="refreshBtn" onclick="refreshChat()" style="display:none; cursor:pointer"></i>
       <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer"></i>
-      <i class="bi bi-person-circle" onclick="openProfile()" style="cursor:pointer"></i>
-      <i class="bi bi-box-arrow-right" onclick="logout()" style="cursor:pointer; color:#f87171"></i>
+      
+      <!-- Foto Saya -->
+      <img id="headerMyPic" class="avatar-header my-pic" src="https://via.placeholder.com/40/34d399/ffffff?text=Me" onclick="openProfile('me')" style="margin-left: 5px; margin-right: 0;" />
+      
+      <i class="bi bi-box-arrow-right" onclick="showDisconnectModal()" style="cursor:pointer; color:#f87171"></i>
     </div>
   </div>
 
@@ -341,11 +376,9 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   <div id="micStatusRemote" class="media-status-overlay hidden mic" title="Mikrofon partner dimatikan">
     <i class="bi bi-mic-mute-fill"></i>
   </div>
-
   <div id="micStatusLocal" class="media-status-overlay hidden mic" title="Mikrofon kamu dimatikan">
     <i class="bi bi-mic-mute-fill"></i>
   </div>
-
   <video id="remoteVideo" autoplay playsinline class="full"></video>
   <video id="localVideo" autoplay muted playsinline class="pip"></video>
 </div>
@@ -371,7 +404,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     <div class="vo-img-container">
       <img id="voFullImage" class="vo-img" alt="View once image" />
     </div>
-
     <div class="vo-timer-container viewonce-only" id="voTimerContainer">
       <div class="vo-timer-header">
         <i class="bi bi-hourglass-split"></i>
@@ -381,7 +413,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
         <div class="vo-progress-fill" id="voProgressFill"></div>
       </div>
     </div>
-
     <div class="vo-expired-overlay viewonce-only" id="voExpiredOverlay">
       <i class="fa-solid fa-lock"></i>
       <div class="expired-title">Expired</div>
@@ -437,15 +468,12 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     <div class="rejected-icon-container">
       <i class="bi bi-telephone-x-fill rejected-icon"></i>
     </div>
-    
     <h3 id="rejectedTitle" style="margin: 1rem 0 0.5rem; font-size: 1.4rem; font-weight: 600; color: #fca5a5;">
       Panggilan Ditolak
     </h3>
-    
     <p id="rejectedText" style="color: var(--text-sec); font-size: 1rem; margin-bottom: 2rem; line-height: 1.5;">
       Partner tidak dapat menerima panggilan saat ini.
     </p>
-
     <div class="rejected-actions">
       <button class="btn-try-again" onclick="closeRejected()">
         <i class="bi bi-arrow-repeat"></i> Ulangi
@@ -457,11 +485,68 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   </div>
 </div>
 
+<!-- Modal Profil dengan Tab Story -->
 <div id="profileModal" class="modal">
-  <div class="modal-box" style="text-align:left">
-    <h3>Profil Partner</h3>
-    <div id="profileContent" style="margin:1.2rem 0; line-height:1.7; color:var(--text-sec)"></div>
-    <button onclick="closeProfile()">Tutup</button>
+  <div class="modal-box" style="text-align:left; max-width: 400px; padding: 20px;">
+    
+    <div class="tabs-container">
+      <button id="tabPartner" class="tab-btn active" onclick="switchProfileTab('partner')">Partner</button>
+      <button id="tabMe" class="tab-btn" onclick="switchProfileTab('me')">Saya</button>
+    </div>
+
+    <!-- Partner Content -->
+    <div id="contentPartner">
+      <div id="profileContent" style="margin:1rem 0; line-height:1.7; color:var(--text-sec)"></div>
+      <h4 style="margin-top:15px;">Story Partner</h4>
+      <div id="partnerStoriesContainer" class="story-container">Belum ada story</div>
+    </div>
+
+    <!-- My Content -->
+    <div id="contentMe" style="display:none;">
+      <div style="margin:1rem 0; line-height:1.7; color:var(--text-sec)">
+        <div><b>Nama:</b> <span id="myNameTxt"></span></div>
+        <div style="margin-top:10px;">
+            <button onclick="document.getElementById('changePicInput').click()" style="padding:8px; font-size:0.9rem; margin-bottom:0;">Ubah Foto Profil</button>
+            <input type="file" id="changePicInput" accept="image/*" style="display:none;" onchange="uploadMyPic(this)" />
+        </div>
+      </div>
+      
+      <h4 style="margin-top:15px;">Story Saya</h4>
+      <button onclick="document.getElementById('storyPicInput').click()" style="padding:8px; font-size:0.9rem; background:var(--surface-2); border:1px solid var(--accent); color:var(--accent);">+ Tambah Story</button>
+      <input type="file" id="storyPicInput" accept="image/*" style="display:none;" onchange="uploadStory(this)" />
+      <div id="myStoriesContainer" class="story-container">Belum ada story</div>
+    </div>
+
+    <button onclick="closeProfile()" style="margin-top:20px;">Tutup</button>
+  </div>
+</div>
+
+<!-- Story Viewer Modal -->
+<div id="storyViewerModal" class="modal" style="z-index: 500;">
+   <div class="modal-box" style="padding:0; background: #000; height: 80vh; max-width: 400px; display:flex; flex-direction:column; position:relative; border:none; overflow:hidden;">
+      <div style="padding: 15px; display:flex; justify-content:space-between; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); position:absolute; top:0; width:100%; z-index:10;">
+         <span id="storyViewerAuthor" style="color:white; font-weight:bold; font-size:1.1rem;">Name</span>
+         <i class="bi bi-x-lg" onclick="closeStoryViewer()" style="color:white; cursor:pointer; font-size:1.2rem;"></i>
+      </div>
+      <img id="storyViewerImg" style="width:100%; height:100%; object-fit:contain;" />
+      
+      <!-- List Viewers (Khusus My Story) -->
+      <div id="storyViewersListContainer" style="position:absolute; bottom:0; width:100%; background:rgba(0,0,0,0.7); padding:15px; color:white; max-height: 40%; overflow-y:auto; display:none;">
+         <h4 style="margin-bottom:10px; border-bottom:1px solid #555; padding-bottom:5px;">Dilihat oleh:</h4>
+         <ul id="storyViewersList" style="list-style:none; padding:0; margin:0; font-size:0.9rem;"></ul>
+      </div>
+   </div>
+</div>
+
+<!-- Konfirmasi Keluar Modal -->
+<div id="disconnectConfirmModal" class="modal">
+  <div class="modal-box">
+    <h3 style="color:var(--danger); margin-bottom:1rem;">Putus Hubungan?</h3>
+    <p id="disconnectConfirmText" style="margin-bottom:1.5rem; font-size:1rem;">Apakah ingin memutus hubungan dengan partner yang sudah terhubung sebelumnya?</p>
+    <div style="display:flex; gap:10px;">
+      <button onclick="confirmDisconnect()" style="background:var(--danger); flex:1;">Ya, Putus</button>
+      <button onclick="closeDisconnectModal()" style="flex:1; background:#374151;">Batal</button>
+    </div>
   </div>
 </div>
 
@@ -498,6 +583,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   </div>
 </div>
 
+<!-- File Preview Modal -->
 <div id="filePreviewModal" class="modal" style="display:none;">
   <div class="modal-box" style="max-width: 400px; padding: 24px 20px;">
     <h3 style="margin-bottom: 1.2rem;">Pratinjau Gambar</h3>
@@ -537,14 +623,11 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <div id="actionToast"></div>
 
 <script>
-const socket = io("https://chat-bzd5.onrender.com");
+const socket = io("https://chat-bzd5.onrender.com"); // GANTI dengan URL server yang sesuai jika perlu
 
+// -- VARIABLES & CONSTANTS --
 let isDraggingPip = false;
-let currentXPip = 0;
-let currentYPip = 0;
-let initialXPip = 0;
-let initialYPip = 0;
-let activePipVideo = null;   
+let currentXPip = 0, currentYPip = 0, initialXPip = 0, initialYPip = 0;
 let partner = null;
 let pc, localStream;
 let isFront = true;
@@ -552,31 +635,244 @@ let isPipSwapped = false;
 let callPending = false;
 let lastRTT = 0;
 let selectedFile = null;
-let messageIdCounter = 0; 
 let messagesMap = {}; 
 let myMicEnabled = true;
 let myCamEnabled = true;
 let partnerMicEnabled = true; 
 let isInVideoCall = false;        
 let replyingTo = null;          
-let replyPreviewElement = null;  
+let myProfilePicURL = localStorage.getItem('myProfilePic') || "";
 
-const ice = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+// Minta izin notifikasi sejak awal
+if ("Notification" in window && Notification.permission !== "granted") {
+    Notification.requestPermission();
+}
 
+// Global Image Upload helper to Cloudinary
+function uploadToCloudinary(file, onProgress) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "sanz-chat"); // Harus sama dengan preset Cloudinary Anda
+    const CLOUD_NAME = "davgb7tjm";
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`);
+        if (onProgress) {
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+            };
+        }
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                const data = JSON.parse(xhr.responseText);
+                resolve(data.secure_url || data.url);
+            } else reject(new Error("Upload failed"));
+        };
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(formData);
+    });
+}
+
+// ----------------------------------------------------------------------
+// LOGIN & SETTINGS
+function showLoginForm() {
+  document.getElementById("welcomeContent").style.display = "none";
+  document.getElementById("loginForm").classList.remove("hidden");
+  document.getElementById("name").focus();
+  
+  if (myProfilePicURL) {
+      document.getElementById('loginProfilePic').src = myProfilePicURL;
+  }
+}
+
+function previewLoginPic() {
+    const file = document.getElementById('profilePicInput').files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => { document.getElementById('loginProfilePic').src = e.target.result; };
+        reader.readAsDataURL(file);
+    }
+}
+
+async function start() {
+  const name   = document.getElementById("name").value.trim()   || "Anonim";
+  const age    = document.getElementById("age").value;
+  const gender = document.getElementById("gender").value;
+  const job    = document.getElementById("job").value;
+  const server = document.getElementById("server").value;
+
+  const fileInput = document.getElementById('profilePicInput');
+  let finalPicUrl = myProfilePicURL;
+  
+  // Jika upload dari menu login
+  if (fileInput.files && fileInput.files[0]) {
+      try {
+          showToast("Mengunggah foto profil...");
+          finalPicUrl = await uploadToCloudinary(fileInput.files[0]);
+          myProfilePicURL = finalPicUrl;
+          localStorage.setItem('myProfilePic', finalPicUrl);
+      } catch (err) {
+          showAlert("Gagal mengunggah foto profil");
+      }
+  }
+
+  window.userData = { name, age, gender, job, server, profilePic: finalPicUrl };
+  socket.emit("join", window.userData);
+
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("searching").style.display = "flex";
+  
+  if (finalPicUrl) {
+      document.getElementById('headerMyPic').src = finalPicUrl;
+  }
+}
+
+// --- PROFILE & STORIES LOGIC ---
+function openProfile(tab = 'partner') {
+  if (!partner && tab === 'partner') return;
+  switchProfileTab(tab);
+  
+  if (partner) {
+      const genderText = partner.gender && partner.gender !== "-" ? partner.gender : "Tidak disebutkan";
+      const jobText    = partner.job    && partner.job    !== "-" ? partner.job    : "Tidak disebutkan";
+      document.getElementById("profileContent").innerHTML = `
+        <div><b>Nama:</b> ${partner.name}</div>
+        <div><b>Umur:</b> ${partner.age}</div>
+        <div><b>Gender:</b> ${genderText}</div>
+        <div><b>Status:</b> ${jobText}</div>
+        <div><b>Server:</b> ${partner.server}</div>
+      `;
+  }
+  
+  document.getElementById("myNameTxt").innerText = window.userData?.name || "Kamu";
+  document.getElementById("profileModal").style.display = "grid";
+  
+  // Ambil data stories
+  socket.emit('get-stories');
+}
+
+function switchProfileTab(tab) {
+    document.getElementById('tabPartner').classList.toggle('active', tab === 'partner');
+    document.getElementById('tabMe').classList.toggle('active', tab === 'me');
+    document.getElementById('contentPartner').style.display = tab === 'partner' ? 'block' : 'none';
+    document.getElementById('contentMe').style.display = tab === 'me' ? 'block' : 'none';
+}
+
+function closeProfile() { document.getElementById("profileModal").style.display = "none"; }
+
+socket.on('stories-data', (data) => {
+    const pContainer = document.getElementById('partnerStoriesContainer');
+    const mContainer = document.getElementById('myStoriesContainer');
+    
+    pContainer.innerHTML = '';
+    mContainer.innerHTML = '';
+
+    if (data.partnerStories.length > 0) {
+        data.partnerStories.forEach(s => {
+            const img = document.createElement('img');
+            img.src = s.url;
+            img.className = 'story-thumb';
+            img.onclick = () => openStoryViewer(s, data.partnerName, false);
+            pContainer.appendChild(img);
+        });
+    } else {
+        pContainer.innerHTML = 'Belum ada story';
+    }
+
+    if (data.myStories.length > 0) {
+        data.myStories.forEach(s => {
+            const img = document.createElement('img');
+            img.src = s.url;
+            img.className = 'story-thumb';
+            img.onclick = () => openStoryViewer(s, 'Saya', true);
+            mContainer.appendChild(img);
+        });
+    } else {
+        mContainer.innerHTML = 'Belum ada story';
+    }
+});
+
+async function uploadMyPic(input) {
+    if (!input.files || !input.files[0]) return;
+    try {
+        showToast("Sedang mengubah foto profil...");
+        const url = await uploadToCloudinary(input.files[0]);
+        myProfilePicURL = url;
+        localStorage.setItem('myProfilePic', url);
+        document.getElementById('headerMyPic').src = url;
+        socket.emit('update-profile-pic', url);
+        showToast("Foto profil berhasil diubah");
+    } catch(err) { showAlert("Gagal upload foto"); }
+}
+
+async function uploadStory(input) {
+    if (!input.files || !input.files[0]) return;
+    try {
+        showToast("Sedang mengirim story...");
+        const url = await uploadToCloudinary(input.files[0]);
+        socket.emit('add-story', url);
+        showToast("Story berhasil ditambahkan");
+        socket.emit('get-stories');
+    } catch(err) { showAlert("Gagal upload story"); }
+}
+
+function openStoryViewer(story, authorName, isMine) {
+    document.getElementById('storyViewerModal').style.display = 'grid';
+    document.getElementById('storyViewerAuthor').innerText = authorName;
+    document.getElementById('storyViewerImg').src = story.url;
+    
+    const viewersListDiv = document.getElementById('storyViewersListContainer');
+    const ul = document.getElementById('storyViewersList');
+    ul.innerHTML = '';
+    
+    if (isMine) {
+        viewersListDiv.style.display = 'block';
+        if (story.viewers && story.viewers.length > 0) {
+            story.viewers.forEach(v => {
+                const li = document.createElement('li');
+                li.innerText = v.name;
+                li.style.padding = '4px 0';
+                ul.appendChild(li);
+            });
+        } else {
+            ul.innerHTML = '<li>Belum ada yang melihat</li>';
+        }
+    } else {
+        viewersListDiv.style.display = 'none';
+        socket.emit('view-story', story.id);
+    }
+}
+
+function closeStoryViewer() { document.getElementById('storyViewerModal').style.display = 'none'; }
+
+socket.on('partner-profile-updated', (url) => {
+    if (partner) {
+        partner.profilePic = url;
+        document.getElementById('headerPartnerPic').src = url || 'https://via.placeholder.com/40/10b981/ffffff?text=?';
+    }
+});
+
+// Konfirmasi Logout / Putus Hubungan
+function showDisconnectModal() {
+    document.getElementById('disconnectConfirmText').innerText = `Apakah ingin memutus hubungan dengan ${partner ? partner.name : 'partner'} yang sudah terhubung sebelumnya?`;
+    document.getElementById('disconnectConfirmModal').style.display = 'grid';
+}
+function closeDisconnectModal() { document.getElementById('disconnectConfirmModal').style.display = 'none'; }
+function confirmDisconnect() {
+    socket.disconnect();
+    location.reload();
+}
+
+// ----------------------------------------------------------------------
 socket.on('message-confirmed', ({ id }) => {
-  console.log('Pesan dikonfirmasi, ID:', id);
-
   const lastMsg = document.querySelector('.msg.me:last-child');
-  if (lastMsg && lastMsg.dataset.msgId.startsWith('temp-')) {
+  if (lastMsg && lastMsg.dataset.msgId && lastMsg.dataset.msgId.startsWith('temp-')) {
     const oldTempId = lastMsg.dataset.msgId;
     lastMsg.dataset.msgId = id;
     messagesMap[id] = lastMsg;
     delete messagesMap[oldTempId];
-
     const action = lastMsg.querySelector('.msg-action');
-    if (action) {
-      action.style.display = 'block';  
-    }
+    if (action) action.style.display = 'block';  
   }
 });
 
@@ -592,57 +888,46 @@ socket.on("connect", () => {
 
 function setPartnerButtonsEnabled(enabled) {
     const videoBtn = document.getElementById("videoCallBtn");
-    const profileIcon = document.querySelector('.bi-person-circle'); 
+    const partnerPic = document.getElementById("headerPartnerPic"); 
 
     if (enabled) {
         videoBtn.style.pointerEvents   = "auto";
         videoBtn.style.cursor          = "pointer";
         videoBtn.title                 = "Mulai video call";
 
-        profileIcon.style.pointerEvents = "auto";
-        profileIcon.style.cursor        = "pointer";
+        partnerPic.style.pointerEvents = "auto";
+        partnerPic.style.cursor        = "pointer";
     } else {
-
         videoBtn.style.pointerEvents   = "none";
         videoBtn.style.cursor          = "default";
         videoBtn.title                 = "Tidak ada partner";
 
-        profileIcon.style.pointerEvents = "none";
-        profileIcon.style.cursor        = "default";
+        partnerPic.style.pointerEvents = "none";
+        partnerPic.style.cursor        = "default";
     }
 }
 
+// -- TOUCH REPLIES --
 document.getElementById('messages').addEventListener('touchstart', handleTouchStart, false);
 document.getElementById('messages').addEventListener('touchmove', handleTouchMove, false);
 document.getElementById('messages').addEventListener('touchend', handleTouchEnd, false);
 
-let touchStartX = 0;
-let touchEndX = 0;
-let currentMsgElement = null;
+let touchStartX = 0, touchEndX = 0, currentMsgElement = null;
 
 function handleTouchStart(e) {
   const msg = e.target.closest('.msg');
   if (!msg) return;
-
   currentMsgElement = msg;
   touchStartX = e.changedTouches[0].screenX;
 }
-
-function handleTouchMove(e) {
-  if (!currentMsgElement) return;
-  touchEndX = e.changedTouches[0].screenX;
-}
-
+function handleTouchMove(e) { if (!currentMsgElement) return; touchEndX = e.changedTouches[0].screenX; }
 function handleTouchEnd(e) {
   if (!currentMsgElement) return;
-
   const diff = touchEndX - touchStartX;
-
   if (diff > 60) {
     e.preventDefault();
     setReply(currentMsgElement);
   }
-
   currentMsgElement = null;
   touchStartX = 0;
   touchEndX = 0;
@@ -660,32 +945,21 @@ function setReply(msgDiv) {
   if (bubble.innerHTML.includes('image-placeholder')) {
     type = 'file';
     content = '[Gambar]';
-    if (msgDiv.dataset.caption) {
-      content += ' ' + msgDiv.dataset.caption.substring(0, 60);
-    }
+    if (msgDiv.dataset.caption) content += ' ' + msgDiv.dataset.caption.substring(0, 60);
   } else if (bubble.classList.contains('deleted-msg')) {
     content = 'Pesan ini telah dihapus';
   } else {
-    
     content = bubble.textContent.trim().substring(0, 1000);
     if (content.length === 1000) content += '...';
   }
 
-  replyingTo = {
-    id: msgId,
-    text: content,
-    fromName: sender,
-    type: type,
-    fileUrl: type === 'file' ? msgDiv.dataset.fileUrl : null
-  };
+  replyingTo = { id: msgId, text: content, fromName: sender, type: type, fileUrl: type === 'file' ? msgDiv.dataset.fileUrl : null };
 
   const preview = document.getElementById('replyPreview');
   document.getElementById('replySender').textContent = sender;
   document.getElementById('replyContent').textContent = content;
-
   preview.classList.remove('hidden');
   preview.style.display = 'flex';
-
   document.getElementById('msg').focus();
 }
 
@@ -695,49 +969,34 @@ function cancelReply() {
 }
 
 function updateMicIcons() {
-  const isMyMicMuted = !myMicEnabled;
-
   const localOverlay = document.getElementById("micStatusLocal");
-  localOverlay?.classList.toggle("hidden", !isMyMicMuted);
+  localOverlay?.classList.toggle("hidden", !!myMicEnabled); // reverse logika
 
   const remoteOverlay = document.getElementById("micStatusRemote");
-  remoteOverlay?.classList.toggle("hidden", partnerMicEnabled); 
+  remoteOverlay?.classList.toggle("hidden", !!partnerMicEnabled); 
 }
 
 let isMinimizedToPartner = false;
-
 function minimizeToPartnerView() {
-  if (!localStream || !document.getElementById("remoteVideo").srcObject) {
-    showToast("Video belum terhubung");
-    return;
-  }
-
+  if (!localStream || !document.getElementById("remoteVideo").srcObject) { showToast("Video belum terhubung"); return; }
   isMinimizedToPartner = true;
-
   document.getElementById("videoScreen").style.display = "none";
-
   const miniContainer = document.getElementById("miniRemoteVideoContainer");
   const miniVideo = document.getElementById("miniRemoteVideo");
-
   miniVideo.srcObject = document.getElementById("remoteVideo").srcObject;
   miniVideo.className = "";  
-  miniVideo.play().catch(e => console.log("Mini remote play error:", e));
-
+  miniVideo.play().catch(e => console.log(e));
   miniContainer.style.display = "block";
-
   showToast("Mode chat aktif");
 }
 
 document.getElementById("miniRemoteVideoContainer")?.addEventListener("click", function() {
   if (!isMinimizedToPartner) return;
-
   isMinimizedToPartner = false;
   document.getElementById("miniRemoteVideoContainer").style.display = "none";
   document.getElementById("videoScreen").style.display = "flex";
-
   const remoteVideo = document.getElementById("remoteVideo");
   remoteVideo.srcObject = document.getElementById("miniRemoteVideo").srcObject;
-
   if (remoteVideo.classList.contains("pip")) {
     remoteVideo.classList.remove("pip-mini");
     remoteVideo.classList.add("pip-normal");   
@@ -746,83 +1005,57 @@ document.getElementById("miniRemoteVideoContainer")?.addEventListener("click", f
 });
 
 let isVideoMinimized = false;
-
 function minimizeVideoCall() {
   if (!localStream) return;
-
   isVideoMinimized = true;
-
   document.getElementById("videoScreen").style.display = "none";
-
   const miniContainer = document.getElementById("miniLocalVideoContainer");
   const miniVideo     = document.getElementById("miniLocalVideo");
-
   miniVideo.srcObject = localStream;
-  miniVideo.play().catch(e => console.log("Mini play error:", e));
-
+  miniVideo.play().catch(e => console.log(e));
   miniContainer.style.display = "block";
 }
 
 function makePipDraggable(videoElement) {
   if (!videoElement) return;
-
   let isDragging = false;
-  let startX = 0, startY = 0;
-  let initialLeft = 0, initialTop = 0;
+  let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
 
   videoElement.addEventListener('pointerdown', startDrag, { passive: false });
 
   function startDrag(e) {
     if (!videoElement.classList.contains('pip')) return;
     if (e.target.closest('.media-status-overlay')) return;
-
     isDragging = true;
     videoElement.classList.add('dragging');
-
     const originalTransition = videoElement.style.transition || '';
     videoElement.style.transition = 'none';
-
     const rect = videoElement.getBoundingClientRect();
-    startX = e.clientX;
-    startY = e.clientY;
-    initialLeft = rect.left;
-    initialTop = rect.top;
-
-    e.preventDefault();
-    e.stopPropagation();
+    startX = e.clientX; startY = e.clientY;
+    initialLeft = rect.left; initialTop = rect.top;
+    e.preventDefault(); e.stopPropagation();
 
     const onMove = (moveEvent) => {
       if (!isDragging) return;
       moveEvent.preventDefault();
-
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
-
       let newLeft = initialLeft + dx;
       let newTop = initialTop + dy;
-
-      const padding = 16;
-      const w = videoElement.offsetWidth;
-      const h = videoElement.offsetHeight;
-      const maxLeft = window.innerWidth - w - padding;
-      const maxTop = window.innerHeight - h - 100;
-
+      const padding = 16, w = videoElement.offsetWidth, h = videoElement.offsetHeight;
+      const maxLeft = window.innerWidth - w - padding, maxTop = window.innerHeight - h - 100;
       newLeft = Math.max(padding, Math.min(newLeft, maxLeft));
       newTop = Math.max(padding, Math.min(newTop, maxTop));
-
       videoElement.style.left = newLeft + 'px';
       videoElement.style.top = newTop + 'px';
       videoElement.style.transform = `translate3d(0,0,0) ${videoElement.id === 'localVideo' && isFront ? 'scaleX(-1)' : ''}`;
-      videoElement.style.right = 'auto';
-      videoElement.style.bottom = 'auto';
+      videoElement.style.right = 'auto'; videoElement.style.bottom = 'auto';
     };
 
     const stopDrag = () => {
       isDragging = false;
       videoElement.classList.remove('dragging');
-
       videoElement.style.transition = originalTransition || 'opacity 0.18s ease, transform 0.18s ease';
-
       document.removeEventListener('pointermove', onMove);
       document.removeEventListener('pointerup', stopDrag);
       document.removeEventListener('pointercancel', stopDrag);
@@ -837,419 +1070,188 @@ function makePipDraggable(videoElement) {
 function updateVideoCallButton() {
   const btn = document.getElementById("videoCallBtn");
   if (!btn) return;
-
   if (isInVideoCall) {
-    btn.classList.add("disabled");
-    btn.style.opacity = "0.4";
-    btn.style.cursor = "not-allowed";
-    btn.title = "Sedang dalam panggilan video";
-    btn.onclick = null; 
+    btn.classList.add("disabled"); btn.style.opacity = "0.4";
+    btn.style.cursor = "not-allowed"; btn.title = "Sedang dalam panggilan video"; btn.onclick = null; 
   } else {
-  
-    btn.classList.remove("disabled");
-    btn.style.opacity = "1";
-    btn.style.cursor = "pointer";
-    btn.title = "Mulai video call";
-    btn.onclick = callUser; 
+    btn.classList.remove("disabled"); btn.style.opacity = "1";
+    btn.style.cursor = "pointer"; btn.title = "Mulai video call"; btn.onclick = callUser; 
   }
 }
 
-function restoreVideoCall() {
-  if (!isVideoMinimized) return;
-
-  isVideoMinimized = false;
-
-  document.getElementById("miniLocalVideoContainer").style.display = "none";
-  document.getElementById("videoScreen").style.display = "flex";
-
-  document.getElementById("localVideo").srcObject = localStream;
-}
-
-document.getElementById("miniLocalVideoContainer")?.addEventListener("click", restoreVideoCall);
-
-document.getElementById("localVideo").onclick = function() {
-  const local  = document.getElementById("localVideo");
-  const remote = document.getElementById("remoteVideo");
-
-  isPipSwapped = !isPipSwapped;
-
-  if (isPipSwapped) {
-    local.classList.remove("pip");
-    local.classList.add("full");
-    remote.classList.remove("full");
-    remote.classList.add("pip");
-  } else {
-    local.classList.remove("full");
-    local.classList.add("pip");
-    remote.classList.remove("pip");
-    remote.classList.add("full");
-
-    local.style.transform  = isFront ? "scaleX(-1)" : "none";
-    remote.style.transform = "none";
-  }
-
-  local.style.zIndex  = isPipSwapped ? "5"  : "10";
-  remote.style.zIndex = isPipSwapped ? "10" : "5";
-
-  updateMicIcons();
-};
-
-let pendingDeleteMsgId = null;
-let pendingDeleteBubble = null;
-let pendingDeleteAction = null;
-
+let pendingDeleteMsgId = null, pendingDeleteBubble = null, pendingDeleteAction = null;
 function openDeleteConfirm(msgId, bubbleElement, actionElement) {
-  pendingDeleteMsgId = msgId;
-  pendingDeleteBubble = bubbleElement;
-  pendingDeleteAction = actionElement;
-
+  pendingDeleteMsgId = msgId; pendingDeleteBubble = bubbleElement; pendingDeleteAction = actionElement;
   if (actionElement) actionElement.style.display = 'block';
-
   document.getElementById("deleteConfirmModal").style.display = "grid";
 }
-
 function closeDeleteModal() {
-  if (pendingDeleteAction) {
-    pendingDeleteAction.style.display = 'none';
-  }
-
-  pendingDeleteMsgId = null;
-  pendingDeleteBubble = null;
-  pendingDeleteAction = null;
+  if (pendingDeleteAction) pendingDeleteAction.style.display = 'none';
+  pendingDeleteMsgId = null; pendingDeleteBubble = null; pendingDeleteAction = null;
   document.getElementById("deleteConfirmModal").style.display = "none";
 }
-
 function confirmDelete() {
-  if (!pendingDeleteMsgId) {
-    closeDeleteModal();
-    return;
-  }
-
-  if (pendingDeleteBubble) {
-    pendingDeleteBubble.innerHTML = 'Pesan ini telah dihapus';
-    pendingDeleteBubble.className = 'bubble deleted-msg';
-  }
-
-  if (pendingDeleteAction) {
-    pendingDeleteAction.remove();
-  }
-
+  if (!pendingDeleteMsgId) { closeDeleteModal(); return; }
+  if (pendingDeleteBubble) { pendingDeleteBubble.innerHTML = 'Pesan ini telah dihapus'; pendingDeleteBubble.className = 'bubble deleted-msg'; }
+  if (pendingDeleteAction) pendingDeleteAction.remove();
   socket.emit('delete-for-everyone', { msgId: pendingDeleteMsgId });
-
   showToast("Pesan dihapus");
-
   closeDeleteModal();
 }
 
 function showToast(msg) {
   const t = document.getElementById("actionToast");
-  t.textContent = msg;
-  t.style.opacity = "1";
-  t.style.transform = "translateX(-50%) translateY(0)";
-  setTimeout(() => {
-    t.style.opacity = "0";
-    t.style.transform = "translateX(-50%) translateY(20px)";
-  }, 2800);
+  t.textContent = msg; t.style.opacity = "1"; t.style.transform = "translateX(-50%) translateY(0)";
+  setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateX(-50%) translateY(20px)"; }, 2800);
 }
+function showAlert(text) { document.getElementById("alertText").textContent = text; document.getElementById("alertModal").style.display = "grid"; }
+function closeAlert() { document.getElementById("alertModal").style.display = "none"; }
 
-function showAlert(text) {
-  document.getElementById("alertText").textContent = text;
-  document.getElementById("alertModal").style.display = "grid";
-}
-
-function closeAlert() {
-  document.getElementById("alertModal").style.display = "none";
-}
-
-function showLoginForm() {
-  document.getElementById("welcomeContent").style.display = "none";
-  document.getElementById("loginForm").classList.remove("hidden");
-  document.getElementById("name").focus();
-}
-
-let viewOnceTimer = null;
-let viewOnceInterval = null;
-
+// -- VIEW ONCE --
+let viewOnceTimer = null, viewOnceInterval = null;
 function startViewOnceTimer() {
   const countdownEl    = document.getElementById("voCountdown");
   const progressFill   = document.getElementById("voProgressFill");
   const timerContainer = document.getElementById("voTimerContainer");
   const expiredOverlay = document.getElementById("voExpiredOverlay");
   const img            = document.getElementById("voFullImage");
-
-  if (!timerContainer || !countdownEl || !progressFill || !expiredOverlay || !img) {
-    console.warn("Timer view-once tidak bisa dijalankan: elemen tidak ditemukan");
-    return;
-  }
-
-  if (img.dataset.isViewonce !== 'true') {
-    console.log("Bukan view-once → timer dilewati");
-    return;
-  }
-
+  
+  if (!timerContainer || img.dataset.isViewonce !== 'true') return;
   clearInterval(viewOnceInterval);
   timerContainer.style.display = 'block';     
   expiredOverlay.style.display = 'none';
   img.classList.remove('expired');
   progressFill.style.width = '0%';
-
-  let remaining = 15;
-  countdownEl.textContent = remaining;
-
-  console.log("Timer view-once dimulai: " + remaining + " detik");
+  let remaining = 15; countdownEl.textContent = remaining;
 
   viewOnceInterval = setInterval(() => {
-    remaining--;
-    countdownEl.textContent = remaining;
-
-    const percent = ((15 - remaining) / 15) * 100;
-    progressFill.style.width = percent + '%';
-
+    remaining--; countdownEl.textContent = remaining;
+    progressFill.style.width = (((15 - remaining) / 15) * 100) + '%';
     if (remaining <= 0) {
       clearInterval(viewOnceInterval);
       timerContainer.style.display = 'none';
       expiredOverlay.style.display = 'flex';
       img.classList.add('expired');
-      console.log("Timer habis → mode expired aktif");
     }
   }, 1000);
 }
-
 function closeViewOnce() {
-  const modal          = document.getElementById("viewOnceModal");
-  const img            = document.getElementById("voFullImage");
-  const timerContainer = document.getElementById("voTimerContainer");
-  const expiredOverlay = document.getElementById("voExpiredOverlay");
-
+  const modal = document.getElementById("viewOnceModal");
   clearInterval(viewOnceInterval);
-
-  if (timerContainer) timerContainer.style.display = "none";
-  if (expiredOverlay) expiredOverlay.style.display = "none";
-  if (img) {
-    img.classList.remove("expired");
-    img.src = "";
-  }
-
   modal.style.display = "none";
   document.getElementById("voHeader").textContent = "Foto dari ...";
-}
-
-function start() {
-  const name   = document.getElementById("name").value.trim()   || "Anonim";
-  const age    = document.getElementById("age").value;
-  const gender = document.getElementById("gender").value;
-  const job    = document.getElementById("job").value;
-  const server = document.getElementById("server").value;
-
-  window.userData = { name, age, gender, job, server };
-  socket.emit("join", { name, age, gender, job, server });
-
-  document.getElementById("loginScreen").style.display = "none";
-  document.getElementById("searching").style.display = "flex";
 }
 
 document.addEventListener('click', function(e) {
   const wrapper = e.target.closest('.view-once-wrapper, .normal-image-wrapper');
   if (!wrapper) return;
-
-  const src       = wrapper.dataset.src;
-  const fromName  = wrapper.dataset.from;
+  const src = wrapper.dataset.src;
+  const fromName = wrapper.dataset.from;
   const isViewOnce = wrapper.dataset.isViewonce === 'true';
-
   if (!src) return;
 
-  const headerText = `Gambar dari ${fromName}`;
-  document.getElementById('voHeader').textContent = headerText;
-
-  const modal          = document.getElementById('viewOnceModal');
-  const img            = document.getElementById('voFullImage');
+  document.getElementById('voHeader').textContent = `Gambar dari ${fromName}`;
+  const modal = document.getElementById('viewOnceModal');
+  const img = document.getElementById('voFullImage');
   const timerContainer = document.getElementById('voTimerContainer');
   const expiredOverlay = document.getElementById('voExpiredOverlay');
 
   if (timerContainer) timerContainer.style.display = 'none';
   if (expiredOverlay) expiredOverlay.style.display = 'none';
   img.classList.remove('expired');
-
   img.src = src;
   img.dataset.isViewonce = isViewOnce ? 'true' : 'false';
-
   modal.style.display = 'flex';
 
-  if (expiredOverlay) expiredOverlay.style.display = 'none';
-
   if (isViewOnce) {
-
-    if (timerContainer) {
-      timerContainer.style.display = 'block';  
-    }
-
+    if (timerContainer) timerContainer.style.display = 'block';  
     startViewOnceTimer();
-  } else {
-
-    if (timerContainer) timerContainer.style.display = 'none';
-    if (expiredOverlay) expiredOverlay.style.display = 'none';
   }
 });
 
+// -- CHAT --
 function addMsg(data, side, time = timeNow()) {
   const div = document.createElement("div");
   div.className = `msg ${side}`;
 
-  let msgId = data.id;
-  if (msgId) {
-    div.dataset.msgId = msgId;
-    messagesMap[msgId] = div;
-  } else {
-    const tempId = 'temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    div.dataset.msgId = tempId;
-    messagesMap[tempId] = div;
-  }
+  let msgId = data.id || ('temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9));
+  div.dataset.msgId = msgId;
+  messagesMap[msgId] = div;
 
   let quoteHtml = '';
   if (data.replyTo && messagesMap[data.replyTo]) {
     const quotedMsg = messagesMap[data.replyTo];
     const quotedBubble = quotedMsg.querySelector('.bubble');
     const isQuotedMe = quotedMsg.classList.contains('me');
-    const quotedSender = isQuotedMe 
-      ? (window.userData?.name || "Kamu") 
-      : (partner?.name || "Partner");
-
+    const quotedSender = isQuotedMe ? (window.userData?.name || "Kamu") : (partner?.name || "Partner");
     let quotedPreview = '';
-
+    
     if (quotedMsg.classList.contains('deleted-msg') || quotedBubble.classList.contains('deleted-msg')) {
       quotedPreview = 'Pesan ini telah dihapus';
-    }
-    else if (quotedMsg.dataset.isViewonce === 'true') {
+    } else if (quotedMsg.dataset.isViewonce === 'true') {
       quotedPreview = '[Foto sekali lihat]';
-    }
-    else if (quotedMsg.dataset.fileUrl) {
+    } else if (quotedMsg.dataset.fileUrl) {
       quotedPreview = '[Gambar]';
-      if (quotedMsg.dataset.caption) {
-        quotedPreview += ' ' + quotedMsg.dataset.caption.substring(0, 50).trim();
-        if (quotedMsg.dataset.caption.length > 50) quotedPreview += '...';
-      }
-    }
-    else {
-    
+      if (quotedMsg.dataset.caption) quotedPreview += ' ' + quotedMsg.dataset.caption.substring(0, 50).trim() + '...';
+    } else {
       quotedPreview = quotedBubble.textContent.trim().substring(0, 80);
       if (quotedPreview.length === 80) quotedPreview += '...';
     }
-
-    quoteHtml = `
-      <div class="quoted-msg" style="
-        border-left: 3px solid var(--accent); 
-        padding: 4px 0 4px 10px; 
-        margin: 0 0 6px 0; 
-        font-size: 0.88rem; 
-        opacity: 0.92;
-        line-height: 1.3;
-      ">
-        <div style="color: var(--accent); font-weight: 600; margin-bottom: 2px;">
-          ${quotedSender}
-        </div>
-        <div style="color: var(--text-sec); word-break: break-word; margin-bottom: 5px;">
-          ${quotedPreview}
-        </div>
-      </div>`;
+    
+    quoteHtml = `<div class="quoted-msg">
+      <div style="color: var(--accent); font-weight: 600; margin-bottom: 2px;">${quotedSender}</div>
+      <div style="color: var(--text-sec); word-break: break-word; margin-bottom: 5px;">${quotedPreview}</div>
+    </div>`;
   }
 
   let content = '';
-
   if (data.type === 'text' || !data.type) {
-    content = `
-      ${quoteHtml}
-      <div class="bubble">${(data.text || '').replace(/\n/g, '<br>')}</div>`;
-  } 
-  else if (data.type === 'file') {
+    content = `${quoteHtml}<div class="bubble">${(data.text || '').replace(/\n/g, '<br>')}</div>`;
+  } else if (data.type === 'file') {
     const isViewOnce = data.viewOnce === true;
     const icon = isViewOnce ? 'bi bi-hourglass-split' : 'bi bi-image';
     const label = isViewOnce ? 'Foto sekali lihat' : 'Foto';
-
-    content = `
-      ${quoteHtml}
-      <div class="bubble ${isViewOnce ? 'view-once' : ''}">
-        <div class="image-placeholder">
-          <i class="${icon}"></i>
-          <span class="view-once-label">${label}</span>
-        </div>
-        ${data.caption ? `<p style="margin-top:8px; font-size:0.9rem; opacity:0.9;">${data.caption}</p>` : ''}
-      </div>`;
-
+    content = `${quoteHtml}<div class="bubble ${isViewOnce ? 'view-once' : ''}">
+      <div class="image-placeholder"><i class="${icon}"></i><span class="view-once-label">${label}</span></div>
+      ${data.caption ? `<p style="margin-top:8px; font-size:0.9rem; opacity:0.9;">${data.caption}</p>` : ''}
+    </div>`;
     div.dataset.fileUrl = data.fileUrl || '';
     div.dataset.isViewonce = isViewOnce ? 'true' : 'false';
     div.dataset.fromName = data.fromName || (side === 'me' ? (window.userData?.name || 'Kamu') : (partner?.name || 'Partner'));
     div.dataset.caption = data.caption || '';
-  } 
-  else if (data.type === 'deleted') {
+  } else if (data.type === 'deleted') {
     content = `<div class="bubble deleted-msg">Pesan ini telah dihapus</div>`;
   }
 
-  div.innerHTML = `
-    ${content}
-    <div class="time">${time}</div>
-  `;
+  div.innerHTML = `${content}<div class="time">${time}</div>`;
 
   if (side === 'me' && data.type !== 'deleted') {
     const action = document.createElement('div');
     action.className = 'msg-action';
     action.textContent = 'Hapus';
     action.style.display = 'none';
-
     action.onclick = (e) => {
       e.stopPropagation();
-      const currentMsgId = div.dataset.msgId;
-
-      if (currentMsgId.startsWith('temp-')) {
-        showToast("Pesan belum terkirim ke server");
-        return;
-      }
-
-      const bubble = div.querySelector('.bubble');
-      openDeleteConfirm(currentMsgId, bubble, action);
+      if (div.dataset.msgId.startsWith('temp-')) { showToast("Pesan belum terkirim"); return; }
+      openDeleteConfirm(div.dataset.msgId, div.querySelector('.bubble'), action);
     };
-
     div.appendChild(action);
     setupInteractionForDelete(div, action);
   }
 
   if (data.type === 'file' && div.dataset.fileUrl) {
     div.style.cursor = 'pointer';
-    div.addEventListener('click', function openImageModal(e) {
-      if (div.dataset.isViewonce === 'true' && div.classList.contains('viewed')) {
-        showToast("Gambar sudah dilihat");
-        return;
-      }
-
-      const fileUrl = div.dataset.fileUrl;
-      const isViewOnce = div.dataset.isViewonce === 'true';
-      const fromName = div.dataset.fromName;
-
-      if (!fileUrl) {
-        showToast("Gambar tidak tersedia");
-        return;
-      }
-
-      const headerText = `Gambar dari ${fromName}`;
-      document.getElementById('voHeader').textContent = headerText;
-
+    div.addEventListener('click', function (e) {
+      if (div.dataset.isViewonce === 'true' && div.classList.contains('viewed')) { showToast("Gambar sudah dilihat"); return; }
+      document.getElementById('voHeader').textContent = `Gambar dari ${div.dataset.fromName}`;
       const modal = document.getElementById('viewOnceModal');
       const img = document.getElementById('voFullImage');
-      const timerContainer = document.getElementById('voTimerContainer');
-      const expiredOverlay = document.getElementById('voExpiredOverlay');
-
-      if (timerContainer) timerContainer.style.display = 'none';
-      if (expiredOverlay) expiredOverlay.style.display = 'none';
-      img.classList.remove('expired');
-
-      img.src = fileUrl;
-      img.dataset.isViewonce = isViewOnce ? 'true' : 'false';
-
+      img.src = div.dataset.fileUrl;
+      img.dataset.isViewonce = div.dataset.isViewonce;
       modal.style.display = 'flex';
-
-      if (isViewOnce) {
-        if (timerContainer) timerContainer.style.display = 'block';
+      if (div.dataset.isViewonce === 'true') {
+        document.getElementById('voTimerContainer').style.display = 'block';
         startViewOnceTimer();
-
         div.classList.add('viewed');
         const labelEl = div.querySelector('.view-once-label');
         if (labelEl) labelEl.textContent = 'Dilihat';
@@ -1261,35 +1263,23 @@ function addMsg(data, side, time = timeNow()) {
   div.addEventListener('touchmove', handleTouchMove, false);
   div.addEventListener('touchend', handleTouchEnd, false);
 
-  const messagesContainer = document.getElementById("messages");
-  messagesContainer.appendChild(div);
+  document.getElementById("messages").appendChild(div);
   div.scrollIntoView({ behavior: "smooth", block: "end" });
-
   return div;
 }
 
 function timeNow() {
   const d = new Date();
-  const hours   = d.getHours().toString().padStart(2, "0");
-  const minutes = d.getMinutes().toString().padStart(2, "0");
-  return hours + ":" + minutes;
+  return d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0");
 }
 
 function sendMessage() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
   if (!text || !partner) return;
-
-  const messageData = {
-    type: 'text',
-    text: text,
-    replyTo: replyingTo ? replyingTo.id : null
-  };
-
+  const messageData = { type: 'text', text: text, replyTo: replyingTo ? replyingTo.id : null };
   addMsg(messageData, "me");
-
   socket.emit("message", messageData);
-
   input.value = "";
   cancelReply();      
   input.focus();
@@ -1298,129 +1288,44 @@ function sendMessage() {
 function previewFile() {
   selectedFile = document.getElementById('fileInput').files[0];
   if (!selectedFile) return;
-
   const previewImg = document.getElementById('previewImage');
-  const isImage = selectedFile.type.startsWith('image/');
-
-  if (isImage) {
+  if (selectedFile.type.startsWith('image/')) {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      previewImg.src = e.target.result;
-      previewImg.style.display = 'block';
-      document.getElementById('filePreviewModal').style.display = 'grid';
-    };
+    reader.onload = (e) => { previewImg.src = e.target.result; previewImg.style.display = 'block'; document.getElementById('filePreviewModal').style.display = 'grid'; };
     reader.readAsDataURL(selectedFile);
   } else {
-
-    previewImg.src = ''; 
-    previewImg.style.display = 'none';
-
+    previewImg.src = ''; previewImg.style.display = 'none';
     showAlert("Preview hanya mendukung gambar");
-    document.getElementById('filePreviewModal').style.display = 'grid';
   }
 }
 
 async function sendFile() {
-  if (!selectedFile || !partner) {
-    showAlert("Tidak ada file yang dipilih");
-    return;
-  }
-
+  if (!selectedFile || !partner) { showAlert("Tidak ada file"); return; }
   const caption = document.getElementById('captionInput').value.trim();
   const viewOnce = document.getElementById('viewOnceCheckbox').checked;
-
-  const loadingEl      = document.getElementById('uploadLoading');
-  const progressFill   = document.getElementById('progressFill');
+  const loadingEl = document.getElementById('uploadLoading');
+  const progressFill = document.getElementById('progressFill');
   const progressPercent = document.getElementById('progressPercent');
-
-  progressFill.style.width = '0%';
-  progressPercent.textContent = '0';
-
+  
+  progressFill.style.width = '0%'; progressPercent.textContent = '0';
   loadingEl.style.display = 'flex';
 
-  const sendBtn   = document.querySelector('#filePreviewModal button[onclick="sendFile()"]');
-  const cancelBtn = document.querySelector('#filePreviewModal .btn-danger');
-  if (sendBtn)   sendBtn.disabled = true;
-  if (cancelBtn) cancelBtn.disabled = true;
-
-  const CLOUD_NAME    = "davgb7tjm";
-  const UPLOAD_PRESET = "sanz-chat";
-
-  const formData = new FormData();
-  formData.append("file", selectedFile);
-  formData.append("upload_preset", UPLOAD_PRESET);
-
   try {
-    
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`);
-
-    xhr.upload.onprogress = function(e) {
-      if (e.lengthComputable) {
-        const percentComplete = Math.round((e.loaded / e.total) * 100);
-        progressFill.style.width = percentComplete + '%';
-        progressPercent.textContent = percentComplete;
-      }
-    };
-
-    xhr.onload = function() {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        const data = JSON.parse(xhr.responseText);
-
-        if (!data.secure_url && !data.url) {
-          throw new Error("Tidak mendapatkan URL gambar dari Cloudinary");
-        }
-
-        const imageUrl = data.secure_url || data.url;
-
-        addMsg({
-          type: 'file',
-          fileUrl: imageUrl,
-          caption: caption || undefined,
-          viewOnce: viewOnce,
-          fromName: window.userData?.name || "Anonim"
-        }, "me");
-
-        socket.emit("message", {
-          type: 'file',
-          fileUrl: imageUrl,
-          caption: caption || null,
-          viewOnce: viewOnce,
-          fromName: window.userData?.name || "Anonim"
-        });
-
-        showToast(viewOnce ? "Foto sekali lihat terkirim" : "Gambar terkirim");
-      } else {
-        throw new Error(`Upload gagal (status ${xhr.status})`);
-      }
-    };
-
-    xhr.onerror = function() {
-      throw new Error("Koneksi gagal saat upload");
-    };
-
-    xhr.send(formData);
-
-    await new Promise((resolve, reject) => {
-      xhr.onloadend = () => resolve();
-      xhr.onerror   = () => reject(new Error("Upload error"));
+    const imageUrl = await uploadToCloudinary(selectedFile, (percent) => {
+        progressFill.style.width = percent + '%';
+        progressPercent.textContent = percent;
     });
 
+    const msgData = { type: 'file', fileUrl: imageUrl, caption: caption || undefined, viewOnce: viewOnce, fromName: window.userData?.name || "Anonim" };
+    addMsg(msgData, "me");
+    socket.emit("message", msgData);
+    showToast(viewOnce ? "Foto sekali lihat terkirim" : "Gambar terkirim");
+
   } catch (err) {
-    console.error("Gagal upload gambar:", err);
-    showAlert("Gagal mengirim gambar:\n" + (err.message || "Periksa koneksi internet"));
+    showAlert("Gagal mengirim gambar: " + err.message);
   } finally {
-
     loadingEl.style.display = 'none';
-
-    if (sendBtn) {
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Kirim";
-    }
-    if (cancelBtn) cancelBtn.disabled = false;
-
     cancelFilePreview();
-
     document.getElementById('fileInput').value = '';
     selectedFile = null;
   }
@@ -1436,78 +1341,32 @@ function cancelFilePreview() {
 
 function setupInteractionForDelete(msgElement, actionElement) {
   let pressTimer;
-
   msgElement.addEventListener('touchstart', () => {
-    pressTimer = setTimeout(() => {
-      msgElement.classList.add('long-press');
-      actionElement.style.display = 'block';
-    }, 500); 
+    pressTimer = setTimeout(() => { msgElement.classList.add('long-press'); actionElement.style.display = 'block'; }, 500); 
   });
-
   msgElement.addEventListener('touchend', () => {
     clearTimeout(pressTimer);
-    setTimeout(() => {
-      msgElement.classList.remove('long-press');
-      actionElement.style.display = 'none'; 
-    }, 3000); 
+    setTimeout(() => { msgElement.classList.remove('long-press'); actionElement.style.display = 'none'; }, 3000); 
   });
-
-  msgElement.addEventListener('touchmove', () => {
-    clearTimeout(pressTimer);
-    msgElement.classList.remove('long-press');
-    actionElement.style.display = 'none';
-  });
-
+  msgElement.addEventListener('touchmove', () => { clearTimeout(pressTimer); msgElement.classList.remove('long-press'); actionElement.style.display = 'none'; });
   msgElement.addEventListener('click', (e) => {
-
     if (e.target === actionElement || actionElement.contains(e.target)) return;
-
-    if (msgElement.classList.contains('clicked')) {
-      msgElement.classList.remove('clicked');
-      actionElement.style.display = 'none';
-    } else {
-      msgElement.classList.add('clicked');
-      actionElement.style.display = 'block';
-    }
+    if (msgElement.classList.contains('clicked')) { msgElement.classList.remove('clicked'); actionElement.style.display = 'none'; }
+    else { msgElement.classList.add('clicked'); actionElement.style.display = 'block'; }
   });
-}
-
-function deleteForEveryone(msgId) {
-  if (!msgId || msgId.startsWith('temp-')) {
-    showToast("Pesan belum terkirim ke server");
-    return;
-  }
-
-  socket.emit('delete-for-everyone', { msgId });
-  updateMsgAsDeleted(msgId); 
 }
 
 function updateMsgAsDeleted(msgId) {
   const msgDiv = messagesMap[msgId];
   if (!msgDiv) return;
-
   const clone = msgDiv.cloneNode(true);
   msgDiv.parentNode.replaceChild(clone, msgDiv);
   messagesMap[msgId] = clone; 
-  
   const bubble = clone.querySelector('.bubble');
-  if (bubble) {
-    bubble.innerHTML = 'Pesan ini telah dihapus';
-    bubble.className = 'bubble deleted-msg';
-  }
-
+  if (bubble) { bubble.innerHTML = 'Pesan ini telah dihapus'; bubble.className = 'bubble deleted-msg'; }
   const action = clone.querySelector('.msg-action');
   if (action) action.remove();
-
-  delete clone.dataset.fileUrl;
-  delete clone.dataset.isViewonce;
-  delete clone.dataset.fromName;
-  delete clone.dataset.caption;
-
   clone.style.cursor = 'default';
-
-  const timeEl = clone.querySelector('.time');
-  if (timeEl) timeEl.textContent = timeNow();
 }
 
 socket.on("matched", p => {
@@ -1521,9 +1380,12 @@ socket.on("matched", p => {
     document.getElementById("msg").disabled = false;
     document.querySelector(".footer button").disabled = false;
     document.getElementById("refreshBtn").style.display = "none";
+    
+    // Update foto partner (jika dia punya foto dari profil/sessionnya)
+    if (p.profilePic) document.getElementById("headerPartnerPic").src = p.profilePic;
+    else document.getElementById("headerPartnerPic").src = "https://via.placeholder.com/40/10b981/ffffff?text=?";
 
     setPartnerButtonsEnabled(true);
-
     isInVideoCall = false;
     updateVideoCallButton();          
 });
@@ -1531,21 +1393,23 @@ socket.on("matched", p => {
 socket.on("message", data => {
   const side = data.fromMe ? "me" : "other";  
   addMsg(data, side);
+
+  // NOTIFIKASI BACKGROUND jika Web (minimize) Web2App menangkap Notifikasi ini
+  if (side === 'other' && document.hidden && Notification.permission === "granted") {
+      new Notification(partner?.name || "Pesan Baru", {
+          body: data.type === 'file' ? '📸 Mengirim gambar' : data.text,
+          icon: partner?.profilePic || undefined
+      });
+  }
 });
 
 socket.on("delete-for-everyone", ({ msgId }) => updateMsgAsDeleted(msgId));
-
 socket.on("typing", () => {
   const el = document.getElementById("partnerStatus");
-  el.textContent = "Sedang mengetik…";
-  el.className = "partner-status status-typing";
+  el.textContent = "Sedang mengetik…"; el.className = "partner-status status-typing";
   clearTimeout(window.typingTm);
-  window.typingTm = setTimeout(() => {
-    el.textContent = "Online";
-    el.className = "partner-status status-online";
-  }, 2200);
+  window.typingTm = setTimeout(() => { el.textContent = "Online"; el.className = "partner-status status-online"; }, 2200);
 });
-
 document.getElementById("msg").oninput = () => socket.emit("typing");
 
 socket.on("partner-left", () => {
@@ -1554,752 +1418,223 @@ socket.on("partner-left", () => {
     document.getElementById("msg").disabled = true;
     document.querySelector(".footer button").disabled = true;
     document.getElementById("refreshBtn").style.display = "block";
-
-    if (isInVideoCall) {
-        showToast("Video call ditutup otomatis");
-        endCall(true);
-    }
-
+    if (isInVideoCall) { showToast("Video call ditutup otomatis"); endCall(true); }
     setPartnerButtonsEnabled(false);
-
-    const btn = document.getElementById("videoCallBtn");
-    btn.classList.remove("disabled");   
-    btn.style.opacity = "1";          
 });
 
+// -- WEBRTC & VIDEO CALL --
 async function startMedia() {
   try {
-
-    localStream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: "user",
-        width: { ideal: 640 },
-        height: { ideal: 480 },
-        aspectRatio: { ideal: 4/3 }
-      },
-      audio: true
-    });
-
-    const videoTrack = localStream.getVideoTracks()[0];
-    const audioTrack = localStream.getAudioTracks()[0];
-
-    if (videoTrack) {
-      videoTrack.enabled = myCamEnabled;  
-    }
-
-    if (audioTrack) {
-      audioTrack.enabled = myMicEnabled;
-    }
-
-    document.getElementById("camBtn").className = 
-      (videoTrack && videoTrack.enabled) 
-        ? "bi bi-camera-video-fill" 
-        : "bi bi-camera-video-off-fill muted";
-
-    document.getElementById("micBtn").className = 
-      myMicEnabled 
-        ? "bi bi-mic-fill" 
-        : "bi bi-mic-mute-fill muted";
-
+    localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 }, aspectRatio: { ideal: 4/3 } }, audio: true });
+    const videoTrack = localStream.getVideoTracks()[0], audioTrack = localStream.getAudioTracks()[0];
+    if (videoTrack) videoTrack.enabled = myCamEnabled;  
+    if (audioTrack) audioTrack.enabled = myMicEnabled;
+    document.getElementById("camBtn").className = (videoTrack && videoTrack.enabled) ? "bi bi-camera-video-fill" : "bi bi-camera-video-off-fill muted";
+    document.getElementById("micBtn").className = myMicEnabled ? "bi bi-mic-fill" : "bi bi-mic-mute-fill muted";
     const localVideo = document.getElementById("localVideo");
-    localVideo.srcObject = localStream;
-    localVideo.play().catch(e => console.log("Play error:", e));
-
-    socket.emit("media-status", { 
-      mic: myMicEnabled,
-      cam: myCamEnabled 
-    });
-
+    localVideo.srcObject = localStream; localVideo.play().catch(e => console.log(e));
+    socket.emit("media-status", { mic: myMicEnabled, cam: myCamEnabled });
     return true;
-  } catch (err) {
-    console.error("getUserMedia gagal:", err);
-    showAlert("Tidak bisa akses kamera: " + err.message);
-    return false;
-  }
+  } catch (err) { showAlert("Tidak bisa akses kamera: " + err.message); return false; }
 }
 
 function createPeer() {
   if (pc) pc.close();
-  pc = new RTCPeerConnection({
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun1.l.google.com:19302" },
-      { urls: "stun:stun2.l.google.com:19302" }
-    ]
-  });
-
-  pc.onicecandidate = e => {
-    if (e.candidate) {
-      socket.emit("ice", e.candidate);
-    }
-  };
-
-  pc.oniceconnectionstatechange = () => {
-    console.log("ICE state changed:", pc.iceConnectionState);
-    checkSignal();
-    autoEndCallIfDisconnected(); 
-  };
-
-  pc.onconnectionstatechange = () => {
-    console.log("Connection state changed:", pc.connectionState);
-    checkSignal();
-    autoEndCallIfDisconnected(); 
-  };
-
-  pc.ontrack = e => {
-    console.log("Menerima track remote!");
-    const rv = document.getElementById("remoteVideo");
-    rv.srcObject = e.streams[0];
-    rv.play().catch(err => console.log("Auto-play error:", err));
-  };
-
+  pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "stun:stun1.l.google.com:19302" }] });
+  pc.onicecandidate = e => { if (e.candidate) socket.emit("ice", e.candidate); };
+  pc.oniceconnectionstatechange = () => checkSignal();
+  pc.onconnectionstatechange = () => { checkSignal(); autoEndCallIfDisconnected(); };
+  pc.ontrack = e => { document.getElementById("remoteVideo").srcObject = e.streams[0]; };
   return pc;
 }
 
-function updateConnectionUI() {
-  if (!pc) return;
-  const st = pc.connectionState;
-  if (st === "connected") {
-    document.getElementById("netStatus").style.display = "flex";
-  } else if (st === "disconnected" || st === "failed") {
-    document.getElementById("netStatus").style.display = "none";
+function checkSignal() {
+  if (!pc) { document.getElementById("netStatus").style.display = "none"; return; }
+  const state = pc.connectionState, netPill = document.getElementById("netStatus");
+  if (state === "connected") {
+    netPill.style.display = "flex"; updateLatency();  
+    clearInterval(window.latencyInterval); window.latencyInterval = setInterval(updateLatency, 1000);  
+  } else if (state === "connecting" || state === "new") {
+    netPill.style.display = "flex"; document.getElementById("netLeft").textContent = "Connecting";
+  } else {
+    netPill.style.display = "none"; clearInterval(window.latencyInterval); document.getElementById("netLeft").textContent = "— ms"; lastRTT = 0;
   }
 }
 
 async function updateLatency() {
-  if (!pc) {
-    console.log("[LATENCY] pc tidak ada → skip update");
-    document.getElementById("netLeft").textContent = "— ms";
-    return;
-  }
-
-  if (pc.connectionState !== "connected") {
-    console.log("[LATENCY] Skip update: state bukan connected (" + pc.connectionState + ")");
-    document.getElementById("netLeft").textContent = "— ms";
-    return;
-  }
-
-  console.log("[LATENCY] Mulai ambil stats RTC...");
-
+  if (!pc || pc.connectionState !== "connected") return;
   try {
     const stats = await pc.getStats();
     let rtt = -1;
-    let foundAny = false;
-
     stats.forEach(report => {
-      if (report.type === 'candidate-pair') {
-        if (report.currentRoundTripTime !== undefined && report.currentRoundTripTime > 0) {
-          if (report.nominated || report.selectedCandidatePairId || report.state === 'succeeded') {
-            rtt = Math.round(report.currentRoundTripTime * 1000);
-            foundAny = true;
-            console.log("[LATENCY] Dapat RTT dari candidate-pair (nominated/succeeded):", rtt, "ms");
-          }
-        }
+      if (report.type === 'candidate-pair' && report.currentRoundTripTime > 0 && (report.nominated || report.state === 'succeeded')) {
+        rtt = Math.round(report.currentRoundTripTime * 1000);
       }
     });
-
-    if (rtt === -1) {
-      stats.forEach(report => {
-        if (report.type === 'candidate-pair' && report.currentRoundTripTime > 0) {
-          rtt = Math.round(report.currentRoundTripTime * 1000);
-          foundAny = true;
-          console.log("[LATENCY] Dapat RTT dari candidate-pair (fallback):", rtt, "ms");
-        }
-      });
-    }
-
-    if (rtt === -1) {
-      stats.forEach(report => {
-        if (report.type === 'remote-inbound-rtp' && report.roundTripTime > 0) {
-          rtt = Math.round(report.roundTripTime * 1000);
-          foundAny = true;
-          console.log("[LATENCY] Dapat RTT dari remote-inbound-rtp:", rtt, "ms");
-        }
-      });
-    }
-
-    const netLeft = document.getElementById("netLeft");
-    const netPill = document.getElementById("netStatus");
-
-    if (rtt > 0 && !isNaN(rtt)) {
-      lastRTT = rtt;
-      netLeft.textContent = `${lastRTT} ms`;
-      console.log("[LATENCY] Sukses update UI →", lastRTT, "ms");
-
-      netPill.style.color = '#34d399';
-      netPill.style.borderColor = '#0f9d6e';
-
-      if (lastRTT > 150) {
-        netPill.style.color = '#f59e0b';
-        netPill.style.borderColor = '#d97706';
-      }
-      if (lastRTT > 300) {
-        netPill.style.color = '#ef4444';
-        netPill.style.borderColor = '#b91c1c';
-      }
-    } else {
-      netLeft.textContent = foundAny ? "— ms" : "No RTT";
-      netPill.style.color = '#94a3b8';
-      netPill.style.borderColor = '#475569';
-      console.log("[LATENCY] RTT tidak ditemukan atau 0 → tampil", netLeft.textContent);
-    }
-  } catch (err) {
-    console.error("[LATENCY] Error saat getStats:", err.name, err.message);
-    document.getElementById("netLeft").textContent = "Err";
-    document.getElementById("netStatus").style.color = '#ef4444';
-    document.getElementById("netStatus").style.borderColor = '#b91c1c';
-  }
-}
-
-function checkSignal() {
-  if (!pc) {
-    console.log("[NET] pc tidak ada → hide pill");
-    document.getElementById("netStatus").style.display = "none";
-    return;
-  }
-
-  const state = pc.connectionState;
-  console.log("[NET] Connection state saat ini:", state);
-
-  const netPill = document.getElementById("netStatus");
-
-  if (state === "connected") {
-    console.log("[NET] CONNECTED → tampilkan pill & mulai latency");
-    netPill.style.display = "flex";
-    updateLatency();  
-    clearInterval(window.latencyInterval);
-    window.latencyInterval = setInterval(() => {
-      console.log("[NET] Update latency interval...");
-      updateLatency();
-    }, 1000);  
-  } else if (state === "connecting" || state === "new") {
-    console.log("[NET] Connecting → tampilkan 'Connecting'");
-    netPill.style.display = "flex";
-    document.getElementById("netLeft").textContent = "Connecting";
-  } else {
-    console.log("[NET] State lain (" + state + ") → sembunyikan pill");
-    netPill.style.display = "none";
-    clearInterval(window.latencyInterval);
-    document.getElementById("netLeft").textContent = "— ms";
-    lastRTT = 0;
-  }
+    const netLeft = document.getElementById("netLeft"), netPill = document.getElementById("netStatus");
+    if (rtt > 0) {
+      netLeft.textContent = `${rtt} ms`;
+      netPill.style.color = rtt > 300 ? '#ef4444' : rtt > 150 ? '#f59e0b' : '#34d399';
+    } else netLeft.textContent = "— ms";
+  } catch (err) {}
 }
 
 async function callUser() {
-  if (!partner) {
-    showAlert("Belum terhubung dengan partner");
-    return;
-  }
-
-  isInVideoCall = true;
-  updateVideoCallButton();
-
+  if (!partner) { showAlert("Belum terhubung"); return; }
+  isInVideoCall = true; updateVideoCallButton();
   document.getElementById("waitingPartnerName").textContent = partner?.name || "Partner";
-
-  const waitingModal = document.getElementById("waitingModal");
-  waitingModal.style.display = "grid";
-
+  document.getElementById("waitingModal").style.display = "grid";
   window.callTm = setTimeout(() => {
-    if (waitingModal.style.display === "grid") {
-      waitingModal.style.display = "none";
-      showAlert("Panggilan tidak dijawab");
-      isInVideoCall = false;
-      updateVideoCallButton();
-    }
+    document.getElementById("waitingModal").style.display = "none"; showAlert("Tidak dijawab"); isInVideoCall = false; updateVideoCallButton();
   }, 30000);
 
   try {
     const hasMedia = await startMedia();
-    if (!hasMedia) {
-      waitingModal.style.display = "none";
-      isInVideoCall = false;
-      updateVideoCallButton();
-      return;
-    }
-
+    if (!hasMedia) { document.getElementById("waitingModal").style.display = "none"; isInVideoCall = false; updateVideoCallButton(); return; }
     createPeer();
-
-    localStream.getTracks().forEach(track => {
-      pc.addTrack(track, localStream);
-    });
-
+    localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
     socket.emit("call-user");
-
-  } catch (err) {
-    console.error("Gagal memulai panggilan:", err);
-    waitingModal.style.display = "none";
-    isInVideoCall = false;
-    updateVideoCallButton();
-    showAlert("Gagal memulai panggilan video: " + err.message);
-  }
+  } catch (err) { showAlert("Gagal: " + err.message); }
 }
 
 socket.on("incoming-call", d => {
   document.getElementById("callerName").textContent = d.name || "Partner";
-
   document.getElementById("incomingCall").style.display = "grid";
 });
 
 socket.on("call-accepted", async () => {
-  clearTimeout(window.callTm);
-  document.getElementById("waitingModal").style.display = "none";
-
+  clearTimeout(window.callTm); document.getElementById("waitingModal").style.display = "none";
   try {
     if (!localStream) await startMedia();
-
     createPeer();
-
-    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
+    localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     socket.emit("offer", offer);
-
     document.getElementById("videoScreen").style.display = "flex";
     document.getElementById("callName").textContent = partner?.name || "Partner";
-
-    resetVideoLayout();
-    checkSignal();
-
-    makePipDraggable(document.getElementById("localVideo"));
-    makePipDraggable(document.getElementById("remoteVideo"));
-
-    showToast("Terhubung");
-
-  } catch (err) {
-    console.error("Error setelah call diterima:", err);
-    showAlert("Koneksi terputus");
-    endCall();
-  }
+    resetVideoLayout(); checkSignal(); showToast("Terhubung");
+  } catch (err) { endCall(); }
 });
-
-socket.on("call-rejected", () => {
-  clearTimeout(window.callTm);
-  document.getElementById("waitingModal").style.display = "none";
-  document.getElementById("rejectedText").textContent = `${partner?.name || "Partner"} menolak panggilan`;
-  document.getElementById("rejectedModal").style.display = "grid";
-
-  isInVideoCall = false;
-  updateVideoCallButton();
-});
-
-socket.on("end-call", () => endCall(true));
-
-function resetVideoLayout() {
-    const local  = document.getElementById("localVideo");
-    const remote = document.getElementById("remoteVideo");
-
-    if (!local || !remote) return;
-
-    isPipSwapped = false;
-
-    local.style.transform  = "";
-
-    local.className  = "pip pip-normal";
-    remote.className = "full";
-
-    local.style.position = "fixed";
-    local.style.top      = "70px";
-    local.style.right    = "16px";
-    local.style.bottom   = "auto";
-    local.style.left     = "auto";
-    local.style.width    = "120px";
-    local.style.height   = "160px";
-    local.style.zIndex   = "10";
-
-    remote.style.position = "static";
-    remote.style.left     = "0";
-    remote.style.right    = "0";
-    remote.style.top      = "0";
-    remote.style.bottom   = "0";
-    remote.style.width    = "100%";
-    remote.style.height   = "100%";
-    remote.style.zIndex   = "5";
-
-    if (isFront) {
-        local.style.transform = "scaleX(-1)";
-    }
-
-    local.classList.remove("pip-mini", "full");
-    remote.classList.remove("pip", "pip-normal", "pip-mini");
-
-    makePipDraggable(local);
-    makePipDraggable(remote);
-
-    updateMicIcons();
-
-    void local.offsetWidth; 
-}
-
-socket.on("offer", async o => {
-  if (!pc) createPeer();
-  await pc.setRemoteDescription(o);
-  const ans = await pc.createAnswer();
-  await pc.setLocalDescription(ans);
-  socket.emit("answer", ans);
-});
-
-socket.on("answer", a => pc.setRemoteDescription(a));
-
-socket.on("ice", c => pc?.addIceCandidate(new RTCIceCandidate(c)));
 
 async function acceptCall() {
   document.getElementById("incomingCall").style.display = "none";
-
   const hasMedia = await startMedia();
-  if (!hasMedia) {
-    showAlert("Tidak bisa mengakses kamera");
-    return;
-  }
-
+  if (!hasMedia) { showAlert("Tidak ada kamera"); return; }
   createPeer();
-
-  localStream.getTracks().forEach(track => {
-    pc.addTrack(track, localStream);
-  });
-
+  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
   try {
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    socket.emit("offer", offer);
-
-    isInVideoCall = true;
-    updateVideoCallButton();
-
-    document.getElementById("videoScreen").style.display = "flex";
-    document.getElementById("callName").textContent = partner?.name || "Partner";
-
+    const offer = await pc.createOffer(); await pc.setLocalDescription(offer); socket.emit("offer", offer);
+    isInVideoCall = true; updateVideoCallButton();
+    document.getElementById("videoScreen").style.display = "flex"; document.getElementById("callName").textContent = partner?.name || "Partner";
     resetVideoLayout();
-
-    makePipDraggable(document.getElementById("localVideo"));
-    makePipDraggable(document.getElementById("remoteVideo"));
-
-  } catch (err) {
-    console.error("Gagal membuat offer:", err);
-    showAlert("Gagal menerima panggilan: " + err.message);
-    isInVideoCall = false;
-    updateVideoCallButton();
-  }
-
+  } catch (err) { }
   socket.emit("accept-call");
 }
 
 function rejectCall() {
   document.getElementById("incomingCall").style.display = "none";
-  socket.emit("reject-call");
-
-  isInVideoCall = false;
-  updateVideoCallButton();
-
-  showToast("Panggilan ditolak");
+  socket.emit("reject-call"); isInVideoCall = false; updateVideoCallButton(); showToast("Panggilan ditolak");
 }
 
 socket.on("call-rejected", () => {
-  clearTimeout(window.callTm);
-  document.getElementById("waitingModal").style.display = "none";
-  document.getElementById("rejectedText").textContent = `${partner?.name || "Partner"} menolak panggilan`;
+  clearTimeout(window.callTm); document.getElementById("waitingModal").style.display = "none";
+  document.getElementById("rejectedText").textContent = `${partner?.name || "Partner"} menolak`;
   document.getElementById("rejectedModal").style.display = "grid";
-
-  isInVideoCall = false;
-  updateVideoCallButton();
+  setTimeout(() => closeRejected(), 10000);
+  isInVideoCall = false; updateVideoCallButton();
 });
 
-socket.on("media-status", (status) => {
-  if (status.mic !== undefined) {
-    partnerMicEnabled = status.mic;  
-    updateMicIcons();
-  }
-});
+socket.on("offer", async o => { if (!pc) createPeer(); await pc.setRemoteDescription(o); const ans = await pc.createAnswer(); await pc.setLocalDescription(ans); socket.emit("answer", ans); });
+socket.on("answer", a => pc.setRemoteDescription(a));
+socket.on("ice", c => pc?.addIceCandidate(new RTCIceCandidate(c)));
+socket.on("media-status", (status) => { if (status.mic !== undefined) { partnerMicEnabled = status.mic; updateMicIcons(); } });
 
 function endCall(isAuto = false) {
   clearTimeout(window.callTm);
-
-  if (pc) {
-    pc.close();
-    pc = null;
-  }
-
-  if (localStream) {
-    localStream.getTracks().forEach(track => track.stop());
-    localStream = null;
-  }
-
-  document.getElementById("videoScreen").style.display = "none";
-  document.getElementById("waitingModal").style.display = "none";
+  if (pc) { pc.close(); pc = null; }
+  if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+  document.getElementById("videoScreen").style.display = "none"; document.getElementById("waitingModal").style.display = "none";
   document.getElementById("incomingCall").style.display = "none";
-  document.getElementById("netStatus").style.display = "none";
-
-  isInVideoCall = false;
-  isPipSwapped = false;
-  isVideoMinimized = false;
-  isMinimizedToPartner = false;
-
-  document.getElementById("miniRemoteVideoContainer").style.display = "none";
-
-  updateVideoCallButton();
-
-  if (isAuto) {
-    showToast("Koneksi terputus");
-  } else {
-    showToast("Panggilan diakhiri");
-  }
-
+  isInVideoCall = false; isPipSwapped = false; updateVideoCallButton();
+  showToast(isAuto ? "Terputus" : "Diakhiri");
   socket.emit("end-call");
-
-  document.getElementById("localVideo").srcObject = null;
-  document.getElementById("remoteVideo").srcObject = null;
 }
 
 function autoEndCallIfDisconnected() {
   if (!pc || !isInVideoCall) return;
-
   const state = pc.connectionState;
-  const iceState = pc.iceConnectionState;
-
-  if (
-    state === "disconnected" ||
-    state === "failed" ||
-    state === "closed" ||
-    iceState === "disconnected" ||
-    iceState === "failed" ||
-    iceState === "closed"
-  ) {
-    console.log("Koneksi terputus → auto end call");
-    showToast("Koneksi terputus");
-    endCall(true);
-    updateVideoCallButton();  
-  }
+  if (state === "disconnected" || state === "failed" || state === "closed") endCall(true);
 }
-
 socket.on("end-call", endCall);
 
-document.getElementById("localVideo").onclick = function(e) {
-    if (e.target.closest('.dragging') || e.target.classList.contains('dragging')) {
-        return;
-    }
-
+function resetVideoLayout() {
     const local  = document.getElementById("localVideo");
     const remote = document.getElementById("remoteVideo");
-
     if (!local || !remote) return;
+    isPipSwapped = false;
+    local.className  = "pip pip-normal"; remote.className = "full";
+    local.style = "position: fixed; top: 70px; right: 16px; width: 120px; height: 160px; z-index: 10;";
+    remote.style = "position: static; width: 100%; height: 100%; z-index: 5;";
+    if (isFront) local.style.transform = "scaleX(-1)";
+    makePipDraggable(local); makePipDraggable(remote); updateMicIcons();
+}
 
+document.getElementById("localVideo").onclick = function(e) {
+    if (e.target.closest('.dragging') || e.target.classList.contains('dragging')) return;
+    const local = document.getElementById("localVideo"), remote = document.getElementById("remoteVideo");
+    if (!local || !remote) return;
     isPipSwapped = !isPipSwapped;
-
-    local.style.transform  = "";   
-
     if (isPipSwapped) {
-        local.classList.remove("pip", "pip-normal", "pip-mini");
-        local.classList.add("full");
-        local.style.position = "static";
-        local.style.left = local.style.right = local.style.top = local.style.bottom = "0";
-        local.style.width    = "100%";
-        local.style.height   = "100%";
-        local.style.zIndex   = "5";
-
-        remote.classList.remove("full");
-        remote.classList.add("pip", "pip-normal");
-        remote.style.position = "fixed";
-        remote.style.top      = "70px";
-        remote.style.right    = "16px";
-        remote.style.bottom   = "auto";
-        remote.style.left     = "auto";
-        remote.style.width    = "120px";
-        remote.style.height   = "160px";
-        remote.style.zIndex   = "10";
-
-        if (isFront) {
-            local.style.transform = "scaleX(-1)";
-        }
+        local.className = "full"; local.style = "width:100%; height:100%; z-index:5;";
+        remote.className = "pip pip-normal"; remote.style = "position:fixed; top:70px; right:16px; width:120px; height:160px; z-index:10;";
     } else {
-        local.classList.remove("full");
-        local.classList.add("pip", "pip-normal");
-        local.style.position = "fixed";
-        local.style.top      = "70px";
-        local.style.right    = "16px";
-        local.style.bottom   = "auto";
-        local.style.left     = "auto";
-        local.style.width    = "120px";
-        local.style.height   = "160px";
-        local.style.zIndex   = "10";
-
-        remote.classList.remove("pip", "pip-normal", "pip-mini");
-        remote.classList.add("full");
-        remote.style.position = "static";
-        remote.style.left     = "0";
-        remote.style.right    = "0";
-        remote.style.top      = "0";
-        remote.style.bottom   = "0";
-        remote.style.width    = "100%";
-        remote.style.height   = "100%";
-        remote.style.zIndex   = "5";
-
-        if (isFront) {
-            local.style.transform = "scaleX(-1)";
-        }
+        local.className = "pip pip-normal"; local.style = "position:fixed; top:70px; right:16px; width:120px; height:160px; z-index:10;";
+        remote.className = "full"; remote.style = "position:static; width:100%; height:100%; z-index:5;";
     }
-
-    updateMicIcons();
-    makePipDraggable(local);
-    makePipDraggable(remote);
+    if (isFront) { local.style.transform = "scaleX(-1)"; } else { local.style.transform = ""; }
+    updateMicIcons(); makePipDraggable(local); makePipDraggable(remote);
 };
 
 async function switchCamera() {
-    if (!localStream) {
-        showAlert("Kamera belum aktif");
-        return;
-    }
-
+    if (!localStream) { showAlert("Kamera belum aktif"); return; }
     try {
         const oldVideoTrack = localStream.getVideoTracks()[0];
-        if (oldVideoTrack) {
-            oldVideoTrack.stop();
-            localStream.removeTrack(oldVideoTrack);
-        }
-
-        const mode = isFront ? "environment" : "user";
+        if (oldVideoTrack) { oldVideoTrack.stop(); localStream.removeTrack(oldVideoTrack); }
         isFront = !isFront;  
-
-        const newConstraints = {
-            video: {
-                facingMode: { exact: mode },
-                width: { ideal: 640 },
-                height: { ideal: 480 },
-                aspectRatio: { ideal: 4/3 },
-                frameRate: { ideal: 30 }
-            }
-        };
-
-        const newStream = await navigator.mediaDevices.getUserMedia(newConstraints);
+        const mode = isFront ? "user" : "environment";
+        const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: mode } } });
         const newVideoTrack = newStream.getVideoTracks()[0];
-
-        if (!newVideoTrack) {
-            throw new Error("Tidak ada track video baru");
-        }
-
         localStream.addTrack(newVideoTrack);
-
-        const localVideo = document.getElementById("localVideo");
         
-        localVideo.srcObject = null;
-        await new Promise(resolve => setTimeout(resolve, 50));
-        localVideo.srcObject = localStream;
-        localVideo.play().catch(e => console.log("Play error:", e));
-
+        document.getElementById("localVideo").srcObject = localStream;
         if (pc) {
             const videoSender = pc.getSenders().find(s => s.track && s.track.kind === "video");
-            if (videoSender) {
-                await videoSender.replaceTrack(newVideoTrack);
-                console.log("Track video berhasil diganti di peer connection");
-            }
+            if (videoSender) await videoSender.replaceTrack(newVideoTrack);
         }
-
-        localVideo.style.transform = "";  
-        if (isFront) {
-            localVideo.style.transform = "scaleX(-1)";
-        }
-
-        showToast(`Kamera ${isFront ? "depan" : "belakang"} aktif`);
-
-    } catch (err) {
-        console.error("Switch camera gagal:", err.name, err.message);
-        showAlert("Gagal ganti kamera: " + (err.message || "Coba restart halaman"));
-        isFront = !isFront;
-    }
-}
-
-function closeViewOnce() {
-  const modal          = document.getElementById("viewOnceModal");
-  const img            = document.getElementById("voFullImage");
-  const timerContainer = document.getElementById("voTimerContainer");
-  const expiredOverlay = document.getElementById("voExpiredOverlay");
-
-  clearInterval(viewOnceInterval);
-
-  modal.classList.remove('view-once-active');
-  if (timerContainer) timerContainer.style.display = "none";
-  if (expiredOverlay) expiredOverlay.style.display = "none";
-  if (img) {
-    img.classList.remove("expired");
-    img.src = "";
-  }
-
-  modal.style.display = "none";
-  document.getElementById("voHeader").textContent = "Foto dari ...";
+        document.getElementById("localVideo").style.transform = isFront ? "scaleX(-1)" : "";
+    } catch (err) { showAlert("Gagal ganti kamera"); isFront = !isFront; }
 }
 
 function toggleMic() {
   if (!localStream) return;
-  const tr = localStream.getAudioTracks()[0];
-  if (!tr) return;
-
-  myMicEnabled = !myMicEnabled;
-  tr.enabled = myMicEnabled;
-
-  document.getElementById("micBtn").className = 
-    myMicEnabled ? "bi bi-mic-fill" : "bi bi-mic-mute-fill muted";
-
-  socket.emit("media-status", { mic: myMicEnabled });
-
-  updateMicIcons();
+  const tr = localStream.getAudioTracks()[0]; if (!tr) return;
+  myMicEnabled = !myMicEnabled; tr.enabled = myMicEnabled;
+  document.getElementById("micBtn").className = myMicEnabled ? "bi bi-mic-fill" : "bi bi-mic-mute-fill muted";
+  socket.emit("media-status", { mic: myMicEnabled }); updateMicIcons();
 }
 
 function toggleCam() {
   if (!localStream) return;
-  const tr = localStream.getVideoTracks()[0];
-  if (!tr) return;
-
-  myCamEnabled = !myCamEnabled;
-  tr.enabled = myCamEnabled;
-
-  document.getElementById("camBtn").className = 
-    myCamEnabled ? "bi bi-camera-video-fill" : "bi bi-camera-video-off-fill muted";
+  const tr = localStream.getVideoTracks()[0]; if (!tr) return;
+  myCamEnabled = !myCamEnabled; tr.enabled = myCamEnabled;
+  document.getElementById("camBtn").className = myCamEnabled ? "bi bi-camera-video-fill" : "bi bi-camera-video-off-fill muted";
 }
 
-function openProfile() {
-  if (!partner) return;
-
-  const genderText = partner.gender && partner.gender !== "-" ? partner.gender : "Tidak disebutkan";
-  const jobText    = partner.job    && partner.job    !== "-" ? partner.job    : "Tidak disebutkan";
-
-  document.getElementById("profileContent").innerHTML = `
-    <div><b>Nama:</b> ${partner.name}</div>
-    <div><b>Umur:</b> ${partner.age}</div>
-    <div><b>Gender:</b> ${genderText}</div>
-    <div><b>Status:</b> ${jobText}</div>
-    <div><b>Server:</b> ${partner.server}</div>
-  `;
-  document.getElementById("profileModal").style.display = "grid";
-}
-
-function closeProfile() { document.getElementById("profileModal").style.display = "none"; }
 function closeRejected() {
   const modal = document.getElementById("rejectedModal");
-  modal.style.opacity = "0";
-  modal.style.transform = "scale(0.95)";
-  setTimeout(() => {
-    modal.style.display = "none";
-    modal.style.opacity = "1";
-    modal.style.transform = "scale(1)";
-  }, 300);
+  modal.style.display = "none";
 }
-
-socket.on("call-rejected", () => {
-  clearTimeout(window.callTm);
-  document.getElementById("waitingModal").style.display = "none";
-
-  const rejectedText = document.getElementById("rejectedText");
-  rejectedText.textContent = `${partner?.name || "Partner"} menolak panggilan`;
-
-  const rejectedModal = document.getElementById("rejectedModal");
-  rejectedModal.style.display = "grid";
-
-  setTimeout(() => {
-    closeRejected();
-  }, 10000);
-
-  isInVideoCall = false;
-  updateVideoCallButton();
-});
 
 function refreshChat() {
   document.getElementById("chat").style.display = "none";
@@ -2307,103 +1642,15 @@ function refreshChat() {
   if (window.userData) socket.emit("join", window.userData);
 }
 
-function logout() {
-  socket.disconnect();
-  location.reload();
-}
-
-let isDraggingMini = false;
-let currentXMini, currentYMini, initialXM, initialYM;
-
-const miniContainer = document.getElementById("miniRemoteVideoContainer");
-
-if (miniContainer) {
-  miniContainer.addEventListener("pointerdown", startDraggingMini);
-
-  function startDraggingMini(e) {
-    if (e.target.tagName === "VIDEO") {
-      
-      e.stopPropagation();
-    }
-
-    isDraggingMini = true;
-    miniContainer.classList.add("dragging");
-
-    initialXM = e.clientX - currentXMini;
-    initialYM = e.clientY - currentYMini;
-
-    document.addEventListener("pointermove", onPointerMoveMini);
-    document.addEventListener("pointerup", stopDraggingMini);
-    document.addEventListener("pointercancel", stopDraggingMini);
-  }
-
-  function onPointerMoveMini(e) {
-    if (!isDraggingMini) return;
-
-    e.preventDefault();
-
-    currentXMini = e.clientX - initialXM;
-    currentYMini = e.clientY - initialYM;
-
-    const rect = miniContainer.getBoundingClientRect();
-    const maxX = window.innerWidth - rect.width - 16;
-    const maxY = window.innerHeight - rect.height - 100; 
-
-    currentXMini = Math.max(16, Math.min(currentXMini, maxX));
-    currentYMini = Math.max(16, Math.min(currentYMini, maxY));
-
-    miniContainer.style.left = currentXMini + "px";
-    miniContainer.style.top  = currentYMini + "px";
-    miniContainer.style.right = "auto"; 
-    miniContainer.style.bottom = "auto";
-  }
-
-  function stopDraggingMini() {
-    if (!isDraggingMini) return;
-
-    isDraggingMini = false;
-    miniContainer.classList.remove("dragging");
-
-    document.removeEventListener("pointermove", onPointerMoveMini);
-    document.removeEventListener("pointerup", stopDraggingMini);
-    document.removeEventListener("pointercancel", stopDraggingMini);
-  }
-
-  currentXMini = window.innerWidth - 112;
-  currentYMini = window.innerHeight - 228;
-}
-
-document.getElementById('viewOnceModal').addEventListener('contextmenu', function(e) {
-  if (e.target.closest('#voFullImage') || e.target === document.getElementById('voFullImage')) {
-    e.preventDefault();
-    return false;
-  }
-}, false);
-
-document.getElementById('viewOnceModal').addEventListener('dragstart', function(e) {
-  if (e.target.tagName === 'IMG') {
-    e.preventDefault();
-  }
-}, false);
+document.getElementById('viewOnceModal').addEventListener('contextmenu', e => { if (e.target.closest('#voFullImage')) e.preventDefault(); }, false);
+document.getElementById('viewOnceModal').addEventListener('dragstart', e => { if (e.target.tagName === 'IMG') e.preventDefault(); }, false);
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.addEventListener('contextmenu', e => {
-    if (e.target.closest('.view-once-wrapper, .normal-image-wrapper')) {
-      e.preventDefault();
-      return false;
-    }
-  }, false);
-
-  document.addEventListener('dragstart', e => {
-    if (e.target.closest('.view-once-wrapper img, .normal-image-wrapper img')) {
-      e.preventDefault();
-    }
-  });
+  document.addEventListener('contextmenu', e => { if (e.target.closest('.view-once-wrapper, .normal-image-wrapper')) e.preventDefault(); }, false);
+  document.addEventListener('dragstart', e => { if (e.target.closest('.view-once-wrapper img, .normal-image-wrapper img')) e.preventDefault(); });
 });
 
-document.getElementById("attachGalleryBtn").onclick = function() {
-  document.getElementById("fileInput").click();
-};
+document.getElementById("attachGalleryBtn").onclick = function() { document.getElementById("fileInput").click(); };
 </script>
 </body>
 </html>
