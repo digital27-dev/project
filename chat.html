@@ -265,8 +265,10 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     <h2 class="searching-text" id="searchStatus">Mencari partner</h2>
     <p class="searching-subtext" id="dynamicText">Sedang menghubungkan ke server</p>
   </div>
+  
+  <button class="btn-cancel" onclick="cancelSearch()" style="margin-top: 1rem; font-size: 1rem; padding: 10px 24px; min-width: 120px; background: #374151 !important;">Batalkan</button>
 
-  <div class="online-counter">
+  <div class="online-counter" style="position: absolute; bottom: 30px;">
     <div class="online-dot"></div>
     <span id="onlineCount">0</span>Online
   </div>
@@ -407,7 +409,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   </div>
 </div>
 
-<div id="miniRemoteVideoContainer" style="display:none;">
+<div id="miniRemoteVideoContainer" class="pip" style="display:none;">
   <video id="miniRemoteVideo" autoplay playsinline></video>
   </div>
 </div>
@@ -452,7 +454,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
         <i class="bi bi-arrow-repeat"></i> Ulangi
       </button>
       <button class="btn-close-modern" onclick="closeRejected()">
-        Tutup
+        Tutp
       </button>
     </div>
   </div>
@@ -523,7 +525,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
          <span id="storyViewerAuthor" style="color:white; font-weight:bold; font-size:1.1rem;">Name</span>
          <div>
             <i class="bi bi-trash" id="deleteStoryBtn" onclick="deleteCurrentStory()" style="color:#ef4444; cursor:pointer; font-size:1.2rem; margin-right:15px; display:none;" title="Hapus Story"></i>
-            <i class="bi bi-x-lg" onclick="closeStoryViewer()" style="color:white; cursor:pointer; font-size:1.2rem;"></i>
+            <i class="bi bi-x-lg" id="storyCloseBtn" onclick="closeStoryViewer()" style="color:white; cursor:pointer; font-size:1.2rem;"></i>
          </div>
       </div>
       <img id="storyViewerImg" style="width:100%; height:100%; object-fit:contain; display:none;" />
@@ -899,14 +901,18 @@ function openStoryViewer(story, authorName, isMine) {
     
     const imgEl = document.getElementById('storyViewerImg');
     const vidEl = document.getElementById('storyViewerVideo');
+    
+    // Fitur menyembunyikan tombol X khusus untuk video karena sudah ada default player X (mobile)
     if (story.type === 'video') {
         imgEl.style.display = 'none';
         vidEl.style.display = 'block';
         vidEl.src = story.url;
+        document.getElementById('storyCloseBtn').style.display = 'none'; // Sembunyikan X
     } else {
         vidEl.style.display = 'none';
         imgEl.style.display = 'block';
         imgEl.src = story.url;
+        document.getElementById('storyCloseBtn').style.display = 'inline-block'; // Tampilkan X
     }
     
     const viewersListDiv = document.getElementById('storyViewersListContainer');
@@ -964,19 +970,15 @@ function showDisconnectModal() {
 function closeDisconnectModal() { document.getElementById('disconnectConfirmModal').style.display = 'none'; }
 
 // -------------------------------------------------------------
-// FUNGSI UTAMA LOGOUT (TANPA RELOAD/REFRESH)
-// Dipanggil oleh tombol Putus Hubungan maupun tombol Refresh Chat
+// FUNGSI UTAMA LOGOUT & BATALKAN (TANPA RELOAD/REFRESH)
 // -------------------------------------------------------------
 function performLogout() {
-    // 1. Beritahu server untuk putus sesi saat ini
     socket.emit('putus-hubungan');
-    
-    // 2. Hapus data sesi di penyimpanan memori lokal
+    // Tidak disconnect socket agar reconnecting berjalan mulus
     localStorage.removeItem('userData');
     window.userData = null;
     partner = null;
 
-    // 3. Modifikasi antarmuka secara instan (kembali ke Login Form)
     document.getElementById("chat").style.display = "none";
     document.getElementById("searching").style.display = "none";
     document.getElementById("videoScreen").style.display = "none";
@@ -986,18 +988,33 @@ function performLogout() {
     document.getElementById("loginScreen").style.display = "grid";
     document.getElementById("welcomeContent").style.display = "block";
     document.getElementById("loginForm").classList.add("hidden");
+}
 
-    // 4. Reset koneksi soket agar server tahu ini adalah klien yang benar-benar baru
-    socket.disconnect();
+function refreshChat() {
+    socket.emit('putus-hubungan'); // Buang room lama
+    partner = null;
+    
+    document.getElementById("chat").style.display = "none";
+    document.getElementById("videoScreen").style.display = "none";
+    document.getElementById("searching").style.display = "flex";
+    document.getElementById("searchStatus").textContent = "Mencari partner";
+    document.getElementById("dynamicText").textContent = "Mencari partner baru...";
+    
+    // Beri sedikit waktu untuk memastikan keluar room sebelum masuk lagi
     setTimeout(() => {
-        socket.connect();
+        socket.emit("join", window.userData);
     }, 400);
 }
 
-// Kedua fitur logout mengarah ke logika reset yang sama
-function confirmDisconnect() { performLogout(); }
-function refreshChat() { performLogout(); }
+function cancelSearch() {
+    socket.emit('putus-hubungan'); 
+    document.getElementById("searching").style.display = "none";
+    document.getElementById("loginScreen").style.display = "grid";
+    document.getElementById("loginForm").classList.remove("hidden");
+    document.getElementById("welcomeContent").style.display = "none";
+}
 
+function confirmDisconnect() { performLogout(); }
 
 socket.on('message-confirmed', ({ id }) => {
   const lastMsg = document.querySelector('.msg.me:last-child');
@@ -1215,12 +1232,15 @@ function minimizeToPartnerView() {
   
   if (!isAudioOnlyCall) {
     miniContainer.style.display = "block";
+    makePipDraggable(miniContainer); // Memungkinkan PiP chat digeser
   }
   showToast("Mode chat aktif");
 }
 
-document.getElementById("miniRemoteVideoContainer")?.addEventListener("click", function() {
-  if (!isMinimizedToPartner) return;
+let wasDragged = false; // Penanda drag supaya tidak bentrok click
+
+document.getElementById("miniRemoteVideoContainer")?.addEventListener("click", function(e) {
+  if (!isMinimizedToPartner || wasDragged) return;
   isMinimizedToPartner = false;
   document.getElementById("miniRemoteVideoContainer").style.display = "none";
   document.getElementById("videoScreen").style.display = "flex";
@@ -1233,49 +1253,59 @@ document.getElementById("miniRemoteVideoContainer")?.addEventListener("click", f
   resetVideoLayout();
 });
 
-function makePipDraggable(videoElement) {
-  if (!videoElement) return;
+// Fitur Video Draggable PiP (Picture in Picture)
+function makePipDraggable(element) {
+  if (!element) return;
   let isDragging = false;
   let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
 
-  videoElement.addEventListener('pointerdown', startDrag, { passive: false });
+  element.addEventListener('pointerdown', startDrag, { passive: false });
 
   function startDrag(e) {
-    if (!videoElement.classList.contains('pip')) return;
+    if (!element.classList.contains('pip')) return;
     if (e.target.closest('.media-status-overlay')) return;
     isDragging = true;
-    videoElement.classList.add('dragging');
-    const originalTransition = videoElement.style.transition || '';
-    videoElement.style.transition = 'none';
-    const rect = videoElement.getBoundingClientRect();
+    wasDragged = false;
+    element.classList.add('dragging');
+    const originalTransition = element.style.transition || '';
+    element.style.transition = 'none';
+    const rect = element.getBoundingClientRect();
     startX = e.clientX; startY = e.clientY;
     initialLeft = rect.left; initialTop = rect.top;
-    e.preventDefault(); e.stopPropagation();
+    
+    e.stopPropagation();
 
     const onMove = (moveEvent) => {
       if (!isDragging) return;
       moveEvent.preventDefault();
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
+      
+      // Jika digeser sedikit saja, tandai bahwa itu di-drag
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) wasDragged = true;
+
       let newLeft = initialLeft + dx;
       let newTop = initialTop + dy;
-      const padding = 16, w = videoElement.offsetWidth, h = videoElement.offsetHeight;
+      const padding = 16, w = element.offsetWidth, h = element.offsetHeight;
       const maxLeft = window.innerWidth - w - padding, maxTop = window.innerHeight - h - 100;
       newLeft = Math.max(padding, Math.min(newLeft, maxLeft));
       newTop = Math.max(padding, Math.min(newTop, maxTop));
-      videoElement.style.left = newLeft + 'px';
-      videoElement.style.top = newTop + 'px';
-      videoElement.style.transform = `translate3d(0,0,0) ${videoElement.id === 'localVideo' && isFront ? 'scaleX(-1)' : ''}`;
-      videoElement.style.right = 'auto'; videoElement.style.bottom = 'auto';
+      element.style.left = newLeft + 'px';
+      element.style.top = newTop + 'px';
+      element.style.transform = `translate3d(0,0,0) ${element.id === 'localVideo' && isFront ? 'scaleX(-1)' : ''}`;
+      element.style.right = 'auto'; element.style.bottom = 'auto';
     };
 
     const stopDrag = () => {
       isDragging = false;
-      videoElement.classList.remove('dragging');
-      videoElement.style.transition = originalTransition || 'opacity 0.18s ease, transform 0.18s ease';
+      element.classList.remove('dragging');
+      element.style.transition = originalTransition || 'opacity 0.18s ease, transform 0.18s ease';
       document.removeEventListener('pointermove', onMove);
       document.removeEventListener('pointerup', stopDrag);
       document.removeEventListener('pointercancel', stopDrag);
+      
+      // Reset wasDragged setelah delay kecil
+      setTimeout(() => wasDragged = false, 100);
     };
 
     document.addEventListener('pointermove', onMove, { passive: false });
@@ -1441,7 +1471,6 @@ function addMsg(data, side, timeStr) {
   return div;
 }
 
-// Logic untuk mengirim pesan & mendeteksi bot AI
 function sendMessage() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
@@ -1456,13 +1485,11 @@ function sendMessage() {
   handleInputIconToggle(); 
   input.focus();
 
-  // Trigger AI jika terdapat kata @ai
   if (text.toLowerCase().includes("@ai")) {
       handleAIQuery(text);
   }
 }
 
-// Logic mengambil data dari API OpenAI
 async function handleAIQuery(userText) {
     if (!OPENAI_API_KEY || OPENAI_API_KEY === "MASUKKAN_TOKEN_OPENAI_DISINI") {
         const aiMsgData = { type: 'text', text: "🤖 [AI] Token OpenAI belum disetel. Silakan isi variabel OPENAI_API_KEY di source code." };
@@ -1476,7 +1503,6 @@ async function handleAIQuery(userText) {
     el.textContent = "AI sedang mengetik…"; el.className = "partner-status status-typing";
 
     try {
-        // Membersihkan keyword @ai agar AI fokus ke pesan aslinya
         const promptText = userText.replace(/@ai/ig, '').trim() || "Halo";
         
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -1496,10 +1522,7 @@ async function handleAIQuery(userText) {
             const aiReply = data.choices[0].message.content;
             const aiMsgData = { type: 'text', text: "🤖 [AI]:\n" + aiReply };
 
-            // Tampilkan secara lokal untuk saya (sebagai Other / Bot)
             addMsg(aiMsgData, "other");
-            
-            // Emit pesan ke partner agar partner juga membaca balasan AI dari chat room yang sama
             socket.emit("message", aiMsgData);
         } else {
              console.error("AI Response error:", data);
@@ -1511,7 +1534,6 @@ async function handleAIQuery(userText) {
         socket.emit("message", aiMsgData);
     }
 
-    // Kembalikan status online/offline
     el.textContent = oldStatus; el.className = oldClass;
 }
 
@@ -1624,7 +1646,6 @@ socket.on("matched", p => {
     const partnerPic = p.profilePic || `https://via.placeholder.com/40/10b981/ffffff?text=${encodeURIComponent(p.name.charAt(0))}`;
     document.getElementById("headerPartnerPic").src = partnerPic;
     
-    // Simulasikan Jarak ke dalam object partner agar bisa diakses di Modal
     p.distance = (Math.random() * 5 + 0.1).toFixed(1) + " km";
 
     document.getElementById("msg").disabled = false;
@@ -1650,13 +1671,11 @@ socket.on("message", data => {
   addMsg(data, side);
 
   if (side === 'other') {
-      // 1. Play Sound Notifikasi agar pengguna tahu ada pesan
       try {
           const audio = new Audio('https://proxy.notificationsounds.com/notification-sounds/beyond-doubt-566/download/file-sounds-1143-beyond-doubt.mp3');
           audio.play().catch(e => console.log("Audio not allowed yet"));
       } catch(e) {}
 
-      // 2. Tampilkan Notification API Web Banner jika tab/background disembunyikan
       if (document.hidden || !document.hasFocus()) {
           const title = partner?.name || "Pesan Baru";
           const body = data.type === 'file' ? '📸 Mengirim gambar' : (data.type === 'video' ? '🎥 Mengirim Video' : (data.type === 'audio' ? '🎵 Mengirim Voice Note' : data.text));
