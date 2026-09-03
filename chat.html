@@ -249,7 +249,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   </div>
 </div>
 
-<div class="screen" id="searching" style="display:none; flex-direction:column; gap:2.5rem; background: linear-gradient(135deg, #0d1117, #161b22);">
+<div class="screen" id="searching" style="display:none; flex-direction:column; align-items:center; justify-content:center; gap:2.5rem; background: linear-gradient(135deg, #0d1117, #161b22);">
   <div class="loader-container">
     <div class="pulse-ring"></div>
     <div class="pulse-ring delay-1"></div>
@@ -338,7 +338,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       <i class="bi bi-emoji-smile"></i>
     </button>
 
-    <input id="msg" placeholder="Ketik pesan" autocomplete="off" onkeydown="if(event.key==='Enter')handleSendClick()"/>
+    <input id="msg" placeholder="Ketik pesan (@ai untuk bot pintar)" autocomplete="off" onkeydown="if(event.key==='Enter')handleSendClick()"/>
     
     <button id="attachGalleryBtn" title="Kirim gambar/video">
       <i class="bi bi-images"></i>
@@ -617,6 +617,11 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <div id="actionToast"></div>
 
 <script>
+// --- TOKEN OPENAI & KONFIGURASI AI ---
+// Masukkan API Key Anda di bawah ini
+const OPENAI_API_KEY = "MASUKKAN_TOKEN_OPENAI_DISINI";
+// -------------------------------------
+
 // --- Service Worker Dinamis Untuk Notifikasi (Background / Web to App) ---
 if ('serviceWorker' in navigator) {
     const swCode = `
@@ -957,10 +962,42 @@ function showDisconnectModal() {
     closeProfile(); 
 }
 function closeDisconnectModal() { document.getElementById('disconnectConfirmModal').style.display = 'none'; }
-function confirmDisconnect() {
+
+// -------------------------------------------------------------
+// FUNGSI UTAMA LOGOUT (TANPA RELOAD/REFRESH)
+// Dipanggil oleh tombol Putus Hubungan maupun tombol Refresh Chat
+// -------------------------------------------------------------
+function performLogout() {
+    // 1. Beritahu server untuk putus sesi saat ini
     socket.emit('putus-hubungan');
-    location.reload();
+    
+    // 2. Hapus data sesi di penyimpanan memori lokal
+    localStorage.removeItem('userData');
+    window.userData = null;
+    partner = null;
+
+    // 3. Modifikasi antarmuka secara instan (kembali ke Login Form)
+    document.getElementById("chat").style.display = "none";
+    document.getElementById("searching").style.display = "none";
+    document.getElementById("videoScreen").style.display = "none";
+    document.getElementById("disconnectConfirmModal").style.display = "none";
+    document.getElementById("profileModal").style.display = "none";
+
+    document.getElementById("loginScreen").style.display = "grid";
+    document.getElementById("welcomeContent").style.display = "block";
+    document.getElementById("loginForm").classList.add("hidden");
+
+    // 4. Reset koneksi soket agar server tahu ini adalah klien yang benar-benar baru
+    socket.disconnect();
+    setTimeout(() => {
+        socket.connect();
+    }, 400);
 }
+
+// Kedua fitur logout mengarah ke logika reset yang sama
+function confirmDisconnect() { performLogout(); }
+function refreshChat() { performLogout(); }
+
 
 socket.on('message-confirmed', ({ id }) => {
   const lastMsg = document.querySelector('.msg.me:last-child');
@@ -1025,10 +1062,9 @@ function handleInputIconToggle() {
     }
 }
 
-// VN LOGIC: Merekam & Menampilkan Preview (Bug Stop VN telah diperbaiki)
+// VN LOGIC
 window.currentVNBlob = null;
 async function handleSendClick() {
-    // 1. Jika sedang merekam VN, hentikan rekaman (meskipun ikonnya fas fa-stop)
     if (isRecordingVN) {
         audioRecorder.stop();
         isRecordingVN = false;
@@ -1037,11 +1073,9 @@ async function handleSendClick() {
         return;
     }
 
-    // 2. Jika tidak merekam, cek ikon apa yang tampil
     const isMic = document.getElementById('sendIcon').classList.contains('fa-microphone');
     
     if (isMic) {
-        // Mulai Perekaman VN
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             audioRecorder = new MediaRecorder(stream);
@@ -1066,7 +1100,6 @@ async function handleSendClick() {
             showAlert("Izin microphone ditolak.");
         }
     } else {
-        // Kirim Teks
         sendMessage();
     }
 }
@@ -1408,17 +1441,78 @@ function addMsg(data, side, timeStr) {
   return div;
 }
 
+// Logic untuk mengirim pesan & mendeteksi bot AI
 function sendMessage() {
   const input = document.getElementById("msg");
   const text = input.value.trim();
   if (!text || !partner) return;
+  
   const messageData = { type: 'text', text: text, replyTo: replyingTo ? replyingTo.id : null };
   addMsg(messageData, "me");
   socket.emit("message", messageData);
+  
   input.value = "";
   cancelReply();      
   handleInputIconToggle(); 
   input.focus();
+
+  // Trigger AI jika terdapat kata @ai
+  if (text.toLowerCase().includes("@ai")) {
+      handleAIQuery(text);
+  }
+}
+
+// Logic mengambil data dari API OpenAI
+async function handleAIQuery(userText) {
+    if (!OPENAI_API_KEY || OPENAI_API_KEY === "MASUKKAN_TOKEN_OPENAI_DISINI") {
+        const aiMsgData = { type: 'text', text: "🤖 [AI] Token OpenAI belum disetel. Silakan isi variabel OPENAI_API_KEY di source code." };
+        addMsg(aiMsgData, "other");
+        return;
+    }
+
+    const el = document.getElementById("partnerStatus");
+    const oldStatus = el.textContent;
+    const oldClass = el.className;
+    el.textContent = "AI sedang mengetik…"; el.className = "partner-status status-typing";
+
+    try {
+        // Membersihkan keyword @ai agar AI fokus ke pesan aslinya
+        const promptText = userText.replace(/@ai/ig, '').trim() || "Halo";
+        
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "gpt-3.5-turbo",
+                messages: [{ role: "user", content: promptText }]
+            })
+        });
+
+        const data = await response.json();
+        if (data.choices && data.choices.length > 0) {
+            const aiReply = data.choices[0].message.content;
+            const aiMsgData = { type: 'text', text: "🤖 [AI]:\n" + aiReply };
+
+            // Tampilkan secara lokal untuk saya (sebagai Other / Bot)
+            addMsg(aiMsgData, "other");
+            
+            // Emit pesan ke partner agar partner juga membaca balasan AI dari chat room yang sama
+            socket.emit("message", aiMsgData);
+        } else {
+             console.error("AI Response error:", data);
+        }
+    } catch (e) {
+        console.error("Error fetching AI:", e);
+        const aiMsgData = { type: 'text', text: "🤖 [AI] Maaf, gagal menghubungi server AI. Pastikan token aktif/valid." };
+        addMsg(aiMsgData, "other");
+        socket.emit("message", aiMsgData);
+    }
+
+    // Kembalikan status online/offline
+    el.textContent = oldStatus; el.className = oldClass;
 }
 
 function previewFile() {
@@ -1556,7 +1650,7 @@ socket.on("message", data => {
   addMsg(data, side);
 
   if (side === 'other') {
-      // 1. Play Sound Notifikasi agar pengguna tahu ada pesan (berguna untuk Web-to-App di background)
+      // 1. Play Sound Notifikasi agar pengguna tahu ada pesan
       try {
           const audio = new Audio('https://proxy.notificationsounds.com/notification-sounds/beyond-doubt-566/download/file-sounds-1143-beyond-doubt.mp3');
           audio.play().catch(e => console.log("Audio not allowed yet"));
@@ -1615,7 +1709,7 @@ socket.on("partner-disconnected", () => {
     
     document.getElementById("msg").disabled = true;
     document.getElementById("sendBtn").disabled = true;
-    document.getElementById("refreshBtn").style.display = "block"; 
+    document.getElementById("refreshBtn").style.display = "block"; // Tampilkan tombol refresh/cari partner baru
     
     setPartnerButtonsEnabled(false);
     if (isInVideoCall) { showToast("Panggilan ditutup otomatis"); endCall(true); }
@@ -1863,12 +1957,6 @@ function toggleCam() {
 function closeRejected() {
   const modal = document.getElementById("rejectedModal");
   modal.style.display = "none";
-}
-
-function refreshChat() {
-  document.getElementById("chat").style.display = "none";
-  document.getElementById("searching").style.display = "flex";
-  if (window.userData) socket.emit("join", window.userData);
 }
 
 document.getElementById("attachGalleryBtn").onclick = function() { document.getElementById("fileInput").click(); };
