@@ -184,7 +184,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
 /* Styles Profile Avatars & Stories */
 .avatar-header { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #10b981; border: 2px solid transparent; cursor: pointer; }
-.avatar-header.my-pic { margin-left: 12px; border-color: #34d399;}
 .story-thumb { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 3px solid #10b981; margin: 5px; cursor: pointer; display: inline-block;}
 .story-container { white-space: nowrap; overflow-x: auto; padding: 10px 0; text-align: left; }
 .tab-btn { background: none; border: none; font-size: 1.1rem; color: var(--text-sec); border-bottom: 2px solid transparent; margin-bottom: 15px; border-radius:0; padding-bottom: 5px; width: auto; font-weight: 600;}
@@ -276,21 +275,20 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <div id="chat">
   <div class="header">
     <div style="display: flex; align-items: center;">
-      <!-- Foto Partner (kiri) -->
-      <img id="headerPartnerPic" class="avatar-header" src="https://via.placeholder.com/40/10b981/ffffff?text=?" onclick="openProfile('partner')" />
-      <div class="partner-info">
+      <!-- Foto Profil Partner (Paling Kiri) -->
+      <img id="headerPartnerPic" class="avatar-header" src="https://via.placeholder.com/40/10b981/ffffff?text=?" onclick="openProfile('partner')" style="cursor:pointer; margin-right:8px;" title="Lihat Profil Partner" />
+      <!-- Nama & Status Partner -->
+      <div class="partner-info" onclick="openProfile('partner')" style="cursor:pointer;" title="Lihat Profil Partner">
         <div class="partner-name" id="partnerName">Menghubungkan</div>
         <div class="partner-status" id="partnerStatus">Online</div>
-        <!-- Tambahan Detail Gender & Jarak -->
-        <div class="partner-details" id="partnerDetails" style="font-size: 0.78rem; color: var(--text-sec);"></div>
       </div>
     </div>
     <div style="display:flex; gap:16px; font-size:1.4rem; align-items:center;">
       <i class="bi bi-arrow-clockwise" id="refreshBtn" onclick="refreshChat()" style="display:none; cursor:pointer;" title="Cari partner baru"></i>
       <i class="bi bi-telephone-fill" id="audioCallBtn" style="cursor:pointer; color:#34d399;" onclick="callUser(false)" title="Panggilan Suara"></i>
       <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer; color:#34d399;" onclick="callUser(true)" title="Video Call"></i>
-      <!-- Foto Profil Saya (Kanan) -->
-      <img id="headerMyPic" class="avatar-header my-pic" src="https://via.placeholder.com/40/34d399/ffffff?text=Me" onclick="openProfile('me')" title="Profil Saya" />
+      <!-- Profil Saya (Icon Bootstrap dengan strip) -->
+      <i class="bi bi-person-lines-fill" style="cursor:pointer; color:var(--accent); font-size: 1.5rem;" onclick="openProfile('me')" title="Profil Saya"></i>
     </div>
   </div>
 
@@ -461,7 +459,9 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 </div>
 
 <div id="profileModal" class="modal">
-  <div class="modal-box" style="text-align:left; max-width: 400px; padding: 20px;">
+  <div class="modal-box" style="position: relative; text-align:left; max-width: 400px; padding: 20px;">
+    <!-- Icon Close Profil Modal -->
+    <i class="bi bi-x-lg" onclick="closeProfile()" style="position:absolute; top:15px; right:15px; cursor:pointer; font-size:1.2rem; color:var(--text-sec);" title="Tutup"></i>
     
     <div class="tabs-container">
       <button id="tabPartner" class="tab-btn active" onclick="switchProfileTab('partner')">Partner</button>
@@ -470,6 +470,10 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
     <!-- Partner Content -->
     <div id="contentPartner">
+      <!-- Foto Profil Partner di dalam modal -->
+      <div style="text-align: center; margin-bottom: 10px;">
+          <img id="partnerProfileModalPic" src="https://via.placeholder.com/80/10b981/ffffff?text=?" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);" />
+      </div>
       <div id="profileContent" style="margin:1rem 0; line-height:1.7; color:var(--text-sec)"></div>
       <h4 style="margin-top:15px;">Story Partner</h4>
       <div id="partnerStoriesContainer" class="story-container">Belum ada story</div>
@@ -477,27 +481,38 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
     <!-- My Content -->
     <div id="contentMe" style="display:none;">
+      <!-- Ubah Foto Profil -->
+      <div style="text-align: center; margin-bottom: 10px; position:relative; display:inline-block; left:50%; transform:translateX(-50%); cursor:pointer;" onclick="document.getElementById('changePicInput').click()" title="Ubah Foto Profil">
+          <img id="myProfileModalPic" src="https://via.placeholder.com/80/34d399/ffffff?text=Me" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);" />
+          <div style="position:absolute; bottom:0; right:0; background:var(--accent); width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; border:2px solid var(--surface); font-size:1.1rem;">+</div>
+      </div>
+      <input type="file" id="changePicInput" accept="image/*,video/*" style="display:none;" onchange="uploadMyPic(this)" />
+
       <div style="margin:1rem 0; line-height:1.7; color:var(--text-sec)">
-        <!-- Profil dengan Pencil Bootstrap -->
         <div><b>Nama:</b> <span id="myNameTxt"></span> <i class="bi bi-pencil-square" style="cursor:pointer; color:var(--accent); margin-left:5px;" onclick="editProfile('name')" title="Edit Nama"></i></div>
         <div><b>Umur:</b> <span id="myAgeTxt"></span> <i class="bi bi-pencil-square" style="cursor:pointer; color:var(--accent); margin-left:5px;" onclick="editProfile('age')" title="Edit Umur"></i></div>
-        
-        <div style="margin-top:10px;">
-            <button onclick="document.getElementById('changePicInput').click()" style="padding:8px; font-size:0.9rem; margin-bottom:0;">Ubah Foto Profil</button>
-            <input type="file" id="changePicInput" accept="image/*,video/*" style="display:none;" onchange="uploadMyPic(this)" />
-        </div>
+        <div><b>Gender:</b> <span id="myGenderTxt"></span></div>
+        <div><b>Status:</b> <span id="myJobTxt"></span></div>
       </div>
       
-      <h4 style="margin-top:15px;">Story Saya</h4>
-      <button onclick="document.getElementById('storyPicInput').click()" style="padding:8px; font-size:0.9rem; background:var(--surface-2); border:1px solid var(--accent); color:var(--accent);">+ Tambah Story</button>
-      <input type="file" id="storyPicInput" accept="image/*,video/*" style="display:none;" onchange="uploadStory(this)" />
-      <div id="myStoriesContainer" class="story-container">Belum ada story</div>
+      <h4 style="margin-top:15px; margin-bottom: 10px;">Story Saya</h4>
       
-      <!-- Tombol Putuskan Hubungan dipindah ke sini -->
+      <!-- List Story dan Tombol Tambah Story gaya WhatsApp -->
+      <div style="display: flex; align-items: center; gap: 10px; width: 100%; overflow: hidden;">
+          <!-- Tombol Tambah Story (Bulat, gaya WhatsApp) -->
+          <div style="position:relative; display:inline-block; cursor:pointer; flex-shrink: 0;" onclick="document.getElementById('storyPicInput').click()" title="Tambah Story">
+              <img id="myStoryAddPic" src="https://via.placeholder.com/60/34d399/ffffff?text=Me" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid #30363d;" />
+              <div style="position:absolute; bottom:0; right:0; background:var(--accent); width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; border:2px solid var(--surface); font-size:1.1rem; line-height:1;">+</div>
+          </div>
+          <input type="file" id="storyPicInput" accept="image/*,video/*" style="display:none;" onchange="uploadStory(this)" />
+          
+          <!-- Wrapper container story -->
+          <div id="myStoriesContainer" class="story-container" style="flex: 1; padding: 5px 0;">Belum ada story</div>
+      </div>
+      
+      <!-- Tombol Putuskan Hubungan -->
       <button onclick="showDisconnectModal()" style="margin-top:25px; background:var(--danger); font-weight: bold;"><i class="bi bi-box-arrow-right"></i> Putuskan Hubungan</button>
     </div>
-
-    <button onclick="closeProfile()" style="margin-top:20px; background: #374151;">Tutup Kelola Profil</button>
   </div>
 </div>
 
@@ -602,9 +617,26 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <div id="actionToast"></div>
 
 <script>
+// --- Service Worker Dinamis Untuk Notifikasi (Background / Web to App) ---
+if ('serviceWorker' in navigator) {
+    const swCode = `
+        self.addEventListener('push', function(e) {}); 
+        self.addEventListener('notificationclick', function(e) {
+            e.notification.close();
+        });
+    `;
+    const blob = new Blob([swCode], {type: 'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.log('SW Reg Failed:', err));
+}
+
+// Permintaan izin notifikasi sejak awal
+if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+    Notification.requestPermission();
+}
+// ------------------------------------------------------------------------
+
 const socket = io("https://chat-bzd5.onrender.com"); // SESUAIKAN URL ANDA
 
-// -- GENERATE ATAU AMBIL PERMANENT SESSION --
 let myUserId = localStorage.getItem('myUserId');
 if (!myUserId) {
     myUserId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2,9);
@@ -625,18 +657,13 @@ let myMicEnabled = true;
 let myCamEnabled = true;
 let partnerMicEnabled = true; 
 let isInVideoCall = false;      
-let isAudioOnlyCall = false; // Penanda jenis panggilan
+let isAudioOnlyCall = false; 
 let replyingTo = null;          
 let myProfilePicURL = localStorage.getItem('myProfilePic') || "";
 let currentViewedStoryId = null; 
 let isRecordingVN = false;
 let audioRecorder = null;
 let audioChunks = [];
-
-// Minta izin notifikasi sejak awal
-if ("Notification" in window && Notification.permission !== "granted") {
-    Notification.requestPermission();
-}
 
 // --- AUTO LOGIN LOGIC ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -647,7 +674,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
         document.getElementById("loginScreen").style.display = "none";
         document.getElementById("searching").style.display = "flex";
-        if (myProfilePicURL) document.getElementById('headerMyPic').src = myProfilePicURL;
         
         socket.emit("join", window.userData);
     }
@@ -725,16 +751,12 @@ async function start() {
   }
 
   window.userData = { userId: myUserId, name, age, gender, job, server, profilePic: finalPicUrl };
-  localStorage.setItem('userData', JSON.stringify(window.userData)); // Simpan untuk auto-login selanjutnya
+  localStorage.setItem('userData', JSON.stringify(window.userData)); 
 
   socket.emit("join", window.userData);
 
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("searching").style.display = "flex";
-  
-  if (finalPicUrl) {
-      document.getElementById('headerMyPic').src = finalPicUrl;
-  }
 }
 
 function editProfile(type) {
@@ -766,17 +788,29 @@ function openProfile(tab = 'partner') {
   if (partner) {
       const genderText = partner.gender && partner.gender !== "-" ? partner.gender : "Tidak disebutkan";
       const jobText    = partner.job    && partner.job    !== "-" ? partner.job    : "Tidak disebutkan";
+      const distText   = partner.distance || "Tidak diketahui";
+      
+      const partnerPic = partner.profilePic || `https://via.placeholder.com/80/10b981/ffffff?text=${encodeURIComponent(partner.name.charAt(0))}`;
+      document.getElementById("partnerProfileModalPic").src = partnerPic;
+
       document.getElementById("profileContent").innerHTML = `
         <div><b>Nama:</b> ${partner.name}</div>
         <div><b>Umur:</b> ${partner.age}</div>
         <div><b>Gender:</b> ${genderText}</div>
         <div><b>Status:</b> ${jobText}</div>
+        <div><b>Lokasi:</b> ${distText} dari lokasimu</div>
         <div><b>Server:</b> ${partner.server}</div>
       `;
   }
   
+  const myPic = window.userData?.profilePic || "https://via.placeholder.com/80/34d399/ffffff?text=Me";
+  document.getElementById("myProfileModalPic").src = myPic;
+  document.getElementById("myStoryAddPic").src = myPic;
   document.getElementById("myNameTxt").innerText = window.userData?.name || "Kamu";
   document.getElementById("myAgeTxt").innerText = window.userData?.age || "?";
+  document.getElementById("myGenderTxt").innerText = window.userData?.gender || "-";
+  document.getElementById("myJobTxt").innerText = window.userData?.job || "-";
+  
   document.getElementById("profileModal").style.display = "grid";
   
   socket.emit('get-stories');
@@ -834,7 +868,8 @@ async function uploadMyPic(input) {
         window.userData.profilePic = url;
         localStorage.setItem('myProfilePic', url);
         localStorage.setItem('userData', JSON.stringify(window.userData));
-        document.getElementById('headerMyPic').src = url;
+        document.getElementById('myProfileModalPic').src = url;
+        document.getElementById('myStoryAddPic').src = url;
         socket.emit('update-profile-pic', url);
         showToast("Foto profil berhasil diubah");
     } catch(err) { showAlert("Gagal upload foto"); }
@@ -912,16 +947,14 @@ function deleteCurrentStory() {
 }
 
 socket.on('partner-profile-updated', (url) => {
-    if (partner) {
-        partner.profilePic = url;
-        document.getElementById('headerPartnerPic').src = url || 'https://via.placeholder.com/40/10b981/ffffff?text=?';
-    }
+    if (partner) partner.profilePic = url;
+    document.getElementById("headerPartnerPic").src = url;
 });
 
 function showDisconnectModal() {
     document.getElementById('disconnectConfirmText').innerText = `Apakah ingin memutus hubungan dengan ${partner ? partner.name : 'partner'} secara permanen?`;
     document.getElementById('disconnectConfirmModal').style.display = 'grid';
-    closeProfile(); // Tutup modal profile agar modal confirm terlihat
+    closeProfile(); 
 }
 function closeDisconnectModal() { document.getElementById('disconnectConfirmModal').style.display = 'none'; }
 function confirmDisconnect() {
@@ -954,16 +987,13 @@ socket.on("connect", () => {
 function setPartnerButtonsEnabled(enabled) {
     const audioBtn = document.getElementById("audioCallBtn");
     const videoBtn = document.getElementById("videoCallBtn");
-    const partnerPic = document.getElementById("headerPartnerPic"); 
 
     if (enabled) {
         audioBtn.style.pointerEvents = "auto"; audioBtn.style.opacity = "1";
         videoBtn.style.pointerEvents = "auto"; videoBtn.style.opacity = "1";
-        partnerPic.style.pointerEvents = "auto";
     } else {
         audioBtn.style.pointerEvents = "none"; audioBtn.style.opacity = "0.4";
         videoBtn.style.pointerEvents = "none"; videoBtn.style.opacity = "0.4";
-        partnerPic.style.pointerEvents = "none";
     }
 }
 
@@ -995,42 +1025,48 @@ function handleInputIconToggle() {
     }
 }
 
-// VN LOGIC: Merekam & Menampilkan Preview
+// VN LOGIC: Merekam & Menampilkan Preview (Bug Stop VN telah diperbaiki)
 window.currentVNBlob = null;
 async function handleSendClick() {
+    // 1. Jika sedang merekam VN, hentikan rekaman (meskipun ikonnya fas fa-stop)
+    if (isRecordingVN) {
+        audioRecorder.stop();
+        isRecordingVN = false;
+        document.getElementById('sendIcon').className = 'fas fa-microphone';
+        document.getElementById('sendIcon').style.color = '';
+        return;
+    }
+
+    // 2. Jika tidak merekam, cek ikon apa yang tampil
     const isMic = document.getElementById('sendIcon').classList.contains('fa-microphone');
+    
     if (isMic) {
-        if (!isRecordingVN) {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                audioRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                audioRecorder.ondataavailable = e => audioChunks.push(e.data);
-                
-                audioRecorder.onstop = () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    window.currentVNBlob = audioBlob;
-                    document.getElementById('vnAudioPreview').src = URL.createObjectURL(audioBlob);
-                    document.getElementById('vnPreview').style.display = 'flex';
-                    document.getElementById('chatInputContainer').style.display = 'none'; 
-                };
-                
-                audioRecorder.start();
-                isRecordingVN = true;
-                
-                document.getElementById('sendIcon').className = 'fas fa-stop text-danger';
-                document.getElementById('sendIcon').style.color = '#ef4444';
-                showToast("Sedang Merekam Suara...");
-            } catch(e) {
-                showAlert("Izin microphone ditolak.");
-            }
-        } else {
-            audioRecorder.stop();
-            isRecordingVN = false;
-            document.getElementById('sendIcon').className = 'fas fa-microphone';
-            document.getElementById('sendIcon').style.color = '';
+        // Mulai Perekaman VN
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            audioRecorder.ondataavailable = e => audioChunks.push(e.data);
+            
+            audioRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                window.currentVNBlob = audioBlob;
+                document.getElementById('vnAudioPreview').src = URL.createObjectURL(audioBlob);
+                document.getElementById('vnPreview').style.display = 'flex';
+                document.getElementById('chatInputContainer').style.display = 'none'; 
+            };
+            
+            audioRecorder.start();
+            isRecordingVN = true;
+            
+            document.getElementById('sendIcon').className = 'fas fa-stop text-danger';
+            document.getElementById('sendIcon').style.color = '#ef4444';
+            showToast("Sedang Merekam Suara...");
+        } catch(e) {
+            showAlert("Izin microphone ditolak.");
         }
     } else {
+        // Kirim Teks
         sendMessage();
     }
 }
@@ -1047,7 +1083,7 @@ async function sendVN() {
     const file = new File([window.currentVNBlob], 'vn.webm', { type: 'audio/webm' });
     
     showToast("Mengirim voice note...");
-    cancelVN(); // Kembalikan UI normal
+    cancelVN(); 
     
     try {
         const url = await uploadToCloudinary(file);
@@ -1266,7 +1302,6 @@ function playVideoMsg(container) {
     }
 }
 
-// Chat Engine dengan Support Audio & Video Preview Default
 function addMsg(data, side, timeStr) {
   const div = document.createElement("div");
   div.className = `msg ${side}`;
@@ -1316,7 +1351,6 @@ function addMsg(data, side, timeStr) {
     div.dataset.fileUrl = data.fileUrl;
     div.dataset.type = 'audio';
   } else if (data.type === 'video') {
-    // Tampilan awal video menggunakan cover hitam/poster & icon play
     content = `${quoteHtml}
     <div class="bubble" style="padding: 5px;">
       <div class="video-msg-container" style="position:relative; cursor:pointer;" onclick="playVideoMsg(this)">
@@ -1330,7 +1364,6 @@ function addMsg(data, side, timeStr) {
     div.dataset.fileUrl = data.fileUrl;
     div.dataset.type = 'video';
   } else if (data.type === 'file') {
-    // Foto dikirim biasa, tanpa view once
     content = `${quoteHtml}<div class="bubble" style="padding: 5px;">
       <img src="${data.fileUrl}" style="max-width:100%; max-height:220px; border-radius:8px; display:block; cursor:pointer;" />
       ${data.caption ? `<p style="margin-top:8px; font-size:0.9rem; opacity:0.9;">${data.caption}</p>` : ''}
@@ -1486,7 +1519,6 @@ function updateMsgAsDeleted(msgId) {
   clone.style.cursor = 'default';
 }
 
-// Sockets Chat Event Handling
 socket.on("matched", p => {
     partner = p;
     document.getElementById("searching").style.display = "none";
@@ -1495,18 +1527,16 @@ socket.on("matched", p => {
     document.getElementById("partnerStatus").textContent = "Online";
     document.getElementById("partnerStatus").className = "partner-status status-online";
     
-    // Simulasikan Jarak dan tampilkan Gender
-    const randomDistance = (Math.random() * 5 + 0.1).toFixed(1) + " km";
-    const genderStr = p.gender && p.gender !== "-" ? p.gender : "Tidak diketahui";
-    document.getElementById("partnerDetails").textContent = `${genderStr} • ${randomDistance} dari lokasimu`;
+    const partnerPic = p.profilePic || `https://via.placeholder.com/40/10b981/ffffff?text=${encodeURIComponent(p.name.charAt(0))}`;
+    document.getElementById("headerPartnerPic").src = partnerPic;
+    
+    // Simulasikan Jarak ke dalam object partner agar bisa diakses di Modal
+    p.distance = (Math.random() * 5 + 0.1).toFixed(1) + " km";
 
     document.getElementById("msg").disabled = false;
     document.getElementById("sendBtn").disabled = false;
     document.getElementById("refreshBtn").style.display = "none";
     
-    if (p.profilePic) document.getElementById("headerPartnerPic").src = p.profilePic;
-    else document.getElementById("headerPartnerPic").src = "https://via.placeholder.com/40/10b981/ffffff?text=?";
-
     setPartnerButtonsEnabled(true);
     isInVideoCall = false;
     updateVideoCallButton();          
@@ -1525,11 +1555,28 @@ socket.on("message", data => {
   const side = data.from === myUserId ? "me" : "other";  
   addMsg(data, side);
 
-  if (side === 'other' && document.hidden && Notification.permission === "granted") {
-      new Notification(partner?.name || "Pesan Baru", {
-          body: data.type === 'file' ? '📸 Mengirim gambar' : (data.type === 'video' ? '🎥 Mengirim Video' : (data.type === 'audio' ? '🎵 Mengirim Voice Note' : data.text)),
-          icon: partner?.profilePic || undefined
-      });
+  if (side === 'other') {
+      // 1. Play Sound Notifikasi agar pengguna tahu ada pesan (berguna untuk Web-to-App di background)
+      try {
+          const audio = new Audio('https://proxy.notificationsounds.com/notification-sounds/beyond-doubt-566/download/file-sounds-1143-beyond-doubt.mp3');
+          audio.play().catch(e => console.log("Audio not allowed yet"));
+      } catch(e) {}
+
+      // 2. Tampilkan Notification API Web Banner jika tab/background disembunyikan
+      if (document.hidden || !document.hasFocus()) {
+          const title = partner?.name || "Pesan Baru";
+          const body = data.type === 'file' ? '📸 Mengirim gambar' : (data.type === 'video' ? '🎥 Mengirim Video' : (data.type === 'audio' ? '🎵 Mengirim Voice Note' : data.text));
+          
+          if (Notification.permission === "granted") {
+              if (navigator.serviceWorker) {
+                  navigator.serviceWorker.ready.then(reg => {
+                      reg.showNotification(title, { body });
+                  }).catch(() => { new Notification(title, { body }); });
+              } else {
+                  new Notification(title, { body });
+              }
+          }
+      }
   }
 });
 
@@ -1751,10 +1798,7 @@ function resetVideoLayout() {
     const remote = document.getElementById("remoteVideo");
     if (!local || !remote) return;
     
-    if (isAudioOnlyCall) {
-        // Biarkan CSS audio-call-mode yang handle hiding videonya.
-        return;
-    }
+    if (isAudioOnlyCall) return;
 
     isPipSwapped = false;
     local.className  = "pip pip-normal"; remote.className = "full";
