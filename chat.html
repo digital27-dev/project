@@ -14,16 +14,10 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent !important; } 
 html, body { height: 100%; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; } 
 
-/* Mencegah highlight text/warna biru saat tekan tombol/icon lama */
 button, i, .btn-accept, .btn-reject, .msg, .view-once-wrapper, .normal-image-wrapper { 
-    user-select: none; 
-    -webkit-user-select: none; 
-    -webkit-touch-callout: none; 
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; 
 }
-input, textarea { 
-    user-select: auto; 
-    -webkit-user-select: auto; 
-}
+input, textarea { user-select: auto; -webkit-user-select: auto; }
 
 .view-once-wrapper img, .normal-image-wrapper img { pointer-events: none; -webkit-user-drag: none; user-drag: none; touch-action: manipulation; } 
 .view-once-blur { pointer-events: none; } 
@@ -167,6 +161,7 @@ button:active { transform: translateY(0); }
 .partner-status { font-size: 0.82rem; opacity: 0.8; } 
 .status-online { color: #34d399; } 
 .status-offline { color: #f87171; } 
+.status-last-seen { color: white; } 
 .status-typing { color: #fbbf24; font-style: italic; } 
 .encryption-info { font-weight:500;display: flex; align-items: center; justify-content: center; background: var(--surface-2); padding: 6px 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem; color: var(--text-sec); gap: 6px; } 
 .encryption-info i { font-size: 0.8rem; color: var(--success); } 
@@ -181,7 +176,7 @@ button:active { transform: translateY(0); }
 .file-preview { max-width: 100%; max-height: 200px; border-radius: 8px; } 
 .view-once { opacity: 0.7; font-style: italic; } 
 .deleted-msg { font-style: italic; color: var(--text-sec); } 
-.footer { padding: 10px 12px; background: var(--surface); border-top: 1px solid var(--border); display: flex; gap: 10px; } 
+.footer { padding: 10px 12px; background: var(--surface); border-top: 1px solid var(--border); display: flex; gap: 10px; position: relative; } 
 .footer input { flex: 1; background:#1f2937;border-radius: 999px; outline: none; padding: 12px 20px; border: none; } 
 .footer button { background:#1f2937;width: 48px; height: 48px; border-radius: 50%; font-size: 1.4rem; display: grid; place-items: center; padding: 0; } 
 .video-wrap { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; flex-direction: column; z-index: 100; } 
@@ -225,12 +220,18 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
 /* Styles Profile Avatars & Stories */
 .avatar-header { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #10b981; border: 2px solid transparent; cursor: pointer; }
-.avatar-header.my-pic { margin-right: 12px; border-color: #34d399;}
+.avatar-header.my-pic { margin-left: 12px; border-color: #34d399;}
 .story-thumb { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 3px solid #10b981; margin: 5px; cursor: pointer; display: inline-block;}
 .story-container { white-space: nowrap; overflow-x: auto; padding: 10px 0; text-align: left; }
 .tab-btn { background: none; border: none; font-size: 1.1rem; color: var(--text-sec); border-bottom: 2px solid transparent; margin-bottom: 15px; border-radius:0; padding-bottom: 5px; width: auto; font-weight: 600;}
 .tab-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
 .tabs-container { display: flex; justify-content: space-around; border-bottom: 1px solid var(--border); margin-bottom: 15px; }
+
+/* Emoji Picker Style */
+#emojiPicker { position: absolute; bottom: 70px; left: 10px; background: var(--surface-2); padding: 10px; border-radius: 12px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; font-size: 1.5rem; z-index: 50; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: none; }
+#emojiPicker.visible { display: grid; }
+.emoji-btn { cursor: pointer; text-align: center; transition: transform 0.2s; }
+.emoji-btn:hover { transform: scale(1.2); }
 </style>
 </head>
 <body>
@@ -250,7 +251,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     <div style="text-align: center; margin-bottom: 15px;">
         <img id="loginProfilePic" src="https://via.placeholder.com/80/10b981/ffffff?text=+" class="avatar-large" style="width:80px; height:80px; cursor:pointer;" onclick="document.getElementById('profilePicInput').click()" />
         <p style="font-size:0.8rem; color:var(--text-sec); margin-top:5px;">Pasang Foto (Opsional)</p>
-        <input type="file" id="profilePicInput" accept="image/*" style="display:none;" onchange="previewLoginPic()" />
+        <input type="file" id="profilePicInput" accept="image/*,video/*" style="display:none;" onchange="previewLoginPic()" />
     </div>
 
     <input id="name" placeholder="Nama (opsional)" autocomplete="off"/>
@@ -311,7 +312,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <div id="chat">
   <div class="header">
     <div style="display: flex; align-items: center;">
-      <!-- Hanya Foto Partner (kiri) -->
+      <!-- Foto Partner (kiri) -->
       <img id="headerPartnerPic" class="avatar-header" src="https://via.placeholder.com/40/10b981/ffffff?text=?" onclick="openProfile('partner')" />
       <div class="partner-info">
         <div class="partner-name" id="partnerName">Menghubungkan</div>
@@ -322,6 +323,8 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       <i class="bi bi-arrow-clockwise" id="refreshBtn" onclick="refreshChat()" style="display:none; cursor:pointer;" title="Cari partner baru"></i>
       <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer" title="Video Call"></i>
       <i class="bi bi-box-arrow-right" onclick="showDisconnectModal()" style="cursor:pointer; color:#f87171" title="Putus Hubungan"></i>
+      <!-- Foto Profil Saya (Kanan) -->
+      <img id="headerMyPic" class="avatar-header my-pic" src="https://via.placeholder.com/40/34d399/ffffff?text=Me" onclick="openProfile('me')" title="Profil Saya" />
     </div>
   </div>
 
@@ -343,17 +346,37 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 </div>
 
 <div class="footer">
+  <!-- Emoji Picker Popover -->
+  <div id="emojiPicker">
+    <span class="emoji-btn" onclick="addEmoji('😂')">😂</span>
+    <span class="emoji-btn" onclick="addEmoji('😭')">😭</span>
+    <span class="emoji-btn" onclick="addEmoji('🥺')">🥺</span>
+    <span class="emoji-btn" onclick="addEmoji('🤣')">🤣</span>
+    <span class="emoji-btn" onclick="addEmoji('❤️')">❤️</span>
+    <span class="emoji-btn" onclick="addEmoji('✨')">✨</span>
+    <span class="emoji-btn" onclick="addEmoji('🙏')">🙏</span>
+    <span class="emoji-btn" onclick="addEmoji('😍')">😍</span>
+    <span class="emoji-btn" onclick="addEmoji('🥰')">🥰</span>
+    <span class="emoji-btn" onclick="addEmoji('😊')">😊</span>
+    <span class="emoji-btn" onclick="addEmoji('👍')">👍</span>
+    <span class="emoji-btn" onclick="addEmoji('🔥')">🔥</span>
+  </div>
+
   <div style="display:flex; width:100%; gap:10px; padding:7px 1px; background:var(--surface);">
-    <input id="msg" placeholder="Ketik pesan" autocomplete="off" onkeydown="if(event.key==='Enter')sendMessage()" style="flex:1;"/>
-    
-    <button id="attachGalleryBtn" title="Kirim gambar">
-      <i class="bi bi-images"></i>
+    <button id="toggleEmojiBtn" onclick="toggleEmojiPicker()" title="Emoji">
+      <i class="bi bi-emoji-smile"></i>
     </button>
 
-    <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="previewFile()"/>
+    <input id="msg" placeholder="Ketik pesan" autocomplete="off" onkeydown="if(event.key==='Enter')handleSendClick()" style="flex:1;"/>
+    
+    <button id="attachGalleryBtn" title="Kirim gambar/video">
+      <i class="bi bi-images"></i>
+    </button>
+    <input type="file" id="fileInput" accept="image/*,video/*" style="display:none;" onchange="previewFile()"/>
 
-    <button onclick="sendMessage()" title="Kirim">
-      <i class="fas fa-paper-plane"></i>
+    <!-- Tombol Mic / Send Dinamis -->
+    <button id="sendBtn" onclick="handleSendClick()" title="Rekam Suara">
+      <i id="sendIcon" class="fas fa-microphone"></i>
     </button>
   </div>
 </div>
@@ -497,16 +520,19 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     <!-- My Content -->
     <div id="contentMe" style="display:none;">
       <div style="margin:1rem 0; line-height:1.7; color:var(--text-sec)">
-        <div><b>Nama:</b> <span id="myNameTxt"></span></div>
+        <!-- Profil dengan Pencil Bootstrap -->
+        <div><b>Nama:</b> <span id="myNameTxt"></span> <i class="bi bi-pencil-square" style="cursor:pointer; color:var(--accent); margin-left:5px;" onclick="editProfile('name')" title="Edit Nama"></i></div>
+        <div><b>Umur:</b> <span id="myAgeTxt"></span> <i class="bi bi-pencil-square" style="cursor:pointer; color:var(--accent); margin-left:5px;" onclick="editProfile('age')" title="Edit Umur"></i></div>
+        
         <div style="margin-top:10px;">
             <button onclick="document.getElementById('changePicInput').click()" style="padding:8px; font-size:0.9rem; margin-bottom:0;">Ubah Foto Profil</button>
-            <input type="file" id="changePicInput" accept="image/*" style="display:none;" onchange="uploadMyPic(this)" />
+            <input type="file" id="changePicInput" accept="image/*,video/*" style="display:none;" onchange="uploadMyPic(this)" />
         </div>
       </div>
       
       <h4 style="margin-top:15px;">Story Saya</h4>
       <button onclick="document.getElementById('storyPicInput').click()" style="padding:8px; font-size:0.9rem; background:var(--surface-2); border:1px solid var(--accent); color:var(--accent);">+ Tambah Story</button>
-      <input type="file" id="storyPicInput" accept="image/*" style="display:none;" onchange="uploadStory(this)" />
+      <input type="file" id="storyPicInput" accept="image/*,video/*" style="display:none;" onchange="uploadStory(this)" />
       <div id="myStoriesContainer" class="story-container">Belum ada story</div>
     </div>
 
@@ -525,7 +551,8 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
             <i class="bi bi-x-lg" onclick="closeStoryViewer()" style="color:white; cursor:pointer; font-size:1.2rem;"></i>
          </div>
       </div>
-      <img id="storyViewerImg" style="width:100%; height:100%; object-fit:contain;" />
+      <img id="storyViewerImg" style="width:100%; height:100%; object-fit:contain; display:none;" />
+      <video id="storyViewerVideo" style="width:100%; height:100%; object-fit:contain; display:none;" autoplay loop controls></video>
       
       <!-- List Viewers (Khusus My Story) mirip WA (Mata 1) -->
       <div id="storyViewersListContainer" style="position:absolute; bottom:0; width:100%; background:rgba(0,0,0,0.7); padding:15px; color:white; max-height: 40%; overflow-y:auto; display:none;">
@@ -583,19 +610,20 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
 <div id="filePreviewModal" class="modal" style="display:none;">
   <div class="modal-box" style="max-width: 400px; padding: 24px 20px;">
-    <h3 style="margin-bottom: 1.2rem;">Pratinjau Gambar</h3>
+    <h3 style="margin-bottom: 1.2rem;">Pratinjau File</h3>
 
     <div class="upload-loading-overlay" id="uploadLoading">
      <div class="progress-container">
        <div class="progress-bar">
         <div class="progress-fill" id="progressFill"></div>
       </div>
-     <div class="progress-text">Mengirim gambar <span id="progressPercent">0</span>%</div>
+     <div class="progress-text">Mengunggah <span id="progressPercent">0</span>%</div>
      </div>
     </div>
 
     <div style="text-align: center; margin-bottom: 1.5rem;">
       <img id="previewImage" class="preview-img" style="display:none; max-height: 260px; border-radius: 12px;"/>
+      <video id="previewVideo" class="preview-img" style="display:none; max-width: 100%; max-height: 260px; border-radius: 12px;" controls></video>
     </div>
 
     <input 
@@ -620,7 +648,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <div id="actionToast"></div>
 
 <script>
-const socket = io("https://chat-bzd5.onrender.com"); // GANTI URL JIKA PERLU
+const socket = io("https://chat-bzd5.onrender.com"); // SESUAIKAN URL
 
 // -- GENERATE PERMANENT UUID UNTUK SESI USER --
 let myUserId = localStorage.getItem('myUserId');
@@ -647,21 +675,25 @@ let isInVideoCall = false;
 let replyingTo = null;          
 let myProfilePicURL = localStorage.getItem('myProfilePic') || "";
 let currentViewedStoryId = null; 
+let isRecordingVN = false;
+let audioRecorder = null;
+let audioChunks = [];
 
 // Minta izin notifikasi sejak awal
 if ("Notification" in window && Notification.permission !== "granted") {
     Notification.requestPermission();
 }
 
-// Upload helper to Cloudinary
+// Upload helper to Cloudinary - Menggunakan endpoint AUTO untuk Support Semua Ekstensi (Gambar/Video/Audio)
 function uploadToCloudinary(file, onProgress) {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "sanz-chat"); // Preset Anda
+    formData.append("upload_preset", "sanz-chat"); 
     const CLOUD_NAME = "davgb7tjm";
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`);
+        // Menggunakan auto/upload agar otomatis membaca tipe image/video/raw
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`);
         if (onProgress) {
             xhr.upload.onprogress = (e) => {
                 if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
@@ -718,11 +750,43 @@ async function start() {
       }
   }
 
+  // JIKA TIDAK ADA PROFIL FOTO, BUAT PROFIL DEFAULT BERDASARKAN INISIAL
+  if (!finalPicUrl) {
+      finalPicUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff&size=128&bold=true`;
+      myProfilePicURL = finalPicUrl;
+      localStorage.setItem('myProfilePic', finalPicUrl);
+  }
+
   window.userData = { userId: myUserId, name, age, gender, job, server, profilePic: finalPicUrl };
   socket.emit("join", window.userData);
 
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("searching").style.display = "flex";
+  
+  if (finalPicUrl) {
+      document.getElementById('headerMyPic').src = finalPicUrl;
+  }
+}
+
+// Fitur Edit Profile Pencil (Nama & Umur)
+function editProfile(type) {
+    if (type === 'name') {
+        const newName = prompt("Masukkan nama baru:", window.userData.name);
+        if (newName && newName.trim() !== '') {
+            window.userData.name = newName.trim();
+            document.getElementById("myNameTxt").innerText = window.userData.name;
+            socket.emit("update-profile-info", { name: window.userData.name });
+            showToast("Nama berhasil diubah");
+        }
+    } else if (type === 'age') {
+        const newAge = prompt("Masukkan umur/tanggal lahir baru:", window.userData.age);
+        if (newAge && newAge.trim() !== '') {
+            window.userData.age = newAge.trim();
+            document.getElementById("myAgeTxt").innerText = window.userData.age;
+            socket.emit("update-profile-info", { age: window.userData.age });
+            showToast("Umur berhasil diubah");
+        }
+    }
 }
 
 function openProfile(tab = 'partner') {
@@ -742,6 +806,7 @@ function openProfile(tab = 'partner') {
   }
   
   document.getElementById("myNameTxt").innerText = window.userData?.name || "Kamu";
+  document.getElementById("myAgeTxt").innerText = window.userData?.age || "?";
   document.getElementById("profileModal").style.display = "grid";
   
   socket.emit('get-stories');
@@ -765,11 +830,12 @@ socket.on('stories-data', (data) => {
 
     if (data.partnerStories.length > 0) {
         data.partnerStories.forEach(s => {
-            const img = document.createElement('img');
-            img.src = s.url;
-            img.className = 'story-thumb';
-            img.onclick = () => openStoryViewer(s, data.partnerName, false);
-            pContainer.appendChild(img);
+            const el = document.createElement(s.type === 'video' ? 'video' : 'img');
+            el.src = s.url;
+            el.className = 'story-thumb';
+            if (s.type === 'video') { el.muted = true; }
+            el.onclick = () => openStoryViewer(s, data.partnerName, false);
+            pContainer.appendChild(el);
         });
     } else {
         pContainer.innerHTML = 'Belum ada story';
@@ -777,11 +843,12 @@ socket.on('stories-data', (data) => {
 
     if (data.myStories.length > 0) {
         data.myStories.forEach(s => {
-            const img = document.createElement('img');
-            img.src = s.url;
-            img.className = 'story-thumb';
-            img.onclick = () => openStoryViewer(s, 'Saya', true);
-            mContainer.appendChild(img);
+            const el = document.createElement(s.type === 'video' ? 'video' : 'img');
+            el.src = s.url;
+            el.className = 'story-thumb';
+            if (s.type === 'video') { el.muted = true; }
+            el.onclick = () => openStoryViewer(s, 'Saya', true);
+            mContainer.appendChild(el);
         });
     } else {
         mContainer.innerHTML = 'Belum ada story';
@@ -795,6 +862,7 @@ async function uploadMyPic(input) {
         const url = await uploadToCloudinary(input.files[0]);
         myProfilePicURL = url;
         localStorage.setItem('myProfilePic', url);
+        document.getElementById('headerMyPic').src = url;
         socket.emit('update-profile-pic', url);
         showToast("Foto profil berhasil diubah");
     } catch(err) { showAlert("Gagal upload foto"); }
@@ -802,20 +870,32 @@ async function uploadMyPic(input) {
 
 async function uploadStory(input) {
     if (!input.files || !input.files[0]) return;
+    const isVideo = input.files[0].type.startsWith('video/');
     try {
         showToast("Sedang mengirim story...");
         const url = await uploadToCloudinary(input.files[0]);
-        socket.emit('add-story', url);
+        socket.emit('add-story', { url: url, type: isVideo ? 'video' : 'image' });
         showToast("Story berhasil ditambahkan");
         socket.emit('get-stories');
-    } catch(err) { showAlert("Gagal upload story"); }
+    } catch(err) { showAlert("Gagal upload story. Coba file lain."); }
 }
 
 function openStoryViewer(story, authorName, isMine) {
     currentViewedStoryId = story.id; 
     document.getElementById('storyViewerModal').style.display = 'grid';
     document.getElementById('storyViewerAuthor').innerText = authorName;
-    document.getElementById('storyViewerImg').src = story.url;
+    
+    const imgEl = document.getElementById('storyViewerImg');
+    const vidEl = document.getElementById('storyViewerVideo');
+    if (story.type === 'video') {
+        imgEl.style.display = 'none';
+        vidEl.style.display = 'block';
+        vidEl.src = story.url;
+    } else {
+        vidEl.style.display = 'none';
+        imgEl.style.display = 'block';
+        imgEl.src = story.url;
+    }
     
     const viewersListDiv = document.getElementById('storyViewersListContainer');
     const ul = document.getElementById('storyViewersList');
@@ -843,7 +923,10 @@ function openStoryViewer(story, authorName, isMine) {
 }
 
 function closeStoryViewer() { 
-    document.getElementById('storyViewerModal').style.display = 'none'; 
+    document.getElementById('storyViewerModal').style.display = 'none';
+    const vidEl = document.getElementById('storyViewerVideo');
+    vidEl.pause();
+    vidEl.src = "";
     currentViewedStoryId = null;
 }
 
@@ -864,7 +947,7 @@ socket.on('partner-profile-updated', (url) => {
 });
 
 function showDisconnectModal() {
-    document.getElementById('disconnectConfirmText').innerText = `Apakah ingin memutus hubungan dengan ${partner ? partner.name : 'partner'}?`;
+    document.getElementById('disconnectConfirmText').innerText = `Apakah ingin memutus hubungan dengan ${partner ? partner.name : 'partner'} secara permanen?`;
     document.getElementById('disconnectConfirmModal').style.display = 'grid';
 }
 function closeDisconnectModal() { document.getElementById('disconnectConfirmModal').style.display = 'none'; }
@@ -916,6 +999,82 @@ function setPartnerButtonsEnabled(enabled) {
     }
 }
 
+// Emoji Logic
+function toggleEmojiPicker() {
+    const ep = document.getElementById('emojiPicker');
+    ep.classList.toggle('visible');
+}
+function addEmoji(emj) {
+    const msgInput = document.getElementById('msg');
+    msgInput.value += emj;
+    msgInput.focus();
+    toggleEmojiPicker();
+    handleInputIconToggle();
+}
+document.getElementById('msg').addEventListener('input', handleInputIconToggle);
+
+// Toggle Mic to Send Icon Automatically
+function handleInputIconToggle() {
+    const msgInput = document.getElementById('msg');
+    const sendIcon = document.getElementById('sendIcon');
+    const sendBtn = document.getElementById('sendBtn');
+    
+    if (msgInput.value.trim().length > 0) {
+        sendIcon.className = 'fas fa-paper-plane';
+        sendBtn.title = 'Kirim';
+    } else {
+        sendIcon.className = 'fas fa-microphone';
+        sendBtn.title = 'Rekam Suara';
+    }
+}
+
+// Logic Send Click (Pesan Text vs VN)
+async function handleSendClick() {
+    const isMic = document.getElementById('sendIcon').classList.contains('fa-microphone');
+    if (isMic) {
+        // Toggle Voice Note Recording
+        if (!isRecordingVN) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                audioRecorder.ondataavailable = e => audioChunks.push(e.data);
+                audioRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const file = new File([audioBlob], 'vn.webm', { type: 'audio/webm' });
+                    
+                    showToast("Mengirim voice note...");
+                    try {
+                        const url = await uploadToCloudinary(file);
+                        const msgData = { type: 'audio', fileUrl: url, fromName: window.userData?.name || "Anonim" };
+                        addMsg(msgData, "me");
+                        socket.emit("message", msgData);
+                    } catch (e) {
+                        showAlert("Gagal upload Voice Note");
+                    }
+                };
+                audioRecorder.start();
+                isRecordingVN = true;
+                // Ubah Tampilan saat Record
+                document.getElementById('sendIcon').className = 'fas fa-stop text-danger';
+                document.getElementById('sendIcon').style.color = '#ef4444';
+                showToast("Sedang Merekam Suara...");
+            } catch(e) {
+                showAlert("Izin microphone ditolak.");
+            }
+        } else {
+            // Berhenti rekam & Kirim
+            audioRecorder.stop();
+            isRecordingVN = false;
+            document.getElementById('sendIcon').className = 'fas fa-microphone';
+            document.getElementById('sendIcon').style.color = '';
+        }
+    } else {
+        // Kirim Teks
+        sendMessage();
+    }
+}
+
 // Touch replies
 document.getElementById('messages').addEventListener('touchstart', handleTouchStart, false);
 document.getElementById('messages').addEventListener('touchmove', handleTouchMove, false);
@@ -951,7 +1110,13 @@ function setReply(msgDiv) {
   let content = '';
   let type    = 'text';
 
-  if (bubble.innerHTML.includes('image-placeholder')) {
+  if (msgDiv.dataset.fileUrl && msgDiv.dataset.type === 'video') {
+    type = 'video';
+    content = '[Video]';
+  } else if (msgDiv.dataset.fileUrl && msgDiv.dataset.type === 'audio') {
+    type = 'audio';
+    content = '[Voice Note]';
+  } else if (bubble.innerHTML.includes('image-placeholder')) {
     type = 'file';
     content = '[Gambar]';
     if (msgDiv.dataset.caption) content += ' ' + msgDiv.dataset.caption.substring(0, 60);
@@ -1165,7 +1330,7 @@ document.addEventListener('click', function(e) {
   }
 });
 
-// Chat Engine
+// Chat Engine dengan Support Audio & Video Preview
 function addMsg(data, side, timeStr) {
   const div = document.createElement("div");
   div.className = `msg ${side}`;
@@ -1191,6 +1356,10 @@ function addMsg(data, side, timeStr) {
       quotedPreview = 'Pesan ini telah dihapus';
     } else if (quotedMsg.dataset.isViewonce === 'true') {
       quotedPreview = '[Foto sekali lihat]';
+    } else if (quotedMsg.dataset.type === 'video') {
+      quotedPreview = '[Video]';
+    } else if (quotedMsg.dataset.type === 'audio') {
+      quotedPreview = '[Voice Note]';
     } else if (quotedMsg.dataset.fileUrl) {
       quotedPreview = '[Gambar]';
       if (quotedMsg.dataset.caption) quotedPreview += ' ' + quotedMsg.dataset.caption.substring(0, 50).trim() + '...';
@@ -1208,7 +1377,18 @@ function addMsg(data, side, timeStr) {
   let content = '';
   if (data.type === 'text' || !data.type) {
     content = `${quoteHtml}<div class="bubble">${(data.text || '').replace(/\n/g, '<br>')}</div>`;
+  } else if (data.type === 'audio') {
+    content = `${quoteHtml}<div class="bubble" style="padding: 10px 14px;"><audio controls src="${data.fileUrl}" style="max-width: 220px; height: 35px;"></audio></div>`;
+    div.dataset.fileUrl = data.fileUrl;
+    div.dataset.type = 'audio';
+  } else if (data.type === 'video') {
+    content = `${quoteHtml}<div class="bubble" style="padding: 5px;"><video controls src="${data.fileUrl}" style="max-width:100%; max-height:220px; border-radius:10px;"></video>
+      ${data.caption ? `<p style="margin-top:5px; font-size:0.9rem; padding:0 5px;">${data.caption}</p>` : ''}
+    </div>`;
+    div.dataset.fileUrl = data.fileUrl;
+    div.dataset.type = 'video';
   } else if (data.type === 'file') {
+    // Foto
     const isViewOnce = data.viewOnce === true;
     const icon = isViewOnce ? 'bi bi-hourglass-split' : 'bi bi-image';
     const label = isViewOnce ? 'Foto sekali lihat' : 'Foto';
@@ -1218,6 +1398,7 @@ function addMsg(data, side, timeStr) {
     </div>`;
     div.dataset.fileUrl = data.fileUrl || '';
     div.dataset.isViewonce = isViewOnce ? 'true' : 'false';
+    div.dataset.type = 'file';
     div.dataset.fromName = data.fromName || (side === 'me' ? (window.userData?.name || 'Kamu') : (partner?.name || 'Partner'));
     div.dataset.caption = data.caption || '';
   } else if (data.type === 'deleted') {
@@ -1278,6 +1459,7 @@ function sendMessage() {
   socket.emit("message", messageData);
   input.value = "";
   cancelReply();      
+  handleInputIconToggle(); // Balikkan logo Send ke Mic
   input.focus();
 }
 
@@ -1285,14 +1467,24 @@ function previewFile() {
   selectedFile = document.getElementById('fileInput').files[0];
   if (!selectedFile) return;
   const previewImg = document.getElementById('previewImage');
-  if (selectedFile.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onload = (e) => { previewImg.src = e.target.result; previewImg.style.display = 'block'; document.getElementById('filePreviewModal').style.display = 'grid'; };
-    reader.readAsDataURL(selectedFile);
-  } else {
-    previewImg.src = ''; previewImg.style.display = 'none';
-    showAlert("Preview hanya mendukung gambar");
-  }
+  const previewVid = document.getElementById('previewVideo');
+  
+  const reader = new FileReader();
+  reader.onload = (e) => { 
+    if (selectedFile.type.startsWith('video/')) {
+        previewVid.src = e.target.result;
+        previewVid.style.display = 'block';
+        previewImg.style.display = 'none';
+        document.getElementById('viewOnceCheckbox').parentElement.style.display = 'none'; // Matikan view once utk video
+    } else {
+        previewImg.src = e.target.result;
+        previewImg.style.display = 'block';
+        previewVid.style.display = 'none';
+        document.getElementById('viewOnceCheckbox').parentElement.style.display = 'flex';
+    }
+    document.getElementById('filePreviewModal').style.display = 'grid'; 
+  };
+  reader.readAsDataURL(selectedFile);
 }
 
 async function sendFile() {
@@ -1302,23 +1494,30 @@ async function sendFile() {
   const loadingEl = document.getElementById('uploadLoading');
   const progressFill = document.getElementById('progressFill');
   const progressPercent = document.getElementById('progressPercent');
+  const isVideo = selectedFile.type.startsWith('video/');
   
   progressFill.style.width = '0%'; progressPercent.textContent = '0';
   loadingEl.style.display = 'flex';
 
   try {
-    const imageUrl = await uploadToCloudinary(selectedFile, (percent) => {
+    const fileUrl = await uploadToCloudinary(selectedFile, (percent) => {
         progressFill.style.width = percent + '%';
         progressPercent.textContent = percent;
     });
 
-    const msgData = { type: 'file', fileUrl: imageUrl, caption: caption || undefined, viewOnce: viewOnce, fromName: window.userData?.name || "Anonim" };
+    const msgData = { 
+        type: isVideo ? 'video' : 'file', 
+        fileUrl: fileUrl, 
+        caption: caption || undefined, 
+        viewOnce: !isVideo && viewOnce, 
+        fromName: window.userData?.name || "Anonim" 
+    };
     addMsg(msgData, "me");
     socket.emit("message", msgData);
-    showToast(viewOnce ? "Foto sekali lihat terkirim" : "Gambar terkirim");
+    showToast(viewOnce ? "Foto sekali lihat terkirim" : (isVideo ? "Video terkirim" : "Gambar terkirim"));
 
   } catch (err) {
-    showAlert("Gagal mengirim gambar: " + err.message);
+    showAlert("Gagal mengunggah file: " + err.message);
   } finally {
     loadingEl.style.display = 'none';
     cancelFilePreview();
@@ -1330,6 +1529,8 @@ async function sendFile() {
 function cancelFilePreview() {
   selectedFile = null;
   document.getElementById('previewImage').style.display = 'none';
+  const vid = document.getElementById('previewVideo');
+  vid.style.display = 'none'; vid.pause(); vid.src = "";
   document.getElementById('captionInput').value = '';
   document.getElementById('viewOnceCheckbox').checked = false;
   document.getElementById('filePreviewModal').style.display = 'none';
@@ -1374,7 +1575,7 @@ socket.on("matched", p => {
     document.getElementById("partnerStatus").textContent = "Online";
     document.getElementById("partnerStatus").className = "partner-status status-online";
     document.getElementById("msg").disabled = false;
-    document.querySelector(".footer button").disabled = false;
+    document.getElementById("sendBtn").disabled = false;
     document.getElementById("refreshBtn").style.display = "none";
     
     if (p.profilePic) document.getElementById("headerPartnerPic").src = p.profilePic;
@@ -1400,7 +1601,7 @@ socket.on("message", data => {
 
   if (side === 'other' && document.hidden && Notification.permission === "granted") {
       new Notification(partner?.name || "Pesan Baru", {
-          body: data.type === 'file' ? '📸 Mengirim gambar' : data.text,
+          body: data.type === 'file' ? '📸 Mengirim gambar' : (data.type === 'video' ? '🎥 Mengirim Video' : (data.type === 'audio' ? '🎵 Mengirim Voice Note' : data.text)),
           icon: partner?.profilePic || undefined
       });
   }
@@ -1413,34 +1614,42 @@ socket.on("typing", () => {
   clearTimeout(window.typingTm);
   window.typingTm = setTimeout(() => { el.textContent = "Online"; el.className = "partner-status status-online"; }, 2200);
 });
-document.getElementById("msg").oninput = () => socket.emit("typing");
+document.getElementById("msg").oninput = () => { socket.emit("typing"); handleInputIconToggle(); };
 
 // Status Sesi Permanen
 socket.on("partner-online", () => {
     document.getElementById("partnerStatus").textContent = "Online";
     document.getElementById("partnerStatus").className = "partner-status status-online";
     setPartnerButtonsEnabled(true);
+    // Jika input dimatikan, hidupkan lagi (biasanya tetap hidup saat last seen)
     document.getElementById("msg").disabled = false;
-    document.querySelector(".footer button").disabled = false;
+    document.getElementById("sendBtn").disabled = false;
 });
 
+// PARTNER OFFLINE (MENUTUP TAB / MINIMIZE SAJA TAPI TIDAK PUTUS HUBUNGAN)
 socket.on("partner-offline", (data) => {
     const d = new Date(data.lastSeen);
     const timeStr = d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
     document.getElementById("partnerStatus").textContent = "Terakhir dilihat " + timeStr;
-    document.getElementById("partnerStatus").className = "partner-status status-offline";
-    setPartnerButtonsEnabled(false);
-    document.getElementById("msg").disabled = true;
-    document.querySelector(".footer button").disabled = true;
+    document.getElementById("partnerStatus").className = "partner-status status-last-seen"; // WARNA PUTIH
+    
+    // INPUT TETAP AKTIF, AGAR BISA MENGIRIM PESAN (Notifikasi Background/Sync saat online lagi)
+    document.getElementById("msg").disabled = false;
+    document.getElementById("sendBtn").disabled = false;
+    
     if (isInVideoCall) { showToast("Partner offline"); endCall(true); }
 });
 
+// PARTNER DISCONNECTED (KLIK TOMBOL PUTUS HUBUNGAN / KELUAR)
 socket.on("partner-disconnected", () => {
     document.getElementById("partnerStatus").textContent = "Offline";
-    document.getElementById("partnerStatus").className = "partner-status status-offline";
+    document.getElementById("partnerStatus").className = "partner-status status-offline"; // WARNA MERAH
+    
+    // BARU DIMATIKAN JIKA BENAR-BENAR PUTUS HUBUNGAN
     document.getElementById("msg").disabled = true;
-    document.querySelector(".footer button").disabled = true;
+    document.getElementById("sendBtn").disabled = true;
     document.getElementById("refreshBtn").style.display = "block"; // Muncul untuk Refresh (Cari Baru)
+    
     setPartnerButtonsEnabled(false);
     if (isInVideoCall) { showToast("Video call ditutup otomatis"); endCall(true); }
     partner = null; 
