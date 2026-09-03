@@ -94,7 +94,7 @@ input, textarea { user-select: auto; -webkit-user-select: auto; }
 @keyframes whatsappRing { 0% { transform: scale(0.4); opacity: 0.9; } 40% { opacity: 0.6; } 100% { transform: scale(1.8); opacity: 0; } } 
 #remoteVideo, #miniRemoteVideo { transform: scaleX(-1) !important; } 
 #remoteVideo.pip, #remoteVideo.full, #miniRemoteVideo { transform: scaleX(-1) !important; } 
-.btn-cancel { background: #ef4444 !important; border-radius: 999px; padding: 14px 32px; font-size: 1.1rem; font-weight: 600; min-width: 160px; border: none; cursor: pointer; color: white; transition: background 0.2s; } 
+.btn-cancel { background: #ef4444 !important; border-radius: 999px; padding: 14px 32px; font-size: 1.1rem; font-weight: 600; min-width: 160px; } 
 
 .card { width: 100%; max-width: 420px; background: var(--surface); border-radius: 20px; border: 1.5px solid var(--border); padding: 28px 24px; } 
 .logo-big { font-size: 3.8rem; margin-bottom: 0.5rem; text-align: center; } 
@@ -249,7 +249,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   </div>
 </div>
 
-<div class="screen" id="searching" style="display:none; flex-direction:column; align-items:center; justify-content:center; gap:2.2rem; background: linear-gradient(135deg, #0d1117, #161b22);">
+<div class="screen" id="searching" style="display:none; flex-direction:column; align-items:center; justify-content:center; gap:2.5rem; background: linear-gradient(135deg, #0d1117, #161b22);">
   <div class="loader-container">
     <div class="pulse-ring"></div>
     <div class="pulse-ring delay-1"></div>
@@ -266,18 +266,20 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     <p class="searching-subtext" id="dynamicText">Sedang menghubungkan ke server</p>
   </div>
   
-  <div class="online-counter" style="margin-top: 1rem;">
+  <button class="btn-cancel" onclick="cancelSearch()" style="margin-top: 1rem; font-size: 1rem; padding: 10px 24px; min-width: 120px; background: #374151 !important;">Batalkan</button>
+
+  <div class="online-counter" style="position: absolute; bottom: 30px;">
     <div class="online-dot"></div>
     <span id="onlineCount">0</span>Online
   </div>
-
-  <button class="btn-cancel" onclick="cancelSearch()" style="font-size: 1rem; padding: 10px 24px; min-width: 120px; background: #374151 !important;">Batalkan</button>
 </div>
 
 <div id="chat">
   <div class="header">
     <div style="display: flex; align-items: center;">
+      <!-- Foto Profil Partner (Paling Kiri) -->
       <img id="headerPartnerPic" class="avatar-header" src="https://via.placeholder.com/40/10b981/ffffff?text=?" onclick="openProfile('partner')" style="cursor:pointer; margin-right:8px;" title="Lihat Profil Partner" />
+      <!-- Nama & Status Partner -->
       <div class="partner-info" onclick="openProfile('partner')" style="cursor:pointer;" title="Lihat Profil Partner">
         <div class="partner-name" id="partnerName">Menghubungkan</div>
         <div class="partner-status" id="partnerStatus">Online</div>
@@ -287,6 +289,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       <i class="bi bi-arrow-clockwise" id="refreshBtn" onclick="refreshChat()" style="display:none; cursor:pointer;" title="Cari partner baru"></i>
       <i class="bi bi-telephone-fill" id="audioCallBtn" style="cursor:pointer; color:#34d399;" onclick="callUser(false)" title="Panggilan Suara"></i>
       <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer; color:#34d399;" onclick="callUser(true)" title="Video Call"></i>
+      <!-- Profil Saya (Icon Bootstrap dengan strip) -->
       <i class="bi bi-person-lines-fill" style="cursor:pointer; color:var(--accent); font-size: 1.5rem;" onclick="openProfile('me')" title="Profil Saya"></i>
     </div>
   </div>
@@ -325,6 +328,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     <span class="emoji-btn" onclick="addEmoji('🔥')">🔥</span>
   </div>
 
+  <!-- Wrapper Voice Note Preview -->
   <div id="vnPreview" style="display:none; width:100%; gap:15px; align-items:center; background:var(--surface-2); padding:8px 12px; border-radius: 999px; margin-bottom: 8px;">
       <i class="bi bi-trash-fill text-danger" style="font-size:1.5rem; cursor:pointer;" onclick="cancelVN()" title="Hapus VN"></i>
       <audio id="vnAudioPreview" controls style="flex:1; height:35px;"></audio>
@@ -343,6 +347,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     </button>
     <input type="file" id="fileInput" accept="image/*,video/*" style="display:none;" onchange="previewFile()"/>
 
+    <!-- Tombol Mic / Send Dinamis -->
     <button id="sendBtn" onclick="handleSendClick()" title="Rekam Suara">
       <i id="sendIcon" class="fas fa-microphone"></i>
     </button>
@@ -386,7 +391,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   </div>
 </div>
 
-<!-- Modal Image Viewer -->
+<!-- Modal Image Viewer (Pengganti View Once) -->
 <div id="imageViewerModal" class="modal" style="z-index: 500; background: rgba(0,0,0,0.9);" onclick="this.style.display='none'">
     <i class="bi bi-x-circle-fill" style="position:absolute; top:20px; right:20px; color:white; font-size:2rem; cursor:pointer;"></i>
     <img id="imageViewerImg" style="max-width:95vw; max-height:95vh; margin:auto; display:block; position:absolute; inset:0; border-radius: 8px;" onclick="event.stopPropagation();" />
@@ -449,7 +454,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
         <i class="bi bi-arrow-repeat"></i> Ulangi
       </button>
       <button class="btn-close-modern" onclick="closeRejected()">
-        Tutup
+        Tutp
       </button>
     </div>
   </div>
@@ -457,6 +462,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
 <div id="profileModal" class="modal">
   <div class="modal-box" style="position: relative; text-align:left; max-width: 400px; padding: 20px;">
+    <!-- Icon Close Profil Modal -->
     <i class="bi bi-x-lg" onclick="closeProfile()" style="position:absolute; top:15px; right:15px; cursor:pointer; font-size:1.2rem; color:var(--text-sec);" title="Tutup"></i>
     
     <div class="tabs-container">
@@ -464,7 +470,9 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       <button id="tabMe" class="tab-btn" onclick="switchProfileTab('me')">Saya</button>
     </div>
 
+    <!-- Partner Content -->
     <div id="contentPartner">
+      <!-- Foto Profil Partner di dalam modal -->
       <div style="text-align: center; margin-bottom: 10px;">
           <img id="partnerProfileModalPic" src="https://via.placeholder.com/80/10b981/ffffff?text=?" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);" />
       </div>
@@ -473,7 +481,9 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       <div id="partnerStoriesContainer" class="story-container">Belum ada story</div>
     </div>
 
+    <!-- My Content -->
     <div id="contentMe" style="display:none;">
+      <!-- Ubah Foto Profil -->
       <div style="text-align: center; margin-bottom: 10px; position:relative; display:inline-block; left:50%; transform:translateX(-50%); cursor:pointer;" onclick="document.getElementById('changePicInput').click()" title="Ubah Foto Profil">
           <img id="myProfileModalPic" src="https://via.placeholder.com/80/34d399/ffffff?text=Me" style="width:80px; height:80px; border-radius:50%; object-fit:cover; border:2px solid var(--accent);" />
           <div style="position:absolute; bottom:0; right:0; background:var(--accent); width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; border:2px solid var(--surface); font-size:1.1rem;">+</div>
@@ -489,21 +499,26 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       
       <h4 style="margin-top:15px; margin-bottom: 10px;">Story Saya</h4>
       
+      <!-- List Story dan Tombol Tambah Story gaya WhatsApp -->
       <div style="display: flex; align-items: center; gap: 10px; width: 100%; overflow: hidden;">
+          <!-- Tombol Tambah Story (Bulat, gaya WhatsApp) -->
           <div style="position:relative; display:inline-block; cursor:pointer; flex-shrink: 0;" onclick="document.getElementById('storyPicInput').click()" title="Tambah Story">
               <img id="myStoryAddPic" src="https://via.placeholder.com/60/34d399/ffffff?text=Me" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid #30363d;" />
               <div style="position:absolute; bottom:0; right:0; background:var(--accent); width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; border:2px solid var(--surface); font-size:1.1rem; line-height:1;">+</div>
           </div>
           <input type="file" id="storyPicInput" accept="image/*,video/*" style="display:none;" onchange="uploadStory(this)" />
           
+          <!-- Wrapper container story -->
           <div id="myStoriesContainer" class="story-container" style="flex: 1; padding: 5px 0;">Belum ada story</div>
       </div>
       
+      <!-- Tombol Putuskan Hubungan -->
       <button onclick="showDisconnectModal()" style="margin-top:25px; background:var(--danger); font-weight: bold;"><i class="bi bi-box-arrow-right"></i> Putuskan Hubungan</button>
     </div>
   </div>
 </div>
 
+<!-- Story Viewer Modal -->
 <div id="storyViewerModal" class="modal" style="z-index: 500;">
    <div class="modal-box" style="padding:0; background: #000; height: 80vh; max-width: 400px; display:flex; flex-direction:column; position:relative; border:none; overflow:hidden;">
       <div style="padding: 15px; display:flex; justify-content:space-between; align-items:center; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); position:absolute; top:0; width:100%; z-index:10;">
@@ -605,25 +620,29 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
 <script>
 // --- TOKEN OPENAI & KONFIGURASI AI ---
+// Masukkan API Key Anda di bawah ini
 const OPENAI_API_KEY = "MASUKKAN_TOKEN_OPENAI_DISINI";
 // -------------------------------------
 
-// --- Service Worker Dinamis ---
+// --- Service Worker Dinamis Untuk Notifikasi (Background / Web to App) ---
 if ('serviceWorker' in navigator) {
     const swCode = `
         self.addEventListener('push', function(e) {}); 
-        self.addEventListener('notificationclick', function(e) { e.notification.close(); });
+        self.addEventListener('notificationclick', function(e) {
+            e.notification.close();
+        });
     `;
     const blob = new Blob([swCode], {type: 'application/javascript'});
     navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.log('SW Reg Failed:', err));
 }
 
+// Permintaan izin notifikasi sejak awal
 if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
     Notification.requestPermission();
 }
 // ------------------------------------------------------------------------
 
-const socket = io("https://chat-bzd5.onrender.com"); 
+const socket = io("https://chat-bzd5.onrender.com"); // SESUAIKAN URL ANDA
 
 let myUserId = localStorage.getItem('myUserId');
 if (!myUserId) {
@@ -883,16 +902,17 @@ function openStoryViewer(story, authorName, isMine) {
     const imgEl = document.getElementById('storyViewerImg');
     const vidEl = document.getElementById('storyViewerVideo');
     
+    // Fitur menyembunyikan tombol X khusus untuk video karena sudah ada default player X (mobile)
     if (story.type === 'video') {
         imgEl.style.display = 'none';
         vidEl.style.display = 'block';
         vidEl.src = story.url;
-        document.getElementById('storyCloseBtn').style.display = 'none'; 
+        document.getElementById('storyCloseBtn').style.display = 'none'; // Sembunyikan X
     } else {
         vidEl.style.display = 'none';
         imgEl.style.display = 'block';
         imgEl.src = story.url;
-        document.getElementById('storyCloseBtn').style.display = 'inline-block'; 
+        document.getElementById('storyCloseBtn').style.display = 'inline-block'; // Tampilkan X
     }
     
     const viewersListDiv = document.getElementById('storyViewersListContainer');
@@ -950,10 +970,11 @@ function showDisconnectModal() {
 function closeDisconnectModal() { document.getElementById('disconnectConfirmModal').style.display = 'none'; }
 
 // -------------------------------------------------------------
-// FUNGSI UTAMA LOGOUT & BATALKAN (DENGAN RESET SOCKET)
+// FUNGSI UTAMA LOGOUT & BATALKAN (TANPA RELOAD/REFRESH)
 // -------------------------------------------------------------
 function performLogout() {
     socket.emit('putus-hubungan');
+    // Tidak disconnect socket agar reconnecting berjalan mulus
     localStorage.removeItem('userData');
     window.userData = null;
     partner = null;
@@ -967,14 +988,10 @@ function performLogout() {
     document.getElementById("loginScreen").style.display = "grid";
     document.getElementById("welcomeContent").style.display = "block";
     document.getElementById("loginForm").classList.add("hidden");
-
-    // Hard reset socket agar benar-benar terhapus dari room lama
-    socket.disconnect();
-    setTimeout(() => { socket.connect(); }, 500);
 }
 
 function refreshChat() {
-    socket.emit('putus-hubungan');
+    socket.emit('putus-hubungan'); // Buang room lama
     partner = null;
     
     document.getElementById("chat").style.display = "none";
@@ -983,11 +1000,9 @@ function refreshChat() {
     document.getElementById("searchStatus").textContent = "Mencari partner";
     document.getElementById("dynamicText").textContent = "Mencari partner baru...";
     
-    // Reset socket dan re-join
-    socket.disconnect();
+    // Beri sedikit waktu untuk memastikan keluar room sebelum masuk lagi
     setTimeout(() => {
-        socket.connect();
-        setTimeout(() => socket.emit("join", window.userData), 300);
+        socket.emit("join", window.userData);
     }, 400);
 }
 
@@ -997,10 +1012,6 @@ function cancelSearch() {
     document.getElementById("loginScreen").style.display = "grid";
     document.getElementById("loginForm").classList.remove("hidden");
     document.getElementById("welcomeContent").style.display = "none";
-
-    // Hard reset socket
-    socket.disconnect();
-    setTimeout(() => { socket.connect(); }, 500);
 }
 
 function confirmDisconnect() { performLogout(); }
@@ -1022,7 +1033,7 @@ socket.on("online-count", (count) => {
 });
 
 socket.on("connect", () => {
-  if (document.getElementById("searching").style.display !== "none" && window.userData) {
+  if (document.getElementById("searching").style.display !== "none") {
     socket.emit("get-online-count");
   }
 });
@@ -1221,12 +1232,12 @@ function minimizeToPartnerView() {
   
   if (!isAudioOnlyCall) {
     miniContainer.style.display = "block";
-    makePipDraggable(miniContainer); 
+    makePipDraggable(miniContainer); // Memungkinkan PiP chat digeser
   }
   showToast("Mode chat aktif");
 }
 
-let wasDragged = false; 
+let wasDragged = false; // Penanda drag supaya tidak bentrok click
 
 document.getElementById("miniRemoteVideoContainer")?.addEventListener("click", function(e) {
   if (!isMinimizedToPartner || wasDragged) return;
@@ -1270,6 +1281,7 @@ function makePipDraggable(element) {
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
       
+      // Jika digeser sedikit saja, tandai bahwa itu di-drag
       if (Math.abs(dx) > 5 || Math.abs(dy) > 5) wasDragged = true;
 
       let newLeft = initialLeft + dx;
@@ -1292,6 +1304,7 @@ function makePipDraggable(element) {
       document.removeEventListener('pointerup', stopDrag);
       document.removeEventListener('pointercancel', stopDrag);
       
+      // Reset wasDragged setelah delay kecil
       setTimeout(() => wasDragged = false, 100);
     };
 
@@ -1715,7 +1728,7 @@ socket.on("partner-disconnected", () => {
     
     document.getElementById("msg").disabled = true;
     document.getElementById("sendBtn").disabled = true;
-    document.getElementById("refreshBtn").style.display = "block";
+    document.getElementById("refreshBtn").style.display = "block"; // Tampilkan tombol refresh/cari partner baru
     
     setPartnerButtonsEnabled(false);
     if (isInVideoCall) { showToast("Panggilan ditutup otomatis"); endCall(true); }
