@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sanz</title>
+  <title>Sanz Chat</title>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -14,20 +14,14 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent !important; } 
 html, body { height: 100%; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; } 
 
-button, i, .btn-accept, .btn-reject, .msg, .view-once-wrapper, .normal-image-wrapper { 
-    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; 
-}
+button, i, .btn-accept, .btn-reject, .msg { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 input, textarea { user-select: auto; -webkit-user-select: auto; }
 
-.view-once-wrapper img, .normal-image-wrapper img { pointer-events: none; -webkit-user-drag: none; user-drag: none; touch-action: manipulation; } 
-.view-once-blur { pointer-events: none; } 
-#viewOnceModal { -webkit-user-select: none; user-select: none; } 
-#viewOnceModal img.vo-img { pointer-events: none; -webkit-touch-callout: none; -webkit-user-drag: none; user-drag: none; touch-action: manipulation; } 
 #callName { font-weight: 600 !important; } 
-#miniRemoteVideoContainer { position: fixed; bottom: 100px; right: 16px; z-index: 250; cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; border-radius: 16px; overflow: hidden; width: 120px !important; height: 160px !important; } 
+#miniRemoteVideoContainer { position: fixed; bottom: 100px; right: 16px; z-index: 250; cursor: move; touch-action: none; user-select: none; border-radius: 16px; overflow: hidden; width: 120px !important; height: 160px !important; } 
 #miniRemoteVideo { width: 100%; height: 100%; object-fit: cover; background: rgba(0,0,0,0.9); border-radius: 16px; border: none; } 
 #miniRemoteVideoContainer.dragging { opacity: 0.92; border: none; z-index: 300 !important; } 
-#localVideo.pip, #remoteVideo.pip { position: fixed !important; top: 70px; right: 16px; bottom: auto; left: auto; width: 120px !important; height: 160px !important; border-radius: 16px; border: none; background: rgba(0,0,0,0.9); object-fit: cover; cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; backface-visibility: hidden; perspective: 1000px; transition: none; } 
+#localVideo.pip, #remoteVideo.pip { position: fixed !important; top: 70px; right: 16px; bottom: auto; left: auto; width: 120px !important; height: 160px !important; border-radius: 16px; border: none; background: rgba(0,0,0,0.9); object-fit: cover; cursor: move; touch-action: none; backface-visibility: hidden; perspective: 1000px; transition: none; } 
 #localVideo.pip.dragging, #remoteVideo.pip.dragging { opacity: 0.92; border: none; z-index: 999 !important; } 
 #replyPreview { display: none; background: var(--surface-2); border-top: 1px solid var(--border); padding: 7px 12px; align-items: center; gap: 10px; position: relative; } 
 #replyPreview[style*="display: flex"], #replyPreview[style*="display:block"] { display: flex !important; } 
@@ -36,7 +30,6 @@ input, textarea { user-select: auto; -webkit-user-select: auto; }
 #replyContent { font-size: 0.92rem; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; } 
 #replyCloseBtn { flex-shrink: 0; font-size: 1.4rem; color: #94a3b8; cursor: pointer; padding: 4px; margin-left: 8px; } 
 #replyCloseBtn:hover { color: #cbd5e1; } 
-#replyContent img { max-height: 32px; border-radius: 4px; vertical-align: middle; } 
 .quoted-msg .bubble { align-self: flex-start !important; margin-left: 0 !important; margin-right: auto !important; } 
 .msg.me .bubble:not(.quoted-msg .bubble) { align-self: flex-end !important; margin-left: auto !important; margin-right: 0 !important; } 
 .msg.other .bubble:not(.quoted-msg .bubble) { align-self: flex-start !important; margin-left: 0 !important; margin-right: auto !important; } 
@@ -46,8 +39,7 @@ input, textarea { user-select: auto; -webkit-user-select: auto; }
 .quoted-msg > div:first-child { color: var(--accent); font-weight: 600; margin-bottom: 2px; padding-right: 10px; margin-top: 5px; font-size: 0.9rem; } 
 .quoted-msg > div:last-child { color: var(--text-sec); padding-right: 10px; } 
 .msg .bubble { max-width: 100% !important; width: fit-content !important; min-width: 10px; } 
-.media-status-overlay { pointer-events: none; } 
-.vo-content::after { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.01); pointer-events: none; z-index: 3; } 
+
 .screen { height: 100dvh; display: grid; place-items: center; padding: 16px; } 
 #searching { background: linear-gradient(135deg, #0d1117 0%, #0f172a 100%); color: var(--text); } 
 .upload-loading-overlay { position: absolute; inset: 0; background: rgba(13, 17, 23, 0.94); backdrop-filter: blur(10px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; border-radius: 20px; color: #e2e8f0; } 
@@ -71,13 +63,7 @@ input, textarea { user-select: auto; -webkit-user-select: auto; }
 .online-counter { display: flex; align-items: center; gap: 10px; background: rgba(16,185,129,0.12); padding: 10px 18px; border-radius: 999px; border: 1.5px solid rgba(16,185,129,0.3); font-size: 1rem; font-weight: 500; color: #34d399; backdrop-filter: blur(8px); } 
 .online-dot { width: 12px; height: 12px; background: #34d399; border-radius: 50%; animation: blink 1.8s infinite; } 
 @keyframes blink { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } } 
-.image-placeholder { padding: 8px 12px; background: rgba(255,255,255,0.08); border-radius: 8px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; color: #94a3b8; } 
-.image-placeholder i { font-size: 1.2rem; color: #10b981; } 
-.msg.view-once .bubble { background: var(--other) !important; opacity: 1 !important; cursor: pointer; transition: opacity 0.3s ease; } 
-.msg.view-once.viewed .bubble { opacity: 0.65 !important; background: var(--other) !important; cursor: default; pointer-events: none; } 
-.msg.view-once.viewed .bubble::after { content: "Dilihat"; display: block; font-size: 0.7rem; opacity: 0.8; text-align: right; margin-top: 4px; color: #94a3b8; } 
-.view-once { opacity: 1 !important; } 
-.msg.view-once.viewed { cursor: default; } 
+
 .rejected-modern { background: #161b22; border-radius: 28px; padding: 40px 28px; max-width: 360px; text-align: center; border: 1.5px solid #30363d; backdrop-filter: blur(12px); animation: fadeInScale 0.4s ease-out; } 
 @keyframes fadeInScale { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } } 
 .rejected-icon-container { width: 100px; height: 100px; margin: 0 auto 1.2rem; background: rgba(239,68,68,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 4px solid #ef444480; animation: pulseReject 2s infinite ease-in-out; } 
@@ -109,29 +95,7 @@ input, textarea { user-select: auto; -webkit-user-select: auto; }
 #remoteVideo, #miniRemoteVideo { transform: scaleX(-1) !important; } 
 #remoteVideo.pip, #remoteVideo.full, #miniRemoteVideo { transform: scaleX(-1) !important; } 
 .btn-cancel { background: #ef4444 !important; border-radius: 999px; padding: 14px 32px; font-size: 1.1rem; font-weight: 600; min-width: 160px; } 
-.vo-content { position: relative; display: flex; flex-direction: column; align-items: center; background: #0d1117; border-radius: 0 0 12px 12px; overflow: hidden; width: 100%; max-width: 90vw; max-height: 75vh; height: auto; margin: 0 auto; } 
-.vo-img-container { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 0; overflow: hidden; background: rgba(0,0,0,0.2); } 
-.vo-img { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; display: block; } 
-.vo-timer-container { width: 100%; background: rgba(15, 23, 42, 0.92); padding: 12px 16px; backdrop-filter: blur(10px); z-index: 15; flex-shrink: 0; } 
-.vo-timer-header { display: flex; align-items: center; justify-content: center; gap: 10px; color: #fbbf24; font-size: 1rem; font-weight: 500; margin-bottom: 8px; } 
-.vo-timer-header i { font-size: 1.2rem; } 
-.vo-progress-bar { height: 6px; background: rgba(255,255,255,0.18); border-radius: 4px; overflow: hidden; } 
-.vo-progress-fill { border-radius: 4px; height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.4s linear; } 
-.vo-expired-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(14px); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 20; gap: 16px; padding: 24px; text-align: center; } 
-.vo-expired-overlay i { font-size: 3rem; color: #ef4444; opacity: 0.9; } 
-.vo-expired-overlay .expired-title { font-size: 1.8rem; font-weight: 700; } 
-.vo-expired-overlay .expired-desc { font-weight:500;font-size: 1.05rem; opacity: 0.85; max-width: 85%; } 
-.vo-img.expired { filter: blur(12px) brightness(0.5); transition: filter 1.5s ease; } 
-.vo-timer-container, .vo-expired-overlay { display: none; } 
-.view-once-wrapper { position: relative; cursor: pointer; user-select: none; border-radius: 12px; overflow: hidden; background: #0f172a; aspect-ratio: 3/4; max-width: 260px; margin: 4px 0; } 
-.view-once-wrapper .view-once-blur { display: none !important; } 
-.view-once-indicator { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.65); color: white; font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; display: flex; align-items: center; gap: 4px; backdrop-filter: blur(4px); z-index: 5; } 
-.view-once-indicator i { font-size: 1rem; color: #fbbf24; } 
-.view-once-wrapper img.file-preview { filter: none !important; opacity: 1 !important; transform: none !important; } 
-.vo-timer-container { width: 100%; background: rgba(15, 23, 42, 0.92); padding: 12px 16px; backdrop-filter: blur(10px); z-index: 15; flex-shrink: 0; } 
-.vo-expired-overlay { position: absolute; inset: 0; background: rgba(15,23,42,0.94); backdrop-filter: blur(14px); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 20; gap: 16px; padding: 24px; text-align: center; } 
-.vo-img.expired { filter: blur(12px) brightness(0.5); transition: filter 1.5s ease; } 
-#viewOnceModal[data-viewonce="true"] .vo-timer-container { display: block !important; } 
+
 .card { width: 100%; max-width: 420px; background: var(--surface); border-radius: 20px; border: 1.5px solid var(--border); padding: 28px 24px; } 
 .logo-big { font-size: 3.8rem; margin-bottom: 0.5rem; text-align: center; } 
 h1, h2, h3 { text-align: center; } 
@@ -145,13 +109,7 @@ button:hover { background: var(--accent-dark); transform: translateY(-1px); }
 button:active { transform: translateY(0); } 
 .btn-danger { background: var(--danger); } 
 .btn-danger:hover { background: #dc2626; } 
-#viewOnceModal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 400; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 16px; } 
-.vo-header { width: 100%; color: white; font-size: 1.1rem; font-weight: 600; padding: 12px 16px; background: rgba(30,41,59,0.6); border-radius: 12px 12px 0 0; text-align: center; backdrop-filter: blur(8px); } 
-.vo-content { position: relative; max-width: 100vw; max-height: 70vh; border-radius: 0 0 12px 12px; overflow: hidden; background: #0d1117; } 
-.vo-img { max-width: 100%; max-height: 70vh; object-fit: contain; display: block; } 
-.vo-close-btn { position: absolute; bottom: 15px; max-width: 90vw;background: #161b22; color: white; border: none; padding: 12px 28px; font-size: 1rem; font-weight: 600; cursor: pointer; backdrop-filter: blur(6px); } 
-.vo-close-btn:hover { background: #161b22; } 
-.screen { height: 100dvh; display: flex; justify-content: center; align-items: center; padding: 16px; } 
+
 .loader { width: 48px; height: 48px; border: 5px solid #2d3748; border-top: 5px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; } 
 @keyframes spin { to { transform: rotate(360deg); } } 
 #chat { display: none; flex-direction: column; height: 100dvh; } 
@@ -173,24 +131,30 @@ button:active { transform: translateY(0); }
 .me .bubble { background: var(--me); border-bottom-right-radius: 4px; } 
 .other .bubble { background: var(--other); border-bottom-left-radius: 4px; } 
 .time { font-size: 0.68rem; opacity: 0.6; margin-top: 3px; align-self: flex-end; } 
-.file-preview { max-width: 100%; max-height: 200px; border-radius: 8px; } 
-.view-once { opacity: 0.7; font-style: italic; } 
 .deleted-msg { font-style: italic; color: var(--text-sec); } 
-.footer { padding: 10px 12px; background: var(--surface); border-top: 1px solid var(--border); display: flex; gap: 10px; position: relative; } 
-.footer input { flex: 1; background:#1f2937;border-radius: 999px; outline: none; padding: 12px 20px; border: none; } 
-.footer button { background:#1f2937;width: 48px; height: 48px; border-radius: 50%; font-size: 1.4rem; display: grid; place-items: center; padding: 0; } 
+
+.footer { padding: 10px 12px; background: var(--surface); border-top: 1px solid var(--border); display: flex; flex-direction: column; position: relative; } 
+.footer-inputs { display:flex; gap:10px; padding:7px 1px; width: 100%; align-items: center;}
+.footer input { flex: 1; background:#1f2937;border-radius: 999px; outline: none; padding: 12px 20px; border: none; margin-bottom: 0; } 
+.footer-inputs button { background:#1f2937;width: 48px; height: 48px; border-radius: 50%; font-size: 1.4rem; display: grid; place-items: center; padding: 0; margin-bottom: 0; } 
+
 .video-wrap { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; flex-direction: column; z-index: 100; } 
 .video-header { height: 56px; background: #0d1117; color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 1.05rem; backdrop-filter: blur(10px); } 
-.video-body { flex: 1; position: relative; background: #000; } 
+.video-body { flex: 1; position: relative; background: #000; display:flex; justify-content:center; align-items:center; } 
 video { width: 100%; height: 100%; object-fit: cover; transition: all 0.4s ease; } 
 #localVideo.pip, #remoteVideo.pip { position: absolute; bottom: 20px; right: 20px; width: 120px !important; height: 160px !important; border-radius: 16px; border: none; background: rgba(0,0,0,0.9); object-fit: cover; cursor: pointer; z-index: 10; } 
 #localVideo.full, #remoteVideo.full { position: static; width: 100% !important; height: 100% !important; border-radius: 0 !important; border: none !important; box-shadow: none !important; z-index: 5; } 
 #localVideo { transform: scaleX(-1); } 
 video.pip-normal { width: 120px !important; height: 160px !important; bottom: 20px !important; right: 20px !important; border-radius: 16px; border: none; } 
 video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px !important; right: 16px !important; border: 2px solid #10b981; border-radius: 14px; } 
-#localVideo.pip, #remoteVideo.pip { position: absolute; background: rgba(0,0,0,0.9); object-fit: cover; cursor: pointer; z-index: 10; } 
-#videoCallBtn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; } 
-#videoCallBtn { transition: opacity 0.2s; } 
+
+/* Audio Call Placeholder Layout */
+.audio-call-mode video { display: none !important; }
+.audio-call-mode .video-body { background: #161b22; flex-direction: column; gap: 15px; }
+.audio-call-avatar { width: 150px; height: 150px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); border: 4px solid #10b981; display: none; align-items: center; justify-content: center; animation: pulse 2s infinite; }
+.audio-call-mode .audio-call-avatar { display: flex; }
+.audio-call-avatar i { font-size: 80px; color: #10b981; }
+
 .media-status-overlay { position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.65); color: #fbbf24; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 15; backdrop-filter: blur(4px); border: 2px solid rgba(251,191,36,0.5); transition: opacity 0.4s ease, transform 0.3s ease; } 
 .media-status-overlay.hidden { opacity: 0; transform: scale(0.85); pointer-events: none; } 
 #remoteVideo.pip ~ #micStatusRemote, #localVideo.pip ~ #micStatusLocal { width: 32px; height: 32px; font-size: 1.1rem; top: 6px; left: 6px; border-width: 1.5px; } 
@@ -207,7 +171,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 .video-header .net-pill { margin-left: auto; align-self: center; } 
 #filePreviewModal .preview-img { max-width: 100%; max-height: 200px; margin-bottom: 12px; border-radius: 8px; } 
 #filePreviewModal .caption-input { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface-2); color: var(--text); } 
-#filePreviewModal .view-once-checkbox { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 0.95rem; } 
+
 .msg-action { position: absolute; top: 50%; transform: translateY(-50%); left: -80px; background: var(--surface-2); border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 12px; font-size: 0.9rem; color: var(--danger); cursor: pointer; z-index: 10; display: none; white-space: nowrap; user-select: none; opacity: 0; transition: opacity 0.2s ease, transform 0.2s ease; } 
 .msg.me:hover .msg-action, .msg.me.long-press .msg-action, .msg.me.clicked .msg-action { display: block; opacity: 1; transform: translateY(-50%) translateX(5px); } 
 @media (max-width: 500px) { .msg-action { left: -70px; font-size: 0.82rem; padding: 5px 10px; } } 
@@ -317,12 +281,14 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       <div class="partner-info">
         <div class="partner-name" id="partnerName">Menghubungkan</div>
         <div class="partner-status" id="partnerStatus">Online</div>
+        <!-- Tambahan Detail Gender & Jarak -->
+        <div class="partner-details" id="partnerDetails" style="font-size: 0.78rem; color: var(--text-sec);"></div>
       </div>
     </div>
     <div style="display:flex; gap:16px; font-size:1.4rem; align-items:center;">
       <i class="bi bi-arrow-clockwise" id="refreshBtn" onclick="refreshChat()" style="display:none; cursor:pointer;" title="Cari partner baru"></i>
-      <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer" title="Video Call"></i>
-      <i class="bi bi-box-arrow-right" onclick="showDisconnectModal()" style="cursor:pointer; color:#f87171" title="Putus Hubungan"></i>
+      <i class="bi bi-telephone-fill" id="audioCallBtn" style="cursor:pointer; color:#34d399;" onclick="callUser(false)" title="Panggilan Suara"></i>
+      <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer; color:#34d399;" onclick="callUser(true)" title="Video Call"></i>
       <!-- Foto Profil Saya (Kanan) -->
       <img id="headerMyPic" class="avatar-header my-pic" src="https://via.placeholder.com/40/34d399/ffffff?text=Me" onclick="openProfile('me')" title="Profil Saya" />
     </div>
@@ -362,12 +328,19 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     <span class="emoji-btn" onclick="addEmoji('🔥')">🔥</span>
   </div>
 
-  <div style="display:flex; width:100%; gap:10px; padding:7px 1px; background:var(--surface);">
+  <!-- Wrapper Voice Note Preview -->
+  <div id="vnPreview" style="display:none; width:100%; gap:15px; align-items:center; background:var(--surface-2); padding:8px 12px; border-radius: 999px; margin-bottom: 8px;">
+      <i class="bi bi-trash-fill text-danger" style="font-size:1.5rem; cursor:pointer;" onclick="cancelVN()" title="Hapus VN"></i>
+      <audio id="vnAudioPreview" controls style="flex:1; height:35px;"></audio>
+      <i class="bi bi-send-fill text-success" style="font-size:1.5rem; cursor:pointer;" onclick="sendVN()" title="Kirim VN"></i>
+  </div>
+
+  <div class="footer-inputs" id="chatInputContainer">
     <button id="toggleEmojiBtn" onclick="toggleEmojiPicker()" title="Emoji">
       <i class="bi bi-emoji-smile"></i>
     </button>
 
-    <input id="msg" placeholder="Ketik pesan" autocomplete="off" onkeydown="if(event.key==='Enter')handleSendClick()" style="flex:1;"/>
+    <input id="msg" placeholder="Ketik pesan" autocomplete="off" onkeydown="if(event.key==='Enter')handleSendClick()"/>
     
     <button id="attachGalleryBtn" title="Kirim gambar/video">
       <i class="bi bi-images"></i>
@@ -383,13 +356,16 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
 <div id="videoScreen" class="video-wrap">
   <div class="video-header">
-    <span id="callName">Video Call</span>
+    <span id="callName">Panggilan</span>
     <div class="net-pill" id="netStatus">
       <span id="netLeft">— ms</span>
     </div>
   </div>
 
 <div class="video-body">
+  <div class="audio-call-avatar">
+     <i class="bi bi-person-fill"></i>
+  </div>
   <div id="micStatusRemote" class="media-status-overlay hidden mic" title="Mikrofon partner dimatikan">
     <i class="bi bi-mic-mute-fill"></i>
   </div>
@@ -403,7 +379,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <div class="video-footer">
   <i id="micBtn"   class="bi bi-mic-fill"        onclick="toggleMic()"></i>
   <i id="camBtn"   class="bi bi-camera-video-fill" onclick="toggleCam()"></i>
-  <i class="fa-solid fa-camera-rotate" onclick="switchCamera()"></i>
+  <i id="switchCamBtn" class="fa-solid fa-camera-rotate" onclick="switchCamera()"></i>
   
   <i class="bi bi-box-arrow-down-right" 
      id="minimizeCallBtn"
@@ -415,28 +391,10 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   </div>
 </div>
 
-<div id="viewOnceModal">
-  <div class="vo-header" id="voHeader">Foto dari ...</div>
-  <div class="vo-content">
-    <div class="vo-img-container">
-      <img id="voFullImage" class="vo-img" alt="View once image" />
-    </div>
-    <div class="vo-timer-container viewonce-only" id="voTimerContainer">
-      <div class="vo-timer-header">
-        <i class="bi bi-hourglass-split"></i>
-        <span>Menampilkan <span id="voCountdown">15</span> detik lagi</span>
-      </div>
-      <div class="vo-progress-bar">
-        <div class="vo-progress-fill" id="voProgressFill"></div>
-      </div>
-    </div>
-    <div class="vo-expired-overlay viewonce-only" id="voExpiredOverlay">
-      <i class="fa-solid fa-lock"></i>
-      <div class="expired-title">Expired</div>
-      <div class="expired-desc">Gambar hanya bisa dilihat sekali</div>
-    </div>
-  </div>
-  <button class="vo-close-btn" onclick="closeViewOnce()">Tutup</button>
+<!-- Modal Image Viewer (Pengganti View Once) -->
+<div id="imageViewerModal" class="modal" style="z-index: 500; background: rgba(0,0,0,0.9);" onclick="this.style.display='none'">
+    <i class="bi bi-x-circle-fill" style="position:absolute; top:20px; right:20px; color:white; font-size:2rem; cursor:pointer;"></i>
+    <img id="imageViewerImg" style="max-width:95vw; max-height:95vh; margin:auto; display:block; position:absolute; inset:0; border-radius: 8px;" onclick="event.stopPropagation();" />
 </div>
 
 <div id="deleteConfirmModal" class="modal" style="display:none;">
@@ -462,7 +420,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       <i class="bi bi-person-circle" style="font-size: 120px; color: #10b981;"></i>
     </div>
     
-    <h3 style="margin: 1.2rem 0 0.3rem; font-size: 1.45rem; font-weight: 600;">
+    <h3 id="incomingCallTitle" style="margin: 1.2rem 0 0.3rem; font-size: 1.45rem; font-weight: 600;">
       Panggilan Masuk
     </h3>
     
@@ -534,9 +492,12 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       <button onclick="document.getElementById('storyPicInput').click()" style="padding:8px; font-size:0.9rem; background:var(--surface-2); border:1px solid var(--accent); color:var(--accent);">+ Tambah Story</button>
       <input type="file" id="storyPicInput" accept="image/*,video/*" style="display:none;" onchange="uploadStory(this)" />
       <div id="myStoriesContainer" class="story-container">Belum ada story</div>
+      
+      <!-- Tombol Putuskan Hubungan dipindah ke sini -->
+      <button onclick="showDisconnectModal()" style="margin-top:25px; background:var(--danger); font-weight: bold;"><i class="bi bi-box-arrow-right"></i> Putuskan Hubungan</button>
     </div>
 
-    <button onclick="closeProfile()" style="margin-top:20px;">Tutup</button>
+    <button onclick="closeProfile()" style="margin-top:20px; background: #374151;">Tutup Kelola Profil</button>
   </div>
 </div>
 
@@ -546,7 +507,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       <div style="padding: 15px; display:flex; justify-content:space-between; align-items:center; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); position:absolute; top:0; width:100%; z-index:10;">
          <span id="storyViewerAuthor" style="color:white; font-weight:bold; font-size:1.1rem;">Name</span>
          <div>
-            <!-- Tombol Hapus (Khusus My Story) -->
             <i class="bi bi-trash" id="deleteStoryBtn" onclick="deleteCurrentStory()" style="color:#ef4444; cursor:pointer; font-size:1.2rem; margin-right:15px; display:none;" title="Hapus Story"></i>
             <i class="bi bi-x-lg" onclick="closeStoryViewer()" style="color:white; cursor:pointer; font-size:1.2rem;"></i>
          </div>
@@ -554,7 +514,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       <img id="storyViewerImg" style="width:100%; height:100%; object-fit:contain; display:none;" />
       <video id="storyViewerVideo" style="width:100%; height:100%; object-fit:contain; display:none;" autoplay loop controls></video>
       
-      <!-- List Viewers (Khusus My Story) mirip WA (Mata 1) -->
       <div id="storyViewersListContainer" style="position:absolute; bottom:0; width:100%; background:rgba(0,0,0,0.7); padding:15px; color:white; max-height: 40%; overflow-y:auto; display:none;">
          <h4 style="margin-bottom:10px; border-bottom:1px solid #555; padding-bottom:5px;">
            <i class="bi bi-eye"></i> Dilihat oleh:
@@ -585,7 +544,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       Menghubungi
     </h3>
     
-    <p style="color: var(--text-sec); font-size: 1rem; margin-bottom: 2.2rem;">
+    <p id="waitingCallType" style="color: var(--text-sec); font-size: 1rem; margin-bottom: 2.2rem;">
       Menunggu menerima panggilan
     </p>
 
@@ -622,8 +581,8 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     </div>
 
     <div style="text-align: center; margin-bottom: 1.5rem;">
-      <img id="previewImage" class="preview-img" style="display:none; max-height: 260px; border-radius: 12px;"/>
-      <video id="previewVideo" class="preview-img" style="display:none; max-width: 100%; max-height: 260px; border-radius: 12px;" controls></video>
+      <img id="previewImage" class="preview-img" style="display:none; max-height: 260px; border-radius: 12px; margin:auto;"/>
+      <video id="previewVideo" class="preview-img" style="display:none; max-width: 100%; max-height: 260px; border-radius: 12px; margin:auto;" controls></video>
     </div>
 
     <input 
@@ -632,11 +591,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       placeholder="Tambahkan caption (opsional)" 
       style="margin-bottom: 1.4rem;"
     />
-
-    <label class="view-once-checkbox" style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.2rem; cursor: pointer; user-select: none;">
-      <input type="checkbox" id="viewOnceCheckbox" style="width: 18px; height: 18px; accent-color: var(--accent);"/>
-      <span style="font-weight:500;margin-bottom:11px;font-size: 0.97rem; color: var(--text);">Kirim gambar sekali lihat</span>
-    </label>
 
     <div style="display: flex; gap: 12px;">
       <button onclick="sendFile()" style="flex: 1;">Kirim</button>
@@ -648,9 +602,9 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <div id="actionToast"></div>
 
 <script>
-const socket = io("https://chat-bzd5.onrender.com"); // SESUAIKAN URL
+const socket = io("https://chat-bzd5.onrender.com"); // SESUAIKAN URL ANDA
 
-// -- GENERATE PERMANENT UUID UNTUK SESI USER --
+// -- GENERATE ATAU AMBIL PERMANENT SESSION --
 let myUserId = localStorage.getItem('myUserId');
 if (!myUserId) {
     myUserId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2,9);
@@ -659,7 +613,6 @@ if (!myUserId) {
 
 // -- VARIABLES & CONSTANTS --
 let isDraggingPip = false;
-let currentXPip = 0, currentYPip = 0, initialXPip = 0, initialYPip = 0;
 let partner = null;
 let pc, localStream;
 let isFront = true;
@@ -671,7 +624,8 @@ let messagesMap = {};
 let myMicEnabled = true;
 let myCamEnabled = true;
 let partnerMicEnabled = true; 
-let isInVideoCall = false;        
+let isInVideoCall = false;      
+let isAudioOnlyCall = false; // Penanda jenis panggilan
 let replyingTo = null;          
 let myProfilePicURL = localStorage.getItem('myProfilePic') || "";
 let currentViewedStoryId = null; 
@@ -684,7 +638,22 @@ if ("Notification" in window && Notification.permission !== "granted") {
     Notification.requestPermission();
 }
 
-// Upload helper to Cloudinary - Menggunakan endpoint AUTO untuk Support Semua Ekstensi (Gambar/Video/Audio)
+// --- AUTO LOGIN LOGIC ---
+document.addEventListener("DOMContentLoaded", () => {
+    let savedData = localStorage.getItem('userData');
+    if (savedData) {
+        window.userData = JSON.parse(savedData);
+        if (window.userData.profilePic) myProfilePicURL = window.userData.profilePic;
+        
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("searching").style.display = "flex";
+        if (myProfilePicURL) document.getElementById('headerMyPic').src = myProfilePicURL;
+        
+        socket.emit("join", window.userData);
+    }
+});
+// ------------------------
+
 function uploadToCloudinary(file, onProgress) {
     const formData = new FormData();
     formData.append("file", file);
@@ -692,7 +661,6 @@ function uploadToCloudinary(file, onProgress) {
     const CLOUD_NAME = "davgb7tjm";
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        // Menggunakan auto/upload agar otomatis membaca tipe image/video/raw
         xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`);
         if (onProgress) {
             xhr.upload.onprogress = (e) => {
@@ -750,7 +718,6 @@ async function start() {
       }
   }
 
-  // JIKA TIDAK ADA PROFIL FOTO, BUAT PROFIL DEFAULT BERDASARKAN INISIAL
   if (!finalPicUrl) {
       finalPicUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=10b981&color=fff&size=128&bold=true`;
       myProfilePicURL = finalPicUrl;
@@ -758,6 +725,8 @@ async function start() {
   }
 
   window.userData = { userId: myUserId, name, age, gender, job, server, profilePic: finalPicUrl };
+  localStorage.setItem('userData', JSON.stringify(window.userData)); // Simpan untuk auto-login selanjutnya
+
   socket.emit("join", window.userData);
 
   document.getElementById("loginScreen").style.display = "none";
@@ -768,7 +737,6 @@ async function start() {
   }
 }
 
-// Fitur Edit Profile Pencil (Nama & Umur)
 function editProfile(type) {
     if (type === 'name') {
         const newName = prompt("Masukkan nama baru:", window.userData.name);
@@ -776,6 +744,7 @@ function editProfile(type) {
             window.userData.name = newName.trim();
             document.getElementById("myNameTxt").innerText = window.userData.name;
             socket.emit("update-profile-info", { name: window.userData.name });
+            localStorage.setItem('userData', JSON.stringify(window.userData));
             showToast("Nama berhasil diubah");
         }
     } else if (type === 'age') {
@@ -784,6 +753,7 @@ function editProfile(type) {
             window.userData.age = newAge.trim();
             document.getElementById("myAgeTxt").innerText = window.userData.age;
             socket.emit("update-profile-info", { age: window.userData.age });
+            localStorage.setItem('userData', JSON.stringify(window.userData));
             showToast("Umur berhasil diubah");
         }
     }
@@ -861,7 +831,9 @@ async function uploadMyPic(input) {
         showToast("Sedang mengubah foto profil...");
         const url = await uploadToCloudinary(input.files[0]);
         myProfilePicURL = url;
+        window.userData.profilePic = url;
         localStorage.setItem('myProfilePic', url);
+        localStorage.setItem('userData', JSON.stringify(window.userData));
         document.getElementById('headerMyPic').src = url;
         socket.emit('update-profile-pic', url);
         showToast("Foto profil berhasil diubah");
@@ -949,6 +921,7 @@ socket.on('partner-profile-updated', (url) => {
 function showDisconnectModal() {
     document.getElementById('disconnectConfirmText').innerText = `Apakah ingin memutus hubungan dengan ${partner ? partner.name : 'partner'} secara permanen?`;
     document.getElementById('disconnectConfirmModal').style.display = 'grid';
+    closeProfile(); // Tutup modal profile agar modal confirm terlihat
 }
 function closeDisconnectModal() { document.getElementById('disconnectConfirmModal').style.display = 'none'; }
 function confirmDisconnect() {
@@ -979,23 +952,18 @@ socket.on("connect", () => {
 });
 
 function setPartnerButtonsEnabled(enabled) {
+    const audioBtn = document.getElementById("audioCallBtn");
     const videoBtn = document.getElementById("videoCallBtn");
     const partnerPic = document.getElementById("headerPartnerPic"); 
 
     if (enabled) {
-        videoBtn.style.pointerEvents   = "auto";
-        videoBtn.style.cursor          = "pointer";
-        videoBtn.style.opacity         = "1";
-
+        audioBtn.style.pointerEvents = "auto"; audioBtn.style.opacity = "1";
+        videoBtn.style.pointerEvents = "auto"; videoBtn.style.opacity = "1";
         partnerPic.style.pointerEvents = "auto";
-        partnerPic.style.cursor        = "pointer";
     } else {
-        videoBtn.style.pointerEvents   = "none";
-        videoBtn.style.cursor          = "default";
-        videoBtn.style.opacity         = "0.4";
-
+        audioBtn.style.pointerEvents = "none"; audioBtn.style.opacity = "0.4";
+        videoBtn.style.pointerEvents = "none"; videoBtn.style.opacity = "0.4";
         partnerPic.style.pointerEvents = "none";
-        partnerPic.style.cursor        = "default";
     }
 }
 
@@ -1013,7 +981,6 @@ function addEmoji(emj) {
 }
 document.getElementById('msg').addEventListener('input', handleInputIconToggle);
 
-// Toggle Mic to Send Icon Automatically
 function handleInputIconToggle() {
     const msgInput = document.getElementById('msg');
     const sendIcon = document.getElementById('sendIcon');
@@ -1028,34 +995,29 @@ function handleInputIconToggle() {
     }
 }
 
-// Logic Send Click (Pesan Text vs VN)
+// VN LOGIC: Merekam & Menampilkan Preview
+window.currentVNBlob = null;
 async function handleSendClick() {
     const isMic = document.getElementById('sendIcon').classList.contains('fa-microphone');
     if (isMic) {
-        // Toggle Voice Note Recording
         if (!isRecordingVN) {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 audioRecorder = new MediaRecorder(stream);
                 audioChunks = [];
                 audioRecorder.ondataavailable = e => audioChunks.push(e.data);
-                audioRecorder.onstop = async () => {
+                
+                audioRecorder.onstop = () => {
                     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const file = new File([audioBlob], 'vn.webm', { type: 'audio/webm' });
-                    
-                    showToast("Mengirim voice note...");
-                    try {
-                        const url = await uploadToCloudinary(file);
-                        const msgData = { type: 'audio', fileUrl: url, fromName: window.userData?.name || "Anonim" };
-                        addMsg(msgData, "me");
-                        socket.emit("message", msgData);
-                    } catch (e) {
-                        showAlert("Gagal upload Voice Note");
-                    }
+                    window.currentVNBlob = audioBlob;
+                    document.getElementById('vnAudioPreview').src = URL.createObjectURL(audioBlob);
+                    document.getElementById('vnPreview').style.display = 'flex';
+                    document.getElementById('chatInputContainer').style.display = 'none'; 
                 };
+                
                 audioRecorder.start();
                 isRecordingVN = true;
-                // Ubah Tampilan saat Record
+                
                 document.getElementById('sendIcon').className = 'fas fa-stop text-danger';
                 document.getElementById('sendIcon').style.color = '#ef4444';
                 showToast("Sedang Merekam Suara...");
@@ -1063,15 +1025,37 @@ async function handleSendClick() {
                 showAlert("Izin microphone ditolak.");
             }
         } else {
-            // Berhenti rekam & Kirim
             audioRecorder.stop();
             isRecordingVN = false;
             document.getElementById('sendIcon').className = 'fas fa-microphone';
             document.getElementById('sendIcon').style.color = '';
         }
     } else {
-        // Kirim Teks
         sendMessage();
+    }
+}
+
+function cancelVN() {
+    window.currentVNBlob = null;
+    document.getElementById('vnAudioPreview').src = "";
+    document.getElementById('vnPreview').style.display = 'none';
+    document.getElementById('chatInputContainer').style.display = 'flex';
+}
+
+async function sendVN() {
+    if (!window.currentVNBlob) return;
+    const file = new File([window.currentVNBlob], 'vn.webm', { type: 'audio/webm' });
+    
+    showToast("Mengirim voice note...");
+    cancelVN(); // Kembalikan UI normal
+    
+    try {
+        const url = await uploadToCloudinary(file);
+        const msgData = { type: 'audio', fileUrl: url, fromName: window.userData?.name || "Anonim" };
+        addMsg(msgData, "me");
+        socket.emit("message", msgData);
+    } catch (e) {
+        showAlert("Gagal upload Voice Note");
     }
 }
 
@@ -1116,7 +1100,7 @@ function setReply(msgDiv) {
   } else if (msgDiv.dataset.fileUrl && msgDiv.dataset.type === 'audio') {
     type = 'audio';
     content = '[Voice Note]';
-  } else if (bubble.innerHTML.includes('image-placeholder')) {
+  } else if (msgDiv.dataset.fileUrl) {
     type = 'file';
     content = '[Gambar]';
     if (msgDiv.dataset.caption) content += ' ' + msgDiv.dataset.caption.substring(0, 60);
@@ -1151,7 +1135,7 @@ function updateMicIcons() {
 
 let isMinimizedToPartner = false;
 function minimizeToPartnerView() {
-  if (!localStream || !document.getElementById("remoteVideo").srcObject) { showToast("Video belum terhubung"); return; }
+  if (!localStream || !document.getElementById("remoteVideo").srcObject) { showToast("Panggilan belum terhubung"); return; }
   isMinimizedToPartner = true;
   document.getElementById("videoScreen").style.display = "none";
   const miniContainer = document.getElementById("miniRemoteVideoContainer");
@@ -1159,7 +1143,10 @@ function minimizeToPartnerView() {
   miniVideo.srcObject = document.getElementById("remoteVideo").srcObject;
   miniVideo.className = "";  
   miniVideo.play().catch(e => console.log(e));
-  miniContainer.style.display = "block";
+  
+  if (!isAudioOnlyCall) {
+    miniContainer.style.display = "block";
+  }
   showToast("Mode chat aktif");
 }
 
@@ -1229,14 +1216,15 @@ function makePipDraggable(videoElement) {
 }
 
 function updateVideoCallButton() {
-  const btn = document.getElementById("videoCallBtn");
-  if (!btn) return;
+  const vBtn = document.getElementById("videoCallBtn");
+  const aBtn = document.getElementById("audioCallBtn");
+  if (!vBtn || !aBtn) return;
   if (isInVideoCall) {
-    btn.classList.add("disabled"); btn.style.opacity = "0.4";
-    btn.style.cursor = "not-allowed"; btn.title = "Sedang dalam panggilan video"; btn.onclick = null; 
+    vBtn.classList.add("disabled"); vBtn.style.opacity = "0.4"; vBtn.style.pointerEvents = "none";
+    aBtn.classList.add("disabled"); aBtn.style.opacity = "0.4"; aBtn.style.pointerEvents = "none";
   } else {
-    btn.classList.remove("disabled"); btn.style.opacity = "1";
-    btn.style.cursor = "pointer"; btn.title = "Mulai video call"; btn.onclick = callUser; 
+    vBtn.classList.remove("disabled"); vBtn.style.opacity = "1"; vBtn.style.pointerEvents = "auto";
+    aBtn.classList.remove("disabled"); aBtn.style.opacity = "1"; aBtn.style.pointerEvents = "auto";
   }
 }
 
@@ -1268,69 +1256,17 @@ function showToast(msg) {
 function showAlert(text) { document.getElementById("alertText").textContent = text; document.getElementById("alertModal").style.display = "grid"; }
 function closeAlert() { document.getElementById("alertModal").style.display = "none"; }
 
-// View Once Timer
-let viewOnceTimer = null, viewOnceInterval = null;
-function startViewOnceTimer() {
-  const countdownEl    = document.getElementById("voCountdown");
-  const progressFill   = document.getElementById("voProgressFill");
-  const timerContainer = document.getElementById("voTimerContainer");
-  const expiredOverlay = document.getElementById("voExpiredOverlay");
-  const img            = document.getElementById("voFullImage");
-  
-  if (!timerContainer || img.dataset.isViewonce !== 'true') return;
-  clearInterval(viewOnceInterval);
-  timerContainer.style.display = 'block';     
-  expiredOverlay.style.display = 'none';
-  img.classList.remove('expired');
-  progressFill.style.width = '0%';
-  let remaining = 15; countdownEl.textContent = remaining;
-
-  viewOnceInterval = setInterval(() => {
-    remaining--; countdownEl.textContent = remaining;
-    progressFill.style.width = (((15 - remaining) / 15) * 100) + '%';
-    if (remaining <= 0) {
-      clearInterval(viewOnceInterval);
-      timerContainer.style.display = 'none';
-      expiredOverlay.style.display = 'flex';
-      img.classList.add('expired');
+function playVideoMsg(container) {
+    const vid = container.querySelector('video');
+    const overlay = container.querySelector('.play-overlay');
+    if (vid.paused) {
+        vid.play();
+        vid.controls = true;
+        if(overlay) overlay.style.display = 'none';
     }
-  }, 1000);
-}
-function closeViewOnce() {
-  const modal = document.getElementById("viewOnceModal");
-  clearInterval(viewOnceInterval);
-  modal.style.display = "none";
-  document.getElementById("voHeader").textContent = "Foto dari ...";
 }
 
-document.addEventListener('click', function(e) {
-  const wrapper = e.target.closest('.view-once-wrapper, .normal-image-wrapper');
-  if (!wrapper) return;
-  const src = wrapper.dataset.src;
-  const fromName = wrapper.dataset.from;
-  const isViewOnce = wrapper.dataset.isViewonce === 'true';
-  if (!src) return;
-
-  document.getElementById('voHeader').textContent = `Gambar dari ${fromName}`;
-  const modal = document.getElementById('viewOnceModal');
-  const img = document.getElementById('voFullImage');
-  const timerContainer = document.getElementById('voTimerContainer');
-  const expiredOverlay = document.getElementById('voExpiredOverlay');
-
-  if (timerContainer) timerContainer.style.display = 'none';
-  if (expiredOverlay) expiredOverlay.style.display = 'none';
-  img.classList.remove('expired');
-  img.src = src;
-  img.dataset.isViewonce = isViewOnce ? 'true' : 'false';
-  modal.style.display = 'flex';
-
-  if (isViewOnce) {
-    if (timerContainer) timerContainer.style.display = 'block';  
-    startViewOnceTimer();
-  }
-});
-
-// Chat Engine dengan Support Audio & Video Preview
+// Chat Engine dengan Support Audio & Video Preview Default
 function addMsg(data, side, timeStr) {
   const div = document.createElement("div");
   div.className = `msg ${side}`;
@@ -1354,8 +1290,6 @@ function addMsg(data, side, timeStr) {
     
     if (quotedMsg.classList.contains('deleted-msg') || (quotedBubble && quotedBubble.classList.contains('deleted-msg'))) {
       quotedPreview = 'Pesan ini telah dihapus';
-    } else if (quotedMsg.dataset.isViewonce === 'true') {
-      quotedPreview = '[Foto sekali lihat]';
     } else if (quotedMsg.dataset.type === 'video') {
       quotedPreview = '[Video]';
     } else if (quotedMsg.dataset.type === 'audio') {
@@ -1382,25 +1316,28 @@ function addMsg(data, side, timeStr) {
     div.dataset.fileUrl = data.fileUrl;
     div.dataset.type = 'audio';
   } else if (data.type === 'video') {
-    content = `${quoteHtml}<div class="bubble" style="padding: 5px;"><video controls src="${data.fileUrl}" style="max-width:100%; max-height:220px; border-radius:10px;"></video>
+    // Tampilan awal video menggunakan cover hitam/poster & icon play
+    content = `${quoteHtml}
+    <div class="bubble" style="padding: 5px;">
+      <div class="video-msg-container" style="position:relative; cursor:pointer;" onclick="playVideoMsg(this)">
+        <video src="${data.fileUrl}" style="max-width:100%; max-height:220px; border-radius:8px; background:#000; display:block;" preload="metadata"></video>
+        <div class="play-overlay" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.3); border-radius:8px;">
+            <i class="bi bi-play-circle-fill" style="font-size:3.5rem; color:rgba(255,255,255,0.85);"></i>
+        </div>
+      </div>
       ${data.caption ? `<p style="margin-top:5px; font-size:0.9rem; padding:0 5px;">${data.caption}</p>` : ''}
     </div>`;
     div.dataset.fileUrl = data.fileUrl;
     div.dataset.type = 'video';
   } else if (data.type === 'file') {
-    // Foto
-    const isViewOnce = data.viewOnce === true;
-    const icon = isViewOnce ? 'bi bi-hourglass-split' : 'bi bi-image';
-    const label = isViewOnce ? 'Foto sekali lihat' : 'Foto';
-    content = `${quoteHtml}<div class="bubble ${isViewOnce ? 'view-once' : ''}">
-      <div class="image-placeholder"><i class="${icon}"></i><span class="view-once-label">${label}</span></div>
+    // Foto dikirim biasa, tanpa view once
+    content = `${quoteHtml}<div class="bubble" style="padding: 5px;">
+      <img src="${data.fileUrl}" style="max-width:100%; max-height:220px; border-radius:8px; display:block; cursor:pointer;" />
       ${data.caption ? `<p style="margin-top:8px; font-size:0.9rem; opacity:0.9;">${data.caption}</p>` : ''}
     </div>`;
-    div.dataset.fileUrl = data.fileUrl || '';
-    div.dataset.isViewonce = isViewOnce ? 'true' : 'false';
+    div.dataset.fileUrl = data.fileUrl;
     div.dataset.type = 'file';
     div.dataset.fromName = data.fromName || (side === 'me' ? (window.userData?.name || 'Kamu') : (partner?.name || 'Partner'));
-    div.dataset.caption = data.caption || '';
   } else if (data.type === 'deleted') {
     content = `<div class="bubble deleted-msg">Pesan ini telah dihapus</div>`;
   }
@@ -1422,22 +1359,10 @@ function addMsg(data, side, timeStr) {
   }
 
   if (data.type === 'file' && div.dataset.fileUrl) {
-    div.style.cursor = 'pointer';
     div.addEventListener('click', function (e) {
-      if (div.dataset.isViewonce === 'true' && div.classList.contains('viewed')) { showToast("Gambar sudah dilihat"); return; }
-      document.getElementById('voHeader').textContent = `Gambar dari ${div.dataset.fromName}`;
-      const modal = document.getElementById('viewOnceModal');
-      const img = document.getElementById('voFullImage');
-      img.src = div.dataset.fileUrl;
-      img.dataset.isViewonce = div.dataset.isViewonce;
-      modal.style.display = 'flex';
-      if (div.dataset.isViewonce === 'true') {
-        document.getElementById('voTimerContainer').style.display = 'block';
-        startViewOnceTimer();
-        div.classList.add('viewed');
-        const labelEl = div.querySelector('.view-once-label');
-        if (labelEl) labelEl.textContent = 'Dilihat';
-      }
+      if (e.target.tagName !== 'IMG') return;
+      document.getElementById('imageViewerImg').src = data.fileUrl;
+      document.getElementById('imageViewerModal').style.display = 'flex';
     });
   }
 
@@ -1459,7 +1384,7 @@ function sendMessage() {
   socket.emit("message", messageData);
   input.value = "";
   cancelReply();      
-  handleInputIconToggle(); // Balikkan logo Send ke Mic
+  handleInputIconToggle(); 
   input.focus();
 }
 
@@ -1475,12 +1400,10 @@ function previewFile() {
         previewVid.src = e.target.result;
         previewVid.style.display = 'block';
         previewImg.style.display = 'none';
-        document.getElementById('viewOnceCheckbox').parentElement.style.display = 'none'; // Matikan view once utk video
     } else {
         previewImg.src = e.target.result;
         previewImg.style.display = 'block';
         previewVid.style.display = 'none';
-        document.getElementById('viewOnceCheckbox').parentElement.style.display = 'flex';
     }
     document.getElementById('filePreviewModal').style.display = 'grid'; 
   };
@@ -1490,7 +1413,6 @@ function previewFile() {
 async function sendFile() {
   if (!selectedFile || !partner) { showAlert("Tidak ada file"); return; }
   const caption = document.getElementById('captionInput').value.trim();
-  const viewOnce = document.getElementById('viewOnceCheckbox').checked;
   const loadingEl = document.getElementById('uploadLoading');
   const progressFill = document.getElementById('progressFill');
   const progressPercent = document.getElementById('progressPercent');
@@ -1509,12 +1431,11 @@ async function sendFile() {
         type: isVideo ? 'video' : 'file', 
         fileUrl: fileUrl, 
         caption: caption || undefined, 
-        viewOnce: !isVideo && viewOnce, 
         fromName: window.userData?.name || "Anonim" 
     };
     addMsg(msgData, "me");
     socket.emit("message", msgData);
-    showToast(viewOnce ? "Foto sekali lihat terkirim" : (isVideo ? "Video terkirim" : "Gambar terkirim"));
+    showToast(isVideo ? "Video terkirim" : "Gambar terkirim");
 
   } catch (err) {
     showAlert("Gagal mengunggah file: " + err.message);
@@ -1532,7 +1453,6 @@ function cancelFilePreview() {
   const vid = document.getElementById('previewVideo');
   vid.style.display = 'none'; vid.pause(); vid.src = "";
   document.getElementById('captionInput').value = '';
-  document.getElementById('viewOnceCheckbox').checked = false;
   document.getElementById('filePreviewModal').style.display = 'none';
 }
 
@@ -1574,6 +1494,12 @@ socket.on("matched", p => {
     document.getElementById("partnerName").textContent = p.name;
     document.getElementById("partnerStatus").textContent = "Online";
     document.getElementById("partnerStatus").className = "partner-status status-online";
+    
+    // Simulasikan Jarak dan tampilkan Gender
+    const randomDistance = (Math.random() * 5 + 0.1).toFixed(1) + " km";
+    const genderStr = p.gender && p.gender !== "-" ? p.gender : "Tidak diketahui";
+    document.getElementById("partnerDetails").textContent = `${genderStr} • ${randomDistance} dari lokasimu`;
+
     document.getElementById("msg").disabled = false;
     document.getElementById("sendBtn").disabled = false;
     document.getElementById("refreshBtn").style.display = "none";
@@ -1616,59 +1542,71 @@ socket.on("typing", () => {
 });
 document.getElementById("msg").oninput = () => { socket.emit("typing"); handleInputIconToggle(); };
 
-// Status Sesi Permanen
 socket.on("partner-online", () => {
     document.getElementById("partnerStatus").textContent = "Online";
     document.getElementById("partnerStatus").className = "partner-status status-online";
     setPartnerButtonsEnabled(true);
-    // Jika input dimatikan, hidupkan lagi (biasanya tetap hidup saat last seen)
     document.getElementById("msg").disabled = false;
     document.getElementById("sendBtn").disabled = false;
 });
 
-// PARTNER OFFLINE (MENUTUP TAB / MINIMIZE SAJA TAPI TIDAK PUTUS HUBUNGAN)
 socket.on("partner-offline", (data) => {
     const d = new Date(data.lastSeen);
     const timeStr = d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0");
     document.getElementById("partnerStatus").textContent = "Terakhir dilihat " + timeStr;
-    document.getElementById("partnerStatus").className = "partner-status status-last-seen"; // WARNA PUTIH
+    document.getElementById("partnerStatus").className = "partner-status status-last-seen"; 
     
-    // INPUT TETAP AKTIF, AGAR BISA MENGIRIM PESAN (Notifikasi Background/Sync saat online lagi)
     document.getElementById("msg").disabled = false;
     document.getElementById("sendBtn").disabled = false;
     
     if (isInVideoCall) { showToast("Partner offline"); endCall(true); }
 });
 
-// PARTNER DISCONNECTED (KLIK TOMBOL PUTUS HUBUNGAN / KELUAR)
 socket.on("partner-disconnected", () => {
     document.getElementById("partnerStatus").textContent = "Offline";
-    document.getElementById("partnerStatus").className = "partner-status status-offline"; // WARNA MERAH
+    document.getElementById("partnerStatus").className = "partner-status status-offline"; 
     
-    // BARU DIMATIKAN JIKA BENAR-BENAR PUTUS HUBUNGAN
     document.getElementById("msg").disabled = true;
     document.getElementById("sendBtn").disabled = true;
-    document.getElementById("refreshBtn").style.display = "block"; // Muncul untuk Refresh (Cari Baru)
+    document.getElementById("refreshBtn").style.display = "block"; 
     
     setPartnerButtonsEnabled(false);
-    if (isInVideoCall) { showToast("Video call ditutup otomatis"); endCall(true); }
+    if (isInVideoCall) { showToast("Panggilan ditutup otomatis"); endCall(true); }
     partner = null; 
 });
 
-// -- WEBRTC & VIDEO CALL --
-async function startMedia() {
+// -- WEBRTC & CALL LOGIC --
+async function startMedia(isVideo) {
   try {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 }, aspectRatio: { ideal: 4/3 } }, audio: true });
-    const videoTrack = localStream.getVideoTracks()[0], audioTrack = localStream.getAudioTracks()[0];
-    if (videoTrack) videoTrack.enabled = myCamEnabled;  
+    const constraints = {
+        video: isVideo ? { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 }, aspectRatio: { ideal: 4/3 } } : false,
+        audio: true
+    };
+    localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    
+    if (isVideo) {
+        const videoTrack = localStream.getVideoTracks()[0];
+        if (videoTrack) videoTrack.enabled = myCamEnabled;  
+        document.getElementById("camBtn").className = (videoTrack && videoTrack.enabled) ? "bi bi-camera-video-fill" : "bi bi-camera-video-off-fill muted";
+        document.getElementById("camBtn").style.display = "grid";
+        document.getElementById("switchCamBtn").style.display = "grid";
+        document.getElementById("videoScreen").classList.remove("audio-call-mode");
+    } else {
+        document.getElementById("camBtn").style.display = "none";
+        document.getElementById("switchCamBtn").style.display = "none";
+        document.getElementById("videoScreen").classList.add("audio-call-mode");
+    }
+
+    const audioTrack = localStream.getAudioTracks()[0];
     if (audioTrack) audioTrack.enabled = myMicEnabled;
-    document.getElementById("camBtn").className = (videoTrack && videoTrack.enabled) ? "bi bi-camera-video-fill" : "bi bi-camera-video-off-fill muted";
     document.getElementById("micBtn").className = myMicEnabled ? "bi bi-mic-fill" : "bi bi-mic-mute-fill muted";
+    
     const localVideo = document.getElementById("localVideo");
     localVideo.srcObject = localStream; localVideo.play().catch(e => console.log(e));
-    socket.emit("media-status", { mic: myMicEnabled, cam: myCamEnabled });
+    
+    socket.emit("media-status", { mic: myMicEnabled, cam: isVideo ? myCamEnabled : false });
     return true;
-  } catch (err) { showAlert("Tidak bisa akses kamera: " + err.message); return false; }
+  } catch (err) { showAlert("Izin perangkat ditolak: " + err.message); return false; }
 }
 
 function createPeer() {
@@ -1712,9 +1650,14 @@ async function updateLatency() {
   } catch (err) {}
 }
 
-async function callUser() {
+async function callUser(isVideo) {
   if (!partner) { showAlert("Belum terhubung"); return; }
-  isInVideoCall = true; updateVideoCallButton();
+  
+  isAudioOnlyCall = !isVideo;
+  isInVideoCall = true; 
+  updateVideoCallButton();
+  
+  document.getElementById("waitingCallType").textContent = isVideo ? "Menunggu menerima Video Call" : "Menunggu menerima Panggilan Suara";
   document.getElementById("waitingPartnerName").textContent = partner?.name || "Partner";
   document.getElementById("waitingModal").style.display = "grid";
   window.callTm = setTimeout(() => {
@@ -1722,15 +1665,17 @@ async function callUser() {
   }, 30000);
 
   try {
-    const hasMedia = await startMedia();
+    const hasMedia = await startMedia(isVideo);
     if (!hasMedia) { document.getElementById("waitingModal").style.display = "none"; isInVideoCall = false; updateVideoCallButton(); return; }
     createPeer();
     localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-    socket.emit("call-user");
+    socket.emit("call-user", { isVideo: isVideo });
   } catch (err) { showAlert("Gagal: " + err.message); }
 }
 
 socket.on("incoming-call", d => {
+  isAudioOnlyCall = !d.isVideo;
+  document.getElementById("incomingCallTitle").textContent = d.isVideo ? "Video Call Masuk" : "Panggilan Suara Masuk";
   document.getElementById("callerName").textContent = d.name || "Partner";
   document.getElementById("incomingCall").style.display = "grid";
 });
@@ -1738,7 +1683,7 @@ socket.on("incoming-call", d => {
 socket.on("call-accepted", async () => {
   clearTimeout(window.callTm); document.getElementById("waitingModal").style.display = "none";
   try {
-    if (!localStream) await startMedia();
+    if (!localStream) await startMedia(!isAudioOnlyCall);
     createPeer();
     localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
     const offer = await pc.createOffer();
@@ -1752,8 +1697,8 @@ socket.on("call-accepted", async () => {
 
 async function acceptCall() {
   document.getElementById("incomingCall").style.display = "none";
-  const hasMedia = await startMedia();
-  if (!hasMedia) { showAlert("Tidak ada kamera"); return; }
+  const hasMedia = await startMedia(!isAudioOnlyCall);
+  if (!hasMedia) { showAlert("Gagal mengakses media"); return; }
   createPeer();
   localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
   try {
@@ -1805,6 +1750,12 @@ function resetVideoLayout() {
     const local  = document.getElementById("localVideo");
     const remote = document.getElementById("remoteVideo");
     if (!local || !remote) return;
+    
+    if (isAudioOnlyCall) {
+        // Biarkan CSS audio-call-mode yang handle hiding videonya.
+        return;
+    }
+
     isPipSwapped = false;
     local.className  = "pip pip-normal"; remote.className = "full";
     local.style = "position: fixed; top: 70px; right: 16px; width: 120px; height: 160px; z-index: 10;";
@@ -1814,6 +1765,7 @@ function resetVideoLayout() {
 }
 
 document.getElementById("localVideo").onclick = function(e) {
+    if (isAudioOnlyCall) return;
     if (e.target.closest('.dragging') || e.target.classList.contains('dragging')) return;
     const local = document.getElementById("localVideo"), remote = document.getElementById("remoteVideo");
     if (!local || !remote) return;
@@ -1830,7 +1782,7 @@ document.getElementById("localVideo").onclick = function(e) {
 };
 
 async function switchCamera() {
-    if (!localStream) { showAlert("Kamera belum aktif"); return; }
+    if (!localStream || isAudioOnlyCall) return;
     try {
         const oldVideoTrack = localStream.getVideoTracks()[0];
         if (oldVideoTrack) { oldVideoTrack.stop(); localStream.removeTrack(oldVideoTrack); }
@@ -1858,7 +1810,7 @@ function toggleMic() {
 }
 
 function toggleCam() {
-  if (!localStream) return;
+  if (!localStream || isAudioOnlyCall) return;
   const tr = localStream.getVideoTracks()[0]; if (!tr) return;
   myCamEnabled = !myCamEnabled; tr.enabled = myCamEnabled;
   document.getElementById("camBtn").className = myCamEnabled ? "bi bi-camera-video-fill" : "bi bi-camera-video-off-fill muted";
@@ -1874,14 +1826,6 @@ function refreshChat() {
   document.getElementById("searching").style.display = "flex";
   if (window.userData) socket.emit("join", window.userData);
 }
-
-document.getElementById('viewOnceModal').addEventListener('contextmenu', e => { if (e.target.closest('#voFullImage')) e.preventDefault(); }, false);
-document.getElementById('viewOnceModal').addEventListener('dragstart', e => { if (e.target.tagName === 'IMG') e.preventDefault(); }, false);
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.addEventListener('contextmenu', e => { if (e.target.closest('.view-once-wrapper, .normal-image-wrapper')) e.preventDefault(); }, false);
-  document.addEventListener('dragstart', e => { if (e.target.closest('.view-once-wrapper img, .normal-image-wrapper img')) e.preventDefault(); });
-});
 
 document.getElementById("attachGalleryBtn").onclick = function() { document.getElementById("fileInput").click(); };
 </script>
