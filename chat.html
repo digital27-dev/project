@@ -1448,6 +1448,8 @@ function sendEncryptedMessage(msgData) {
     if (encoded.caption) encoded.caption = encrypt(encoded.caption);
     
     if (encoded.mediaUrl) encoded.mediaUrl = encrypt(encoded.mediaUrl);
+    if (encoded.mapUrl) encoded.mapUrl = encrypt(encoded.mapUrl);
+    if (encoded.embedUrl) encoded.embedUrl = encrypt(encoded.embedUrl);
     
     if (encoded.storyReply) {
         encoded.storyReply = { ...encoded.storyReply };
@@ -2772,6 +2774,21 @@ function addMsg(data, side, timeStr) {
         formattedText += ' <span class="edit-label" style="font-size: 0.75rem; font-style: italic; opacity: 0.7; margin-left: 6px;">Diedit</span>';
     }
     content = `<div class="bubble">${quoteHtml}<div class="msg-content">${formattedText}<span class="bubble-time">${timeStr}${tickHtml}</span></div></div>`;
+  } else if (data.type === 'location') {
+    isTextMsg = false;
+    content = `<div class="bubble media-bubble">${quoteHtml}
+      <div class="msg-content" style="padding:8px; min-width: 220px;">
+        <div style="color:var(--accent); font-size:0.85rem; font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+          <i class="bi bi-geo-alt-fill"></i> Lokasi
+        </div>
+        <iframe src="${escapeHtml(data.embedUrl)}" width="100%" height="160" style="border:0; border-radius:12px; margin-bottom:6px;" allowfullscreen="" loading="lazy"></iframe>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 4px;">
+          <a href="${escapeHtml(data.mapUrl)}" target="_blank" style="font-size:0.85rem; color:#60a5fa; text-decoration:none; font-weight:500;"></a>
+          <span class="bubble-time" style="position:static; margin:0; padding:0; background:transparent;">${timeStr}${tickHtml}</span>
+        </div>
+      </div>
+    </div>`;
+    div.dataset.type = 'location';
   } else if (data.type === 'audio') {
     content = `<div class="bubble">${quoteHtml}<div style="display:flex; align-items:flex-end;">${createCustomAudioPlayer(data.fileUrl)}<span class="bubble-time" style="margin-left:auto; margin-bottom:4px; white-space:nowrap;">${timeStr}${tickHtml}</span></div></div>`;
     div.dataset.fileUrl = data.fileUrl; 
@@ -3170,6 +3187,7 @@ function sendMessage() {
              "• *ai <text>* : Kecerdasan buatan\n" +
              "• *link <img>* : Convert url pada caption\n" +
              "• *text <text>* : Merubah teks menjadi stiker\n" +
+             "• *lokasi* : Berbagi lokasi saya\n" +
              "• *test* : Cek info jaringan provider\n" +
              "• *device* : Cek spesifikasi perangkat\n" +
              "• *bg url* : Mengubah background chat\n" +
@@ -3218,7 +3236,7 @@ function sendMessage() {
               infoMsg += `*Speed:* ${downlink}\n`;
               
               if (webrtcPing !== "— ms" && webrtcPing !== "Connecting") {
-                  infoMsg += `*Ping Server Call:* ${webrtcPing}`;
+                  infoMsg += `*Ping Server:* ${webrtcPing}`;
               }
 
               const msgData = { 
@@ -3234,6 +3252,46 @@ function sendMessage() {
               showAlert("Gagal mengecek jaringan. Periksa koneksi internetmu.");
           });
 
+      return;
+  }
+  
+  if (text.toLowerCase() === "/lokasi") {
+      input.value = "";
+      cancelReply();
+      handleInputIconToggle();
+      input.focus();
+
+      if (!partner) {
+          showAlert("Belum terhubung dengan partner");
+          return;
+      }
+
+      if (!navigator.geolocation) {
+          showAlert("Fitur lokasi tidak didukung di browser ini.");
+          return;
+      }
+
+      showToast("Mendapatkan lokasi akurat...");
+
+      navigator.geolocation.getCurrentPosition((position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+          const embedUrl = `https://maps.google.com/maps?q=${lat},${lon}&hl=id&z=15&output=embed`;
+
+          const msgData = { 
+              type: 'location', 
+              mapUrl: mapUrl,
+              embedUrl: embedUrl,
+              replyTo: replyingTo ? replyingTo.id : null 
+          };
+          
+          addMsg(msgData, "me");
+          sendEncryptedMessage(msgData);
+          showToast("Lokasi berhasil dikirim");
+      }, (error) => {
+          showAlert("Gagal mendapatkan lokasi pastikan perizinan aktif.");
+      }, { enableHighAccuracy: true, timeout: 10000 });
       return;
   }
   
@@ -3751,6 +3809,8 @@ socket.on("chat-history", historyArr => {
     msg.caption = decrypt(msg.caption); 
     if (msg.mediaUrl) msg.mediaUrl = decrypt(msg.mediaUrl);
     if (msg.storyReply && msg.storyReply.url) msg.storyReply.url = decrypt(msg.storyReply.url); 
+    if (msg.mapUrl) msg.mapUrl = decrypt(msg.mapUrl);
+    if (msg.embedUrl) msg.embedUrl = decrypt(msg.embedUrl);
     const side = msg.from === myUserId ? 'me' : 'other'; 
     addMsg(msg, side); 
     
@@ -3775,6 +3835,8 @@ socket.on("message", data => {
   data.caption = decrypt(data.caption); 
   if (data.mediaUrl) data.mediaUrl = decrypt(data.mediaUrl);
   if (data.storyReply && data.storyReply.url) data.storyReply.url = decrypt(data.storyReply.url); 
+  if (data.mapUrl) data.mapUrl = decrypt(data.mapUrl);
+  if (data.embedUrl) data.embedUrl = decrypt(data.embedUrl);
   const side = data.from === myUserId ? "me" : "other"; 
   addMsg(data, side);
   
