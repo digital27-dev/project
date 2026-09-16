@@ -409,7 +409,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
 .audio-call-mode video { display: none !important; }
 .audio-call-mode .video-body { background: var(--surface); flex-direction: column; gap: 20px; }
-.audio-call-avatar { width: 160px; height: 160px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 4px solid var(--accent); display: none; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 30px rgba(16,185,129,0.15);}
+.audio-call-avatar { width: 160px; height: 160px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 4px solid var(--accent); display: none; align-items: center; justify-content: center; overflow: hidden;}
 .audio-call-mode .audio-call-avatar { display: flex; }
 
 .media-status-overlay { position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.7); color: var(--danger); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; z-index: 15; backdrop-filter: blur(4px); border: 1px solid rgba(239,68,68,0.4); transition: opacity 0.3s ease, transform 0.3s ease; }
@@ -669,6 +669,12 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   border-radius: 0;
   box-shadow: none;
   margin: 0;
+  font-size: 0.8rem; 
+  letter-spacing: 0.5px; 
+}
+
+.game-btn i {
+  font-size: 1rem;
 }
 .game-btn:active {
   background: var(--accent);
@@ -2827,34 +2833,47 @@ function addMsg(data, side, timeStr) {
     
   } else if (data.type === 'minigame') {
     isTextMsg = false;
-    
+    const gameType = data.gameType || 'jump';
+    let controlsHtml = '';
+    let title = 'Jump';
+
+    if (gameType === 'snake') {
+        title = 'Snake';
+        controlsHtml = `
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--border);">
+                <div></div>
+                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'up', true)" ontouchstart="handleGameInput('${msgId}', 'up', true); event.preventDefault();"><i class="bi bi-arrow-up"></i></button>
+                <div></div>
+                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'left', true)" ontouchstart="handleGameInput('${msgId}', 'left', true); event.preventDefault();"><i class="bi bi-arrow-left"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'down', true)" ontouchstart="handleGameInput('${msgId}', 'down', true); event.preventDefault();"><i class="bi bi-arrow-down"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'right', true)" ontouchstart="handleGameInput('${msgId}', 'right', true); event.preventDefault();"><i class="bi bi-arrow-right"></i></button>
+            </div>`;
+    } else if (gameType === 'block') {
+        title = 'Block';
+        controlsHtml = `
+            <div style="display: flex; gap: 2px; background: var(--border);">
+                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'left', true)" ontouchstart="handleGameInput('${msgId}', 'left', true); event.preventDefault();"><i class="bi bi-arrow-left"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'rotate', true)" ontouchstart="handleGameInput('${msgId}', 'rotate', true); event.preventDefault();"><i class="bi bi-arrow-repeat"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'down', true)" ontouchstart="handleGameInput('${msgId}', 'down', true); event.preventDefault();"><i class="bi bi-arrow-down"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'right', true)" ontouchstart="handleGameInput('${msgId}', 'right', true); event.preventDefault();"><i class="bi bi-arrow-right"></i></button>
+            </div>`;
+    } else {
+        controlsHtml = `
+            <div class="game-controls" id="controls-${msgId}">
+                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'left', true)" onmouseup="handleGameInput('${msgId}', 'left', false)" ontouchstart="handleGameInput('${msgId}', 'left', true); event.preventDefault();" ontouchend="handleGameInput('${msgId}', 'left', false); event.preventDefault();"><i class="bi bi-arrow-left"></i> Kiri</button>
+                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'right', true)" onmouseup="handleGameInput('${msgId}', 'right', false)" ontouchstart="handleGameInput('${msgId}', 'right', true); event.preventDefault();" ontouchend="handleGameInput('${msgId}', 'right', false); event.preventDefault();">Kanan <i class="bi bi-arrow-right"></i></button>
+            </div>`;
+    }
+
     content = `<div class="bubble media-bubble">${quoteHtml}
       <div class="msg-content" style="padding:6px; min-width: 250px;">
         <div style="color:var(--accent); font-size:0.85rem; font-weight:600; margin-bottom:4px; margin-left:4px;">
-         #Sanz
+         #${title}
         </div>
         
         <div class="game-wrapper">
             <canvas id="game-${msgId}" class="game-canvas"></canvas>
-            <div class="game-controls" id="controls-${msgId}">
-                <!-- Tombol Kiri (Mouse & Touch) -->
-                <button class="game-btn" 
-                    onmousedown="handleGameInput('${msgId}', 'left', true)" 
-                    onmouseup="handleGameInput('${msgId}', 'left', false)" 
-                    ontouchstart="handleGameInput('${msgId}', 'left', true); event.preventDefault();" 
-                    ontouchend="handleGameInput('${this.msgId}', 'left', false); event.preventDefault();">
-                    <i class="bi bi-arrow-left"></i> Kiri
-                </button>
-                
-                <!-- Tombol Kanan (Mouse & Touch) -->
-                <button class="game-btn" 
-                    onmousedown="handleGameInput('${msgId}', 'right', true)" 
-                    onmouseup="handleGameInput('${msgId}', 'right', false)" 
-                    ontouchstart="handleGameInput('${msgId}', 'right', true); event.preventDefault();" 
-                    ontouchend="handleGameInput('${this.msgId}', 'right', false); event.preventDefault();">
-                    Kanan <i class="bi bi-arrow-right"></i>
-                </button>
-            </div>
+            ${controlsHtml}
         </div>
 
         <div style="margin-top:4px; display:flex; justify-content:flex-end;">
@@ -2864,9 +2883,16 @@ function addMsg(data, side, timeStr) {
     </div>`;
     
     div.dataset.type = 'minigame';
+    div.dataset.gameType = gameType;
 
     setTimeout(() => {
-        window.activeGames[msgId] = new PouJumpGame(`game-${msgId}`, msgId);
+        if (gameType === 'snake') {
+            window.activeGames[msgId] = new SnakeGame(`game-${msgId}`, msgId);
+        } else if (gameType === 'block') {
+            window.activeGames[msgId] = new BlockBlastGame(`game-${msgId}`, msgId);
+        } else {
+            window.activeGames[msgId] = new PouJumpGame(`game-${msgId}`, msgId);
+        }
     }, 50);
   } else if (data.type === 'video') {
     let senderName = data.fromName || (side === 'me' ? (window.userData?.name || 'Kamu') : (partner?.name || 'Partner'));
@@ -3214,20 +3240,23 @@ function sendMessage() {
   }
   
   if (text.toLowerCase() === "/game") {
-      const uniqueId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-      const msgData = { 
-          id: uniqueId,
-          type: 'minigame', 
-          replyTo: replyingTo ? replyingTo.id : null 
-      };
-      
-      addMsg(msgData, "me");
-      sendEncryptedMessage(msgData);
-      
       input.value = "";
       cancelReply();
       handleInputIconToggle();
       input.focus();
+
+      const div = document.createElement("div");
+      div.className = 'msg system-msg';
+      div.innerHTML = `
+          <div style="text-align:center; background: rgba(30, 37, 50, 0.5); backdrop-filter: blur(12px); padding:12px; border-radius:16px; font-size:0.85rem; color:var(--text-sec); margin: 2px auto; width: fit-content; border: 1px solid rgba(255,255,255,0.1);">
+              <div style="display: flex; gap: 8px; justify-content: center;">
+                  <button onclick="sendGameRequest('jump')" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; box-shadow:none; margin:0;">Jump</button>
+                  <button onclick="sendGameRequest('snake')" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; box-shadow:none; margin:0; background: #3b82f6;">Snake</button>
+                  <button onclick="sendGameRequest('block')" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; box-shadow:none; margin:0; background: #8b5cf6;">Block</button>
+              </div>
+          </div>`;
+      document.getElementById("messages").appendChild(div);
+      div.scrollIntoView({ behavior: "smooth", block: "end" });
       return;
   }
   
@@ -4543,8 +4572,7 @@ class PouJumpGame {
 
         if (this.isGameOver) {
             controls.innerHTML = `
-                <button class="game-btn" style="background: var(--accent); color: white;" onclick="window.activeGames['${this.msgId}'].reset()">
-                    <i class="bi bi-play-fill"></i> Mulai
+                <button class="game-btn" style="background: var(--accent); color: white;" onclick="window.activeGames['${this.msgId}'].reset()"> Mulai
                 </button>
             `;
         } else {
@@ -4554,14 +4582,14 @@ class PouJumpGame {
                     onmouseup="handleGameInput('${this.msgId}', 'left', false)" 
                     ontouchstart="handleGameInput('${this.msgId}', 'left', true); event.preventDefault();" 
                     ontouchend="handleGameInput('${this.msgId}', 'left', false); event.preventDefault();">
-                    <i class="bi bi-arrow-left"></i> Kiri
+                    <i class="bi bi-arrow-left"></i>
                 </button>
                 <button class="game-btn" 
                     onmousedown="handleGameInput('${this.msgId}', 'right', true)" 
                     onmouseup="handleGameInput('${this.msgId}', 'right', false)" 
                     ontouchstart="handleGameInput('${this.msgId}', 'right', true); event.preventDefault();" 
                     ontouchend="handleGameInput('${this.msgId}', 'right', false); event.preventDefault();">
-                    Kanan <i class="bi bi-arrow-right"></i>
+                     <i class="bi bi-arrow-right"></i>
                 </button>
             `;
         }
@@ -4676,17 +4704,310 @@ class PouJumpGame {
     }
 }
 
+class SnakeGame {
+    constructor(canvasId, msgId) {
+        this.canvas = document.getElementById(canvasId);
+        if(!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.msgId = msgId;
+        this.width = 250;
+        this.height = 300;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.grid = 10;
+        this.direction = {x: this.grid, y: 0};
+        this.nextDirection = {x: this.grid, y: 0};
+        this.reset();
+        this.loop = this.loop.bind(this);
+        this.frameCount = 0;
+        requestAnimationFrame(this.loop);
+    }
+    reset() {
+        this.snake = [{x: 120, y: 150}, {x: 110, y: 150}, {x: 100, y: 150}];
+        this.apple = {x: 180, y: 150};
+        this.direction = {x: this.grid, y: 0};
+        this.nextDirection = {x: this.grid, y: 0};
+        this.score = 0;
+        this.isGameOver = false;
+        this.placeApple();
+    }
+    placeApple() {
+        this.apple.x = Math.floor(Math.random() * (this.width / this.grid)) * this.grid;
+        this.apple.y = Math.floor(Math.random() * (this.height / this.grid)) * this.grid;
+    }
+    update() {
+        if(this.isGameOver) return;
+        this.direction = this.nextDirection;
+        const head = {x: this.snake[0].x + this.direction.x, y: this.snake[0].y + this.direction.y};
+        
+        if(head.x < 0 || head.x >= this.width || head.y < 0 || head.y >= this.height) {
+            this.isGameOver = true;
+            return;
+        }
+        
+        for(let i=0; i<this.snake.length; i++) {
+            if(head.x === this.snake[i].x && head.y === this.snake[i].y) {
+                this.isGameOver = true;
+                return;
+            }
+        }
+        
+        this.snake.unshift(head);
+        if(head.x === this.apple.x && head.y === this.apple.y) {
+            this.score++;
+            this.placeApple();
+        } else {
+            this.snake.pop();
+        }
+    }
+    draw() {
+        this.ctx.fillStyle = '#1e293b';
+        this.ctx.fillRect(0, 0, this.width, this.height);
+        if (this.isGameOver) {
+            this.ctx.fillStyle = '#ef4444';
+            this.ctx.font = 'bold 24px Inter';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('Game Over!', this.width / 2, 140);
+            this.ctx.fillStyle = '#fff';
+            this.ctx.font = 'bold 18px Inter';
+            this.ctx.fillText('Score: ' + this.score, this.width / 2, 170);
+            this.ctx.font = '14px Inter';
+            this.ctx.fillText('Tap arah untuk Restart', this.width / 2, 200);
+            return;
+        }
+        this.ctx.fillStyle = '#ef4444';
+        this.ctx.fillRect(this.apple.x, this.apple.y, this.grid-1, this.grid-1);
+        this.ctx.fillStyle = '#10b981';
+        for(let cell of this.snake) {
+            this.ctx.fillRect(cell.x, cell.y, this.grid-1, this.grid-1);
+        }
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = 'bold 16px Inter';
+        this.ctx.textAlign = 'right';
+        this.ctx.textBaseline = 'top';
+        this.ctx.fillText('' + this.score, this.width - 15, 12);
+    }
+    loop() {
+        if(++this.frameCount >= 6) { 
+            this.update();
+            this.frameCount = 0;
+        }
+        this.draw();
+        if (document.getElementById(this.canvas.id)) {
+            requestAnimationFrame(this.loop);
+        } else {
+            delete window.activeGames[this.msgId];
+        }
+    }
+}
+
+class BlockBlastGame {
+    constructor(canvasId, msgId) {
+        this.canvas = document.getElementById(canvasId);
+        if(!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.msgId = msgId;
+        this.width = 250;
+        this.height = 300;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.grid = 15;
+        this.cols = Math.floor(this.width / this.grid);
+        this.rows = Math.floor(this.height / this.grid);
+        this.reset();
+        this.loop = this.loop.bind(this);
+        this.frameCount = 0;
+        requestAnimationFrame(this.loop);
+    }
+    reset() {
+        this.playfield = [];
+        for (let row = -2; row < this.rows; row++) {
+            this.playfield[row] = [];
+            for (let col = 0; col < this.cols; col++) {
+                this.playfield[row][col] = 0;
+            }
+        }
+        this.score = 0;
+        this.isGameOver = false;
+        this.tetromino = this.getNextTetromino();
+    }
+    getShapes() {
+        return {
+            'I': [[1,1,1,1]],
+            'O': [[1,1],[1,1]],
+            'T': [[0,1,0],[1,1,1]],
+            'L': [[1,0,0],[1,1,1]]
+        };
+    }
+    getNextTetromino() {
+        const shapes = this.getShapes();
+        const keys = Object.keys(shapes);
+        const name = keys[Math.floor(Math.random() * keys.length)];
+        const matrix = shapes[name];
+        return { name: name, matrix: matrix, row: name === 'I' ? -1 : -2, col: Math.floor(this.cols/2) - Math.floor(matrix[0].length/2) };
+    }
+    rotate(matrix) {
+        const rows = matrix.length;
+        const cols = matrix[0].length;
+        let rotated = [];
+        for (let c = 0; c < cols; c++) {
+            let newRow = [];
+            for (let r = rows - 1; r >= 0; r--) {
+                newRow.push(matrix[r][c]);
+            }
+            rotated.push(newRow);
+        }
+        return rotated;
+    }
+    isValidMove(matrix, cellRow, cellCol) {
+        for (let r = 0; r < matrix.length; r++) {
+            for (let c = 0; c < matrix[r].length; c++) {
+                if (matrix[r][c] && (
+                    cellCol + c < 0 ||
+                    cellCol + c >= this.cols ||
+                    cellRow + r >= this.rows ||
+                    this.playfield[cellRow + r]?.[cellCol + c])
+                ) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    placeTetromino() {
+        for (let r = 0; r < this.tetromino.matrix.length; r++) {
+            for (let c = 0; c < this.tetromino.matrix[r].length; c++) {
+                if (this.tetromino.matrix[r][c]) {
+                    if (this.tetromino.row + r < 0) {
+                        this.isGameOver = true;
+                        return;
+                    }
+                    this.playfield[this.tetromino.row + r][this.tetromino.col + c] = 1;
+                }
+            }
+        }
+        for (let row = this.rows - 1; row >= 0; ) {
+            if (this.playfield[row].every(cell => !!cell)) {
+                this.playfield.splice(row, 1);
+                this.playfield.unshift(new Array(this.cols).fill(0));
+                this.score += 10;
+            } else {
+                row--;
+            }
+        }
+        this.tetromino = this.getNextTetromino();
+    }
+    update() {
+        if(this.isGameOver) return;
+        this.tetromino.row++;
+        if (!this.isValidMove(this.tetromino.matrix, this.tetromino.row, this.tetromino.col)) {
+            this.tetromino.row--;
+            this.placeTetromino();
+        }
+    }
+    draw() {
+        this.ctx.fillStyle = '#0f172a';
+        this.ctx.fillRect(0, 0, this.width, this.height);
+        if (this.isGameOver) {
+            this.ctx.fillStyle = '#ef4444';
+            this.ctx.font = 'bold 24px Inter';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('Game Over!', this.width / 2, 140);
+            this.ctx.fillStyle = '#fff';
+            this.ctx.font = 'bold 18px Inter';
+            this.ctx.fillText('Score: ' + this.score, this.width / 2, 170);
+            this.ctx.font = '14px Inter';
+            this.ctx.fillText('Tap arah untuk Restart', this.width / 2, 200);
+            return;
+        }
+        this.ctx.fillStyle = '#334155';
+        for (let row = 0; row < this.rows; row++) {
+            for (let col = 0; col < this.cols; col++) {
+                if (this.playfield[row][col]) {
+                    this.ctx.fillRect(col * this.grid, row * this.grid, this.grid - 1, this.grid - 1);
+                }
+            }
+        }
+        if (this.tetromino) {
+            this.ctx.fillStyle = '#a855f7';
+            for (let r = 0; r < this.tetromino.matrix.length; r++) {
+                for (let c = 0; c < this.tetromino.matrix[r].length; c++) {
+                    if (this.tetromino.matrix[r][c]) {
+                        this.ctx.fillRect((this.tetromino.col + c) * this.grid, (this.tetromino.row + r) * this.grid, this.grid - 1, this.grid - 1);
+                    }
+                }
+            }
+        }
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = 'bold 16px Inter';
+        this.ctx.textAlign = 'right';
+        this.ctx.textBaseline = 'top';
+        this.ctx.fillText('' + this.score, this.width - 15, 12);
+    }
+    loop() {
+        if(++this.frameCount >= 25) { 
+            this.update();
+            this.frameCount = 0;
+        }
+        this.draw();
+        if (document.getElementById(this.canvas.id)) {
+            requestAnimationFrame(this.loop);
+        } else {
+            delete window.activeGames[this.msgId];
+        }
+    }
+}
+
 window.handleGameInput = function(msgId, direction, isPressed) {
     const game = window.activeGames[msgId];
-    if (game) {
+    if (!game) return;
+    
+    if (game.isGameOver && isPressed) {
+        game.reset();
+        return;
+    }
+
+    if (game instanceof PouJumpGame) {
         game.keys[direction] = isPressed;
-        
-        if (game.isGameOver && isPressed) game.reset();
+    } 
+    else if (game instanceof SnakeGame && isPressed) {
+        if(direction === 'up' && game.direction.y === 0) game.nextDirection = {x: 0, y: -game.grid};
+        else if(direction === 'down' && game.direction.y === 0) game.nextDirection = {x: 0, y: game.grid};
+        else if(direction === 'left' && game.direction.x === 0) game.nextDirection = {x: -game.grid, y: 0};
+        else if(direction === 'right' && game.direction.x === 0) game.nextDirection = {x: game.grid, y: 0};
+    }
+    else if (game instanceof BlockBlastGame && isPressed) {
+        if(direction === 'left' && game.isValidMove(game.tetromino.matrix, game.tetromino.row, game.tetromino.col - 1)) {
+            game.tetromino.col -= 1;
+        } else if(direction === 'right' && game.isValidMove(game.tetromino.matrix, game.tetromino.row, game.tetromino.col + 1)) {
+            game.tetromino.col += 1;
+        } else if(direction === 'down' && game.isValidMove(game.tetromino.matrix, game.tetromino.row + 1, game.tetromino.col)) {
+            game.tetromino.row += 1;
+        } else if(direction === 'rotate') {
+            const rotated = game.rotate(game.tetromino.matrix);
+            if(game.isValidMove(rotated, game.tetromino.row, game.tetromino.col)) {
+                game.tetromino.matrix = rotated;
+            }
+        }
+        game.draw();
     }
 };
 
 socket.on('sync-game', (data) => {
 });
+
+window.sendGameRequest = function(gameType) {
+    const uniqueId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    const msgData = { 
+        id: uniqueId,
+        type: 'minigame', 
+        gameType: gameType,
+        replyTo: replyingTo ? replyingTo.id : null 
+    };
+    
+    addMsg(msgData, "me");
+    sendEncryptedMessage(msgData);
+};
 
 document.getElementById("attachGalleryBtn").onclick = function() { 
   document.getElementById("fileInput").click(); 
