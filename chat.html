@@ -4553,13 +4553,14 @@ class PouJumpGame {
         this.player = { x: 115, y: 150, width: 20, height: 20, vx: 0, vy: 0 };
         this.platforms = [{ x: 100, y: 280, width: 50, height: 10 }]; 
         
-        for(let i=1; i<7; i++) {
+        for(let i=1; i<500; i++) {
             this.platforms.push({ 
                 x: this.rng.next() * (this.width - 50), 
                 y: 280 - i * 50, 
                 width: 50, height: 10 
             });
         }
+        
         this.score = 0;
         this.isGameOver = false;
     }
@@ -4591,10 +4592,7 @@ class PouJumpGame {
             
             for (let p of this.platforms) {
                 p.y -= this.player.vy; 
-                if (p.y > this.height) {
-                    p.y = 0;
-                    p.x = this.rng.next() * (this.width - 50);
-                }
+
             }
         }
 
@@ -4621,7 +4619,10 @@ class PouJumpGame {
 
         this.ctx.fillStyle = '#64748b';
         for (let p of this.platforms) {
-            this.ctx.fillRect(p.x, p.y, p.width, p.height);
+
+            if (p.y > -20 && p.y < this.height + 20) {
+                this.ctx.fillRect(p.x, p.y, p.width, p.height);
+            }
         }
 
         const radius = this.player.width / 2; 
@@ -4638,7 +4639,6 @@ class PouJumpGame {
         this.ctx.font = 'bold 16px Inter';
         this.ctx.textAlign = 'right'; 
         this.ctx.textBaseline = 'top'; 
-
         this.ctx.fillText('' + this.score, this.width - 15, 12);
     }
 
