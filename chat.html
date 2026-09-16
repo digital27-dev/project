@@ -2840,7 +2840,7 @@ function addMsg(data, side, timeStr) {
     if (gameType === 'snake') {
         title = 'Snake';
         controlsHtml = `
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--border);">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--border);" id="controls-${msgId}">
                 <div></div>
                 <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'up', true)" ontouchstart="handleGameInput('${msgId}', 'up', true); event.preventDefault();"><i class="bi bi-arrow-up"></i></button>
                 <div></div>
@@ -2851,7 +2851,7 @@ function addMsg(data, side, timeStr) {
     } else if (gameType === 'block') {
         title = 'Block';
         controlsHtml = `
-            <div style="display: flex; gap: 2px; background: var(--border);">
+            <div style="display: flex; gap: 2px; background: var(--border);" id="controls-${msgId}">
                 <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'left', true)" ontouchstart="handleGameInput('${msgId}', 'left', true); event.preventDefault();"><i class="bi bi-arrow-left"></i></button>
                 <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'rotate', true)" ontouchstart="handleGameInput('${msgId}', 'rotate', true); event.preventDefault();"><i class="bi bi-arrow-repeat"></i></button>
                 <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'down', true)" ontouchstart="handleGameInput('${msgId}', 'down', true); event.preventDefault();"><i class="bi bi-arrow-down"></i></button>
@@ -4722,6 +4722,28 @@ class SnakeGame {
         this.frameCount = 0;
         requestAnimationFrame(this.loop);
     }
+
+    updateUI() {
+        const controls = document.getElementById(`controls-${this.msgId}`);
+        if (!controls) return;
+
+        if (this.isGameOver) {
+            controls.innerHTML = `
+                <button class="game-btn" style="background: var(--accent); color: white; grid-column: 1 / -1; width: 100%;" onclick="window.activeGames['${this.msgId}'].reset()"> Mulai
+                </button>
+            `;
+        } else {
+            controls.innerHTML = `
+                <div></div>
+                <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'up', true)" ontouchstart="handleGameInput('${this.msgId}', 'up', true); event.preventDefault();"><i class="bi bi-arrow-up"></i></button>
+                <div></div>
+                <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'left', true)" ontouchstart="handleGameInput('${this.msgId}', 'left', true); event.preventDefault();"><i class="bi bi-arrow-left"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'down', true)" ontouchstart="handleGameInput('${this.msgId}', 'down', true); event.preventDefault();"><i class="bi bi-arrow-down"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'right', true)" ontouchstart="handleGameInput('${this.msgId}', 'right', true); event.preventDefault();"><i class="bi bi-arrow-right"></i></button>
+            `;
+        }
+    }
+
     reset() {
         this.snake = [{x: 120, y: 150}, {x: 110, y: 150}, {x: 100, y: 150}];
         this.apple = {x: 180, y: 150};
@@ -4730,6 +4752,7 @@ class SnakeGame {
         this.score = 0;
         this.isGameOver = false;
         this.placeApple();
+        this.updateUI();
     }
     placeApple() {
         this.apple.x = Math.floor(Math.random() * (this.width / this.grid)) * this.grid;
@@ -4742,12 +4765,14 @@ class SnakeGame {
         
         if(head.x < 0 || head.x >= this.width || head.y < 0 || head.y >= this.height) {
             this.isGameOver = true;
+            this.updateUI();
             return;
         }
         
         for(let i=0; i<this.snake.length; i++) {
             if(head.x === this.snake[i].x && head.y === this.snake[i].y) {
                 this.isGameOver = true;
+                this.updateUI();
                 return;
             }
         }
@@ -4771,8 +4796,6 @@ class SnakeGame {
             this.ctx.fillStyle = '#fff';
             this.ctx.font = 'bold 18px Inter';
             this.ctx.fillText('Score: ' + this.score, this.width / 2, 170);
-            this.ctx.font = '14px Inter';
-            this.ctx.fillText('Tap arah untuk Restart', this.width / 2, 200);
             return;
         }
         this.ctx.fillStyle = '#ef4444';
@@ -4819,6 +4842,26 @@ class BlockBlastGame {
         this.frameCount = 0;
         requestAnimationFrame(this.loop);
     }
+
+    updateUI() {
+        const controls = document.getElementById(`controls-${this.msgId}`);
+        if (!controls) return;
+
+        if (this.isGameOver) {
+            controls.innerHTML = `
+                <button class="game-btn" style="background: var(--accent); color: white; width: 100%;" onclick="window.activeGames['${this.msgId}'].reset()"> Mulai
+                </button>
+            `;
+        } else {
+            controls.innerHTML = `
+                <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'left', true)" ontouchstart="handleGameInput('${this.msgId}', 'left', true); event.preventDefault();"><i class="bi bi-arrow-left"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'rotate', true)" ontouchstart="handleGameInput('${this.msgId}', 'rotate', true); event.preventDefault();"><i class="bi bi-arrow-repeat"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'down', true)" ontouchstart="handleGameInput('${this.msgId}', 'down', true); event.preventDefault();"><i class="bi bi-arrow-down"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'right', true)" ontouchstart="handleGameInput('${this.msgId}', 'right', true); event.preventDefault();"><i class="bi bi-arrow-right"></i></button>
+            `;
+        }
+    }
+
     reset() {
         this.playfield = [];
         for (let row = -2; row < this.rows; row++) {
@@ -4830,6 +4873,7 @@ class BlockBlastGame {
         this.score = 0;
         this.isGameOver = false;
         this.tetromino = this.getNextTetromino();
+        this.updateUI();
     }
     getShapes() {
         return {
@@ -4880,6 +4924,7 @@ class BlockBlastGame {
                 if (this.tetromino.matrix[r][c]) {
                     if (this.tetromino.row + r < 0) {
                         this.isGameOver = true;
+                        this.updateUI();
                         return;
                     }
                     this.playfield[this.tetromino.row + r][this.tetromino.col + c] = 1;
@@ -4916,8 +4961,6 @@ class BlockBlastGame {
             this.ctx.fillStyle = '#fff';
             this.ctx.font = 'bold 18px Inter';
             this.ctx.fillText('Score: ' + this.score, this.width / 2, 170);
-            this.ctx.font = '14px Inter';
-            this.ctx.fillText('Tap arah untuk Restart', this.width / 2, 200);
             return;
         }
         this.ctx.fillStyle = '#334155';
