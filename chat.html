@@ -3928,6 +3928,11 @@ function endCall(isAuto = false, isInitiator = false) {
   clearTimeout(window.callTm); 
   clearTimeout(callUiTimeout);
   
+  const videoScreen = document.getElementById("videoScreen");
+  if (videoScreen) {
+      videoScreen.classList.remove("ui-hidden");
+  }
+  
   if (pc) { 
     pc.close(); 
     pc = null; 
