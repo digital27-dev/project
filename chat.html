@@ -3926,6 +3926,7 @@ socket.on("media-status", (status) => {
 
 function endCall(isAuto = false, isInitiator = false) { 
   clearTimeout(window.callTm); 
+  clearTimeout(callUiTimeout);
   
   if (pc) { 
     pc.close(); 
