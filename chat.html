@@ -1,0 +1,4201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sanz</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<style> 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root { 
+  --bg: #0b0f19; 
+  --surface: #151a23; 
+  --surface-2: #1e2532; 
+  --accent: #10b981; 
+  --accent-dark:#059669; 
+  --danger: #ef4444; 
+  --warning: #f59e0b; 
+  --success: #10b981; 
+  --text: #f1f5f9; 
+  --text-sec: #94a3b8; 
+  --border: #2a3140; 
+  --me: #065f46; 
+  --other: #1e293b; 
+} 
+
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+  -webkit-tap-highlight-color: transparent !important; 
+} 
+
+html, body { 
+  height: 100%; 
+  font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+  background: var(--bg); 
+  color: var(--text); 
+  overflow: hidden; 
+} 
+
+button, i, .btn-accept, .btn-reject, .msg { 
+  user-select: none; 
+  -webkit-user-select: none; 
+  -webkit-touch-callout: none; 
+}
+
+input, textarea { 
+  user-select: auto; 
+  -webkit-user-select: auto; 
+}
+
+#callName { font-weight: 600 !important; letter-spacing: 0.3px;} 
+
+#miniRemoteVideoContainer { 
+  position: fixed; bottom: 100px; right: 16px; z-index: 250; 
+  cursor: move; touch-action: none; user-select: none; 
+  border-radius: 16px; overflow: hidden; 
+  width: 120px !important; height: 160px !important; 
+  box-shadow: none; border: 2px solid var(--border); 
+} 
+
+#miniRemoteVideo { 
+  width: 100%; height: 100%; object-fit: cover; 
+  background: rgba(0,0,0,0.9); border-radius: 14px; border: none; 
+} 
+
+#miniRemoteVideoContainer.dragging { 
+  opacity: 0.92; border: 2px solid var(--accent); z-index: 300 !important; 
+} 
+
+#localVideo.pip, #remoteVideo.pip { 
+  position: fixed !important; top: 70px; right: 16px; bottom: auto; left: auto; 
+  width: 120px !important; height: 160px !important; 
+  border-radius: 16px; border: 2px solid var(--border); 
+  background: rgba(0,0,0,0.9); object-fit: cover; 
+  cursor: move; touch-action: none; backface-visibility: hidden; 
+  perspective: 1000px; transition: none; box-shadow: none; 
+} 
+
+#localVideo.pip.dragging, #remoteVideo.pip.dragging { 
+  opacity: 0.92; border: 2px solid var(--accent); z-index: 999 !important; 
+} 
+
+#replyPreview { 
+  display: none; background: rgba(30, 37, 50, 0.5); backdrop-filter: blur(12px); border-top: 1px solid var(--border); 
+  border-bottom: 1px solid var(--border); padding: 8px 16px; 
+  align-items: center; gap: 12px; position: relative; z-index: 10; 
+} 
+
+#replyPreview[style*="display: flex"], #replyPreview[style*="display:block"] { 
+  display: flex !important; 
+} 
+
+.reply-content-wrapper { 
+  flex: 1; min-width: 0; overflow: hidden; 
+  border-left: 3px solid var(--accent); padding-left: 10px; 
+} 
+
+#replySender { 
+  font-size: 0.9rem; color: var(--accent); font-weight: 600; 
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+} 
+
+#replyContent { 
+  font-size: 0.92rem; color: var(--text-sec); white-space: nowrap; 
+  overflow: hidden; text-overflow: ellipsis; max-width: 100%; 
+} 
+
+#replyCloseBtn { 
+  flex-shrink: 0; font-size: 1.4rem; color: #94a3b8; 
+  cursor: pointer; padding: 4px; transition: color 0.2s; 
+} 
+
+#replyCloseBtn:hover { color: var(--danger); } 
+
+.quoted-msg .bubble { align-self: flex-start !important; margin-left: 0 !important; margin-right: auto !important; } 
+.msg.me .bubble:not(.quoted-msg .bubble) { align-self: flex-end !important; margin-left: auto !important; margin-right: 0 !important; } 
+.msg.other .bubble:not(.quoted-msg .bubble) { align-self: flex-start !important; margin-left: 0 !important; margin-right: auto !important; } 
+.msg.me .quoted-msg { align-self: flex-end; } 
+.msg.other .quoted-msg { align-self: flex-start; text-align: left; } 
+
+.quoted-msg { 
+  border-left: 3px solid var(--accent); padding: 6px 10px; margin: 0 0 6px 0; 
+  font-size: 0.88rem; opacity: 0.95; line-height: 1.35; 
+  background: rgba(0, 0, 0, 0.2); border-radius: 6px 10px 10px 6px; 
+} 
+
+.quoted-msg > div:first-child { color: var(--accent); font-weight: 600; margin-bottom: 3px; padding-right: 10px; font-size: 0.9rem; } 
+.quoted-msg > div:last-child { color: var(--text-sec); padding-right: 10px; } 
+
+.msg a {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -webkit-touch-callout: default !important;
+  cursor: pointer;
+}
+
+.msg { position: relative; }
+.msg .bubble { 
+  max-width: 100% !important; 
+  width: fit-content !important; 
+  min-width: auto; 
+  position: relative; 
+  padding: 8px 12px; 
+  border-radius: 16px; 
+  font-size: 0.95rem; 
+  line-height: 1.45; 
+  word-break: break-word; 
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+} 
+.msg .bubble.swiping { transition: none; }
+.swipe-reply-icon { position: absolute; left: -40px; top: 50%; transform: translateY(-50%) scale(0.5); opacity: 0; color: var(--accent); font-size: 1.2rem; transition: opacity 0.2s, transform 0.2s; z-index: 10; }
+
+.msg .bubble.media-bubble { padding: 4px; padding-bottom: 4px; }
+.msg .bubble.media-bubble.no-caption { padding: 4px; }
+.msg .bubble.media-bubble .quoted-msg { margin: 4px 4px 6px 4px; }
+
+.bubble-time {
+  float: right;
+  margin: 10px -2px -2px 12px;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  line-height: 1;
+}
+
+.msg .bubble.media-bubble.no-caption .bubble-time {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 12px;
+  margin: 0;
+  float: none;
+  backdrop-filter: blur(4px);
+}
+
+.me .bubble { background: var(--me); border-bottom-right-radius: 4px; } 
+.other .bubble { background: var(--other); border-bottom-left-radius: 4px; } 
+.bubble a { color: #60a5fa !important; text-decoration: underline; word-break: break-all; }
+.deleted-msg { font-style: italic; color: var(--text-sec); opacity: 0.8;} 
+
+.screen { height: 100dvh; display: grid; place-items: center; padding: 16px; } 
+#searching { background: linear-gradient(135deg, #0b0f19 0%, #151a23 100%); color: var(--text); } 
+.upload-loading-overlay { position: absolute; inset: 0; background: rgba(11, 15, 25, 0.94); backdrop-filter: blur(10px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100; border-radius: 20px; color: #e2e8f0; } 
+.progress-container { width: 280px; max-width: 90%; } 
+.progress-bar { height: 6px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-bottom: 14px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); } 
+.progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 4px; transition: width 0.3s ease; box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); } 
+.progress-text { text-align: center; font-size: 1.05rem; font-weight: 600; color: var(--accent); letter-spacing: 0.5px; } 
+.loader-container { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; } 
+.pulse-ring { position: absolute; width: 100%; height: 100%; border: 3px solid var(--accent); border-radius: 50%; opacity: 0; animation: pulse 2.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; } 
+.pulse-ring.delay-1 { animation-delay: 0.6s; } 
+.pulse-ring.delay-2 { animation-delay: 1.2s; } 
+@keyframes pulse { 0% { transform: scale(0.5); opacity: 0.4; } 50% { opacity: 0.8; } 100% { transform: scale(1.8); opacity: 0; } } 
+.main-loader { position: relative; width: 80px; height: 80px; } 
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.spinner { width: 100%; height: 100%; border: 5px solid rgba(16,185,129,0.1); border-top: 5px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; } 
+.inner-glow { position: absolute; inset: 0; background: radial-gradient(circle at center, rgba(16,185,129,0.3) 0%, transparent 70%); border-radius: 50%; animation: glow 2s ease-in-out infinite alternate; } 
+@keyframes glow { from { opacity: 0.4; transform: scale(0.9); } to { opacity: 0.9; transform: scale(1.15); } } 
+.searching-text-wrapper { text-align: center; } 
+.searching-text { font-size: 1.5rem; font-weight: 700; margin-top: 35px; margin-bottom: 0.6rem; color: var(--text); animation: textPulse 3s infinite; } 
+@keyframes textPulse { 0%,100% { opacity: 0.9; } 50% { opacity: 1; } } 
+.searching-subtext { font-weight:400;font-size: 1rem; color: var(--text-sec); max-width: 280px; line-height: 1.4; margin: 0 auto;} 
+.online-counter { display: flex; align-items: center; gap: 10px; background: rgba(16,185,129,0.1); padding: 8px 20px; border-radius: 999px; border: 1px solid rgba(16,185,129,0.2); font-size: 0.95rem; font-weight: 600; color: #34d399; backdrop-filter: blur(8px); margin-bottom: 20px; } 
+.online-dot { width: 10px; height: 10px; background: #34d399; border-radius: 50%; animation: blink 1.8s infinite;} 
+@keyframes blink { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } } 
+
+.rejected-modern { background: var(--surface); border-radius: 28px; padding: 40px 28px; max-width: 360px; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.4); animation: fadeInScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); } 
+@keyframes fadeInScale { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } } 
+.rejected-icon-container { width: 90px; height: 90px; margin: 0 auto 1.5rem; background: rgba(239,68,68,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(239,68,68,0.4); animation: pulseReject 2s infinite ease-in-out; } 
+.rejected-icon { font-size: 3rem; color: var(--danger); } 
+@keyframes pulseReject { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.08); opacity: 1; } } 
+.rejected-actions { display: flex; justify-content: center; gap: 12px; margin-top: 1.5rem; } 
+.btn-try-again, .btn-close-modern { padding: 12px 24px; border-radius: 14px; font-size: 0.95rem; font-weight: 600; transition: all 0.2s ease; flex:1; box-shadow: none; border: none; cursor: pointer; } 
+.btn-try-again { background: var(--accent); color: white; } 
+.btn-try-again:hover { background: var(--accent-dark); } 
+.btn-close-modern { background: var(--surface-2); color: white; } 
+.btn-close-modern:hover { background: #374151; } 
+.whatsapp-incoming { background: var(--surface); border-radius: 28px; padding: 40px 28px; max-width: 360px; text-align: center; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.4);} 
+.incoming-avatar { border: 4px solid var(--accent); } 
+.btn-accept, .btn-reject { width: 64px; height: 64px; border-radius: 50% !important; border: none; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2);} 
+.btn-accept i, .btn-reject i { font-size: 1.4rem; } 
+.incoming-buttons { display: flex; justify-content: center; gap: 40px; margin-top: 2rem; } 
+.btn-accept { background: var(--success) !important; color: white; } 
+.btn-accept:hover { background: var(--accent-dark) !important; transform: scale(1.05); } 
+.btn-reject { background: var(--danger) !important; color: white; } 
+.btn-reject:hover { background: #dc2626 !important; transform: scale(1.05); } 
+.whatsapp-style-waiting { background: var(--surface); border-radius: 28px; padding: 40px 24px; text-align: center; max-width: 360px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.4); } 
+.avatar-large, .incoming-avatar { width: 110px; height: 110px; margin: 0 auto 1.2rem; border-radius: 50%; overflow: hidden; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; border: 3px solid var(--accent); } 
+.ringing-animation { position: relative; width: 60px; height: 60px; margin: 2rem auto; } 
+.ring { position: absolute; inset: 0; border: 2px solid var(--accent); border-radius: 50%; opacity: 0; animation: whatsappRing 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite; } 
+.ring.delay-1 { animation-delay: 0.7s; } 
+.ring.delay-2 { animation-delay: 1.4s; } 
+@keyframes whatsappRing { 0% { transform: scale(0.4); opacity: 0.9; } 40% { opacity: 0.6; } 100% { transform: scale(1.8); opacity: 0; } }
+
+.card { width: 100%; max-width: 400px; background: var(--surface); border-radius: 24px; border: 1px solid var(--border); padding: 32px 28px; box-shadow: 0 16px 40px rgba(0,0,0,0.3); } 
+.logo-big { font-size: 3.5rem; margin-bottom: 0.8rem; text-align: center; line-height: 1; } 
+h1, h2, h3 { text-align: center; font-weight: 600;} 
+h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.5px;} 
+h2 { margin-bottom: 1.5rem; } 
+.subtitle { font-weight: 400; color: var(--text-sec); text-align: center; font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.4;} 
+input, select, button { outline: none; width: 100%; padding: 14px 16px; margin-bottom: 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-2); color: white; font-size: 0.95rem; font-family: inherit; transition: border-color 0.2s;} 
+input:focus, select:focus { border-color: var(--accent); }
+input::placeholder, select option:disabled { color: #64748b; } 
+button { background: var(--accent); color: white; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; padding: 14px 20px; font-size: 1rem; box-shadow: 0 4px 12px rgba(16,185,129,0.2);} 
+button:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(16,185,129,0.3);} 
+button:active { transform: translateY(0); } 
+.btn-danger { background: var(--danger); box-shadow: 0 4px 12px rgba(239,68,68,0.2); } 
+.btn-danger:hover { background: #dc2626; box-shadow: 0 6px 16px rgba(239,68,68,0.3); } 
+
+#chat { display: none; flex-direction: column; height: 100dvh; background: var(--bg); } 
+.header { height: 68px; background: rgba(30, 37, 50, 0.5); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-weight: 500; position: sticky; top: 0; z-index: 50; } 
+.partner-info { line-height: 1.3; margin-left: 12px; } 
+.partner-name { font-size: 1.05rem; font-weight: 600; } 
+.partner-status { font-size: 0.8rem; font-weight: 500; opacity: 0.9; margin-top: 2px;} 
+.status-online { color: var(--success); } 
+.status-offline { color: var(--danger); } 
+.status-last-seen { color: var(--text-sec); } 
+.status-typing { color: var(--warning); font-style: italic; } 
+.encryption-info { font-weight:500; display: flex; align-items: center; justify-content: center; background: rgba(30, 37, 50, 0.5); backdrop-filter: blur(12px); padding: 8px 12px; font-size: 0.8rem; color: var(--text-sec); gap: 6px; } 
+.encryption-info i { font-size: 0.75rem; color: var(--text-sec); } 
+#messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; overflow-x: hidden; } 
+
+.footer { padding: 12px 16px; background: transparent; display: flex; flex-direction: column; position: relative; z-index: 50;} 
+.footer-inputs { display:flex; gap:10px; margin-bottom: 10px; width: 100%; align-items: center; position: relative;}
+
+.input-wrapper { 
+  display: flex; 
+  align-items: center; 
+  flex: 1; 
+  background: rgba(30, 37, 50, 0.5);
+  backdrop-filter: blur(12px);
+  border-radius: 24px; 
+  padding: 4px 6px; 
+  border: 1px solid var(--border); 
+  transition: border-color 0.2s; 
+}
+
+.input-wrapper:focus-within { 
+  border-color: var(--border); 
+}
+
+.footer .input-wrapper input { 
+  flex: 1; 
+  background: transparent; 
+  border: none; 
+  outline: none; 
+  padding: 10px 6px; 
+  margin-bottom: 0; 
+  color: white; 
+}
+
+.input-wrapper .icon-btn { 
+  width: 38px !important; 
+  height: 38px !important; 
+  font-size: 1.3rem !important; 
+  border-radius: 50% !important; 
+  display: grid; 
+  place-items: center; 
+  margin: 0; 
+}
+.footer-inputs button { background: var(--accent); width: 48px; height: 48px; border-radius: 50%; font-size: 1.2rem; display: grid; place-items: center; padding: 0; margin-bottom: 0; box-shadow: none; }
+.icon-btn { background: transparent !important; color: var(--text-sec); width: 44px !important; height: 44px !important; box-shadow: none !important; font-size: 1.4rem !important; border-radius: 12px !important;}
+.icon-btn:hover { background: rgba(255,255,255,0.05) !important; color: var(--text); transform: none !important;}
+
+.media-picker { position: absolute; bottom: 80px; left: 16px; width: 300px; max-width: calc(100vw - 32px); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 12px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; z-index: 100; transition: opacity 0.2s, transform 0.2s; opacity: 1; transform: translateY(0); }
+.media-picker.hidden-picker { opacity: 0; transform: translateY(15px); pointer-events: none; }
+.picker-tabs { display: flex; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.picker-tabs .tab { flex: 1; text-align: center; padding: 12px 0; font-size: 0.95rem; font-weight: 600; color: var(--text-sec); cursor: pointer; transition: color 0.2s, background 0.2s; }
+.picker-tabs .tab:hover { background: rgba(255,255,255,0.05); }
+.picker-tabs .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); background: var(--surface); }
+.picker-grid { display: none; padding: 12px; grid-template-columns: repeat(5, 1fr); gap: 10px; max-height: 250px; overflow-y: auto; }
+.picker-grid.visible { display: grid; }
+.picker-grid.sticker-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 16px;}
+.emoji-btn { cursor: pointer; text-align: center; font-size: 1.6rem; transition: transform 0.2s; padding: 4px; border-radius: 8px; }
+.emoji-btn:hover { transform: scale(1.2); background: rgba(255,255,255,0.05); }
+.sticker-item { width: 100%; aspect-ratio: 1; object-fit: contain; cursor: pointer; border-radius: 8px; transition: transform 0.2s; background: rgba(0,0,0,0.2); padding: 4px;}
+.sticker-item:hover { transform: scale(1.1); background: rgba(255,255,255,0.05); }
+
+#vnPreview { width:100%; gap:12px; align-items:center; background: rgba(30, 37, 50, 0.5); backdrop-filter: blur(12px); padding:8px 16px; border-radius: 24px; margin-bottom: 8px; border: 1px solid var(--border); }
+
+.video-wrap { position: fixed; inset: 0; background: var(--bg); display: none; flex-direction: column; z-index: 100; } 
+
+.video-header { 
+  height: 64px; 
+  background: rgba(30, 37, 50, 0.5); 
+  backdrop-filter: blur(12px); 
+  color: white; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  padding: 0 20px; 
+  font-size: 1.1rem; 
+  border-bottom: 1px solid rgba(255,255,255,0.05); 
+  z-index: 10;
+}
+
+.video-body { 
+  flex: 1; 
+  position: relative; 
+  background: #000; 
+  display:flex; 
+  justify-content:center; 
+  align-items:center; 
+  overflow: hidden;
+}
+
+.video-footer { 
+  position: absolute; 
+  bottom: 25px; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  height: auto; 
+  padding: 12px 24px; 
+  background: rgba(30, 37, 50, 0.5); 
+  backdrop-filter: blur(12px); 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  gap: 16px; 
+  border: 1px solid rgba(255,255,255,0.15); 
+  border-radius: 999px; 
+  z-index: 20; 
+  width: max-content; 
+  max-width: 90%; 
+  transition: opacity 0.3s ease, transform 0.3s ease;
+} 
+
+#videoScreen:not(.audio-call-mode) .video-header {
+  display: none !important;
+}
+
+#videoScreen:not(.audio-call-mode) .video-body {
+  position: absolute; 
+  inset: 0; 
+  z-index: 5;
+}
+
+#videoScreen:not(.audio-call-mode).ui-hidden .video-footer {
+  opacity: 0;
+  transform: translate(-50%, 150%);
+  pointer-events: none;
+}
+.video-wrap.ui-hidden .video-header {
+  opacity: 0;
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+.video-wrap.ui-hidden .video-footer {
+  opacity: 0;
+  transform: translate(-50%, 150%);
+  pointer-events: none;
+}
+video { width: 100%; height: 100%; object-fit: cover; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); } 
+#localVideo.full, #remoteVideo.full { position: static; width: 100% !important; height: 100% !important; border-radius: 0 !important; border: none !important; box-shadow: none !important; z-index: 5; } 
+#localVideo { transform: scaleX(-1); } 
+video.pip-normal { width: 120px !important; height: 160px !important; bottom: 20px !important; right: 20px !important; border-radius: 16px; border: 2px solid var(--border); box-shadow: none;} 
+video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px !important; right: 16px !important; border: 2px solid var(--accent); border-radius: 14px; box-shadow: none;} 
+
+.audio-call-mode video { display: none !important; }
+.audio-call-mode .video-body { background: var(--surface); flex-direction: column; gap: 20px; }
+.audio-call-avatar { width: 160px; height: 160px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 4px solid var(--accent); display: none; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 30px rgba(16,185,129,0.15);}
+.audio-call-mode .audio-call-avatar { display: flex; }
+
+.media-status-overlay { position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.7); color: var(--danger); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; z-index: 15; backdrop-filter: blur(4px); border: 1px solid rgba(239,68,68,0.4); transition: opacity 0.3s ease, transform 0.3s ease; }
+.media-status-overlay.hidden { opacity: 0; transform: scale(0.85); pointer-events: none; } 
+#remoteVideo.pip ~ #micStatusRemote, #localVideo.pip ~ #micStatusLocal { width: 32px; height: 32px; font-size: 1.1rem; top: 8px; left: 8px; border-width: 1px; } 
+.video-footer i { 
+  font-size: 1.25rem; 
+  width: 48px; 
+  height: 48px; 
+  border-radius: 50%; 
+  background: rgba(255,255,255,0.1); 
+  display: grid; 
+  place-items: center; 
+  cursor: pointer; 
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+  color: white;
+}
+.video-footer i.muted { color: var(--danger); background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3);} 
+.video-footer i.muted:hover { background: rgba(239,68,68,0.25); }
+.video-footer .end-call { background: var(--danger); } 
+.video-footer .end-call:hover { background: #dc2626; } 
+
+.modal { position: fixed; inset: 0; background: rgba(5, 7, 12, 0.8); display: none; place-items: center; z-index: 200; backdrop-filter: blur(6px); } 
+.modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 32px; width: 90%; max-width: 360px; text-align: center; box-shadow: 0 24px 48px rgba(0,0,0,0.5); } 
+.modal-box button { margin: 8px 0; } 
+#actionToast { display:none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(30,37,50,0.95); color: white; padding: 12px 24px; border-radius: 999px; font-size: 0.95rem; font-weight: 500; z-index: 400; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 20px rgba(0,0,0,0.3);} 
+.net-pill { background: rgba(30,37,50,0.8); padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; display: none; align-items: center; backdrop-filter: blur(10px); color: var(--success); border: 1px solid rgba(16,185,129,0.3); } 
+.video-header .net-pill { margin-left: auto; align-self: center; } 
+#filePreviewModal .preview-img { max-width: 100%; max-height: 220px; margin-bottom: 16px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.2);} 
+#filePreviewModal .caption-input { width: 100%; padding: 14px; margin-bottom: 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); } 
+
+.msg-action { 
+  position: fixed; 
+  background: var(--surface-2); 
+  border: 1px solid var(--border); 
+  border-radius: 12px; 
+  padding: 8px 12px; 
+  font-size: 0.9rem; 
+  font-weight: 500; 
+  z-index: 9999; 
+  display: none; 
+  flex-direction: column;
+  gap: 4px;
+  min-width: 100px;
+  white-space: nowrap; 
+  user-select: none; 
+  opacity: 0; 
+  transform: scale(0.85);
+  transition: opacity 0.2s, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+.msg-action.show-action {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+@media (max-width: 500px) { 
+  .msg-action { font-size: 0.85rem; padding: 8px 14px; } 
+}
+
+.msg.me.long-press {
+  position: relative;
+  z-index: 1001 !important;
+}
+.msg.me.long-press .bubble {
+  transform: scale(1.02);
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s;
+}
+.card:not(.hidden) { opacity: 1; transform: translateY(0); } 
+.hidden { display: none !important; } 
+@media (max-width: 500px) { 
+    .video-header .net-pill { padding: 4px 10px; font-size: 0.8rem; } 
+    #localVideo.pip, #remoteVideo.pip { width: 100px !important; height: 133px !important; bottom: 16px; right: 16px; } 
+} 
+
+.avatar-header { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: var(--surface-2); border: 2px solid transparent; cursor: pointer; transition: border-color 0.2s;}
+.avatar-header:hover { border-color: var(--accent); }
+
+.unseen-story-ring { border: 2px solid var(--success) !important; padding: 2px; background-clip: content-box; }
+
+.story-thumb { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); margin: 6px; cursor: pointer; display: inline-block; transition: transform 0.2s;}
+.story-thumb:hover { transform: scale(1.05); }
+.story-container { white-space: nowrap; overflow-x: auto; padding: 12px 0; text-align: left; scrollbar-width: none; }
+.story-container::-webkit-scrollbar { display: none; }
+
+.reaction-badge { position: absolute; bottom: -13px; right: 12px; font-size: 0.9rem; background: none; padding: 2px 6px; border-radius: 12px; line-height: 1.2; z-index: 5; }
+.msg.other .reaction-badge { right: auto; left: 12px; }
+#reactionBar { display:none; position:absolute; background:var(--surface-2); border:1px solid var(--border); border-radius:30px; padding:8px 14px; gap:14px; z-index:100; box-shadow:0 8px 16px rgba(0,0,0,0.4); align-items:center; }
+.reaction-opt { font-size: 1.6rem; cursor: pointer; transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); line-height: 1; }
+.reaction-opt:hover { transform: scale(1.3); }
+
+.story-reply-wrapper { position:absolute; bottom:0; width:100%; background:rgba(11, 15, 25, 0.9); padding:12px 16px; display:none; z-index:20; align-items:center; gap:10px; backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.05); }
+.story-reply-wrapper input { 
+    flex: 1; 
+    height: 46px;
+    border-radius: 24px; 
+    border: 1px solid rgba(255,255,255,0.1); 
+    padding: 0 20px;
+    background: rgba(255,255,255,0.05); 
+    color: white; 
+    outline: none; 
+    margin: 0;
+    font-size: 0.95rem; 
+    transition: background 0.2s, border-color 0.2s;
+}
+.story-reply-wrapper input:focus { 
+    background: rgba(255,255,255,0.1); 
+    border-color: rgba(255,255,255,0.2); 
+}
+.story-reply-wrapper button { 
+    width: 46px; 
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 50%; 
+    background: var(--accent); 
+    color: white; 
+    border: none; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    margin: 0;
+    padding: 0; 
+    font-size: 1.1rem; 
+    box-shadow: none !important; 
+    transition: transform 0.2s, background 0.2s;
+}
+.story-reply-wrapper button:active { transform: scale(0.95); }
+
+#micStatusLocal {
+    display: none !important;
+}
+
+.msg.reaction-focus {
+  position: relative;
+  z-index: 101 !important; 
+}
+
+.msg.reaction-focus .bubble {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+  transform: scale(1.02);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
+}
+
+.media-upload-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 10;
+  display: flex; align-items: center; justify-content: center; backdrop-filter: blur(2px);
+}
+.media-upload-progress-container {
+  width: 60%; height: 6px; background: rgba(255,255,255,0.3); border-radius: 4px; overflow: hidden;
+}
+.media-upload-progress-bar {
+  width: 0%; height: 100%; background: var(--accent); transition: width 0.2s ease;
+}
+.tick-icon {
+  margin-left: 4px;
+  font-size: 1.1rem;
+  vertical-align: middle;
+  color: var(--text-sec);
+  transition: color 0.2s ease;
+  line-height: 1;
+}
+.tick-read {
+  color: #3b82f6 !important; 
+}
+
+.msg-action.action-bottom {
+  bottom: auto !important;
+  top: calc(100% + 8px) !important;
+  transform-origin: top right !important;
+  transform: scale(0.9) translateY(-10px) !important;
+}
+
+.msg.me.long-press .msg-action.action-bottom {
+  transform: scale(1) translateY(0) !important;
+}
+</style>
+</head>
+<body onclick="closeReactionBar(event); closeMediaPickerIfOutside(event)">
+
+<div class="screen" id="loginScreen">
+  <div id="welcomeContent">
+    <div class="logo-big">💬</div>
+    <h1>Anonymous</h1>
+    <div class="subtitle">Ngobrol santai dengan orang baru</div>
+    <button style="box-shadow: none;" onclick="showLoginForm()">Mulai Sekarang</button>
+  </div>
+
+  <div class="card hidden" id="loginForm">
+    <h1>Anonymous</h1>
+    <div class="subtitle">Ngobrol santai dengan orang baru</div>
+
+    <input id="name" maxlength="20" placeholder="Nama (opsional)" autocomplete="off"/>
+    
+    <div style="display:flex; justify-content:space-between; align-items:center; margin:8px 0 6px; font-weight:500; color:var(--text-sec); font-size: 0.9rem;">
+      <span>Umur</span>
+      <span id="ageVal" style="color: var(--accent); font-weight: 700;">21</span>
+    </div>
+    <input id="age" type="range" min="13" max="80" value="21" oninput="ageVal.innerText=this.value" style="margin-bottom: 16px;"/>
+
+    <select id="gender">
+      <option value="" disabled selected>Gender</option>
+      <option value="Laki-laki">Laki-laki</option>
+      <option value="Perempuan">Perempuan</option>
+    </select>
+
+    <select id="job">
+      <option value="" disabled selected>Status saat ini</option>
+      <option value="Sekolah">Sekolah</option>
+      <option value="Kerja">Kerja</option>
+      <option value="Pengangguran">Pengangguran</option>
+      <option value="Lainnya">Lainnya</option>
+    </select>
+
+    <select id="server">
+      <option value="server1">Server 1</option>
+      <option value="server2">Server 2</option>
+      <option value="server3">Server 3</option>
+    </select>
+
+    <button onclick="start()" style="margin-top: 14px; width: 100%; border-radius: 999px; box-shadow: none;">Masuk Chat</button>
+  </div>
+</div>
+
+<div class="screen" id="searching" style="display:none; position:relative; flex-direction:column; align-items:center; justify-content:center; gap:3rem;">
+  <i class="bi bi-x-lg" onclick="cancelSearch()" style="position: absolute; top: 24px; right: 24px; font-size: 1.6rem; color: var(--text-sec); cursor: pointer; z-index: 50; transition: color 0.2s;" title="Batalkan" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-sec)'"></i>
+  
+  <div class="loader-container">
+    <div class="pulse-ring"></div>
+    <div class="pulse-ring delay-1"></div>
+    <div class="pulse-ring delay-2"></div>
+    <div class="main-loader">
+      <div class="spinner"></div>
+      <div class="inner-glow"></div>
+    </div>
+  </div>
+
+  <div class="searching-text-wrapper">
+    <h2 class="searching-text" id="searchStatus">Mencari partner</h2>
+    <p class="searching-subtext" id="dynamicText">Sedang menghubungkan ke server mohon tunggu sebentar</p>
+  </div>
+  
+  <div class="online-counter">
+    <div class="online-dot"></div>
+    <span id="onlineCount">0</span> Online
+  </div>
+</div>
+
+<div id="chat">
+  <div class="header">
+    <div style="display: flex; align-items: center;">
+      <img id="headerPartnerPic" class="avatar-header" src="" onclick="openPartnerProfile()" title="Lihat Profil Partner" />
+      <div class="partner-info" onclick="openPartnerProfile()" style="cursor:pointer;" title="Lihat Profil Partner">
+        <div class="partner-name" id="partnerName">Menghubungkan</div>
+        <div class="partner-status" id="partnerStatus">Online</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:16px; font-size:1.3rem; align-items:center;">
+      <i class="bi bi-arrow-clockwise" id="refreshBtn" onclick="refreshChat()" style="display:none; cursor:pointer; color: var(--text-sec); transition: color 0.2s;" title="Cari partner baru" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-sec)'"></i>
+      <i class="bi bi-telephone-fill" id="audioCallBtn" style="cursor:pointer; color:var(--text-sec); transition: color 0.2s;" onclick="callUser(false)" title="Panggilan Suara" onmouseover="this.style.color='var(--text-sec)'" onmouseout="this.style.color='var(--text-sec)'"></i>
+      <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer; color:var(--text-sec); transition: color 0.2s;" onclick="callUser(true)" title="Video Call" onmouseover="this.style.color='var(--text-sec)'" onmouseout="this.style.color='var(--text-sec)'"></i>
+      <div style="width: 1px; height: 24px; background: var(--border); margin: 0 4px;"></div>
+      <i class="bi bi-person-circle" style="cursor:pointer; color:var(--text-sec); font-size: 1.5rem; transition: color 0.2s;" onclick="openMyProfile()" title="Profil Saya" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-sec)'"></i>
+    </div>
+  </div>
+
+  <div class="encryption-info">
+    <i class="fa-solid fa-lock"></i>
+    Pesan terenkripsi End-to-End
+  </div>
+
+  <div id="messages"></div>
+
+  <div id="reactionBar" onclick="event.stopPropagation()">
+      <span class="reaction-opt" onclick="sendReaction('👍')">👍</span>
+      <span class="reaction-opt" onclick="sendReaction('❤️')">❤️</span>
+      <span class="reaction-opt" onclick="sendReaction('😂')">😂</span>
+      <span class="reaction-opt" onclick="sendReaction('😮')">😮</span>
+      <span class="reaction-opt" onclick="sendReaction('😢')">😢</span>
+      <span class="reaction-opt" onclick="sendReaction('🙏')">🙏</span>
+  </div>
+
+  <div id="replyPreview">
+    <i class="bi bi-reply-fill" style="font-size:1.5rem; color:var(--accent); transform:rotate(180deg); flex-shrink:0;"></i>
+    <div class="reply-content-wrapper">
+      <div id="replySender"></div>
+      <div id="replyContent"></div>
+    </div>
+    <i id="replyCloseBtn" class="bi bi-x-circle-fill" onclick="cancelReply()"></i>
+  </div>
+
+  <div class="footer">
+    <div id="mediaPicker" class="media-picker hidden-picker" onclick="event.stopPropagation()">
+      <div class="picker-tabs">
+        <div id="tabEmoji" class="tab active" onclick="switchMediaTab('emoji')">Emoji</div>
+        <div id="tabSticker" class="tab" onclick="switchMediaTab('sticker')">Stiker</div>
+      </div>
+      <div id="emojiGrid" class="picker-grid visible">
+        <span class="emoji-btn" onclick="addEmoji('😂')">😂</span>
+        <span class="emoji-btn" onclick="addEmoji('😭')">😭</span>
+        <span class="emoji-btn" onclick="addEmoji('🥺')">🥺</span>
+        <span class="emoji-btn" onclick="addEmoji('🤣')">🤣</span>
+        <span class="emoji-btn" onclick="addEmoji('🥵')">🥵</span>
+        <span class="emoji-btn" onclick="addEmoji('😝')">😝</span>
+        <span class="emoji-btn" onclick="addEmoji('🤤')">🤤</span>
+        <span class="emoji-btn" onclick="addEmoji('😍')">😍</span>
+        <span class="emoji-btn" onclick="addEmoji('🥰')">🥰</span>
+        <span class="emoji-btn" onclick="addEmoji('😊')">😊</span>
+      </div>
+      <div id="stickerGrid" class="picker-grid sticker-grid">
+      </div>
+    </div>
+
+    <div id="vnPreview" style="display:none;">
+        <i class="bi bi-trash-fill text-danger" style="font-size:1.4rem; cursor:pointer; color: var(--danger); transition: transform 0.2s;" onclick="cancelVN()" title="Hapus VN" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='none'"></i>
+        
+        <div class="custom-audio-wrapper" style="display:flex; align-items:center; gap:10px; flex:1;">
+            <i class="bi bi-play-fill audio-play-btn" style="font-size:2rem; cursor:pointer; color:var(--accent);" onclick="toggleAudioPlay(this)"></i>
+            <div class="audio-progress-bg" style="flex:1; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; position:relative; cursor:pointer;" onclick="seekAudio(event, this)">
+                <div class="audio-progress-bar" style="width:0%; height:100%; background:var(--accent); border-radius:3px;"></div>
+                <div class="audio-progress-thumb" style="width:14px; height:14px; background:white; border-radius:50%; position:absolute; top:-4px; left:0%; transform:translateX(-50%); box-shadow: 0 2px 4px rgba(0,0,0,0.4);"></div>
+            </div>
+            <audio id="vnAudioPreview" class="hidden-audio" style="display:none;" onended="resetAudio(this)" ontimeupdate="updateAudioProgress(this)"></audio>
+        </div>
+
+        <button onclick="sendVN()" style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent); padding:0; display:grid; place-items:center; box-shadow: none; margin-bottom: 0;" title="Kirim VN">
+            <i class="fas fa-paper-plane" style="font-size:1.2rem; margin-left: -2px;"></i>
+        </button>
+    </div>
+
+    <div class="footer-inputs" id="chatInputContainer">
+      <div class="input-wrapper">
+        <button class="icon-btn" id="toggleEmojiBtn" onclick="toggleMediaPicker(event)" title="Emoji & Stiker">
+          <i class="bi bi-emoji-smile"></i>
+        </button>
+        
+        <input id="msg" maxlength="10000" placeholder="Ketik pesan" autocomplete="off" onkeydown="if(event.key==='Enter')handleSendClick()"/>
+        
+        <button class="icon-btn" id="attachGalleryBtn" title="Kirim gambar/video">
+          <i class="bi bi-paperclip"></i>
+        </button>
+      </div>
+
+      <input type="file" id="fileInput" accept="image/*,video/*" style="display:none;" onchange="previewFile()"/>
+      <button id="sendBtn" onclick="handleSendClick()" title="Rekam Suara">
+        <i id="sendIcon" class="fas fa-microphone"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="videoScreen" class="video-wrap">
+  <div class="video-header">
+    <span id="callName">Panggilan</span>
+    <div class="net-pill" id="netStatus"><span id="netLeft">— ms</span></div>
+  </div>
+<div class="video-body">
+  <div class="audio-call-avatar"><img id="audioCallProfilePic" src="" style="width:100%; height:100%; object-fit:cover;" /></div>
+  <div id="micStatusRemote" class="media-status-overlay hidden mic" title="Mikrofon partner dimatikan"><i class="bi bi-mic-mute-fill"></i></div>
+  <div id="micStatusLocal" class="media-status-overlay hidden mic" title="Mikrofon kamu dimatikan"><i class="bi bi-mic-mute-fill"></i></div>
+  <video id="remoteVideo" autoplay playsinline class="full"></video>
+  <video id="localVideo" autoplay muted playsinline class="pip"></video>
+</div>
+<div class="video-footer">
+  <i id="micBtn"   class="bi bi-mic-fill"        onclick="toggleMic()"></i>
+  <i id="camBtn"   class="bi bi-camera-video-fill" onclick="toggleCam()"></i>
+  <i id="switchCamBtn" class="fa-solid fa-camera-rotate" onclick="switchCamera()"></i>
+  <i class="bi bi-box-arrow-down-right" id="minimizeCallBtn" onclick="minimizeToPartnerView()" title="Kecilkan & tetap lihat partner sambil chat"></i>
+  <i class="bi bi-telephone-x-fill end-call" onclick="endCall(false, true)"></i>
+</div>
+</div>
+
+<div id="mediaViewerModal" class="modal" style="z-index: 600; background: rgba(5,7,12,0.95); display: none;">
+    <div style="width: 100%; padding: 24px 20px; display: flex; justify-content: space-between; align-items: center; background: transparent; position: absolute; top: 0; left: 0; z-index: 10;">
+        <span id="mediaViewerTitle" style="color: white; font-weight: 600; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 85%;"></span>
+        <i class="bi bi-x-lg" onclick="closeMediaViewer()" style="color: white; font-size: 1.4rem; cursor: pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5);" title="Tutup"></i>
+    </div>
+    <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;" onclick="if(event.target === this) closeMediaViewer()">
+        <img id="mediaViewerImg" style="max-width:100vw; max-height:100vh; display:none; object-fit:contain;" oncontextmenu="return false;" onclick="event.stopPropagation()" />
+        
+        <video id="mediaViewerVid" style="max-width:100vw; max-height:100vh; display:none; object-fit:contain;" playsinline oncontextmenu="return false;" onclick="toggleMediaViewerVideo(event)"></video>
+        
+        <div id="mediaViewerProgressContainer" style="position:absolute; bottom:40px; left:20px; right:20px; height:6px; background:rgba(255,255,255,0.2); border-radius:3px; z-index:20; cursor:pointer; display:none;" onclick="seekMediaViewer(event)">
+            <div id="mediaViewerProgressBar" style="width:0%; height:100%; background:var(--accent); border-radius:3px;"></div>
+            <div id="mediaViewerProgressThumb" style="position:absolute; top:-4px; left:0%; width:14px; height:14px; background:white; border-radius:50%; transform:translateX(-50%); box-shadow:0 2px 4px rgba(0,0,0,0.5);"></div>
+        </div>
+    </div>
+</div>
+
+<div id="deleteConfirmModal" class="modal" style="display:none;">
+  <div class="modal-box">
+    <h3 style="margin-bottom: 1rem; color: var(--danger);">Hapus Pesan</h3>
+    <p style="font-size:1rem; color: var(--text-sec); margin-bottom: 1.5rem;">Hapus pesan ini untuk semua orang?</p>
+    <div style="display:flex; gap:12px;">
+      <button onclick="confirmDelete()" style="flex:1; background:var(--danger); font-size: 14px; border-radius: 12px; box-shadow: none;">Ya, Hapus</button>
+      <button onclick="closeDeleteModal()" style="flex:1; background: var(--surface-2); border-radius: 12px; font-size: 14px; box-shadow: none;">Batalkan</button>
+    </div>
+  </div>
+</div>
+
+<div id="miniRemoteVideoContainer" class="pip" style="display:none;">
+  <video id="miniRemoteVideo" autoplay playsinline></video>
+  <div id="miniAudioAvatar" style="display:none; width:100%; height:100%; align-items:center; justify-content:center; background:var(--surface); flex-direction:column; gap:8px;">
+    <img id="miniAudioImg" src="" style="width:70px; height:70px; border-radius:50%; border:3px solid var(--accent); object-fit:cover;">
+    <span style="color:var(--accent); font-size:0.8rem; font-weight:600; display:flex; align-items:center; gap:4px;"><i class="bi bi-telephone-fill"></i> Call</span>
+  </div>
+</div>
+
+<div id="incomingCall" class="modal">
+  <div class="modal-box whatsapp-incoming">
+    <div class="avatar-large incoming-avatar"><img id="incomingCallAvatar" src="" style="width:100%; height:100%; object-fit:cover;" /></div>
+    <h3 id="incomingCallTitle" style="margin: 1rem 0 0.4rem; font-size: 1.4rem; font-weight: 600;">Panggilan Masuk</h3>
+    <p id="callerName" style="font-size: 1.2rem; font-weight: 500; color: var(--accent); margin-bottom: 2rem;"></p>
+    <div class="incoming-buttons">
+      <button class="btn-accept" onclick="acceptCall()"><i class="bi bi-telephone-fill"></i></button>
+      <button class="btn-reject" onclick="rejectCall()"><i class="bi bi-telephone-x-fill"></i></button>
+    </div>
+  </div>
+</div>
+
+<div id="rejectedModal" class="modal" style="display:none;">
+  <div class="modal-box rejected-modern">
+    <div class="rejected-icon-container"><i class="bi bi-telephone-x-fill rejected-icon"></i></div>
+    <h3 id="rejectedTitle" style="margin: 0.5rem 0 0.5rem; font-size: 1.3rem; font-weight: 600; color: #fca5a5;">Panggilan Ditolak</h3>
+    <p id="rejectedText" style="color: var(--text-sec); font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.5;">Partner tidak dapat menerima panggilan saat ini.</p>
+    <div class="rejected-actions">
+      <button class="btn-try-again" onclick="closeRejected()">Ulangi</button>
+      <button class="btn-close-modern" onclick="closeRejected()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<div id="partnerProfileModal" class="modal">
+  <div class="modal-box" style="padding: 0; overflow: hidden; max-width: 380px; text-align: left;">
+    <div style="background: var(--surface-2); padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin:0; font-size:1.1rem; color: white;">Info Partner</h3>
+      <i class="bi bi-x-lg" onclick="closePartnerProfile()" style="cursor:pointer; font-size:1.2rem; color:var(--text-sec); transition: color 0.2s;" title="Tutup" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-sec)'"></i>
+    </div>
+    <div id="contentPartner" style="padding: 24px;">
+      <div style="text-align: center; margin-bottom: 16px;">
+          <img id="partnerProfileModalPic" src="" style="width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid var(--accent); cursor: pointer;" title="Lihat Foto Utama" />
+      </div>
+      <h3 id="partnerProfileNameTitle" style="color: white; font-size: 1.3rem; text-align: center; margin-bottom: 20px;">Nama</h3>
+      <div id="profileContent" style="margin:1rem 0; line-height:1.8; color:var(--text-sec); font-size: 0.95rem; background: rgba(0,0,0,0.2); padding: 16px; border-radius: 16px; border: 1px solid var(--border);"></div>
+      <h4 id="partnerStoryTitle" style="margin-top:20px; margin-bottom:8px; color: white; font-size: 1rem;">Story Partner</h4>
+      <div id="partnerStoriesContainer" class="story-container"><span style="color: var(--text-sec); font-weight: 500; font-size: 0.9rem;">Belum ada story</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="myProfileModal" class="modal">
+  <div class="modal-box" style="padding: 0; overflow: hidden; max-width: 380px; text-align: left;">
+    <div style="background: var(--surface-2); padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin:0; font-size:1.1rem; color: white;">Profil Saya</h3>
+      <i class="bi bi-x-lg" onclick="closeMyProfile()" style="cursor:pointer; font-size:1.2rem; color:var(--text-sec); transition: color 0.2s;" title="Tutup" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-sec)'"></i>
+    </div>
+    <div id="contentMe" style="padding: 24px;">
+      <div style="text-align: center; margin-bottom: 20px; position:relative; display:inline-block; left:50%; transform:translateX(-50%); cursor:pointer;" onclick="document.getElementById('changePicInput').click()" title="Ubah Foto Profil">
+          <img id="myProfileModalPic" src="" style="width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid var(--accent);" />
+          <div style="position:absolute; bottom:4px; right:0; background:var(--accent); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; border:2px solid var(--surface); font-size:1.2rem;"><i class="bi bi-pencil-fill" style="font-size: 0.8rem;"></i></div>
+      </div>
+      <input type="file" id="changePicInput" accept="image/*,video/*" style="display:none;" onchange="uploadMyPic(this)" />
+      
+      <div style="background: rgba(0,0,0,0.2); padding: 16px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; line-height: 1.8; color: var(--text-sec); font-size: 0.95rem;">
+        <div><b style="color: white;">Nama:</b> <span id="myNameTxt"></span> <i class="bi bi-pencil-square" style="cursor:pointer; color:var(--accent); margin-left:8px;" onclick="editProfile('name')" title="Edit"></i></div>
+        <div><b style="color: white;">Umur:</b> <span id="myAgeTxt"></span> <i class="bi bi-pencil-square" style="cursor:pointer; color:var(--accent); margin-left:8px;" onclick="editProfile('age')" title="Edit"></i></div>
+        <div><b style="color: white;">Gender:</b> <span id="myGenderTxt"></span></div>
+        <div><b style="color: white;">Status:</b> <span id="myJobTxt"></span></div>
+      </div>
+
+      <h4 style="margin-bottom: 12px; color: white; font-size: 1rem;">Story Saya</h4>
+      <div style="display: flex; align-items: center; gap: 12px; width: 100%; overflow: hidden; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 16px; border: 1px solid var(--border);">
+          <div style="position:relative; display:inline-block; cursor:pointer; flex-shrink: 0;" onclick="document.getElementById('storyPicInput').click()" title="Tambah Story">
+              <img id="myStoryAddPic" src="" style="width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--border); opacity: 0.8;" />
+              <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); border-radius:50%;"><i class="bi bi-plus-lg" style="color:white; font-size: 1.5rem; font-weight: bold;"></i></div>
+          </div>
+          <input type="file" id="storyPicInput" accept="image/*,video/*" style="display:none;" onchange="uploadStory(this)" />
+          <div id="myStoriesContainer" class="story-container" style="flex: 1; padding: 0;"><span style="color: var(--text-sec); font-weight: 500; font-size: 0.9rem;">Belum ada story</span></div>
+      </div>
+
+      <button onclick="showDisconnectModal()" style="margin-top:24px; background:rgba(239, 68, 68, 0.1); color: var(--danger); font-weight: 600; border: 1px solid rgba(239,68,68,0.3); box-shadow: none; border-radius: 12px;"><i class="bi bi-box-arrow-right" style="margin-right: 6px;"></i> Akhiri Obrolan</button>
+    </div>
+  </div>
+</div>
+
+<div id="storyViewerModal" class="modal" style="z-index: 500;">
+   <div class="modal-box" style="padding:0; background: #000; height: 85vh; max-width: 420px; display:flex; flex-direction:column; position:relative; border: none; overflow:hidden; border-radius: 20px;">
+      <div id="storyProgressContainer" style="position:absolute; top:8px; left:12px; right:12px; height:3px; background:rgba(255,255,255,0.3); z-index:30; border-radius: 2px; overflow: hidden;">
+         <div id="storyProgressBar" style="width:0%; height:100%; background:white; transition: width 0.1s linear;"></div>
+      </div>
+
+      <div style="background: transparent); padding: 24px 16px 40px; position:absolute; top:0; left:0; width:100%; display: flex; justify-content: space-between; align-items: flex-start; z-index:10; border: none; pointer-events: none;">
+         <div style="display:flex; align-items:center; gap:10px; pointer-events: auto;">
+             <h3 id="storyViewerAuthor" style="margin:0; font-size:1.05rem; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; text-shadow: 0 1px 4px rgba(0,0,0,0.8); font-weight: 600;">Name</h3>
+         </div>
+         <div style="pointer-events: auto;">
+            <i class="bi bi-trash-fill" id="deleteStoryBtn" onclick="deleteCurrentStory()" style="color:var(--danger); cursor:pointer; font-size:1.3rem; margin-right:16px; display:none; text-shadow: 0 1px 4px rgba(0,0,0,0.8);" title="Hapus Story"></i>
+            <i class="bi bi-x-lg" id="storyCloseBtn" onclick="closeStoryViewer()" style="cursor:pointer; font-size:1.4rem; color:white; text-shadow: 0 1px 4px rgba(0,0,0,0.8);" title="Tutup"></i>
+         </div>
+      </div>
+      
+      <div style="flex:1; position:relative; background:#000; display:flex; align-items:center; justify-content:center;">
+          <img id="storyViewerImg" style="width:100%; height:100%; object-fit:contain; display:none;" />
+          <video id="storyViewerVideo" style="width:100%; height:100%; object-fit:contain; display:none;" playsinline onclick="toggleStoryVideo()"></video>
+          
+          <div id="storyViewersListContainer" style="position:absolute; bottom:0; width:100%; background:rgba(0,0,0,0.8); padding:20px; color:white; max-height: 45%; overflow-y:auto; display:none; z-index:15; border-top-left-radius: 20px; border-top-right-radius: 20px;">
+             <h4 style="margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px; font-size: 0.9rem;">
+               <i class="bi bi-eye-fill" style="color: var(--text); margin-right: 5px;"></i> Dilihat oleh
+             </h4>
+             <ul id="storyViewersList" style="list-style:none; padding:0; margin:0; font-size:0.9rem; color: var(--text);"></ul>
+          </div>
+
+          <div id="storyReplyContainer" class="story-reply-wrapper">
+             <input id="storyReplyInput" placeholder="Balas story" oninput="handleStoryInputToggle()" onkeydown="if(event.key==='Enter') handleStorySend()" autocomplete="off" />
+             <button id="storySendBtn" onclick="handleStorySend()">
+                 <i id="storySendIcon" class="fas fa-microphone"></i>
+             </button>
+          </div>
+      </div>
+   </div>
+</div>
+
+<div id="disconnectConfirmModal" class="modal">
+  <div class="modal-box">
+    <h3 style="color:var(--danger); margin-bottom:1rem;">Akhiri Obrolan?</h3>
+    <p id="disconnectConfirmText" style="margin-bottom:1.5rem; font-size:1rem; color: var(--text-sec); line-height: 1.5;">Apakah kamu yakin ingin mencari partner baru dan meninggalkan obrolan ini?</p>
+    <div style="display:flex; gap:12px;">
+      <button onclick="confirmDisconnect()" style="background:var(--danger); box-shadow: none; flex:1; border-radius: 12px;">Ya, Akhiri</button>
+      <button onclick="closeDisconnectModal()" style="flex:1; box-shadow: none; background:var(--surface-2); border-radius: 12px;">Batalkan</button>
+    </div>
+  </div>
+</div>
+
+<div id="waitingModal" class="modal" style="display:none;">
+  <div class="modal-box whatsapp-style-waiting">
+    <div class="avatar-large"><img id="waitingCallAvatar" src="" style="width:100%; height:100%; object-fit:cover;" /></div>
+    <h3 id="waitingPartnerName" style="margin: 0.5rem 0 0.5rem; font-size: 1.4rem; font-weight: 600;">Menghubungi</h3>
+    <p id="waitingCallType" style="color: var(--text-sec); font-size: 0.95rem; margin-bottom: 1.5rem;">Menunggu jawaban partner...</p>
+    <div class="ringing-animation">
+      <div class="ring"></div>
+      <div class="ring delay-1"></div>
+      <div class="ring delay-2"></div>
+    </div>
+    <button class="btn-cancel" onclick="endCall(false, true)" style="margin-top: 1rem; background: var(--accent); color: white; width: 100%; box-shadow: none; border-radius: 12px;">Batalkan</button>
+  </div>
+</div>
+
+<div id="alertModal" class="modal">
+  <div class="modal-box">
+    <p id="alertText" style="margin-bottom:1.5rem; font-size:1rem; color: var(--text);"></p>
+    <button onclick="closeAlert()" style="border-radius: 12px; box-shadow: none; width: 100%;">Mengerti</button>
+  </div>
+</div>
+
+<div id="filePreviewModal" class="modal" style="display:none;">
+  <div class="modal-box" style="max-width: 400px; padding: 28px 24px;">
+    <h3 style="margin-bottom: 1.5rem;">Pratinjau Media</h3>
+
+    <div class="upload-loading-overlay" id="uploadLoading">
+     <div class="progress-container">
+       <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+       <div class="progress-text">Mengunggah <span id="progressPercent">0</span>%</div>
+     </div>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 1.5rem; position:relative;">
+      <img id="previewImage" class="preview-img" style="display:none; margin:auto;"/>
+      
+      <div id="previewVideoContainer" style="display:none; position:relative;">
+          <video id="previewVideo" class="preview-img" style="margin:auto; display:block;" onclick="togglePreviewVideo()"></video>
+          <div class="play-overlay-preview" id="previewPlayOverlay" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.3); border-radius:12px; pointer-events:none; margin-bottom: 16px;">
+             <i class="bi bi-play-fill" style="font-size:3.5rem; color:rgba(255,255,255,0.85);"></i>
+          </div>
+          <div id="previewVideoProgressContainer" style="position:absolute; bottom:25px; left:15px; right:15px; height:4px; background:rgba(255,255,255,0.3); border-radius:2px; cursor:pointer;" onclick="seekPreviewVideo(event)">
+             <div id="previewVideoProgressBar" style="width:0%; height:100%; background:var(--accent); border-radius:2px;"></div>
+          </div>
+      </div>
+    </div>
+
+    <input id="captionInput" class="caption-input" placeholder="Tambahkan keterangan" />
+    <div style="display: flex; gap: 12px;">
+      <button onclick="sendFile()" style="flex: 1; box-shadow: none; border-radius: 12px;">Kirim</button>
+      <button class="btn-danger" onclick="cancelFilePreview()" style="flex: 1; border-radius: 12px; box-shadow: none;">Batal</button>
+    </div>
+  </div>
+</div>
+
+<div id="msgActionOverlay" onclick="closeAllMsgActions()" style="display:none; position:fixed; inset:0; background:rgba(0, 0, 0, 0.4); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:1000; transition: opacity 0.2s;"></div>
+
+<div id="actionToast"></div>
+
+<script>
+const DEFAULT_AVATAR = "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png";
+
+let viewedStories = JSON.parse(localStorage.getItem('viewedStories') || '[]');
+
+window.toggleAudioPlay = function(iconEl) {
+    const wrapper = iconEl.closest('.custom-audio-wrapper');
+    const audio = wrapper.querySelector('audio');
+    
+    if (audio.paused) {
+        document.querySelectorAll('.hidden-audio').forEach(a => {
+            if(a !== audio) { 
+                a.pause(); 
+                a.closest('.custom-audio-wrapper').querySelector('.audio-play-btn').className = 'bi bi-play-fill audio-play-btn'; 
+            }
+        });
+        audio.play();
+        iconEl.className = 'bi bi-pause-fill audio-play-btn';
+    } else {
+        audio.pause();
+        iconEl.className = 'bi bi-play-fill audio-play-btn';
+    }
+}
+
+window.updateAudioProgress = function(audioEl) {
+    const wrapper = audioEl.closest('.custom-audio-wrapper');
+    const bar = wrapper.querySelector('.audio-progress-bar');
+    const thumb = wrapper.querySelector('.audio-progress-thumb');
+    if(!audioEl.duration) return;
+    const percent = (audioEl.currentTime / audioEl.duration) * 100;
+    bar.style.width = percent + '%';
+    thumb.style.left = percent + '%';
+}
+
+window.resetAudio = function(audioEl) {
+    const wrapper = audioEl.closest('.custom-audio-wrapper');
+    const icon = wrapper.querySelector('.audio-play-btn');
+    icon.className = 'bi bi-play-fill audio-play-btn';
+    wrapper.querySelector('.audio-progress-bar').style.width = '0%';
+    wrapper.querySelector('.audio-progress-thumb').style.left = '0%';
+}
+
+window.seekAudio = function(e, bgEl) {
+    const wrapper = bgEl.closest('.custom-audio-wrapper');
+    const audio = wrapper.querySelector('audio');
+    if(!audio.duration) return;
+    const rect = bgEl.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const percent = clickX / rect.width;
+    audio.currentTime = percent * audio.duration;
+}
+
+function createCustomAudioPlayer(src) {
+    return `
+    <div class="custom-audio-wrapper" style="display:flex; align-items:center; gap:8px; width:220px; padding: 4px 0;">
+        <i class="bi bi-play-fill audio-play-btn" style="font-size:2.2rem; cursor:pointer; color:var(--accent);" onclick="toggleAudioPlay(this)"></i>
+        <div class="audio-progress-bg" style="flex:1; height:6px; background:rgba(255,255,255,0.2); border-radius:3px; position:relative; cursor:pointer;" onclick="seekAudio(event, this)">
+            <div class="audio-progress-bar" style="width:0%; height:100%; background:var(--accent); border-radius:3px;"></div>
+            <div class="audio-progress-thumb" style="width:14px; height:14px; background:white; border-radius:50%; position:absolute; top:-4px; left:0%; transform:translateX(-50%); box-shadow: 0 2px 4px rgba(0,0,0,0.4);"></div>
+        </div>
+        <audio class="hidden-audio" src="${src}" style="display:none;" onended="resetAudio(this)" ontimeupdate="updateAudioProgress(this)"></audio>
+    </div>
+    `;
+}
+
+window.toggleMediaViewerVideo = function(e) {
+    if(e) e.stopPropagation();
+    const vid = document.getElementById('mediaViewerVid');
+    if (vid.paused) {
+      vid.play();
+    } else {
+      vid.pause();
+    }
+}
+
+window.seekMediaViewer = function(e) {
+    e.stopPropagation();
+    const vid = document.getElementById('mediaViewerVid');
+    if(!vid.duration) return;
+    const rect = document.getElementById('mediaViewerProgressContainer').getBoundingClientRect();
+    const percent = (e.clientX - rect.left) / rect.width;
+    vid.currentTime = percent * vid.duration;
+}
+
+document.getElementById('mediaViewerVid').addEventListener('timeupdate', function() {
+    if(this.duration) {
+        const pct = (this.currentTime / this.duration) * 100;
+        document.getElementById('mediaViewerProgressBar').style.width = pct + '%';
+        document.getElementById('mediaViewerProgressThumb').style.left = pct + '%';
+    }
+});
+
+window.togglePreviewVideo = function() {
+    const vid = document.getElementById('previewVideo');
+    const overlay = document.getElementById('previewPlayOverlay');
+    if (vid.paused) {
+        vid.play();
+        overlay.style.display = 'none';
+    } else {
+        vid.pause();
+        overlay.style.display = 'flex';
+    }
+}
+
+window.seekPreviewVideo = function(e) {
+    e.stopPropagation();
+    const vid = document.getElementById('previewVideo');
+    if(!vid.duration) return;
+    const rect = document.getElementById('previewVideoProgressContainer').getBoundingClientRect();
+    vid.currentTime = ((e.clientX - rect.left) / rect.width) * vid.duration;
+}
+
+document.getElementById('previewVideo').addEventListener('timeupdate', function() {
+    if(this.duration) {
+        document.getElementById('previewVideoProgressBar').style.width = ((this.currentTime / this.duration) * 100) + '%';
+    }
+});
+
+const svVid = document.getElementById('storyViewerVideo');
+const svBar = document.getElementById('storyProgressBar');
+let storyInterval;
+let isStoryPaused = false;
+let currentStoryData = null;
+window.pendingStoryReplyContext = null;
+
+document.getElementById('storyReplyInput').addEventListener('focus', () => { 
+    isStoryPaused = true; 
+    if(svVid.readyState >= 2) svVid.pause(); 
+});
+
+document.getElementById('storyReplyInput').addEventListener('blur', () => { 
+    isStoryPaused = false; 
+    if(svVid.readyState >= 2) svVid.play(); 
+});
+
+svVid.addEventListener('timeupdate', () => {
+    if(svVid.duration && svVid.style.display !== 'none' && !isStoryPaused) {
+        svBar.style.width = (svVid.currentTime / svVid.duration * 100) + '%';
+    }
+});
+
+window.toggleStoryVideo = function() {
+    if(svVid.paused) {
+      svVid.play();
+    } else {
+      svVid.pause();
+    }
+}
+
+function switchMediaTab(tab) {
+  document.getElementById('tabEmoji').classList.remove('active');
+  document.getElementById('tabSticker').classList.remove('active');
+  document.getElementById('emojiGrid').classList.remove('visible');
+  document.getElementById('stickerGrid').classList.remove('visible');
+
+  if(tab === 'emoji') {
+    document.getElementById('tabEmoji').classList.add('active');
+    document.getElementById('emojiGrid').classList.add('visible');
+  } else {
+    document.getElementById('tabSticker').classList.add('active');
+    document.getElementById('stickerGrid').classList.add('visible');
+    renderStickers();
+  }
+}
+
+function toggleMediaPicker(e) {
+  if (e) e.stopPropagation();
+  const picker = document.getElementById('mediaPicker');
+  picker.classList.toggle('hidden-picker');
+}
+
+function closeMediaPickerIfOutside(e) {
+  const picker = document.getElementById('mediaPicker');
+  const btn = document.getElementById('toggleEmojiBtn');
+  
+  if (picker && !picker.classList.contains('hidden-picker')) {
+    if (!picker.contains(e.target) && (!btn || !btn.contains(e.target))) {
+      picker.classList.add('hidden-picker');
+    }
+  }
+}
+
+document.addEventListener('click', closeMediaPickerIfOutside, true);
+document.addEventListener('touchstart', closeMediaPickerIfOutside, true);
+
+function addEmoji(emj) { 
+  if (!partner) {
+    showToast("Belum terhubung dengan partner");
+    return;
+  }
+
+  const messageData = { type: 'text', text: emj, replyTo: replyingTo ? replyingTo.id : null };
+  
+  addMsg(messageData, "me"); 
+  sendEncryptedMessage(messageData);
+
+  cancelReply(); 
+  document.getElementById('mediaPicker').classList.add('hidden-picker');
+}
+
+function renderStickers() {
+  const grid = document.getElementById('stickerGrid');
+  let stickers = JSON.parse(localStorage.getItem('sanz_stickers') || '[]');
+  grid.innerHTML = '';
+  
+  if (stickers.length === 0) {
+      grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--text-sec); font-size: 0.85rem; padding: 30px 10px; line-height: 1.6;">Belum ada stiker<br>Silahkan ketik <b>/stiker url</b> pada chat untuk menambah stiker.</div>';
+      return;
+  }
+  
+  stickers.forEach((url, index) => {
+      const img = document.createElement('img');
+      img.src = url;
+      img.className = 'sticker-item';
+      
+      let pressTimer;
+      let isLongPress = false;
+
+      const startPress = (e) => {
+          isLongPress = false;
+          pressTimer = setTimeout(() => {
+              isLongPress = true; 
+              if (confirm("Apakah kamu yakin ingin menghapus stiker ini?")) {
+                  stickers.splice(index, 1); 
+                  localStorage.setItem('sanz_stickers', JSON.stringify(stickers));
+                  renderStickers(); 
+                  showToast("Stiker berhasil dihapus");
+              }
+          }, 600); 
+      };
+
+      const cancelPress = () => {
+          clearTimeout(pressTimer);
+      };
+
+      img.addEventListener('touchstart', startPress, { passive: true });
+      img.addEventListener('touchend', cancelPress);
+      img.addEventListener('touchmove', cancelPress);
+      img.addEventListener('mousedown', startPress);
+      img.addEventListener('mouseup', cancelPress);
+      img.addEventListener('mouseleave', cancelPress);
+
+      img.onclick = (e) => {
+          e.preventDefault();
+          if (isLongPress) return; 
+          
+          sendStickerMessage(url);
+          document.getElementById('mediaPicker').classList.add('hidden-picker');
+      };
+      
+      grid.appendChild(img);
+  });
+}
+
+function sendStickerMessage(url) {
+  if (!partner) return;
+  const messageData = { type: 'file', fileUrl: url, caption: '', isSticker: true };
+  addMsg(messageData, "me");
+  sendEncryptedMessage(messageData);
+}
+
+window.handleStoryInputToggle = function() {
+    const val = document.getElementById('storyReplyInput').value.trim();
+    const icon = document.getElementById('storySendIcon');
+    const btn = document.getElementById('storySendBtn');
+    
+    if(val.length > 0) {
+        icon.className = 'fas fa-paper-plane';
+        icon.style.marginLeft = '-2px';
+        btn.style.background = 'var(--accent)';
+    } else {
+        icon.className = 'fas fa-microphone';
+        icon.style.marginLeft = '0';
+        btn.style.background = 'var(--accent)'; 
+    }
+}
+
+window.handleStorySend = function() {
+    const val = document.getElementById('storyReplyInput').value.trim();
+    if(val.length > 0) {
+        sendStoryReplyText(val);
+    } else {
+        startStoryVN();
+    }
+}
+
+function sendStoryReplyText(text) {
+    if (!partner || !currentStoryData) {
+        closeStoryViewer(); 
+        return;
+    }
+    
+    const messageData = { 
+        type: 'text', 
+        text: text, 
+        storyReply: { url: currentStoryData.url, type: currentStoryData.type }
+    };
+    
+    addMsg(messageData, "me"); 
+    sendEncryptedMessage(messageData);
+    
+    const replyInput = document.getElementById("storyReplyInput");
+    replyInput.value = ""; 
+    replyInput.blur(); 
+    
+    closeStoryViewer(); 
+    closePartnerProfile(); 
+    showToast("Balasan terkirim");
+}
+
+function startStoryVN() {
+    if(!currentStoryData) return;
+    window.pendingStoryReplyContext = { url: currentStoryData.url, type: currentStoryData.type };
+    
+    const preview = document.getElementById('replyPreview'); 
+    document.getElementById('replySender').textContent = "Membalas Story"; 
+    document.getElementById('replyContent').textContent = currentStoryData.type === 'video' ? '[Video Story]' : '[Gambar Story]'; 
+    preview.classList.remove('hidden'); 
+    preview.style.display = 'flex'; 
+
+    closeStoryViewer();
+    closePartnerProfile();
+
+    handleSendClick(); 
+}
+
+function encrypt(str) { 
+  if (!str) return str; 
+  return "ENC::" + btoa(encodeURIComponent(str)); 
+}
+
+function decrypt(str) { 
+  if (typeof str === 'string' && str.startsWith("ENC::")) { 
+    try { 
+      return decodeURIComponent(atob(str.substring(5))); 
+    } catch(e) { 
+      return str; 
+    } 
+  } 
+  return str; 
+}
+
+function sendEncryptedMessage(msgData) {
+    const encoded = { ...msgData };
+    if (encoded.text) encoded.text = encrypt(encoded.text);
+    if (encoded.fileUrl) encoded.fileUrl = encrypt(encoded.fileUrl);
+    if (encoded.caption) encoded.caption = encrypt(encoded.caption);
+    
+    if (encoded.mediaUrl) encoded.mediaUrl = encrypt(encoded.mediaUrl);
+    
+    if (encoded.storyReply) {
+        encoded.storyReply = { ...encoded.storyReply };
+        if(encoded.storyReply.url) encoded.storyReply.url = encrypt(encoded.storyReply.url);
+    }
+    socket.emit("message", encoded);
+}
+
+window.openMediaViewer = function(url, type, senderName) {
+    const imgEl = document.getElementById('mediaViewerImg');
+    const vidEl = document.getElementById('mediaViewerVid');
+    const progressContainer = document.getElementById('mediaViewerProgressContainer');
+
+    if (type === 'video') {
+        imgEl.style.display = 'none';
+        imgEl.src = "";
+        vidEl.style.display = 'block';
+        vidEl.src = url;
+        progressContainer.style.display = 'block';
+        vidEl.play().catch(e => console.log(e));
+    } else {
+        vidEl.style.display = 'none';
+        vidEl.pause();
+        vidEl.src = "";
+        progressContainer.style.display = 'none';
+        imgEl.style.display = 'block';
+        imgEl.src = url;
+    }
+    document.getElementById('mediaViewerModal').style.display = 'block';
+}
+
+window.closeMediaViewer = function() {
+    document.getElementById('mediaViewerModal').style.display = 'none';
+    const vidEl = document.getElementById('mediaViewerVid');
+    vidEl.pause();
+    vidEl.src = "";
+    document.getElementById('mediaViewerImg').src = "";
+}
+
+if ('serviceWorker' in navigator) {
+    const swCode = `self.addEventListener('push', function(e) {}); self.addEventListener('notificationclick', function(e) { e.notification.close(); });`;
+    const blob = new Blob([swCode], {type: 'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.log('SW Reg Failed:', err));
+}
+
+if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
+    Notification.requestPermission();
+}
+
+const socket = io("https://chat-bzd5.onrender.com");
+let myUserId = localStorage.getItem('myUserId');
+
+if (!myUserId) { 
+  myUserId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2,9); 
+  localStorage.setItem('myUserId', myUserId); 
+}
+
+let partner = null, pc, localStream, isFront = true, isPipSwapped = false, isAudioOnlyCall = false, isInVideoCall = false;
+let myMicEnabled = true, myCamEnabled = true, partnerMicEnabled = true, partnerCamEnabled = true;
+let replyingTo = null, myProfilePicURL = localStorage.getItem('myProfilePic') || "", currentViewedStoryId = null; 
+let isRecordingVN = false, audioRecorder = null, audioChunks = [], currentReactMsgId = null, messagesMap = {}; 
+
+function refreshVideoBackgrounds() {
+  const localVid = document.getElementById("localVideo");
+  const remoteVid = document.getElementById("remoteVideo");
+  const miniVid = document.getElementById("miniRemoteVideo");
+
+  if (!myCamEnabled && localStream) {
+      const pic = window.userData?.profilePic || DEFAULT_AVATAR;
+      localVid.style.backgroundImage = `url('${pic}')`;
+      localVid.style.backgroundSize = "cover";
+      localVid.style.backgroundPosition = "center";
+      localVid.poster = pic; 
+  } else {
+      localVid.style.backgroundImage = "none";
+      localVid.removeAttribute("poster");
+  }
+  
+  if (!partnerCamEnabled && window.remoteOriginalStream) {
+      const partnerBg = partner?.profilePic || DEFAULT_AVATAR;
+      remoteVid.style.backgroundImage = `url('${partnerBg}')`;
+      remoteVid.style.backgroundSize = "cover";
+      remoteVid.style.backgroundPosition = "center";
+      remoteVid.poster = partnerBg; 
+      
+      if(miniVid) {
+          miniVid.style.backgroundImage = `url('${partnerBg}')`;
+          miniVid.style.backgroundSize = "cover";
+          miniVid.style.backgroundPosition = "center";
+          miniVid.poster = partnerBg; 
+      }
+  } else {
+      remoteVid.style.backgroundImage = "none";
+      remoteVid.removeAttribute("poster");
+      if(miniVid) {
+         miniVid.style.backgroundImage = "none";
+         miniVid.removeAttribute("poster");
+      }
+  }
+}
+
+function escapeHtml(unsafe) { 
+  return (unsafe || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); 
+}
+
+function linkify(text) {
+    const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    return text.replace(urlRegex, function(url) { 
+      return '<a href="' + url + '" target="_blank" onclick="event.stopPropagation()" style="color: #60a5fa; text-decoration: underline;">' + url + '</a>'; 
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    let savedData = localStorage.getItem('userData');
+    if (savedData) {
+        window.userData = JSON.parse(savedData);
+        
+        const savedBg = localStorage.getItem('sanz_chat_bg');
+        if (savedBg) changeChatBackground(savedBg);
+        
+        if (!window.userData.profilePic || window.userData.profilePic.includes("<svg") || window.userData.profilePic.includes("data:image")) {
+            window.userData.profilePic = DEFAULT_AVATAR;
+            localStorage.setItem('myProfilePic', DEFAULT_AVATAR);
+            localStorage.setItem('userData', JSON.stringify(window.userData));
+        }
+        
+        myProfilePicURL = window.userData.profilePic;
+
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("searching").style.display = "flex";
+        socket.emit("join", window.userData);
+    }
+    renderStickers();
+    handleStoryInputToggle();
+});
+
+function uploadToCloudinary(file, onProgress) {
+    return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", "sanz-chat");
+        const CLOUD_NAME = "davgb7tjm";
+        
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`);
+        
+        if (onProgress && xhr.upload) {
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percent = Math.round((e.loaded / e.total) * 100);
+                    onProgress(percent);
+                }
+            };
+        }
+        
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                const response = JSON.parse(xhr.responseText);
+                resolve(response.secure_url || response.url);
+            } else {
+                reject(new Error("Upload failed with status " + xhr.status));
+            }
+        };
+        
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(formData);
+    });
+}
+
+function uploadUrlToCloudinary(videoUrl) {
+    return new Promise((resolve, reject) => {
+        const formData = new FormData();
+
+        formData.append("file", videoUrl); 
+        formData.append("upload_preset", "sanz-chat"); 
+        const CLOUD_NAME = "davgb7tjm"; 
+        
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`);
+        
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                resolve(JSON.parse(xhr.responseText).secure_url || JSON.parse(xhr.responseText).url);
+            } else {
+                reject(new Error("Upload failed"));
+            }
+        };
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.send(formData);
+    });
+}
+
+function showLoginForm() {
+  document.getElementById("welcomeContent").style.display = "none"; 
+  document.getElementById("loginForm").classList.remove("hidden"); 
+  document.getElementById("name").focus();
+}
+
+async function start() {
+  const name = document.getElementById("name").value.trim() || "Anonim";
+  const age = document.getElementById("age").value;
+  const gender = document.getElementById("gender").value;
+  const job = document.getElementById("job").value;
+  const server = document.getElementById("server").value;
+  
+  let finalPicUrl = myProfilePicURL || DEFAULT_AVATAR;
+  if (finalPicUrl.includes("<svg") || finalPicUrl.includes("data:image")) {
+      finalPicUrl = DEFAULT_AVATAR;
+  }
+  
+  myProfilePicURL = finalPicUrl; 
+  localStorage.setItem('myProfilePic', finalPicUrl);
+  
+  window.userData = { userId: myUserId, name: name.substring(0, 10), age, gender, job, server, profilePic: finalPicUrl };
+  localStorage.setItem('userData', JSON.stringify(window.userData)); 
+  
+  socket.emit("join", window.userData);
+  
+  document.getElementById("loginScreen").style.display = "none"; 
+  document.getElementById("searching").style.display = "flex";
+}
+
+function editProfile(type) {
+    if (type === 'name') {
+        const newName = prompt("Masukkan nama:", window.userData.name);
+        if (newName && newName.trim() !== '') { 
+          window.userData.name = newName.trim().substring(0, 10); 
+          document.getElementById("myNameTxt").innerText = window.userData.name; 
+          socket.emit("update-profile-info", { name: window.userData.name }); 
+          localStorage.setItem('userData', JSON.stringify(window.userData)); 
+          showToast("Nama berhasil diubah"); 
+        }
+    } else if (type === 'age') {
+        const newAge = prompt("Masukkan umur:", window.userData.age);
+        if (newAge && newAge.trim() !== '') { 
+          window.userData.age = newAge.trim(); 
+          document.getElementById("myAgeTxt").innerText = window.userData.age; 
+          socket.emit("update-profile-info", { age: window.userData.age }); 
+          localStorage.setItem('userData', JSON.stringify(window.userData)); 
+          showToast("Umur berhasil diubah"); 
+        }
+    }
+}
+
+function openPartnerProfile() {
+  if (!partner) return;
+  const partnerPic = partner.profilePic || DEFAULT_AVATAR;
+  const modalPicEl = document.getElementById("partnerProfileModalPic");
+  modalPicEl.src = partnerPic; 
+  modalPicEl.onclick = () => openMediaViewer(partnerPic, 'image', partner.name || 'Anonim');
+  
+  document.getElementById("partnerProfileNameTitle").innerText = partner.name || "Anonim";
+  document.getElementById("profileContent").innerHTML = `<div><b style="color:white;">Umur:</b> ${partner.age}</div><div><b style="color:white;">Gender:</b> ${partner.gender && partner.gender !== "-" ? partner.gender : "Tidak disebutkan"}</div><div><b style="color:white;">Status:</b> ${partner.job && partner.job !== "-" ? partner.job : "Tidak disebutkan"}</div><div><b style="color:white;">Lokasi:</b> ${partner.distance || "Tidak diketahui"} dari lokasimu</div><div><b style="color:white;">Server:</b> ${partner.server}</div>`;
+  
+  document.getElementById("partnerProfileModal").style.display = "grid"; 
+  socket.emit('get-stories');
+}
+
+function openMyProfile() {
+  const myPic = window.userData?.profilePic || DEFAULT_AVATAR;
+  document.getElementById("myProfileModalPic").src = myPic; 
+  document.getElementById("myStoryAddPic").src = myPic;
+  document.getElementById("myNameTxt").innerText = window.userData?.name || "Kamu"; 
+  document.getElementById("myAgeTxt").innerText = window.userData?.age || "?"; 
+  document.getElementById("myGenderTxt").innerText = window.userData?.gender || "-"; 
+  document.getElementById("myJobTxt").innerText = window.userData?.job || "-";
+  
+  document.getElementById("myProfileModal").style.display = "grid"; 
+  socket.emit('get-stories');
+}
+
+function closePartnerProfile() { 
+  document.getElementById("partnerProfileModal").style.display = "none"; 
+}
+
+function closeMyProfile() { 
+  document.getElementById("myProfileModal").style.display = "none"; 
+}
+
+socket.on('stories-data', (data) => {
+    const pContainer = document.getElementById('partnerStoriesContainer');
+    const mContainer = document.getElementById('myStoriesContainer');
+    
+    pContainer.innerHTML = ''; 
+    mContainer.innerHTML = '';
+    
+    const headerPic = document.getElementById("headerPartnerPic");
+    let hasUnseen = false;
+
+    if (data.partnerStories.length > 0) { 
+        data.partnerStories.forEach(s => { 
+            const el = document.createElement(s.type === 'video' ? 'video' : 'img'); 
+            el.src = s.url; 
+            el.className = 'story-thumb'; 
+            if (s.type === 'video') el.muted = true; 
+            el.onclick = () => openStoryViewer(s, data.partnerName, false); 
+            pContainer.appendChild(el); 
+
+            if(!viewedStories.includes(s.id)) hasUnseen = true;
+        }); 
+    } else {
+      pContainer.innerHTML = '<span style="color: var(--text-sec); font-weight: 500; font-size: 0.9rem;">Belum ada story</span>';
+    }
+    
+    if(hasUnseen) {
+      headerPic.classList.add('unseen-story-ring');
+    } else {
+      headerPic.classList.remove('unseen-story-ring');
+    }
+
+    if (data.myStories.length > 0) { 
+      data.myStories.forEach(s => { 
+        const el = document.createElement(s.type === 'video' ? 'video' : 'img'); 
+        el.src = s.url; 
+        el.className = 'story-thumb'; 
+        if (s.type === 'video') el.muted = true; 
+        el.onclick = () => openStoryViewer(s, 'Saya', true); 
+        mContainer.appendChild(el); 
+      }); 
+    } else {
+      mContainer.innerHTML = '<span style="color: var(--text-sec); font-weight: 500; font-size: 0.9rem;">Belum ada story</span>';
+    }
+});
+
+async function uploadMyPic(input) { 
+  if (!input.files || !input.files[0]) return; 
+  try { 
+    showToast("Sedang mengubah foto profil..."); 
+    const url = await uploadToCloudinary(input.files[0]); 
+    myProfilePicURL = url; 
+    window.userData.profilePic = url; 
+    localStorage.setItem('myProfilePic', url); 
+    localStorage.setItem('userData', JSON.stringify(window.userData)); 
+    document.getElementById('myProfileModalPic').src = url; 
+    document.getElementById('myStoryAddPic').src = url; 
+    socket.emit('update-profile-pic', url); 
+    showToast("Foto profil berhasil diubah"); 
+  } catch(err) { 
+    showAlert("Gagal upload foto"); 
+  } 
+}
+
+async function uploadStory(input) { 
+  if (!input.files || !input.files[0]) return; 
+  const isVideo = input.files[0].type.startsWith('video/'); 
+  try { 
+    showToast("Sedang mengirim story..."); 
+    const url = await uploadToCloudinary(input.files[0]); 
+    socket.emit('add-story', { url: url, type: isVideo ? 'video' : 'image' }); 
+    showToast("Story berhasil ditambahkan"); 
+    socket.emit('get-stories'); 
+  } catch(err) { 
+    showAlert("Gagal upload story. Coba file lain."); 
+  } 
+}
+
+function openStoryViewer(story, authorName, isMine) {
+    currentStoryData = story;
+    currentViewedStoryId = story.id; 
+    document.getElementById('storyViewerModal').style.display = 'grid'; 
+    document.getElementById('storyViewerAuthor').innerText = authorName;
+    
+    if(!isMine && !viewedStories.includes(story.id)) {
+        viewedStories.push(story.id);
+        localStorage.setItem('viewedStories', JSON.stringify(viewedStories));
+        document.getElementById('headerPartnerPic').classList.remove('unseen-story-ring');
+    }
+
+    document.getElementById("storyReplyInput").value = "";
+    handleStoryInputToggle();
+
+    const imgEl = document.getElementById('storyViewerImg');
+    const vidEl = document.getElementById('storyViewerVideo');
+    clearInterval(storyInterval); 
+    svBar.style.width = '0%';
+    
+    if (story.type === 'video') {
+        imgEl.style.display = 'none'; 
+        vidEl.style.display = 'block'; 
+        vidEl.src = story.url;
+        vidEl.play().catch(e=>console.log(e));
+    } else {
+        vidEl.style.display = 'none'; 
+        imgEl.style.display = 'block'; 
+        imgEl.src = story.url;
+        let progress = 0;
+        storyInterval = setInterval(() => { 
+            if(!isStoryPaused){
+                progress += 2; 
+                svBar.style.width = progress + '%'; 
+                if (progress >= 100) closeStoryViewer(); 
+            }
+        }, 100);
+    }
+    
+    const viewersListDiv = document.getElementById('storyViewersListContainer');
+    const ul = document.getElementById('storyViewersList');
+    const deleteBtn = document.getElementById('deleteStoryBtn');
+    
+    ul.innerHTML = '';
+    
+    if (isMine) {
+        document.getElementById('storyReplyContainer').style.display = 'none';
+        viewersListDiv.style.display = 'block'; 
+        deleteBtn.style.display = 'inline-block';
+        if (story.viewers && story.viewers.length > 0) {
+          story.viewers.forEach(v => { 
+            const li = document.createElement('li'); 
+            li.innerHTML = `<i class="bi bi-person-fill" style="color:var(--text); margin-right: 5px;"></i> ${v.name}`; 
+            li.style.padding = '6px 0'; 
+            ul.appendChild(li); 
+          }); 
+        } else {
+          ul.innerHTML = '<li>Belum ada yang melihat</li>';
+        }
+    } else { 
+        document.getElementById('storyReplyContainer').style.display = 'flex';
+        viewersListDiv.style.display = 'none'; 
+        deleteBtn.style.display = 'none'; 
+        socket.emit('view-story', story.id); 
+    }
+}
+
+function closeStoryViewer() { 
+    clearInterval(storyInterval);
+    document.getElementById('storyViewerModal').style.display = 'none'; 
+    document.getElementById('storyReplyInput').value = '';
+    currentStoryData = null;
+    svVid.pause(); 
+    svVid.src = ""; 
+    currentViewedStoryId = null; 
+}
+
+function deleteCurrentStory() { 
+  if (currentViewedStoryId) { 
+    socket.emit('delete-story', currentViewedStoryId); 
+    closeStoryViewer(); 
+    setTimeout(() => socket.emit('get-stories'), 500); 
+    showToast("Story dihapus"); 
+  } 
+}
+
+socket.on('partner-profile-updated', (url) => { 
+  if (partner) partner.profilePic = url; 
+  document.getElementById("headerPartnerPic").src = url || DEFAULT_AVATAR; 
+});
+
+function showDisconnectModal() { 
+  document.getElementById('disconnectConfirmModal').style.display = 'grid'; 
+  closePartnerProfile(); 
+  closeMyProfile(); 
+}
+
+function closeDisconnectModal() { 
+  document.getElementById('disconnectConfirmModal').style.display = 'none'; 
+}
+
+function performLogout() { 
+  socket.emit('putus-hubungan'); 
+  window.pendingStoryReplyContext = null; 
+  localStorage.removeItem('userData'); 
+  window.userData = null; 
+  partner = null; 
+  document.getElementById("chat").style.display = "none"; 
+  document.getElementById("searching").style.display = "none"; 
+  document.getElementById("videoScreen").style.display = "none"; 
+  document.getElementById("disconnectConfirmModal").style.display = "none"; 
+  document.getElementById("partnerProfileModal").style.display = "none"; 
+  document.getElementById("myProfileModal").style.display = "none"; 
+  document.getElementById("loginScreen").style.display = "grid"; 
+  document.getElementById("welcomeContent").style.display = "block"; 
+  document.getElementById("loginForm").classList.add("hidden"); 
+}
+
+function refreshChat() { 
+  socket.emit('putus-hubungan'); 
+  partner = null; 
+  window.pendingStoryReplyContext = null; 
+  document.getElementById("chat").style.display = "none"; 
+  document.getElementById("videoScreen").style.display = "none"; 
+  document.getElementById("searching").style.display = "flex"; 
+  document.getElementById("searchStatus").textContent = "Mencari partner"; 
+  document.getElementById("dynamicText").textContent = "Sedang mencari partner baru"; 
+  setTimeout(() => socket.emit("join", window.userData), 400); 
+}
+
+function cancelSearch() { 
+  socket.emit('putus-hubungan'); 
+  document.getElementById("searching").style.display = "none"; 
+  document.getElementById("loginScreen").style.display = "grid"; 
+  document.getElementById("loginForm").classList.remove("hidden"); 
+  document.getElementById("welcomeContent").style.display = "none"; 
+}
+
+function confirmDisconnect() { 
+  performLogout(); 
+}
+
+socket.on('message-confirmed', ({ id }) => { 
+  const lastMsg = document.querySelector('.msg.me:last-child'); 
+  if (lastMsg && lastMsg.dataset.msgId && lastMsg.dataset.msgId.startsWith('temp-')) { 
+    const oldTempId = lastMsg.dataset.msgId; 
+    lastMsg.dataset.msgId = id; 
+    messagesMap[id] = lastMsg; 
+    delete messagesMap[oldTempId]; 
+    
+    const action = lastMsg.querySelector('.msg-action'); 
+    if (action) action.style.display = 'block'; 
+    const tick = lastMsg.querySelector('.tick-icon');
+    if (tick) {
+        tick.id = `tick-${id}`;
+    }
+  } 
+});
+
+socket.on("online-count", (count) => document.getElementById("onlineCount").textContent = count);
+
+socket.on("connect", () => { 
+  if (window.userData) socket.emit("join", window.userData); 
+  if (document.getElementById("searching").style.display !== "none") socket.emit("get-online-count"); 
+});
+
+socket.on("disconnect", () => { 
+  if (partner && document.getElementById("chat").style.display !== "none") { 
+    document.getElementById("partnerStatus").textContent = "Disconnect"; 
+    document.getElementById("partnerStatus").className = "partner-status status-offline"; 
+  } 
+});
+
+function setPartnerButtonsEnabled(enabled) { 
+  const audioBtn = document.getElementById("audioCallBtn");
+  const videoBtn = document.getElementById("videoCallBtn"); 
+  
+  if (enabled) { 
+    audioBtn.style.pointerEvents = "auto"; 
+    audioBtn.style.opacity = "1"; 
+    videoBtn.style.pointerEvents = "auto"; 
+    videoBtn.style.opacity = "1"; 
+  } else { 
+    audioBtn.style.pointerEvents = "none"; 
+    audioBtn.style.opacity = "0.4"; 
+    videoBtn.style.pointerEvents = "none"; 
+    videoBtn.style.opacity = "0.4"; 
+  } 
+}
+
+document.getElementById('msg').addEventListener('input', handleInputIconToggle);
+
+function handleInputIconToggle() { 
+  const msgInput = document.getElementById('msg');
+  const sendIcon = document.getElementById('sendIcon');
+  const sendBtn = document.getElementById('sendBtn'); 
+  
+  if (msgInput.value.trim().length > 0) { 
+    sendIcon.className = 'fas fa-paper-plane'; 
+    sendBtn.title = 'Kirim'; 
+    sendIcon.style.marginLeft = '-2px';
+  } else { 
+    sendIcon.className = 'fas fa-microphone'; 
+    sendBtn.title = 'Rekam Suara'; 
+    sendIcon.style.marginLeft = '0';
+  } 
+}
+
+window.currentVNBlob = null;
+
+async function handleSendClick() {
+    if (isRecordingVN) { 
+      audioRecorder.stop(); 
+      isRecordingVN = false; 
+      socket.emit('stop-recording-audio'); 
+      document.getElementById('sendIcon').className = 'fas fa-microphone'; 
+      document.getElementById('sendIcon').style.color = ''; 
+      return; 
+    }
+    
+    const isMic = document.getElementById('sendIcon').classList.contains('fa-microphone');
+    
+    if (isMic) {
+        try { 
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true }); 
+          audioRecorder = new MediaRecorder(stream); 
+          audioChunks = []; 
+          audioRecorder.ondataavailable = e => audioChunks.push(e.data);
+          audioRecorder.onstop = () => { 
+            socket.emit('stop-recording-audio'); 
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); 
+            window.currentVNBlob = audioBlob; 
+            document.getElementById('vnAudioPreview').src = URL.createObjectURL(audioBlob); 
+            document.getElementById('vnPreview').style.display = 'flex'; 
+            document.getElementById('chatInputContainer').style.display = 'none'; 
+          };
+          audioRecorder.start(); 
+          isRecordingVN = true; 
+          socket.emit('recording-audio'); 
+          document.getElementById('sendIcon').className = 'fas fa-stop'; 
+          document.getElementById('sendIcon').style.color = 'white'; 
+          document.getElementById('sendBtn').style.background = 'var(--danger)'; 
+          showToast("Sedang Merekam Suara..."); 
+        } catch(e) { 
+          showAlert("Izin microphone ditolak."); 
+        }
+    } else { 
+      sendMessage(); 
+    }
+}
+
+function cancelVN() { 
+  window.currentVNBlob = null; 
+  if (window.pendingStoryReplyContext) {
+      cancelReply(); 
+  }
+  window.pendingStoryReplyContext = null; 
+  socket.emit('stop-recording-audio'); 
+  document.getElementById('vnAudioPreview').src = ""; 
+  document.getElementById('vnPreview').style.display = 'none'; 
+  document.getElementById('chatInputContainer').style.display = 'flex'; 
+  document.getElementById('sendBtn').style.background = 'var(--accent)'; 
+}
+
+async function sendVN() { 
+  if (!window.currentVNBlob) return; 
+  const file = new File([window.currentVNBlob], 'vn.webm', { type: 'audio/webm' }); 
+  showToast("Mengirim voice note..."); 
+  
+  const tempStoryContext = window.pendingStoryReplyContext; 
+  const tempReplyTo = replyingTo; 
+  
+  cancelVN(); 
+  cancelReply(); 
+  
+  try { 
+    const url = await uploadToCloudinary(file); 
+    const msgData = { type: 'audio', fileUrl: url, fromName: window.userData?.name || "Anonim" }; 
+    
+    if (tempStoryContext) {
+        msgData.storyReply = tempStoryContext;
+    }
+    if (tempReplyTo) {
+        msgData.replyTo = tempReplyTo.id; 
+    }
+
+    addMsg(msgData, "me"); 
+    sendEncryptedMessage(msgData); 
+  } catch (e) { 
+    showAlert("Gagal upload Voice Note"); 
+  } 
+}
+
+document.getElementById('messages').addEventListener('touchstart', handleTouchStart, false); 
+document.getElementById('messages').addEventListener('touchmove', handleTouchMove, false); 
+document.getElementById('messages').addEventListener('touchend', handleTouchEnd, false);
+
+let touchStartX = 0, touchCurrentX = 0, currentMsgElement = null, currentBubble = null, replyIcon = null;
+
+function handleTouchStart(e) { 
+    const msg = e.target.closest('.msg'); 
+    if (!msg) return; 
+    currentMsgElement = msg; 
+    currentBubble = msg.querySelector('.bubble');
+    touchStartX = e.changedTouches[0].screenX; 
+    touchCurrentX = touchStartX;
+    
+    replyIcon = msg.querySelector('.swipe-reply-icon');
+    if(!replyIcon) {
+        replyIcon = document.createElement('i');
+        replyIcon.className = 'bi bi-reply-fill swipe-reply-icon';
+        msg.appendChild(replyIcon);
+    }
+    if(currentBubble) currentBubble.classList.add('swiping');
+}
+
+function handleTouchMove(e) { 
+    if (!currentMsgElement || !currentBubble) return; 
+    touchCurrentX = e.changedTouches[0].screenX; 
+    const diff = touchCurrentX - touchStartX;
+    
+    if (diff > 0 && diff < 100) {
+        currentBubble.style.transform = `translateX(${diff}px)`;
+        
+        let opacity = Math.min(diff / 60, 1);
+        let scale = Math.min(0.5 + (diff / 120), 1);
+        replyIcon.style.opacity = opacity;
+        replyIcon.style.transform = `translateY(-50%) scale(${scale})`;
+        
+        if(diff > 60) replyIcon.style.color = 'var(--success)';
+        else replyIcon.style.color = 'var(--accent)';
+    }
+}
+
+function handleTouchEnd(e) { 
+    if (!currentMsgElement || !currentBubble) return; 
+    const diff = touchCurrentX - touchStartX; 
+    
+    currentBubble.classList.remove('swiping');
+    currentBubble.style.transform = `translateX(0px)`;
+    
+    if(replyIcon) {
+        replyIcon.style.opacity = '0';
+        replyIcon.style.transform = `translateY(-50%) scale(0.5)`;
+    }
+
+    if (diff > 60) { 
+        e.preventDefault(); 
+        setReply(currentMsgElement); 
+    } 
+    currentMsgElement = null; 
+    currentBubble = null; 
+    touchStartX = 0; 
+    touchCurrentX = 0; 
+}
+
+function setReply(msgDiv) {
+  const msgId = msgDiv.dataset.msgId;
+  const bubble = msgDiv.querySelector('.bubble'); 
+  if(!bubble) return;
+  
+  const sender = msgDiv.classList.contains('me') ? (window.userData?.name || "Kamu") : (partner?.name || "Partner");
+  let content = '', type = 'text';
+  
+  if (msgDiv.dataset.fileUrl && msgDiv.dataset.type === 'video') { 
+    type = 'video'; 
+    content = '[Video]'; 
+  } else if (msgDiv.dataset.fileUrl && msgDiv.dataset.type === 'audio') { 
+    type = 'audio'; 
+    content = '[Voice Note]'; 
+  } else if (msgDiv.dataset.fileUrl) { 
+    type = 'file'; 
+    if (msgDiv.dataset.isSticker === 'true') {
+        content = '[Stiker]';
+    } else {
+        content = '[Gambar]'; 
+        if (msgDiv.dataset.caption) content += ' ' + msgDiv.dataset.caption.substring(0, 60); 
+    }
+  } else if (bubble.classList.contains('deleted-msg')) {
+    content = 'Pesan ini telah dihapus'; 
+  } else { 
+      let contentDiv = bubble.querySelector('.msg-content');
+      if (contentDiv) {
+          let clone = contentDiv.cloneNode(true);
+          let t = clone.querySelector('.bubble-time');
+          if (t) t.remove();
+          let editLabel = clone.querySelector('.edit-label'); 
+          if (editLabel) editLabel.remove();
+          content = clone.textContent.trim().substring(0, 10000);
+      } else {
+          let fallback = bubble.querySelector('div:not(.quoted-msg)');
+          if (fallback) {
+              let clone = fallback.cloneNode(true);
+              let t = clone.querySelector('.bubble-time');
+              if (t) t.remove();
+              let editLabel = clone.querySelector('.edit-label'); 
+              if (editLabel) editLabel.remove(); 
+              content = clone.textContent.trim().substring(0, 10000);
+          }
+      }
+      if (content.length === 10000) content += '...'; 
+  }
+  
+  replyingTo = { id: msgId, text: content, fromName: sender, type: type, fileUrl: type === 'file' ? msgDiv.dataset.fileUrl : null };
+  const preview = document.getElementById('replyPreview'); 
+  document.getElementById('replySender').textContent = sender; 
+  document.getElementById('replyContent').textContent = content; 
+  preview.classList.remove('hidden'); 
+  preview.style.display = 'flex'; 
+  document.getElementById('msg').focus();
+}
+
+function cancelReply() { 
+  replyingTo = null; 
+  window.pendingStoryReplyContext = null; 
+  document.getElementById('replyPreview').style.display = 'none'; 
+}
+
+function updateMicIcons() { 
+  const localMicStatus = document.getElementById("micStatusLocal");
+  if (localMicStatus) localMicStatus.style.display = "none"; 
+  document.getElementById("micStatusRemote")?.classList.toggle("hidden", !!partnerMicEnabled); 
+}
+
+let isMinimizedToPartner = false;
+
+function minimizeToPartnerView() {
+  if (!localStream || !window.remoteOriginalStream) { 
+    showToast("Panggilan belum terhubung");
+    return;
+  }
+
+  isMinimizedToPartner = true;
+  document.getElementById("videoScreen").style.display = "none";
+
+  const miniContainer = document.getElementById("miniRemoteVideoContainer");
+  const miniVideo = document.getElementById("miniRemoteVideo");
+  const miniAudio = document.getElementById("miniAudioAvatar");
+
+  miniVideo.srcObject = document.getElementById("remoteVideo").srcObject;
+  miniVideo.className = "";
+  if (miniVideo.srcObject) {
+      miniVideo.play().catch(e => console.log(e));
+  }
+
+  if (isAudioOnlyCall) {
+    miniVideo.style.display = "none";
+    miniAudio.style.display = "flex";
+    document.getElementById("miniAudioImg").src = partner?.profilePic || DEFAULT_AVATAR;
+  } else {
+    miniVideo.style.display = "block";
+    miniAudio.style.display = "none";
+  }
+
+  miniContainer.style.display = "block";
+  makePipDraggable(miniContainer);
+  showToast("Mode chat aktif");
+
+  refreshVideoBackgrounds();
+}
+
+let wasDragged = false; 
+
+document.getElementById("miniRemoteVideoContainer")?.addEventListener("click", function(e) { 
+  if (!isMinimizedToPartner || wasDragged) return; 
+  isMinimizedToPartner = false; 
+  document.getElementById("miniRemoteVideoContainer").style.display = "none"; 
+  document.getElementById("videoScreen").style.display = "flex"; 
+  
+  const remoteVideo = document.getElementById("remoteVideo"); 
+  
+  if (partnerCamEnabled && window.remoteOriginalStream) {
+      remoteVideo.srcObject = window.remoteOriginalStream;
+      remoteVideo.play().catch(e => console.log(e));
+  } else {
+      remoteVideo.srcObject = null;
+  }
+  
+  if (remoteVideo.classList.contains("pip")) { 
+    remoteVideo.classList.remove("pip-mini"); 
+    remoteVideo.classList.add("pip-normal"); 
+  } 
+  resetVideoLayout(); 
+  refreshVideoBackgrounds(); 
+});
+
+function makePipDraggable(element) {
+  if (!element) return; 
+  let isDragging = false, startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
+  element.addEventListener('pointerdown', startDrag, { passive: false });
+  
+  function startDrag(e) {
+    if (!element.classList.contains('pip') || e.target.closest('.media-status-overlay')) return;
+    isDragging = true; 
+    wasDragged = false; 
+    element.classList.add('dragging'); 
+    const originalTransition = element.style.transition || ''; 
+    element.style.transition = 'none'; 
+    const rect = element.getBoundingClientRect(); 
+    startX = e.clientX; 
+    startY = e.clientY; 
+    initialLeft = rect.left; 
+    initialTop = rect.top; 
+    e.stopPropagation();
+    
+    const onMove = (moveEvent) => { 
+      if (!isDragging) return; 
+      moveEvent.preventDefault(); 
+      const dx = moveEvent.clientX - startX, dy = moveEvent.clientY - startY; 
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) wasDragged = true; 
+      let newLeft = initialLeft + dx, newTop = initialTop + dy; 
+      const padding = 16, w = element.offsetWidth, h = element.offsetHeight, maxLeft = window.innerWidth - w - padding, maxTop = window.innerHeight - h - 100; 
+      newLeft = Math.max(padding, Math.min(newLeft, maxLeft)); 
+      newTop = Math.max(padding, Math.min(newTop, maxTop)); 
+      element.style.left = newLeft + 'px'; 
+      element.style.top = newTop + 'px'; 
+      element.style.transform = `translate3d(0,0,0) ${element.id === 'localVideo' && isFront ? 'scaleX(-1)' : ''}`; 
+      element.style.right = 'auto'; 
+      element.style.bottom = 'auto'; 
+    };
+    
+    const stopDrag = () => { 
+      isDragging = false; 
+      element.classList.remove('dragging'); 
+      element.style.transition = originalTransition || 'opacity 0.18s ease, transform 0.18s ease'; 
+      document.removeEventListener('pointermove', onMove); 
+      document.removeEventListener('pointerup', stopDrag); 
+      document.removeEventListener('pointercancel', stopDrag); 
+      setTimeout(() => wasDragged = false, 100); 
+    };
+    
+    document.addEventListener('pointermove', onMove, { passive: false }); 
+    document.addEventListener('pointerup', stopDrag); 
+    document.addEventListener('pointercancel', stopDrag);
+  }
+}
+
+function updateVideoCallButton() { 
+  const vBtn = document.getElementById("videoCallBtn");
+  const aBtn = document.getElementById("audioCallBtn"); 
+  if (!vBtn || !aBtn) return; 
+  
+  if (isInVideoCall) { 
+    vBtn.classList.add("disabled"); 
+    vBtn.style.opacity = "0.4"; 
+    vBtn.style.pointerEvents = "none"; 
+    aBtn.classList.add("disabled"); 
+    aBtn.style.opacity = "0.4"; 
+    aBtn.style.pointerEvents = "none"; 
+  } else { 
+    vBtn.classList.remove("disabled"); 
+    vBtn.style.opacity = "1"; 
+    vBtn.style.pointerEvents = "auto"; 
+    aBtn.classList.remove("disabled"); 
+    aBtn.style.opacity = "1"; 
+    aBtn.style.pointerEvents = "auto"; 
+  } 
+}
+
+function showReactionBar(targetElement, msgId) { 
+  currentReactMsgId = msgId; 
+  
+  let overlay = document.getElementById('reactionOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'reactionOverlay';
+    overlay.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(0, 0, 0, 0.4); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:95; transition: opacity 0.2s;';
+    overlay.onclick = closeReactionBar; 
+    
+    overlay.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+    
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display = 'block';
+
+  const msgContainer = document.getElementById('messages');
+  if (msgContainer) msgContainer.style.overflowY = 'hidden';
+
+  const msgContainerElem = targetElement.closest('.msg');
+  if(msgContainerElem) msgContainerElem.classList.add('reaction-focus');
+
+  let rb = document.getElementById('reactionBar'); 
+  if (!rb) {
+    rb = document.createElement('div');
+    rb.id = 'reactionBar';
+    rb.onclick = (e) => e.stopPropagation();
+    rb.style.cssText = 'display:none; position:fixed; background:var(--surface-2); border:1px solid var(--border); border-radius:30px; padding:8px 14px; gap:14px; z-index:9999; box-shadow:0 8px 16px rgba(0,0,0,0.4); align-items:center;';
+    rb.innerHTML = `
+      <span class="reaction-opt" onclick="sendReaction('👍')">👍</span>
+      <span class="reaction-opt" onclick="sendReaction('❤️')">❤️</span>
+      <span class="reaction-opt" onclick="sendReaction('😂')">😂</span>
+      <span class="reaction-opt" onclick="sendReaction('😮')">😮</span>
+      <span class="reaction-opt" onclick="sendReaction('😢')">😢</span>
+      <span class="reaction-opt" onclick="sendReaction('🙏')">🙏</span>
+    `;
+  }
+  
+  document.body.appendChild(rb); 
+
+  const rect = targetElement.getBoundingClientRect();
+  
+  rb.style.display = 'flex';
+  rb.style.visibility = 'hidden';
+  const rbHeight = rb.offsetHeight || 46;
+  rb.style.visibility = 'visible';
+
+  rb.style.left = rect.left + 'px';
+  
+  if (rect.top < 130) {
+    rb.style.top = (rect.bottom + 8) + 'px';
+    rb.style.bottom = 'auto';
+  } else {
+    rb.style.top = (rect.top - rbHeight - 8) + 'px';
+    rb.style.bottom = 'auto';
+  }
+}
+
+function closeReactionBar(e) { 
+  const rb = document.getElementById('reactionBar'); 
+  const overlay = document.getElementById('reactionOverlay');
+  
+  if (rb && e && e.target && rb.contains(e.target) && e.target.id !== 'reactionOverlay') return;
+
+  if (rb && rb.style.display === 'flex') { 
+    rb.style.display = 'none'; 
+    currentReactMsgId = null; 
+    document.body.appendChild(rb); 
+  } 
+  
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+
+  document.querySelectorAll('.msg.reaction-focus').forEach(el => el.classList.remove('reaction-focus'));
+  
+  const msgContainer = document.getElementById('messages');
+  if (msgContainer) msgContainer.style.overflowY = 'auto';
+}
+
+function sendReaction(emoji) { 
+  if(!currentReactMsgId) return; 
+  socket.emit('reaction', { msgId: currentReactMsgId, reaction: emoji }); 
+  applyReaction(currentReactMsgId, emoji); 
+  
+  closeReactionBar({target: document.body}); 
+}
+
+function applyReaction(msgId, emoji) { 
+  const msgElement = messagesMap[msgId]; 
+  if(msgElement) { 
+    let badge = msgElement.querySelector('.reaction-badge'); 
+    if(!badge) { 
+      badge = document.createElement('div'); 
+      badge.className = 'reaction-badge'; 
+      msgElement.querySelector('.bubble').appendChild(badge); 
+    } 
+    badge.textContent = emoji; 
+  } 
+}
+
+socket.on("reaction", ({msgId, reaction}) => applyReaction(msgId, reaction));
+
+let pendingDeleteMsgId = null, pendingDeleteBubble = null, pendingDeleteAction = null;
+
+function openDeleteConfirm(msgId, bubbleElement, actionElement) { 
+  pendingDeleteMsgId = msgId; 
+  pendingDeleteBubble = bubbleElement; 
+  pendingDeleteAction = actionElement; 
+  if (actionElement) actionElement.style.display = 'block'; 
+  document.getElementById("deleteConfirmModal").style.display = "grid"; 
+}
+
+function closeDeleteModal() { 
+  if (pendingDeleteAction) pendingDeleteAction.style.display = 'none'; 
+  pendingDeleteMsgId = null; 
+  pendingDeleteBubble = null; 
+  pendingDeleteAction = null; 
+  document.getElementById("deleteConfirmModal").style.display = "none"; 
+}
+
+function confirmDelete() { 
+  if (!pendingDeleteMsgId) { 
+    closeDeleteModal(); 
+    return; 
+  } 
+  if (pendingDeleteBubble) { 
+    pendingDeleteBubble.innerHTML = '<i class="bi bi-ban" style="margin-right:6px;"></i>Pesan ini telah dihapus<span class="bubble-time">'+(pendingDeleteBubble.querySelector('.bubble-time')?.textContent || '')+'</span>'; 
+    pendingDeleteBubble.className = 'bubble deleted-msg'; 
+  } 
+  if (pendingDeleteAction) pendingDeleteAction.remove(); 
+  
+  socket.emit('delete-for-everyone', { msgId: pendingDeleteMsgId }); 
+  showToast("Pesan dihapus"); 
+  closeDeleteModal(); 
+}
+
+function showToast(msg) { 
+  const t = document.getElementById("actionToast"); 
+  t.textContent = msg; 
+  t.style.opacity = "1"; 
+  t.style.transform = "translateX(-50%) translateY(0)"; 
+  setTimeout(() => { 
+    t.style.opacity = "0"; 
+    t.style.transform = "translateX(-50%) translateY(20px)"; 
+  }, 2800); 
+}
+
+function showAlert(text) { 
+  document.getElementById("alertText").textContent = text; 
+  document.getElementById("alertModal").style.display = "grid"; 
+}
+
+function closeAlert() { 
+  document.getElementById("alertModal").style.display = "none"; 
+}
+
+function sendSystemMsg(text) { 
+  const msgData = { type: 'system', text: text }; 
+  addMsg(msgData, "system"); 
+  sendEncryptedMessage(msgData); 
+}
+
+window.justLongPressed = false;
+window.closeAllMsgActions = function() {
+  if (window.justLongPressed) return;
+  
+  const msgContainer = document.getElementById('messages');
+  if (msgContainer) msgContainer.style.overflowY = 'auto';
+  
+  document.querySelectorAll('.msg.long-press').forEach(m => m.classList.remove('long-press'));
+  document.querySelectorAll('.msg-action').forEach(a => {
+      a.classList.remove('show-action');
+      setTimeout(() => a.style.display = 'none', 200); 
+  });
+  const overlay = document.getElementById('msgActionOverlay');
+  if(overlay) overlay.style.display = 'none';
+};
+
+function setupInteractionForDelete(msgElement, actionElement, msgId, isTextMsg) {
+  let pressTimer;
+  let startX = 0, startY = 0;
+  const bubbleElement = msgElement.querySelector('.bubble');
+
+  if (!bubbleElement) return;
+
+  const startPress = (e) => {
+    if (e.target.tagName.toLowerCase() === 'a') return; 
+
+    clearTimeout(pressTimer);
+    
+    if (e.touches && e.touches.length > 0) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    }
+
+    pressTimer = setTimeout(() => {
+      window.justLongPressed = true;
+      setTimeout(() => { window.justLongPressed = false; }, 500);
+
+      const msgContainer = document.getElementById('messages');
+      if (msgContainer) msgContainer.style.overflowY = 'hidden';
+
+      document.querySelectorAll('.msg.long-press').forEach(m => m.classList.remove('long-press'));
+      document.querySelectorAll('.msg-action').forEach(a => {
+          a.classList.remove('show-action');
+          a.style.display = 'none';
+      });
+
+      const overlay = document.getElementById('msgActionOverlay');
+      if(overlay) overlay.style.display = 'block';
+
+      msgElement.classList.add('long-press');
+      document.body.appendChild(actionElement);
+
+      const rect = bubbleElement.getBoundingClientRect();
+      actionElement.style.display = 'flex';
+      actionElement.style.visibility = 'hidden';
+      const actionHeight = actionElement.offsetHeight || 80;
+      actionElement.style.visibility = 'visible';
+
+      actionElement.style.right = (window.innerWidth - rect.right) + 'px';
+
+      const spaceAbove = rect.top;
+      const spaceBelow = window.innerHeight - rect.bottom;
+
+      if (spaceAbove < actionHeight + 70) {
+          actionElement.style.top = (rect.bottom + 8) + 'px';
+          actionElement.style.bottom = 'auto';
+          actionElement.style.transformOrigin = 'top right';
+      } else if (spaceBelow < actionHeight + 20) {
+          actionElement.style.top = (rect.top - actionHeight - 8) + 'px';
+          actionElement.style.bottom = 'auto';
+          actionElement.style.transformOrigin = 'bottom right';
+      } else {
+          actionElement.style.top = (rect.top - actionHeight - 8) + 'px';
+          actionElement.style.bottom = 'auto';
+          actionElement.style.transformOrigin = 'bottom right';
+      }
+
+      setTimeout(() => {
+          actionElement.classList.add('show-action');
+      }, 10);
+
+    }, 500); 
+  };
+
+  const cancelPress = (e) => {
+    if (e && e.type === 'touchmove' && e.touches && e.touches.length > 0) {
+        let dx = Math.abs(e.touches[0].clientX - startX);
+        let dy = Math.abs(e.touches[0].clientY - startY);
+        if (dx < 15 && dy < 15) return; 
+    }
+    clearTimeout(pressTimer);
+  };
+
+  bubbleElement.addEventListener('contextmenu', (e) => {
+
+  if (e.target.tagName.toLowerCase() !== 'a') {
+    e.preventDefault();
+    }
+  });
+
+  bubbleElement.addEventListener('touchstart', startPress, { passive: true });
+  bubbleElement.addEventListener('touchend', cancelPress, { passive: true });
+  bubbleElement.addEventListener('touchmove', cancelPress, { passive: true });
+  
+  bubbleElement.addEventListener('mousedown', startPress);
+  bubbleElement.addEventListener('mouseup', cancelPress);
+  bubbleElement.addEventListener('mouseleave', cancelPress);
+
+  actionElement.addEventListener('click', (e) => {
+    e.stopPropagation();
+    window.justLongPressed = false; 
+    closeAllMsgActions();
+  });
+}
+
+function addMsg(data, side, timeStr) {
+  const div = document.createElement("div");
+  if (data.type === 'system') { 
+    div.className = 'msg system-msg'; 
+    div.innerHTML = `<div style="text-align:center; background: rgba(30, 37, 50, 0.5); backdrop-filter: blur(12px); padding:8px 16px; border-radius:16px; font-size:0.85rem; color:var(--text-sec); margin: 2px auto; width: fit-content; border: 1px solid rgba(255,255,255,0.1);">${escapeHtml(data.text)}</div>`; 
+    document.getElementById("messages").appendChild(div); 
+    div.scrollIntoView({ behavior: "smooth", block: "end" }); 
+    return div; 
+  }
+
+  div.className = `msg ${side}`;
+  let msgId = data.id || ('temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9));
+  div.dataset.msgId = msgId; 
+  messagesMap[msgId] = div;
+  
+  if (!timeStr) { 
+    const d = data.timestamp ? new Date(data.timestamp) : new Date(); 
+    timeStr = d.getHours().toString().padStart(2, "0") + ":" + d.getMinutes().toString().padStart(2, "0"); 
+  }
+
+  let quoteHtml = '';
+  if (data.replyTo && messagesMap[data.replyTo]) {
+    const quotedMsg = messagesMap[data.replyTo];
+    const quotedBubble = quotedMsg.querySelector('.bubble');
+    const quotedSender = quotedMsg.classList.contains('me') ? (window.userData?.name || "Kamu") : (partner?.name || "Partner"); 
+    let quotedPreview = '';
+    
+    if (quotedMsg.classList.contains('deleted-msg') || (quotedBubble && quotedBubble.classList.contains('deleted-msg'))) { 
+      quotedPreview = 'Pesan ini telah dihapus'; 
+    } else if (quotedMsg.dataset.type === 'video') { 
+      quotedPreview = '[Video]'; 
+    } else if (quotedMsg.dataset.type === 'audio') { 
+      quotedPreview = '[Voice Note]'; 
+    } else if (quotedMsg.dataset.type === 'embed') {
+      quotedPreview = quotedMsg.dataset.embedType === 'music' ? '[Music]' : '[Video]';
+    } else if (quotedMsg.dataset.fileUrl) { 
+      if (quotedMsg.dataset.isSticker === 'true') {
+        quotedPreview = '[Stiker]';
+      } else {
+        quotedPreview = '[Gambar]'; 
+        if (quotedMsg.dataset.caption) quotedPreview += ' ' + quotedMsg.dataset.caption.substring(0, 50).trim() + '...'; 
+      }
+    } else if (quotedBubble) {
+        let contentDiv = quotedBubble.querySelector('.msg-content');
+        if (contentDiv) {
+            let clone = contentDiv.cloneNode(true);
+            let t = clone.querySelector('.bubble-time');
+            if (t) t.remove();
+            let editLabel = clone.querySelector('.edit-label'); 
+            if (editLabel) editLabel.remove();
+            quotedPreview = clone.textContent.trim().substring(0, 80);
+        } else {
+            let fallback = quotedBubble.querySelector('div:not(.quoted-msg)');
+            if (fallback) {
+                let clone = fallback.cloneNode(true);
+                let t = clone.querySelector('.bubble-time');
+                if (t) t.remove();
+                let editLabel = clone.querySelector('.edit-label');
+                if (editLabel) editLabel.remove();
+                quotedPreview = clone.textContent.trim().substring(0, 80);
+            }
+        }
+        if (quotedPreview.length === 80) quotedPreview += '...'; 
+    }
+    quoteHtml = `<div class="quoted-msg"><div style="color: var(--accent); font-weight: 600; margin-bottom: 4px;">${quotedSender}</div><div style="color: var(--text-sec); word-break: break-word; margin-bottom: 2px;">${quotedPreview}</div></div>`;
+  } else if (data.storyReply) {
+    let quotedPreview = data.storyReply.type === 'video' ? '[Video Story]' : '[Gambar Story]';
+    quoteHtml = `<div class="quoted-msg"><div style="color: var(--accent); font-weight: 600; margin-bottom: 4px;">Membalas Story</div><div style="color: var(--text-sec); word-break: break-word; margin-bottom: 2px; display: flex; align-items: center; gap: 8px;"><img src="${escapeHtml(data.storyReply.url)}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 6px;" /><span>${quotedPreview}</span></div></div>`;
+  }
+
+  let isTextMsg = false, content = '';
+  
+  let uploadOverlayHtml = data.isUploading ? `
+    <div class="media-upload-overlay" id="upload-overlay-${msgId}">
+      <div class="media-upload-progress-container">
+        <div class="media-upload-progress-bar" id="upload-progress-${msgId}"></div>
+      </div>
+    </div>` : '';
+  
+  let tickHtml = '';
+  if (side === 'me' && data.type !== 'deleted' && data.type !== 'system') {
+    let iconClass = data.isRead ? 'bi-check-all tick-read' : 'bi-check-all';
+    tickHtml = `<i id="tick-${msgId}" class="bi ${iconClass} tick-icon"></i>`;
+  }
+
+  if (data.type === 'text' || !data.type) {
+    isTextMsg = true; 
+    let formattedText = linkify(escapeHtml(data.text).replace(/\*([^\*]+)\*/g, '<b>$1</b>').replace(/_([^_]+)_/g, '<i>$1</i>').replace(/~([^~]+)~/g, '<strike>$1</strike>')).replace(/\n/g, '<br>');
+    if (data.isEdited) {
+
+        formattedText += ' <span class="edit-label" style="font-size: 0.75rem; font-style: italic; opacity: 0.7; margin-left: 6px;">Diedit</span>';
+    }
+    content = `<div class="bubble">${quoteHtml}<div class="msg-content">${formattedText}<span class="bubble-time">${timeStr}${tickHtml}</span></div></div>`;
+  } else if (data.type === 'audio') {
+    content = `<div class="bubble">${quoteHtml}<div style="display:flex; align-items:flex-end;">${createCustomAudioPlayer(data.fileUrl)}<span class="bubble-time" style="margin-left:auto; margin-bottom:4px; white-space:nowrap;">${timeStr}${tickHtml}</span></div></div>`;
+    div.dataset.fileUrl = data.fileUrl; 
+    div.dataset.type = 'audio';
+  } else if (data.type === 'embed') {
+    isTextMsg = false;
+    let embedHtml = '';
+    
+    if (data.mediaSource === 'youtube') {
+        let h = data.embedType === 'music' ? '80' : '220';
+        embedHtml = `<iframe width="100%" height="${h}" src="https://www.youtube.com/embed/${data.mediaUrl}?autoplay=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius:12px; margin-top:4px;"></iframe>`;
+    } else if (data.mediaSource === 'tiktok') {
+        let h = data.embedType === 'music' ? '120' : '400';
+        embedHtml = `<iframe src="https://www.tiktok.com/embed/v2/${data.mediaUrl}" width="100%" height="${h}" frameborder="0" allow="fullscreen; autoplay; encrypted-media;" style="border-radius:12px; margin-top:4px;"></iframe>`;
+    }
+    
+    content = `<div class="bubble media-bubble">${quoteHtml}
+      <div class="msg-content" style="padding:6px 8px 4px 8px; min-width: 250px;">
+        ${embedHtml}
+        <div style="margin-top:4px; display:flex; justify-content:flex-end;">
+          <span class="bubble-time" style="position:static; margin:0; padding:0; background:transparent;">${timeStr}${tickHtml}</span>
+        </div>
+      </div>
+    </div>`;
+    div.dataset.type = 'embed';
+    div.dataset.embedType = data.embedType;
+  } else if (data.type === 'video') {
+    let senderName = data.fromName || (side === 'me' ? (window.userData?.name || 'Kamu') : (partner?.name || 'Partner'));
+    content = `<div class="bubble media-bubble ${!data.caption ? 'no-caption' : ''}">
+      ${quoteHtml}
+      <div class="video-msg-container" style="position:relative; cursor:pointer; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center;" onclick="openMediaViewer('${data.fileUrl}', 'video', '${escapeHtml(senderName)}')">
+        <video src="${data.fileUrl}" style="pointer-events:none; -webkit-user-drag:none; user-select:none; max-width:100%; max-height:280px; background:#000; display:block; object-fit: contain;" preload="metadata" oncontextmenu="return false;"></video>
+        <div class="play-overlay" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.3);"><i class="bi bi-play-fill" style="font-size:3.5rem; color:rgba(255,255,255,0.85);"></i></div>
+            ${uploadOverlayHtml}
+          </div>
+      ${data.caption ? `<div class="msg-content" style="margin-top:8px; margin-bottom:4px; font-size:0.95rem; padding:0 8px; word-break: break-word;">${escapeHtml(data.caption)}<span class="bubble-time" style="position:relative; float:right; background:transparent; color:inherit; padding:0; bottom:auto; right:auto; margin:4px 0 -2px 10px;">${timeStr}${tickHtml}</span></div>` : `<span class="bubble-time">${timeStr}${tickHtml}</span>`}
+    </div>`;
+    div.dataset.fileUrl = data.fileUrl; 
+    div.dataset.type = 'video';
+  } else if (data.type === 'file') {
+    let senderName = data.fromName || (side === 'me' ? (window.userData?.name || 'Kamu') : (partner?.name || 'Partner'));
+    
+    let clickEvent = data.isSticker ? '' : `onclick="openMediaViewer('${data.fileUrl}', 'image', '${escapeHtml(senderName)}')"` ;
+    let cursorStyle = data.isSticker ? 'default' : 'pointer';
+    let bubbleStyle = data.isSticker ? 'background: transparent; box-shadow: none;' : '';
+    let imgStyle = data.isSticker ? 
+        'pointer-events:none; -webkit-user-drag:none; user-select:none; max-width:160px; max-height:160px; display:block; object-fit:contain; margin: 0 auto;' : 
+        'pointer-events:none; -webkit-user-drag:none; user-select:none; max-width:100%; max-height:280px; display:block; object-fit: cover; width:100%;';
+    let timeStyle = data.isSticker ? 'background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 10px; color: white;' : '';
+
+    content = `<div class="bubble media-bubble ${!data.caption ? 'no-caption' : ''}" style="${bubbleStyle}">
+      ${quoteHtml}
+      <div style="position:relative; cursor:${cursorStyle}; border-radius: 12px; overflow: hidden; display: flex;" ${clickEvent}>
+        <img src="${data.fileUrl}" style="${imgStyle}" oncontextmenu="return false;" />
+            ${uploadOverlayHtml}
+          </div>
+      ${data.caption ? `<div class="msg-content" style="margin-top:8px; margin-bottom:4px; font-size:0.95rem; padding:0 8px; word-break: break-word;">${escapeHtml(data.caption)}<span class="bubble-time" style="position:relative; float:right; background:transparent; color:inherit; padding:0; bottom:auto; right:auto; margin:4px 0 -2px 10px;">${timeStr}${tickHtml}</span></div>` : `<span class="bubble-time" style="${timeStyle}">${timeStr}${tickHtml}</span>`}
+    </div>`;
+    
+    div.dataset.fileUrl = data.fileUrl; 
+    div.dataset.type = 'file'; 
+    div.dataset.fromName = data.fromName || senderName;
+    if (data.isSticker) div.dataset.isSticker = 'true';
+  } else if (data.type === 'deleted') {
+    content = `<div class="bubble deleted-msg"><i class="bi bi-ban" style="margin-right:6px;"></i>Pesan ini telah dihapus<span class="bubble-time">${timeStr}</span></div>`;
+  }
+
+  div.innerHTML = content;
+  if(data.reaction) applyReaction(msgId, data.reaction);
+  
+  if (side === 'me' && data.type !== 'deleted') {
+    const action = document.createElement('div'); 
+    action.className = 'msg-action'; 
+    action.style.display = 'none';
+    
+    if (isTextMsg) {
+        div.dataset.rawText = data.text; 
+        
+        const btnEdit = document.createElement('div');
+        btnEdit.innerHTML = '<i class="bi bi-pencil-fill" style="margin-right:8px;"></i> Edit';
+        btnEdit.style.cssText = 'cursor:pointer; color:var(--accent); display:flex; align-items:center; padding: 6px 8px;';
+        
+        btnEdit.onclick = (e) => {
+            e.stopPropagation();
+            closeAllMsgActions();
+            
+            if (div.dataset.msgId.startsWith('temp-')) {
+                showToast("Pesan belum terkirim");
+                return;
+            }
+            
+            const currentText = div.dataset.rawText || "";
+            const newText = prompt("Edit pesan:", currentText);
+            
+            if (newText && newText.trim() !== "" && newText !== currentText) {
+             const finalTxt = newText.trim().substring(0, 10000);
+              socket.emit('edit-message', { msgId: div.dataset.msgId, newText: encrypt(finalTxt) }); 
+              div.dataset.rawText = finalTxt;
+                const contentDiv = div.querySelector('.msg-content');
+                if (contentDiv) {
+                    const timeSpan = contentDiv.querySelector('.bubble-time');
+                    let formattedText = linkify(escapeHtml(finalTxt).replace(/\*([^\*]+)\*/g, '<b>$1</b>').replace(/_([^_]+)_/g, '<i>$1</i>').replace(/~([^~]+)~/g, '<strike>$1</strike>')).replace(/\n/g, '<br>');
+
+                    contentDiv.innerHTML = formattedText + ' <span class="edit-label" style="font-size: 0.75rem; font-style: italic; opacity: 0.7; margin-left: 6px;">Diedit</span>';
+                    if (timeSpan) contentDiv.appendChild(timeSpan);
+                }
+            }
+        };
+        action.appendChild(btnEdit);
+        
+        const divider = document.createElement('div');
+        divider.style.cssText = 'height:1px; background:var(--border); width:100%; margin: 2px 0;';
+        action.appendChild(divider);
+    }
+    
+    const btnDel = document.createElement('div');
+    btnDel.innerHTML = '<i class="bi bi-trash-fill" style="margin-right:8px;"></i> Hapus';
+    btnDel.style.cssText = 'cursor:pointer; color:var(--danger); display:flex; align-items:center; padding: 6px 8px;';
+    
+    btnDel.onclick = (e) => {
+        e.stopPropagation();
+        closeAllMsgActions();
+        
+        if (div.dataset.msgId.startsWith('temp-')) {
+            showToast("Pesan belum terkirim");
+            return;
+        }
+        openDeleteConfirm(div.dataset.msgId, div.querySelector('.bubble'), action);
+    };
+    action.appendChild(btnDel);
+    
+    div.querySelector('.bubble').appendChild(action); 
+    setupInteractionForDelete(div, action, msgId, isTextMsg);
+  } else if(side === 'other' && data.type !== 'deleted' && isTextMsg) {
+    const bubble = div.querySelector('.bubble');
+    bubble.addEventListener('click', (e) => { 
+      e.stopPropagation(); 
+      showReactionBar(bubble, msgId); 
+    });
+  }
+
+  div.addEventListener('touchstart', handleTouchStart, {passive: true}); 
+  div.addEventListener('touchmove', handleTouchMove, {passive: true}); 
+  div.addEventListener('touchend', handleTouchEnd, {passive: false});
+
+  document.getElementById("messages").appendChild(div); 
+  div.scrollIntoView({ behavior: "smooth", block: "end" }); 
+  
+  return div;
+}
+
+function updateMsgAsDeleted(msgId) {
+  const msgDiv = messagesMap[msgId]; 
+  if (!msgDiv) return;
+  
+  const clone = msgDiv.cloneNode(true); 
+  msgDiv.parentNode.replaceChild(clone, msgDiv); 
+  messagesMap[msgId] = clone; 
+  
+  const bubble = clone.querySelector('.bubble'); 
+  if (bubble) { 
+    bubble.innerHTML = `<i class="bi bi-ban" style="margin-right:6px;"></i>Pesan ini telah dihapus<span class="bubble-time">${msgDiv.querySelector('.bubble-time')?.textContent || ''}</span>`; 
+    bubble.className = 'bubble deleted-msg'; 
+  }
+  
+  const action = clone.querySelector('.msg-action'); 
+  if (action) action.remove(); 
+  clone.style.cursor = 'default';
+}
+
+function createTextImage(text) {
+    return new Promise((resolve) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        let fontSize = 135; 
+        
+        if (text.length > 12) fontSize = 110;
+        if (text.length > 20) fontSize = 85;
+        if (text.length > 40) fontSize = 60;
+        if (text.length > 70) fontSize = 45;
+
+        let lineHeight = fontSize * 1.05; 
+        
+        ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+        ctx.fillStyle = '#000000'; 
+        ctx.textAlign = 'left';   
+        ctx.textBaseline = 'top';
+
+        const words = text.split(' ');
+        let line = '';
+        let lines = [];
+        const maxWidth = canvas.width - 60; 
+
+        for (let i = 0; i < words.length; i++) {
+            let testLine = line + words[i] + ' ';
+            let metrics = ctx.measureText(testLine);
+            if (metrics.width > maxWidth && i > 0) {
+                lines.push(line.trim());
+                line = words[i] + ' ';
+            } else {
+                line = testLine;
+            }
+        }
+        lines.push(line.trim());
+
+        const totalTextHeight = lines.length * lineHeight;
+        
+        const startY = (canvas.height - totalTextHeight) / 2 + (fontSize * 0.05); 
+
+        let maxLineWidth = 0;
+        for (let i = 0; i < lines.length; i++) {
+            let metrics = ctx.measureText(lines[i]);
+            if (metrics.width > maxLineWidth) {
+                maxLineWidth = metrics.width;
+            }
+        }
+        
+        const startX = (canvas.width - maxLineWidth) / 2;
+
+        for (let j = 0; j < lines.length; j++) {
+            ctx.fillText(lines[j], startX, startY + (j * lineHeight));
+        }
+
+        canvas.toBlob((blob) => {
+            const file = new File([blob], "text-sticker.webp", { type: "image/webp" });
+            resolve(file);
+        }, 'image/webp', 0.9);
+    });
+}
+
+function sendMessage() {
+  const input = document.getElementById("msg");
+  let text = input.value.trim().substring(0, 10000); 
+  
+  if (!text) return;
+
+  if (text.toLowerCase().startsWith("/stiker ")) {
+      const url = text.substring(8).trim();
+      if (url.match(/\.(jpeg|jpg|gif|png)$/i)) {
+          let stickers = JSON.parse(localStorage.getItem('sanz_stickers') || '[]');
+          if(!stickers.includes(url)) {
+              stickers.push(url);
+              localStorage.setItem('sanz_stickers', JSON.stringify(stickers));
+              renderStickers();
+              showToast("Stiker berhasil ditambahkan");
+          } else {
+              showToast("Stiker sudah ada");
+          }
+      } else {
+          showAlert("URL tidak valid harus berakhiran .jpg .jpeg .gif atau .png");
+      }
+      input.value = "";
+      handleInputIconToggle();
+      return;
+  }
+
+  if (text.toLowerCase().startsWith("/bg ")) {
+      const url = text.substring(4).trim();
+      
+      if (url.toLowerCase() === "reset") {
+          changeChatBackground("");
+          showToast("Background dikembalikan ke bawaan");
+      } else if (url.match(/\.gif$/i)) {
+          showAlert("Format GIF tidak diizinkan untuk background chat!");
+      } else if (url.match(/\.(jpeg|jpg|png|webp)$/i)) {
+          changeChatBackground(url);
+          showToast("Background chat berhasil diubah");
+      } else {
+          showAlert("URL tidak valid harus berakhiran .jpg .jpeg .png atau .webp");
+      }
+      
+      input.value = "";
+      handleInputIconToggle();
+      return;
+  }
+
+  if (text.toLowerCase() === "/sanz") {
+      text = "*Daftar Fitur*\n\n" +
+             "• *stiker url* : Menambah stiker\n" +
+             "• *cuaca <daerah>* : Info cuaca\n" +
+             "• *ai <text>* : Kecerdasan buatan\n" +
+             "• *link <img>* : Convert url pada caption\n" +
+             "• *text <text>* : Merubah teks menjadi stiker\n" +
+             "• *test* : Cek info jaringan provider\n" +
+             "• *device* : Cek spesifikasi perangkat\n" +
+             "• *bg url* : Mengubah background chat\n" +
+             "• *bg reset* : Mengembalikan background chat\n" +
+             "• *tiktok url* : Putar video TikTok\n" +
+             "• *vidio url* : Putar video YouTube\n\n" +
+             "_Pesan akan dikirim otomatis oleh sistem contoh */stiker url* untuk menggunakan fitur_";
+  }
+  
+  if (text.toLowerCase() === "/test") {
+      input.value = "";
+      cancelReply();
+      handleInputIconToggle();
+      input.focus();
+
+      if (!partner) {
+          showAlert("Belum terhubung dengan partner");
+          return;
+      }
+
+      showToast("Mengecek informasi jaringan...");
+
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const netType = conn && conn.effectiveType ? conn.effectiveType.toUpperCase() : 'Tidak terdeteksi';
+      const downlink = conn && conn.downlink ? conn.downlink + ' Mbps' : 'Tidak terdeteksi';
+      const browserRtt = conn && conn.rtt ? conn.rtt + ' ms' : 'Tidak terdeteksi';
+      
+      const webrtcPing = document.getElementById("netLeft").textContent;
+
+      fetch('https://ipwho.is/')
+          .then(res => res.json())
+          .then(data => {
+              let infoMsg = "*Info Jaringan*\n";
+              
+              if (data.success) {
+                  infoMsg += `*Provider:* ${data.connection.isp}\n`;
+                  infoMsg += `*IP Address:* ${data.ip}\n`;
+                  infoMsg += `*Lokasi:* ${data.city}, ${data.region}\n`;
+              } else {
+                  infoMsg += "*Provider:* Gagal melacak ISP\n";
+              }
+
+              infoMsg += `*Tipe Jaringan:* ${netType}\n`;
+              infoMsg += `*Speed:* ${downlink}\n`;
+              
+              if (webrtcPing !== "— ms" && webrtcPing !== "Connecting") {
+                  infoMsg += `*Ping Server Call:* ${webrtcPing}`;
+              }
+
+              const msgData = { 
+                  type: 'text', 
+                  text: infoMsg, 
+                  replyTo: replyingTo ? replyingTo.id : null 
+              };
+              
+              addMsg(msgData, "me");
+              sendEncryptedMessage(msgData);
+          })
+          .catch(err => {
+              showAlert("Gagal mengecek jaringan. Periksa koneksi internetmu.");
+          });
+
+      return;
+  }
+  
+  if (text.toLowerCase() === "/device") {
+      input.value = "";
+      cancelReply();
+      handleInputIconToggle();
+      input.focus();
+
+      if (!partner) {
+          showAlert("Belum terhubung dengan partner");
+          return;
+      }
+
+      showToast("Mengecek spesifikasi perangkat...");
+
+      const fetchDeviceData = async () => {
+          const ua = navigator.userAgent;
+          
+          let os = "Tidak diketahui";
+          if (/android/i.test(ua)) os = "Android";
+          else if (/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) os = "iOS";
+          else if (/Mac OS X/.test(ua)) os = "MacOS";
+          else if (/Windows/.test(ua)) os = "Windows";
+          else if (/Linux/.test(ua)) os = "Linux";
+
+          let browser = "Tidak diketahui";
+          if (/edg/i.test(ua)) browser = "Edge";
+          else if (/opr|opera/i.test(ua)) browser = "Opera";
+          else if (/chrome|crios/i.test(ua)) browser = "Chrome";
+          else if (/firefox|fxios/i.test(ua)) browser = "Firefox";
+          else if (/safari/i.test(ua)) browser = "Safari";
+
+          const cores = navigator.hardwareConcurrency ? navigator.hardwareConcurrency + " Core CPU" : "Tidak terdeteksi";
+          const ram = navigator.deviceMemory ? navigator.deviceMemory + " GB" : "Tidak terdeteksi";
+          const screenRes = `${window.screen.width} x ${window.screen.height} px`;
+          const lang = navigator.language || "Tidak terdeteksi";
+
+          let batteryStr = "Tidak didukung di perangkat ini";
+          if ('getBattery' in navigator) {
+              try {
+                  const battery = await navigator.getBattery();
+                  const level = Math.round(battery.level * 100) + "%";
+                  const status = battery.charging ? "Charging" : "";
+                  batteryStr = `${level} ${status}`;
+              } catch (e) {}
+          }
+
+          let infoMsg = "*Info Device*\n";
+          infoMsg += `*Sistem Operasi:* ${os}\n`;
+          infoMsg += `*Resolusi Layar:* ${screenRes}\n`;
+          infoMsg += `*Prosesor:* ${cores}\n`;
+          infoMsg += `*RAM:* ${ram}\n`;
+          infoMsg += `*Baterai:* ${batteryStr}`;
+
+          const msgData = { 
+              type: 'text', 
+              text: infoMsg, 
+              replyTo: replyingTo ? replyingTo.id : null 
+          };
+          
+          addMsg(msgData, "me");
+          sendEncryptedMessage(msgData);
+      };
+
+      fetchDeviceData();
+      return;
+  }
+  
+  if (text.toLowerCase().startsWith("/text ")) {
+      const payloadText = text.substring(6).trim();
+      
+      input.value = "";
+      cancelReply();
+      handleInputIconToggle();
+
+      if (!payloadText) {
+          showAlert("Teks tidak boleh kosong!");
+          return;
+      }
+      
+      showToast("Membuat gambar teks...");
+
+      createTextImage(payloadText).then(async (file) => {
+          try {
+              const cloudinaryUrl = await uploadToCloudinary(file);
+              
+              const msgData = {
+                  type: 'file', 
+                  fileUrl: cloudinaryUrl,
+                  caption: "", 
+                  fromName: window.userData?.name || "Anonim",
+                  replyTo: replyingTo ? replyingTo.id : null,
+                  isSticker: true 
+              };
+
+              addMsg(msgData, "me");
+              sendEncryptedMessage(msgData);
+              showToast("Gambar teks berhasil dikirim!");
+          } catch (err) {
+              showAlert("Gagal membuat gambar atau mengunggah ke server.");
+          }
+      });
+
+      return;
+  }
+  
+  if (text.toLowerCase().startsWith("/tiktok ")) {
+      const url = text.substring(8).trim();
+      
+      input.value = "";
+      cancelReply();
+      handleInputIconToggle();
+
+      if (!url) {
+          showAlert("Masukkan link TikTok yang valid!");
+          return;
+      }
+
+      showToast("Mengekstrak video TikTok...");
+
+      fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`)
+          .then(res => res.json())
+          .then(async data => {
+              if (data.code === 0 && data.data && data.data.play) {
+                  const noWatermarkUrl = data.data.play;
+                  showToast("Video ditemukan! Mengunggah ke Cloudinary...");
+
+                  try {
+
+                      const cloudinaryUrl = await uploadUrlToCloudinary(noWatermarkUrl);
+
+                      const msgData = {
+                          type: 'video',
+                          fileUrl: cloudinaryUrl,
+                          caption: `${data.data.title || ''}`.substring(0, 80),
+                          fromName: window.userData?.name || "Anonim",
+                          replyTo: replyingTo ? replyingTo.id : null
+                      };
+
+                      addMsg(msgData, "me");
+                      sendEncryptedMessage(msgData);
+                  } catch (err) {
+                      showAlert("Gagal mengunggah video TikTok ke server Cloudinary.");
+                  }
+              } else {
+                  showAlert("Gagal mengambil video pastikan link benar dan akun tidak private.");
+              }
+          })
+          .catch(err => {
+              showAlert("Terjadi kesalahan jaringan saat memproses link TikTok.");
+          });
+
+      return;
+  }
+
+  if (text.toLowerCase().startsWith("/music ") || text.toLowerCase().startsWith("/vidio ")) {
+      let isMusic = text.toLowerCase().startsWith("/music ");
+      let url = text.substring(7).trim(); 
+      
+      let ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+      let ttMatch = url.match(/tiktok\.com\/.*video\/(\d+)/i);
+      
+      let mediaSource = '';
+      let mediaUrlId = '';
+
+      if (ytMatch) {
+          mediaSource = 'youtube';
+          mediaUrlId = ytMatch[1];
+      } else if (ttMatch) {
+          mediaSource = 'tiktok';
+          mediaUrlId = ttMatch[1];
+      } else {
+          showAlert("URL tidak didukung gunakan link YouTube");
+          return;
+      }
+
+      const msgData = { 
+          type: 'embed', 
+          embedType: isMusic ? 'music' : 'vidio', 
+          mediaSource: mediaSource, 
+          mediaUrl: mediaUrlId, 
+          text: isMusic ? '[Music]' : '[Video]', 
+          replyTo: replyingTo ? replyingTo.id : null 
+      };
+
+      addMsg(msgData, "me");
+      sendEncryptedMessage(msgData);
+      
+      input.value = "";
+      cancelReply();
+      handleInputIconToggle();
+      input.focus();
+      return;
+  }
+
+  if (!partner) return;
+  if (text.toLowerCase().startsWith("/cuaca ")) {
+      const location = text.substring(7).trim();
+      const currentReply = replyingTo ? replyingTo.id : null;
+      
+      input.value = "";
+      cancelReply();
+      handleInputIconToggle();
+      input.focus();
+
+      if (!location) {
+          showAlert("Masukkan nama daerah");
+          return;
+      }
+      
+      if (!partner) {
+          showAlert("Belum terhubung dengan partner");
+          return;
+      }
+      
+      showToast("Mengambil data cuaca...");
+
+      fetch(`https://wttr.in/${encodeURIComponent(location)}?format=j1&lang=id`)
+          .then(res => {
+              if (!res.ok) throw new Error("Jaringan bermasalah");
+              return res.json();
+          })
+          .then(data => {
+              if (data && data.current_condition && data.current_condition.length > 0) {
+                  const current = data.current_condition[0];
+
+                  const area = data.nearest_area && data.nearest_area[0] ? data.nearest_area[0].areaName[0].value : location;
+                  const temp = current.temp_C;
+                  
+                  const desc = (current.lang_id && current.lang_id[0]) ? current.lang_id[0].value : current.weatherDesc[0].value;
+                  const humidity = current.humidity;
+                  const wind = current.windspeedKmph;
+                  
+                  const weatherMsg = ` *Info Cuaca*\n*Lokasi:* ${area}\n*Suhu:* ${temp}°C\n*Kondisi:* ${desc}\n*Kelembapan:* ${humidity}%\n*Angin:* ${wind} km/jam`;
+                  
+                  const msgData = { 
+                      type: 'text', 
+                      text: weatherMsg, 
+                      replyTo: currentReply 
+                  };
+                  addMsg(msgData, "me");
+                  sendEncryptedMessage(msgData);
+              } else {
+                  showAlert(`Data cuaca untuk "${location}" tidak ditemukan.`);
+              }
+          })
+          .catch(err => {
+              showAlert("Gagal mengambil data cuaca periksa nama daerah atau koneksi internet.");
+          });
+
+      return;
+  }
+  
+  const messageData = { type: 'text', text: text, replyTo: replyingTo ? replyingTo.id : null };
+  addMsg(messageData, "me"); 
+  sendEncryptedMessage(messageData);
+  
+  input.value = ""; 
+  cancelReply(); 
+  handleInputIconToggle(); 
+  input.focus();
+  
+  if (text.toLowerCase().includes("/ai")) handleAIQuery(text);
+}
+
+const initVectors = [
+    "QVEuQWI4Uk42TFJpX09VVUxyNWo2NkVORUZMMlFJaC1BQUhsRy1ORHZQRHVoWnp4LWFLOUE=",
+    "QVEuQWI4Uk42TGo5Z20tUXVNM3EzNGhLanBKR0JOMkpNQllRRFZfQXo4T1QtdGh0MEhQZEE=",
+    "QVEuQWI4Uk42TDJRUE14aUJoVlJ3UUpib20xLTJRS0NNSWljWHhnUHQ0bnNuSzlkMGNCS3c=",
+    "QVEuQWI4Uk42TGtPTThqblpCeUZ5Q2UxdDBKTy1MZnBOUzBvYXJSbVpjcllqel91Tjd3R1E=",
+    "QVEuQWI4Uk42SjdNazdScWplMVl4Z25HaFdxemVvSjc3b01yU2ctMUpjSzdsNHBJcWYwYnc=",
+    "QVEuQWI4Uk42SW53UmNZUkJ2amJRZFN0QXJTOUdSdDVHdWwxZkZtbUtEUUxLOUtBV1FaZ3c=",
+    "QVEuQWI4Uk42TDRCcXdiV0U0SFpUQ1NQQ2hOVE44cFdvVC1USm56blFqT2x0b0ozVFotbUE=",
+    "QVEuQWI4Uk42SkRBaGJtdWk2SS1wMzhrdmlQN0RBVmtHX0M3SWdyY0hwTDJxZVdFWkxUR0E=",
+    "QVEuQWI4Uk42Si1DTTNiSlVOSUJoRlowczkxd1p0TUo1Ri02ekI3X2I3QjdfWWJ2TVlybmc=",
+    "QVEuQWI4Uk42S1lXU2dMTXUyQTFnTjVPNE9RN0JGN2d3U0s2SUxkVVFIRFdWZlJ2eE9LV0E="
+];
+
+let currentVectorIndex = 0; 
+
+async function handleAIQuery(userText) {
+    if (initVectors.length === 0) { 
+        addMsg({ type: 'text', text: "[AI] Token belum disetel dengan benar." }, "other"); 
+        return; 
+    }
+    
+    const el = document.getElementById("partnerStatus");
+    const oldStatus = el.textContent;
+    const oldClass = el.className;
+    
+    el.textContent = "AI sedang mengetik…"; 
+    el.className = "partner-status status-typing";
+    
+    const promptText = userText.replace(/@ai/ig, '').trim() || "Halo";
+    
+    let success = false;
+    let attempts = 0;
+    const maxAttempts = initVectors.length;
+
+    while (!success && attempts < maxAttempts) {
+        try {
+
+            let currentKey = atob(initVectors[currentVectorIndex]);
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${currentKey}`;
+            
+            const response = await fetch(url, { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] }) 
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.candidates && data.candidates.length > 0) {
+                const aiMsgData = { type: 'text', text: "[AI] " + data.candidates[0].content.parts[0].text }; 
+                addMsg(aiMsgData, "other"); 
+                sendEncryptedMessage(aiMsgData);
+                success = true; 
+            } else if (response.status === 429 || (data.error && data.error.code === 429)) {
+                currentVectorIndex = (currentVectorIndex + 1) % initVectors.length;
+                attempts++;
+            } else if (data.error) {
+                addMsg({ type: 'text', text: `[AI] Error: ${data.error.message}` }, "other");
+                success = true; 
+            } else {
+                addMsg({ type: 'text', text: "[AI] Terjadi kesalahan tidak terduga pada server." }, "other");
+                success = true; 
+            }
+        } catch (e) { 
+            addMsg({ type: 'text', text: "[AI] Gagal menghubungi server pastikan koneksi internet stabil." }, "other"); 
+            success = true; 
+        }
+    }
+
+    if (!success && attempts >= maxAttempts) {
+        addMsg({ type: 'text', text: "[AI] Mohon maaf server sedang limit silakan coba lagi nanti." }, "other");
+    }
+
+    el.textContent = oldStatus; 
+    el.className = oldClass;
+}
+
+function previewFile() {
+  selectedFile = document.getElementById('fileInput').files[0]; 
+  if (!selectedFile) return;
+  
+  const previewImg = document.getElementById('previewImage');
+  const previewVidContainer = document.getElementById('previewVideoContainer');
+  const previewVid = document.getElementById('previewVideo');
+  const reader = new FileReader();
+  
+  reader.onload = (e) => { 
+    if (selectedFile.type.startsWith('video/')) {
+        previewVid.src = e.target.result; 
+        previewVidContainer.style.display = 'block'; 
+        previewImg.style.display = 'none';
+        document.getElementById('previewPlayOverlay').style.display = 'flex';
+    } else {
+        previewImg.src = e.target.result; 
+        previewImg.style.display = 'block'; 
+        previewVidContainer.style.display = 'none';
+    }
+    document.getElementById('filePreviewModal').style.display = 'grid'; 
+  };
+  
+  reader.readAsDataURL(selectedFile);
+}
+
+async function sendFile() {
+  if (!selectedFile || !partner) {
+    showAlert("Tidak ada file");
+    return;
+  }
+
+  const caption = document.getElementById('captionInput').value.trim();
+  const isVideo = selectedFile.type.startsWith('video/');
+  const fileToUpload = selectedFile;
+  
+  const isLinkMode = caption.toLowerCase().includes('/link');
+
+  const localPreviewUrl = URL.createObjectURL(fileToUpload);
+  const msgId = 'temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+
+  if (isLinkMode) {
+    cancelFilePreview();
+    document.getElementById('fileInput').value = '';
+    selectedFile = null;
+    showToast("Sedang memproses link, mohon tunggu...");
+
+    try {
+      const fileUrl = await uploadToCloudinary(fileToUpload);
+
+      const finalCaption = caption.replace(/\/link/ig, fileUrl).trim();
+
+      const msgData = {
+        type: 'text',
+        text: finalCaption || fileUrl,
+        replyTo: replyingTo ? replyingTo.id : null
+      };
+
+      addMsg(msgData, "me");
+      sendEncryptedMessage(msgData);
+      cancelReply();
+    } catch (err) {
+      showAlert("Gagal membuat link: " + err.message);
+    }
+    return; 
+  }
+
+  const msgData = { 
+    id: msgId,
+    type: isVideo ? 'video' : 'file', 
+    fileUrl: localPreviewUrl, 
+    caption: caption || undefined, 
+    fromName: window.userData?.name || "Anonim",
+    isUploading: true 
+  };
+  
+  const msgElement = addMsg(msgData, "me"); 
+  
+  cancelFilePreview(); 
+  document.getElementById('fileInput').value = ''; 
+  selectedFile = null; 
+  
+  try {
+    const fileUrl = await uploadToCloudinary(fileToUpload, (percent) => { 
+      const progressBar = document.getElementById(`upload-progress-${msgId}`);
+      if (progressBar) progressBar.style.width = percent + '%'; 
+    });
+    
+    msgData.fileUrl = fileUrl; 
+    delete msgData.isUploading; 
+    msgElement.dataset.fileUrl = fileUrl; 
+    
+    const overlay = document.getElementById(`upload-overlay-${msgId}`);
+    if (overlay) overlay.remove(); 
+    
+    const mediaDiv = msgElement.querySelector('div[onclick*="openMediaViewer"]');
+    if (mediaDiv) {
+        mediaDiv.setAttribute('onclick', `openMediaViewer('${fileUrl}', '${isVideo ? 'video' : 'image'}', '${escapeHtml(msgData.fromName)}')`);
+    }
+    
+    delete msgData.id;
+    sendEncryptedMessage(msgData); 
+  } catch (err) { 
+    showAlert("Gagal mengunggah file: " + err.message); 
+    msgElement.remove(); 
+  } 
+}
+
+function cancelFilePreview() { 
+  selectedFile = null; 
+  document.getElementById('previewImage').style.display = 'none'; 
+  const vidContainer = document.getElementById('previewVideoContainer');
+  const vid = document.getElementById('previewVideo'); 
+  vidContainer.style.display = 'none'; 
+  vid.pause(); 
+  vid.src = ""; 
+  document.getElementById('captionInput').value = ''; 
+  document.getElementById('filePreviewModal').style.display = 'none'; 
+}
+
+socket.on("matched", p => {
+    partner = p; 
+    document.getElementById("searching").style.display = "none"; 
+    document.getElementById("chat").style.display = "flex";
+    document.getElementById("partnerName").textContent = p.name; 
+    document.getElementById("partnerStatus").textContent = "Online"; 
+    document.getElementById("partnerStatus").className = "partner-status status-online";
+    document.getElementById("headerPartnerPic").src = p.profilePic || DEFAULT_AVATAR; 
+    p.distance = (Math.random() * 5 + 0.1).toFixed(1) + " km";
+    document.getElementById("msg").disabled = false; 
+    document.getElementById("sendBtn").disabled = false; 
+    document.getElementById("refreshBtn").style.display = "none";
+    setPartnerButtonsEnabled(true); 
+    isInVideoCall = false; 
+    updateVideoCallButton();          
+});
+
+socket.on("chat-history", historyArr => { 
+  document.getElementById("messages").innerHTML = ""; 
+  messagesMap = {}; 
+  historyArr.forEach(msg => { 
+    msg.text = decrypt(msg.text); 
+    msg.fileUrl = decrypt(msg.fileUrl); 
+    msg.caption = decrypt(msg.caption); 
+    if (msg.mediaUrl) msg.mediaUrl = decrypt(msg.mediaUrl);
+    if (msg.storyReply && msg.storyReply.url) msg.storyReply.url = decrypt(msg.storyReply.url); 
+    const side = msg.from === myUserId ? 'me' : 'other'; 
+    addMsg(msg, side); 
+    
+    if (side === 'other' && msg.id && !msg.isRead) {
+      socket.emit("mark-read", { msgId: msg.id });
+    }
+  }); 
+});
+
+socket.on("message-read", ({ msgId }) => {
+  const tick = document.getElementById(`tick-${msgId}`);
+  if (tick) {
+    tick.classList.add("tick-read");
+    tick.classList.remove("bi-check");
+    tick.classList.add("bi-check-all");
+  }
+});
+
+socket.on("message", data => {
+  data.text = decrypt(data.text); 
+  data.fileUrl = decrypt(data.fileUrl); 
+  data.caption = decrypt(data.caption); 
+  if (data.mediaUrl) data.mediaUrl = decrypt(data.mediaUrl);
+  if (data.storyReply && data.storyReply.url) data.storyReply.url = decrypt(data.storyReply.url); 
+  const side = data.from === myUserId ? "me" : "other"; 
+  addMsg(data, side);
+  
+  if (side === "other" && data.id) {
+    socket.emit("mark-read", { msgId: data.id });
+  }
+  
+  if (side === 'other' && data.type !== 'system') {
+      try { 
+        const audio = new Audio('https://proxy.notificationsounds.com/notification-sounds/beyond-doubt-566/download/file-sounds-1143-beyond-doubt.mp3'); 
+        audio.play().catch(e => console.log("Audio not allowed yet")); 
+      } catch(e) {}
+      
+      if (document.hidden || !document.hasFocus()) {
+          const title = partner?.name || "Pesan Baru";
+          const body = data.type === 'file' ? '📸 Mengirim gambar' : (data.type === 'video' ? '🎥 Mengirim Video' : (data.type === 'audio' ? '🎵 Mengirim Voice Note' : data.text));
+          
+          if (Notification.permission === "granted") { 
+            if (navigator.serviceWorker) { 
+              navigator.serviceWorker.ready.then(reg => { 
+                reg.showNotification(title, { body }); 
+              }).catch(() => { 
+                new Notification(title, { body }); 
+              }); 
+            } else { 
+              new Notification(title, { body }); 
+            } 
+          }
+      }
+  }
+});
+
+socket.on("delete-for-everyone", ({ msgId }) => updateMsgAsDeleted(msgId));
+
+socket.on("edit-message", ({ msgId, newText }) => {
+    const msgDiv = messagesMap[msgId];
+    if (!msgDiv) return;
+    
+    const decText = decrypt(newText);
+    msgDiv.dataset.rawText = decText;
+    
+    const contentDiv = msgDiv.querySelector('.msg-content');
+    if (contentDiv) {
+        const timeSpan = contentDiv.querySelector('.bubble-time');
+        let formattedText = linkify(escapeHtml(decText).replace(/\*([^\*]+)\*/g, '<b>$1</b>').replace(/_([^_]+)_/g, '<i>$1</i>').replace(/~([^~]+)~/g, '<strike>$1</strike>')).replace(/\n/g, '<br>');
+        contentDiv.innerHTML = formattedText + ' <span style="font-size: 0.75rem; font-style: italic; opacity: 0.7; margin-left: 6px;">Diedit</span>';
+        if (timeSpan) contentDiv.appendChild(timeSpan);
+    }
+});
+
+let typingTm;
+socket.on("typing", () => { 
+  const el = document.getElementById("partnerStatus"); 
+  el.textContent = "Sedang mengetik…"; 
+  el.className = "partner-status status-typing"; 
+  clearTimeout(typingTm); 
+  typingTm = setTimeout(() => { 
+    el.textContent = "Online"; 
+    el.className = "partner-status status-online"; 
+  }, 2200); 
+});
+
+socket.on("recording-audio", () => { 
+  const el = document.getElementById("partnerStatus"); 
+  el.textContent = "Sedang merekam audio..."; 
+  el.className = "partner-status status-typing"; 
+});
+
+socket.on("stop-recording-audio", () => { 
+  const el = document.getElementById("partnerStatus"); 
+  el.textContent = "Online"; 
+  el.className = "partner-status status-online"; 
+});
+
+document.getElementById("msg").oninput = () => { 
+  socket.emit("typing"); 
+  handleInputIconToggle(); 
+};
+
+socket.on("partner-online", () => { 
+  document.getElementById("partnerStatus").textContent = "Online"; 
+  document.getElementById("partnerStatus").className = "partner-status status-online"; 
+  setPartnerButtonsEnabled(true); 
+  document.getElementById("msg").disabled = false; 
+  document.getElementById("sendBtn").disabled = false; 
+});
+
+socket.on("partner-offline", (data) => { 
+  const d = new Date(data.lastSeen);
+  const timeStr = d.getHours().toString().padStart(2,"0") + ":" + d.getMinutes().toString().padStart(2,"0"); 
+  document.getElementById("partnerStatus").textContent = "Terakhir dilihat " + timeStr; 
+  document.getElementById("partnerStatus").className = "partner-status status-last-seen"; 
+  document.getElementById("msg").disabled = false; 
+  document.getElementById("sendBtn").disabled = false; 
+  if (isInVideoCall) { 
+    showToast("Partner offline"); 
+    endCall(true); 
+  } 
+});
+
+socket.on("partner-disconnected", () => { 
+  document.getElementById("partnerStatus").textContent = "Offline"; 
+  document.getElementById("partnerStatus").className = "partner-status status-offline"; 
+  document.getElementById("msg").disabled = true; 
+  document.getElementById("sendBtn").disabled = true; 
+  document.getElementById("refreshBtn").style.display = "block"; 
+  setPartnerButtonsEnabled(false); 
+  if (isInVideoCall) { 
+    showToast("Panggilan ditutup otomatis"); 
+    endCall(true); 
+  } 
+  partner = null; 
+});
+
+async function startMedia(isVideo) {
+  try {
+    const constraints = { video: isVideo ? { facingMode: "user", width: { ideal: 256 }, height: { ideal: 144 }, aspectRatio: { ideal: 16/9 } } : false, audio: true };
+    localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    
+    if (isVideo) { 
+      const videoTrack = localStream.getVideoTracks()[0]; 
+      if (videoTrack) videoTrack.enabled = myCamEnabled; 
+      document.getElementById("camBtn").className = (videoTrack && videoTrack.enabled) ? "bi bi-camera-video-fill" : "bi bi-camera-video-off-fill muted"; 
+      document.getElementById("camBtn").style.display = "grid"; 
+      document.getElementById("switchCamBtn").style.display = "grid"; 
+      document.getElementById("videoScreen").classList.remove("audio-call-mode"); 
+    } else { 
+      document.getElementById("camBtn").style.display = "none"; 
+      document.getElementById("switchCamBtn").style.display = "none"; 
+      document.getElementById("videoScreen").classList.add("audio-call-mode"); 
+    }
+    
+    const audioTrack = localStream.getAudioTracks()[0]; 
+    if (audioTrack) audioTrack.enabled = myMicEnabled; 
+    document.getElementById("micBtn").className = myMicEnabled ? "bi bi-mic-fill" : "bi bi-mic-mute-fill muted";
+    
+    const localVideo = document.getElementById("localVideo"); 
+    localVideo.srcObject = localStream; 
+    localVideo.play().catch(e => console.log(e));
+    
+    socket.emit("media-status", { mic: myMicEnabled, cam: isVideo ? myCamEnabled : false }); 
+    return true;
+  } catch (err) { 
+    showAlert("Izin perangkat ditolak: " + err.message); 
+    return false; 
+  }
+}
+
+function createPeer() { 
+  if (pc) pc.close(); 
+  
+  pc = new RTCPeerConnection({ 
+    iceServers: [
+
+      { urls: "stun:stun.l.google.com:19302" }, 
+      { urls: "stun:stun1.l.google.com:19302" },
+      { urls: "stun:stun2.l.google.com:19302" },
+      { urls: "stun:stun3.l.google.com:19302" },
+      { urls: "stun:stun4.l.google.com:19302" },
+
+      {
+        urls: "turn:global.relay.metered.ca:80",
+        username: "483f1497aee036abaf8a7531",
+        credential: "MrBDQfycp7NGL1C7"
+      }
+    ],
+
+    iceTransportPolicy: "all" 
+  }); 
+  
+  pc.onicecandidate = e => { 
+    if (e.candidate) socket.emit("ice", e.candidate); 
+  }; 
+  
+  pc.oniceconnectionstatechange = () => checkSignal(); 
+  pc.onconnectionstatechange = () => { checkSignal(); autoEndCallIfDisconnected(); }; 
+  
+  pc.ontrack = e => { 
+      window.remoteOriginalStream = e.streams[0];
+      const remoteVid = document.getElementById("remoteVideo");
+      
+      let remoteAudio = document.getElementById('hiddenRemoteAudio');
+      if (!remoteAudio) {
+          remoteAudio = document.createElement('audio');
+          remoteAudio.id = 'hiddenRemoteAudio';
+          remoteAudio.autoplay = true;
+          document.body.appendChild(remoteAudio);
+      }
+
+      if (!partnerCamEnabled) {
+          remoteVid.srcObject = null;
+          remoteAudio.srcObject = new MediaStream(window.remoteOriginalStream.getAudioTracks());
+          remoteAudio.play().catch(e => console.log(e));
+      } else {
+          remoteVid.srcObject = e.streams[0]; 
+      }
+      refreshVideoBackgrounds();
+  };
+  return pc; 
+}
+
+function checkSignal() { 
+  if (!pc) { 
+    document.getElementById("netStatus").style.display = "none"; 
+    return; 
+  } 
+  
+  const state = pc.connectionState;
+  const netPill = document.getElementById("netStatus"); 
+  
+  if (state === "connected") { 
+    netPill.style.display = "flex"; 
+    updateLatency(); 
+    clearInterval(window.latencyInterval); 
+    window.latencyInterval = setInterval(updateLatency, 1000); 
+  } else if (state === "connecting" || state === "new") { 
+    netPill.style.display = "flex"; 
+    document.getElementById("netLeft").textContent = "Connecting"; 
+  } else { 
+    netPill.style.display = "none"; 
+    clearInterval(window.latencyInterval); 
+    document.getElementById("netLeft").textContent = "— ms"; 
+  } 
+}
+
+async function updateLatency() {
+  if (!pc || pc.connectionState !== "connected") return;
+  try {
+    const stats = await pc.getStats(); 
+    let rtt = -1;
+    
+    stats.forEach(report => { 
+      if (report.type === 'candidate-pair' && report.currentRoundTripTime > 0 && (report.nominated || report.state === 'succeeded')) { 
+        rtt = Math.round(report.currentRoundTripTime * 1000); 
+      } 
+    });
+    
+    const netLeft = document.getElementById("netLeft");
+    const netPill = document.getElementById("netStatus");
+    
+    if (rtt > 0) { 
+      netLeft.textContent = `${rtt} ms`; 
+      
+      netPill.style.color = rtt > 300 ? 'var(--danger)' : rtt > 150 ? 'var(--warning)' : 'var(--success)'; 
+
+      netPill.style.borderColor = rtt > 300 ? 'rgba(239,68,68,0.4)' : rtt > 150 ? 'rgba(245,158,11,0.4)' : 'rgba(16,185,129,0.4)';
+
+      netPill.style.background = rtt > 300 ? 'rgba(239,68,68,0.2)' : rtt > 150 ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.15)';
+    } else {
+      netLeft.textContent = "— ms";
+      netPill.style.color = "var(--success)";
+      netPill.style.borderColor = "rgba(16,185,129,0.3)";
+      netPill.style.background = "rgba(30,37,50,0.8)"; 
+    }
+  } catch (err) {}
+}
+
+function updateAudioCallAvatar() { 
+  const pic = partner?.profilePic || DEFAULT_AVATAR; 
+  document.getElementById('audioCallProfilePic').src = pic; 
+}
+
+async function callUser(isVideo) {
+  if (!partner) { 
+    showAlert("Belum terhubung"); 
+    return; 
+  }
+  
+  isAudioOnlyCall = !isVideo; 
+  isInVideoCall = true; 
+  updateVideoCallButton();
+  
+  document.getElementById("waitingCallType").textContent = isVideo ? "Menunggu menerima Video Call" : "Menunggu menerima Panggilan Suara"; 
+  document.getElementById("waitingPartnerName").textContent = partner?.name || "Partner"; 
+  document.getElementById("waitingCallAvatar").src = partner?.profilePic || DEFAULT_AVATAR; 
+  document.getElementById("waitingModal").style.display = "grid";
+  
+  window.callTm = setTimeout(() => { 
+    document.getElementById("waitingModal").style.display = "none"; 
+    showAlert("Tidak dijawab"); 
+    sendSystemMsg(isVideo ? "Video Call tak terjawab" : "Panggilan Suara tak terjawab"); 
+    isInVideoCall = false; 
+    updateVideoCallButton(); 
+  }, 30000);
+  
+  try { 
+    const hasMedia = await startMedia(isVideo); 
+    if (!hasMedia) { 
+      document.getElementById("waitingModal").style.display = "none"; 
+      isInVideoCall = false; 
+      updateVideoCallButton(); 
+      return; 
+    } 
+    createPeer(); 
+    localStream.getTracks().forEach(t => pc.addTrack(t, localStream)); 
+    socket.emit("call-user", { isVideo: isVideo }); 
+  } catch (err) { 
+    showAlert("Gagal: " + err.message); 
+  }
+}
+
+socket.on("incoming-call", d => { 
+  isAudioOnlyCall = !d.isVideo; 
+  document.getElementById("incomingCallTitle").textContent = d.isVideo ? "Video Call Masuk" : "Panggilan Suara Masuk"; 
+  document.getElementById("callerName").textContent = partner?.name || d.name || "Partner"; 
+  document.getElementById("incomingCallAvatar").src = partner?.profilePic || DEFAULT_AVATAR; 
+  document.getElementById("incomingCall").style.display = "grid"; 
+});
+
+socket.on("call-accepted", async () => { 
+  clearTimeout(window.callTm); 
+  document.getElementById("waitingModal").style.display = "none"; 
+  try { 
+    if (!localStream) await startMedia(!isAudioOnlyCall); 
+    createPeer(); 
+    localStream.getTracks().forEach(t => pc.addTrack(t, localStream)); 
+    const offer = await pc.createOffer(); 
+    await pc.setLocalDescription(offer); 
+    socket.emit("offer", offer); 
+    updateAudioCallAvatar(); 
+    document.getElementById("videoScreen").style.display = "flex"; 
+    document.getElementById("callName").textContent = partner?.name || "Partner"; 
+    resetVideoLayout(); 
+    checkSignal(); 
+    showToast("Terhubung"); 
+    resetCallUiTimeout();
+  } catch (err) { 
+    endCall(); 
+  } 
+});
+
+async function acceptCall() {
+  document.getElementById("incomingCall").style.display = "none"; 
+  const hasMedia = await startMedia(!isAudioOnlyCall); 
+  if (!hasMedia) { 
+    showAlert("Gagal mengakses media"); 
+    return; 
+  } 
+  
+  createPeer(); 
+  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+  isInVideoCall = true; 
+  updateVideoCallButton(); 
+  updateAudioCallAvatar(); 
+  document.getElementById("videoScreen").style.display = "flex"; 
+  document.getElementById("callName").textContent = partner?.name || "Partner"; 
+  resetVideoLayout(); 
+  
+  socket.emit("accept-call");
+  resetCallUiTimeout();
+}
+
+function rejectCall() { 
+  document.getElementById("incomingCall").style.display = "none"; 
+  socket.emit("reject-call"); 
+  sendSystemMsg("Panggilan ditolak"); 
+  isInVideoCall = false; 
+  updateVideoCallButton(); 
+  showToast("Panggilan ditolak"); 
+}
+
+socket.on("call-rejected", () => { 
+  clearTimeout(window.callTm); 
+  document.getElementById("waitingModal").style.display = "none"; 
+  document.getElementById("rejectedText").textContent = `${partner?.name || "Partner"} menolak`; 
+  document.getElementById("rejectedModal").style.display = "grid"; 
+  setTimeout(() => closeRejected(), 10000); 
+  isInVideoCall = false; 
+  updateVideoCallButton(); 
+});
+
+socket.on("offer", async o => { 
+  if (!pc) createPeer(); 
+  await pc.setRemoteDescription(o); 
+  const ans = await pc.createAnswer(); 
+  await pc.setLocalDescription(ans); 
+  socket.emit("answer", ans); 
+});
+
+socket.on("answer", a => pc.setRemoteDescription(a)); 
+socket.on("ice", c => pc?.addIceCandidate(new RTCIceCandidate(c)));
+
+socket.on("media-status", (status) => { 
+  if (status.mic !== undefined) { 
+      partnerMicEnabled = status.mic; 
+      updateMicIcons(); 
+  }
+  if (status.cam !== undefined) {
+      partnerCamEnabled = status.cam;
+      const remoteVid = document.getElementById("remoteVideo");
+      
+      let remoteAudio = document.getElementById('hiddenRemoteAudio');
+      if (!remoteAudio) {
+          remoteAudio = document.createElement('audio');
+          remoteAudio.id = 'hiddenRemoteAudio';
+          remoteAudio.autoplay = true;
+          document.body.appendChild(remoteAudio);
+      }
+
+      if (window.remoteOriginalStream) {
+          if (partnerCamEnabled) {
+              remoteAudio.srcObject = null; 
+              remoteVid.srcObject = window.remoteOriginalStream;
+              remoteVid.play().catch(e => console.log(e));
+          } else {
+              remoteVid.srcObject = null; 
+              remoteVid.load(); 
+              
+              const originalDisplay = remoteVid.style.display;
+              remoteVid.style.display = "none";
+              remoteVid.offsetHeight; 
+              remoteVid.style.display = originalDisplay || "block";
+              
+              const audioTracks = window.remoteOriginalStream.getAudioTracks();
+              if (audioTracks.length > 0) {
+                  remoteAudio.srcObject = new MediaStream(audioTracks);
+                  remoteAudio.play().catch(e => console.log(e));
+              }
+          }
+      }
+      refreshVideoBackgrounds();
+  }
+});
+
+function endCall(isAuto = false, isInitiator = false) { 
+  clearTimeout(window.callTm); 
+  
+  if (pc) { 
+    pc.close(); 
+    pc = null; 
+  } 
+  
+  if (localStream) { 
+    localStream.getTracks().forEach(t => t.stop()); 
+    localStream = null; 
+  } 
+  
+  document.getElementById("videoScreen").style.display = "none"; 
+  document.getElementById("waitingModal").style.display = "none"; 
+  document.getElementById("incomingCall").style.display = "none"; 
+  
+  document.getElementById("miniRemoteVideoContainer").style.display = "none";
+  isMinimizedToPartner = false;
+
+  if (isInVideoCall && isInitiator) { 
+    sendSystemMsg(isAudioOnlyCall ? "Panggilan suara diakhiri" : "Video call diakhiri"); 
+  } 
+  
+  isInVideoCall = false; 
+  isPipSwapped = false; 
+  updateVideoCallButton(); 
+  
+  showToast(isAuto ? "Terputus" : "Diakhiri"); 
+  socket.emit("end-call"); 
+}
+
+function autoEndCallIfDisconnected() { 
+  if (!pc || !isInVideoCall) return; 
+  const state = pc.connectionState; 
+  if (state === "disconnected" || state === "failed" || state === "closed") endCall(true); 
+}
+
+socket.on("end-call", () => endCall(false, false));
+
+function resetVideoLayout() {
+    const local = document.getElementById("localVideo");
+    const remote = document.getElementById("remoteVideo"); 
+    if (!local || !remote) return;
+    if (isAudioOnlyCall) return;
+    
+    isPipSwapped = false; 
+    local.className = "pip pip-normal"; 
+    remote.className = "full"; 
+    local.style = "position: fixed; top: 70px; right: 16px; width: 120px; height: 160px; z-index: 10;"; 
+    remote.style = "position: static; width: 100%; height: 100%; z-index: 5;"; 
+    
+    local.style.transform = isFront ? "scaleX(-1)" : "none";
+    makePipDraggable(local); 
+    makePipDraggable(remote); 
+    updateMicIcons(); 
+    refreshVideoBackgrounds();
+}
+
+function handleVideoSwap(e) {
+  if (isAudioOnlyCall) return; 
+  if (!this.classList.contains('pip')) return;
+  if (e.target.closest('.dragging') || e.target.classList.contains('dragging')) return; 
+  
+  const local = document.getElementById("localVideo");
+  const remote = document.getElementById("remoteVideo"); 
+  if (!local || !remote) return;
+  
+  isPipSwapped = !isPipSwapped;
+  
+  if (isPipSwapped) { 
+    local.className = "full"; 
+    local.style = "width:100%; height:100%; z-index:5;"; 
+    remote.className = "pip pip-normal"; 
+    remote.style = "position:fixed; top:70px; right:16px; width:120px; height:160px; z-index:10;"; 
+  } else { 
+    local.className = "pip pip-normal"; 
+    local.style = "position:fixed; top:70px; right:16px; width:120px; height:160px; z-index:10;"; 
+    remote.className = "full"; 
+    remote.style = "position:static; width:100%; height:100%; z-index:5;"; 
+  }
+  
+  if (isFront) { 
+    local.style.transform = "scaleX(-1)"; 
+  } else { 
+    local.style.transform = "none"; 
+  }
+  updateMicIcons(); 
+  makePipDraggable(local); 
+  makePipDraggable(remote); 
+  refreshVideoBackgrounds();
+}
+
+document.getElementById("localVideo").onclick = handleVideoSwap;
+document.getElementById("remoteVideo").onclick = handleVideoSwap;
+
+async function switchCamera() {
+    if (!localStream || isAudioOnlyCall) return;
+    try {
+        const oldVideoTrack = localStream.getVideoTracks()[0]; 
+        if (oldVideoTrack) { 
+          oldVideoTrack.stop(); 
+          localStream.removeTrack(oldVideoTrack); 
+        }
+        
+        isFront = !isFront; 
+        const mode = isFront ? "user" : "environment"; 
+        const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: mode } } }); 
+        const newVideoTrack = newStream.getVideoTracks()[0]; 
+        localStream.addTrack(newVideoTrack);
+        document.getElementById("localVideo").srcObject = localStream;
+        
+        if (pc) { 
+          const videoSender = pc.getSenders().find(s => s.track && s.track.kind === "video"); 
+          if (videoSender) await videoSender.replaceTrack(newVideoTrack); 
+        }
+        document.getElementById("localVideo").style.transform = isFront ? "scaleX(-1)" : "none";
+    } catch (err) { 
+        showAlert("Gagal ganti kamera"); 
+        isFront = !isFront; 
+    }
+}
+
+function toggleMic() { 
+  if (!localStream) return; 
+  const tr = localStream.getAudioTracks()[0]; 
+  if (!tr) return; 
+  
+  myMicEnabled = !myMicEnabled; 
+  tr.enabled = myMicEnabled; 
+  document.getElementById("micBtn").className = myMicEnabled ? "bi bi-mic-fill" : "bi bi-mic-mute-fill muted"; 
+  socket.emit("media-status", { mic: myMicEnabled }); 
+  updateMicIcons(); 
+}
+
+function toggleCam() {
+  if (!localStream || isAudioOnlyCall) return;
+  const tr = localStream.getVideoTracks()[0];
+  if (!tr) return;
+
+  myCamEnabled = !myCamEnabled;
+  tr.enabled = myCamEnabled; 
+
+  const localVid = document.getElementById("localVideo");
+  
+  if (myCamEnabled) {
+      localVid.srcObject = localStream;
+      localVid.play().catch(e => console.log(e));
+  } else {
+      localVid.srcObject = null;
+      localVid.load(); 
+      
+      const originalDisplay = localVid.style.display;
+      localVid.style.display = "none";
+      localVid.offsetHeight; 
+      localVid.style.display = originalDisplay || "block";
+  }
+
+  refreshVideoBackgrounds();
+
+  document.getElementById("camBtn").className = myCamEnabled ? "bi bi-camera-video-fill" : "bi bi-camera-video-off-fill muted";
+  socket.emit("media-status", { cam: myCamEnabled });
+}
+
+function changeChatBackground(url) {
+  const chatElement = document.getElementById("chat");
+  if (url) {
+
+    chatElement.style.backgroundImage = `linear-gradient(rgba(11, 15, 25, 0.85), rgba(11, 15, 25, 0.5)), url('${url}')`;
+    chatElement.style.backgroundSize = "cover";
+    chatElement.style.backgroundPosition = "center";
+    localStorage.setItem('sanz_chat_bg', url);
+  } else {
+    chatElement.style.backgroundImage = "none";
+    localStorage.removeItem('sanz_chat_bg');
+  }
+}
+
+function closeRejected() { 
+  const modal = document.getElementById("rejectedModal"); 
+  modal.style.display = "none"; 
+}
+
+window.triggerDelete = function(e, msgId) {
+    e.stopPropagation();
+    closeAllMsgActions();
+    const msgDiv = messagesMap[msgId];
+    if (!msgDiv) return;
+    if (msgId.startsWith('temp-')) {
+        showToast("Pesan belum terkirim");
+        return;
+    }
+    const bubble = msgDiv.querySelector('.bubble');
+    const action = msgDiv.querySelector('.msg-action');
+    openDeleteConfirm(msgId, bubble, action);
+};
+
+window.editMessage = function(e, msgId) {
+    e.stopPropagation();
+    closeAllMsgActions();
+    const msgDiv = messagesMap[msgId];
+    if (!msgDiv) return;
+    if (msgId.startsWith('temp-')) {
+        showToast("Pesan belum terkirim");
+        return;
+    }
+    
+    const rawText = msgDiv.dataset.rawText || "";
+    const newText = prompt("Edit pesan:", rawText);
+    
+    if (newText && newText.trim() !== "" && newText !== rawText) {
+        const finalTxt = newText.trim().substring(0, 10000);
+        socket.emit('edit-message', { msgId: msgId, newText: encrypt(finalTxt) });
+        updateMsgAsEdited(msgId, finalTxt);
+    }
+};
+
+window.updateMsgAsEdited = function(msgId, newText) {
+    const msgDiv = messagesMap[msgId];
+    if (!msgDiv) return;
+    msgDiv.dataset.rawText = newText; 
+
+    const contentDiv = msgDiv.querySelector('.msg-content');
+    if (contentDiv) {
+
+        const timeSpan = contentDiv.querySelector('.bubble-time');
+        
+        let formattedText = linkify(escapeHtml(newText).replace(/\*([^\*]+)\*/g, '<b>$1</b>').replace(/_([^_]+)_/g, '<i>$1</i>').replace(/~([^~]+)~/g, '<strike>$1</strike>')).replace(/\n/g, '<br>');
+
+        contentDiv.innerHTML = formattedText + ' <span class="edit-label" style="font-size: 0.75rem; font-style: italic; opacity: 0.7; margin-left: 6px;">Diedit</span>';
+        if (timeSpan) contentDiv.appendChild(timeSpan);
+    }
+};
+
+socket.on('edit-message', ({ msgId, newText }) => {
+    updateMsgAsEdited(msgId, decrypt(newText));
+});
+
+let callUiTimeout;
+
+function resetCallUiTimeout() {
+  clearTimeout(callUiTimeout);
+  const videoScreen = document.getElementById('videoScreen');
+  
+  if (isInVideoCall && !isAudioOnlyCall) {
+
+    callUiTimeout = setTimeout(() => {
+      videoScreen.classList.add('ui-hidden');
+    }, 5000);
+  }
+}
+
+document.querySelector('.video-body').addEventListener('click', function(e) {
+
+  if (e.target.closest('.pip') || e.target.closest('.media-status-overlay')) return;
+
+  if (!isAudioOnlyCall && isInVideoCall) {
+    const videoScreen = document.getElementById('videoScreen');
+    
+    if (videoScreen.classList.contains('ui-hidden')) {
+      videoScreen.classList.remove('ui-hidden');
+      resetCallUiTimeout(); 
+    } else {
+      videoScreen.classList.add('ui-hidden');
+      clearTimeout(callUiTimeout);
+    }
+  }
+});
+
+document.getElementById("attachGalleryBtn").onclick = function() { 
+  document.getElementById("fileInput").click(); 
+};
+</script>
+</body>
+</html>
