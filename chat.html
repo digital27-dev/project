@@ -4538,11 +4538,10 @@ class PouJumpGame {
         this.msgId = msgId;
         this.width = 250;
         this.height = 300;
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
         this.rng = new GameRandom(msgId); 
         
         this.keys = { left: false, right: false };
+        this.tick = 0;
         this.reset();
         
         this.loop = this.loop.bind(this);
@@ -4550,54 +4549,81 @@ class PouJumpGame {
     }
 
     reset() {
-        this.player = { x: 115, y: 150, width: 20, height: 20, vx: 0, vy: 0 };
-        this.platforms = [{ x: 100, y: 280, width: 50, height: 10 }]; 
+        // Karakter Lokal (Kamu - Hijau)
+        this.player = { x: 90, y: 150, width: 20, height: 20, vy: 0, isGameOver: false, score: 0 };
+        // Karakter Remote (Partner - Merah)
+        this.partner = { x: 140, y: 150, width: 20, height: 20, isGameOver: false, score: 0 };
         
-        for(let i=1; i<500; i++) {
+        this.cameraY = 0; 
+        
+        // Buat batu statis dari awal agar 100% sama
+        this.platforms = [{ x: 100, y: 280, width: 50, height: 10 }]; 
+        for(let i = 1; i < 500; i++) {
             this.platforms.push({ 
                 x: this.rng.next() * (this.width - 50), 
                 y: 280 - i * 50, 
                 width: 50, height: 10 
             });
         }
-        
-        this.score = 0;
-        this.isGameOver = false;
     }
 
     update() {
-        if (this.isGameOver) return;
+        // --- FISIKA KARAKTER LOKAL ---
+        if (!this.player.isGameOver) {
+            if (this.keys.left) this.player.x -= 3.5;
+            if (this.keys.right) this.player.x += 3.5;
 
-        if (this.keys.left) this.player.x -= 3.5;
-        if (this.keys.right) this.player.x += 3.5;
+            if (this.player.x < -20) this.player.x = this.width;
+            if (this.player.x > this.width) this.player.x = -20;
 
-        if (this.player.x < -20) this.player.x = this.width;
-        if (this.player.x > this.width) this.player.x = -20;
+            this.player.vy += 0.25; 
+            this.player.y += this.player.vy;
 
-        this.player.vy += 0.25; 
-        this.player.y += this.player.vy;
-
-        if (this.player.vy > 0) {
-            for (let p of this.platforms) {
-                if (this.player.x < p.x + p.width && this.player.x + this.player.width > p.x &&
-                    this.player.y + this.player.height > p.y && this.player.y + this.player.height < p.y + 15 + this.player.vy) {
-                    this.player.vy = -7; 
+            // Injak batu
+            if (this.player.vy > 0) {
+                for (let p of this.platforms) {
+                    if (this.player.x < p.x + p.width && this.player.x + this.player.width > p.x &&
+                        this.player.y + this.player.height > p.y && this.player.y + this.player.height < p.y + 15 + this.player.vy) {
+                        this.player.vy = -7; 
+                    }
                 }
             }
-        }
 
-        if (this.player.y < 150) {
-            this.player.y = 150;
-            this.score++;
-            
-            for (let p of this.platforms) {
-                p.y -= this.player.vy; 
-
+            // Mati jika jatuh dari layar (kamera)
+            if (this.player.y > this.cameraY + this.height) {
+                this.player.isGameOver = true;
             }
         }
 
-        if (this.player.y > this.height) {
-            this.isGameOver = true;
+        // --- SISTEM KAMERA & SKOR ---
+        let targetY = this.cameraY;
+        
+        // Kamera mengikuti kamu jika masih hidup
+        if (!this.player.isGameOver && this.player.y < this.cameraY + 150) {
+            targetY = this.player.y - 150;
+        } 
+        // Jika kamu mati tapi partner masih hidup (Spectate Mode)
+        else if (this.player.isGameOver && !this.partner.isGameOver && this.partner.y < this.cameraY + 150) {
+            targetY = this.partner.y - 150; 
+        }
+
+        // Skor dan pergerakan kamera tidak bisa mundur
+        if (targetY < this.cameraY) {
+            this.cameraY = targetY;
+        }
+        this.player.score = Math.max(this.player.score, Math.floor(Math.abs(this.cameraY) / 10));
+
+        // --- BROADCAST KE PARTNER ---
+        // Kirim posisi aslimu 30x per detik agar partner melihatmu bergerak mulus
+        this.tick++;
+        if (this.tick % 2 === 0) {
+            socket.emit('sync-game', {
+                msgId: this.msgId,
+                x: this.player.x,
+                y: this.player.y,
+                score: this.player.score,
+                isGameOver: this.player.isGameOver
+            });
         }
     }
 
@@ -4605,47 +4631,75 @@ class PouJumpGame {
         this.ctx.fillStyle = '#87CEEB'; 
         this.ctx.fillRect(0, 0, this.width, this.height);
 
-        if (this.isGameOver) {
-            this.ctx.fillStyle = '#ef4444';
-            this.ctx.font = 'bold 24px Inter';
-            this.ctx.textAlign = 'center'; 
-            this.ctx.fillText('Game Over!', this.width / 2, 140);
-            
-            this.ctx.fillStyle = '#fff';
-            this.ctx.font = 'bold 18px Inter';
-            this.ctx.fillText('Score: ' + this.score, this.width / 2, 170);
-            return;
-        }
-
+        // Render Batu
         this.ctx.fillStyle = '#64748b';
         for (let p of this.platforms) {
-
-            if (p.y > -20 && p.y < this.height + 20) {
-                this.ctx.fillRect(p.x, p.y, p.width, p.height);
+            let drawY = p.y - this.cameraY;
+            if (drawY > -20 && drawY < this.height + 20) {
+                this.ctx.fillRect(p.x, drawY, p.width, p.height);
             }
         }
 
-        const radius = this.player.width / 2; 
-        const centerX = this.player.x + radius;
-        const centerY = this.player.y + radius;
+        // Render Partner (Merah)
+        if (!this.partner.isGameOver) {
+            let partnerDrawY = this.partner.y - this.cameraY;
+            if (partnerDrawY > -20 && partnerDrawY < this.height + 20) {
+                this.ctx.fillStyle = '#ef4444'; 
+                this.ctx.beginPath();
+                this.ctx.arc(this.partner.x + 10, partnerDrawY + 10, 10, 0, Math.PI * 2); 
+                this.ctx.fill();
+                this.ctx.closePath();
+                
+                this.ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                this.ctx.font = '10px Inter';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('Partner', this.partner.x + 10, partnerDrawY - 5);
+            }
+        }
 
-        this.ctx.fillStyle = '#10b981'; 
-        this.ctx.beginPath();
-        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2); 
-        this.ctx.fill();
-        this.ctx.closePath();
+        // Render Kamu (Hijau)
+        if (!this.player.isGameOver) {
+            let playerDrawY = this.player.y - this.cameraY;
+            this.ctx.fillStyle = '#10b981'; 
+            this.ctx.beginPath();
+            this.ctx.arc(this.player.x + 10, playerDrawY + 10, 10, 0, Math.PI * 2); 
+            this.ctx.fill();
+            this.ctx.closePath();
+        }
 
+        // Render Text Score
         this.ctx.fillStyle = '#ffffff'; 
-        this.ctx.font = 'bold 16px Inter';
-        this.ctx.textAlign = 'right'; 
+        this.ctx.font = 'bold 14px Inter';
+        this.ctx.textAlign = 'left'; 
         this.ctx.textBaseline = 'top'; 
-        this.ctx.fillText('' + this.score, this.width - 15, 12);
+        this.ctx.fillText('Kamu: ' + this.player.score, 10, 10);
+        this.ctx.textAlign = 'right';
+        this.ctx.fillText('Partner: ' + this.partner.score, this.width - 10, 10);
+
+        // Render Status Game
+        if (this.player.isGameOver && this.partner.isGameOver) {
+            this.ctx.fillStyle = 'rgba(0,0,0,0.6)';
+            this.ctx.fillRect(0, 0, this.width, this.height);
+            this.ctx.fillStyle = '#ef4444';
+            this.ctx.font = 'bold 22px Inter';
+            this.ctx.textAlign = 'center'; 
+            this.ctx.fillText('Kalian Kalah!', this.width / 2, 140);
+            this.ctx.fillStyle = '#fff';
+            this.ctx.font = 'bold 12px Inter';
+            this.ctx.fillText('Pencet tombol arah untuk main lagi', this.width / 2, 170);
+        } else if (this.player.isGameOver) {
+            this.ctx.fillStyle = 'rgba(0,0,0,0.3)';
+            this.ctx.fillRect(0, 0, this.width, this.height);
+            this.ctx.fillStyle = '#fff';
+            this.ctx.font = 'bold 16px Inter';
+            this.ctx.textAlign = 'center'; 
+            this.ctx.fillText('Menonton Partner...', this.width / 2, 150);
+        }
     }
 
     loop() {
         this.update();
         this.draw();
-
         if (document.getElementById(this.canvas.id)) {
             requestAnimationFrame(this.loop);
         } else {
@@ -4658,31 +4712,26 @@ window.handleGameInput = function(msgId, direction, isPressed) {
     const game = window.activeGames[msgId];
     if (game) {
         game.keys[direction] = isPressed;
-        if (game.isGameOver && isPressed) game.reset();
-
-        socket.emit('sync-game', { 
-            msgId, 
-            direction, 
-            isPressed,
-            x: game.player.x,
-            y: game.player.y,
-            vy: game.player.vy,
-            score: game.score
-        });
+        
+        if (game.player.isGameOver && game.partner.isGameOver && isPressed) {
+            game.reset();
+            socket.emit('sync-game', { msgId, isResetting: true });
+        }
     }
 };
 
 socket.on('sync-game', (data) => {
     const game = window.activeGames[data.msgId];
     if (game) {
-        game.keys[data.direction] = data.isPressed;
+        if (data.isResetting) {
+            game.reset();
+            return;
+        }
         
-        if (data.x !== undefined) game.player.x = data.x;
-        if (data.y !== undefined) game.player.y = data.y;
-        if (data.vy !== undefined) game.player.vy = data.vy;
-        if (data.score !== undefined) game.score = data.score;
-
-        if (game.isGameOver && data.isPressed) game.reset();
+        game.partner.x = data.x;
+        game.partner.y = data.y;
+        game.partner.score = data.score;
+        game.partner.isGameOver = data.isGameOver;
     }
 });
 
