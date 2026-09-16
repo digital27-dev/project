@@ -668,6 +668,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   border: none;
   border-radius: 0;
   box-shadow: none;
+  margin: 0;
 }
 .game-btn:active {
   background: var(--accent);
@@ -2835,13 +2836,13 @@ function addMsg(data, side, timeStr) {
         
         <div class="game-wrapper">
             <canvas id="game-${msgId}" class="game-canvas"></canvas>
-            <div class="game-controls">
+            <div class="game-controls" id="controls-${msgId}">
                 <!-- Tombol Kiri (Mouse & Touch) -->
                 <button class="game-btn" 
                     onmousedown="handleGameInput('${msgId}', 'left', true)" 
                     onmouseup="handleGameInput('${msgId}', 'left', false)" 
                     ontouchstart="handleGameInput('${msgId}', 'left', true); event.preventDefault();" 
-                    ontouchend="handleGameInput('${msgId}', 'left', false); event.preventDefault();">
+                    ontouchend="handleGameInput('${this.msgId}', 'left', false); event.preventDefault();">
                     <i class="bi bi-arrow-left"></i> Kiri
                 </button>
                 
@@ -2850,7 +2851,7 @@ function addMsg(data, side, timeStr) {
                     onmousedown="handleGameInput('${msgId}', 'right', true)" 
                     onmouseup="handleGameInput('${msgId}', 'right', false)" 
                     ontouchstart="handleGameInput('${msgId}', 'right', true); event.preventDefault();" 
-                    ontouchend="handleGameInput('${msgId}', 'right', false); event.preventDefault();">
+                    ontouchend="handleGameInput('${this.msgId}', 'right', false); event.preventDefault();">
                     Kanan <i class="bi bi-arrow-right"></i>
                 </button>
             </div>
@@ -3213,7 +3214,6 @@ function sendMessage() {
   }
   
   if (text.toLowerCase() === "/game") {
-      // Buat ID permanen secara manual agar pengirim dan penerima memiliki ID yang sama persis
       const uniqueId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
       const msgData = { 
           id: uniqueId,
@@ -3696,18 +3696,6 @@ async function sendFile() {
     showAlert("Gagal mengunggah file: " + err.message); 
     msgElement.remove(); 
   } 
-}
-
-function cancelFilePreview() { 
-  selectedFile = null; 
-  document.getElementById('previewImage').style.display = 'none'; 
-  const vidContainer = document.getElementById('previewVideoContainer');
-  const vid = document.getElementById('previewVideo'); 
-  vidContainer.style.display = 'none'; 
-  vid.pause(); 
-  vid.src = ""; 
-  document.getElementById('captionInput').value = ''; 
-  document.getElementById('filePreviewModal').style.display = 'none'; 
 }
 
 socket.on("matched", p => {
@@ -4549,6 +4537,36 @@ class PouJumpGame {
         requestAnimationFrame(this.loop);
     }
 
+    updateUI() {
+        const controls = document.getElementById(`controls-${this.msgId}`);
+        if (!controls) return;
+
+        if (this.isGameOver) {
+            controls.innerHTML = `
+                <button class="game-btn" style="background: var(--accent); color: white;" onclick="window.activeGames['${this.msgId}'].reset()">
+                    <i class="bi bi-play-fill"></i> Mulai
+                </button>
+            `;
+        } else {
+            controls.innerHTML = `
+                <button class="game-btn" 
+                    onmousedown="handleGameInput('${this.msgId}', 'left', true)" 
+                    onmouseup="handleGameInput('${this.msgId}', 'left', false)" 
+                    ontouchstart="handleGameInput('${this.msgId}', 'left', true); event.preventDefault();" 
+                    ontouchend="handleGameInput('${this.msgId}', 'left', false); event.preventDefault();">
+                    <i class="bi bi-arrow-left"></i> Kiri
+                </button>
+                <button class="game-btn" 
+                    onmousedown="handleGameInput('${this.msgId}', 'right', true)" 
+                    onmouseup="handleGameInput('${this.msgId}', 'right', false)" 
+                    ontouchstart="handleGameInput('${this.msgId}', 'right', true); event.preventDefault();" 
+                    ontouchend="handleGameInput('${this.msgId}', 'right', false); event.preventDefault();">
+                    Kanan <i class="bi bi-arrow-right"></i>
+                </button>
+            `;
+        }
+    }
+
     reset() {
         this.player = { x: 115, y: 150, width: 20, height: 20, vx: 0, vy: 0 };
         this.platforms = [{ x: 100, y: 280, width: 50, height: 10 }]; 
@@ -4563,6 +4581,7 @@ class PouJumpGame {
         
         this.score = 0;
         this.isGameOver = false;
+        this.updateUI();
     }
 
     update() {
@@ -4597,7 +4616,10 @@ class PouJumpGame {
         }
 
         if (this.player.y > this.height) {
-            this.isGameOver = true;
+            if (!this.isGameOver) {
+                this.isGameOver = true;
+                this.updateUI();
+            }
         }
     }
 
