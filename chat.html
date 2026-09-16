@@ -3213,7 +3213,10 @@ function sendMessage() {
   }
   
   if (text.toLowerCase() === "/game") {
+      // Buat ID permanen secara manual agar pengirim dan penerima memiliki ID yang sama persis
+      const uniqueId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
       const msgData = { 
+          id: uniqueId,
           type: 'minigame', 
           replyTo: replyingTo ? replyingTo.id : null 
       };
@@ -3229,7 +3232,9 @@ function sendMessage() {
   }
   
   if (text.toLowerCase() === "/music") {
+      const uniqueId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
       const msgData = { 
+          id: uniqueId,
           type: 'spotify-carousel', 
           currentIndex: 0,
           replyTo: replyingTo ? replyingTo.id : null 
@@ -4651,19 +4656,32 @@ class PouJumpGame {
 
 window.handleGameInput = function(msgId, direction, isPressed) {
     const game = window.activeGames[msgId];
-    if (game) game.keys[direction] = isPressed;
+    if (game) {
+        game.keys[direction] = isPressed;
+        if (game.isGameOver && isPressed) game.reset();
 
-    if (game && game.isGameOver && isPressed) {
-        game.reset();
+        socket.emit('sync-game', { 
+            msgId, 
+            direction, 
+            isPressed,
+            x: game.player.x,
+            y: game.player.y,
+            vy: game.player.vy,
+            score: game.score
+        });
     }
-
-    socket.emit('sync-game', { msgId, direction, isPressed });
 };
 
 socket.on('sync-game', (data) => {
     const game = window.activeGames[data.msgId];
     if (game) {
         game.keys[data.direction] = data.isPressed;
+        
+        if (data.x !== undefined) game.player.x = data.x;
+        if (data.y !== undefined) game.player.y = data.y;
+        if (data.vy !== undefined) game.player.vy = data.vy;
+        if (data.score !== undefined) game.score = data.score;
+
         if (game.isGameOver && data.isPressed) game.reset();
     }
 });
