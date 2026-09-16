@@ -2840,11 +2840,9 @@ function addMsg(data, side, timeStr) {
     if (gameType === 'snake') {
         title = 'Snake';
         controlsHtml = `
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--border);" id="controls-${msgId}">
-                <div></div>
-                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'up', true)" ontouchstart="handleGameInput('${msgId}', 'up', true); event.preventDefault();"><i class="bi bi-arrow-up"></i></button>
-                <div></div>
+            <div style="display: flex; gap: 2px; background: var(--border);" id="controls-${msgId}">
                 <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'left', true)" ontouchstart="handleGameInput('${msgId}', 'left', true); event.preventDefault();"><i class="bi bi-arrow-left"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'up', true)" ontouchstart="handleGameInput('${msgId}', 'up', true); event.preventDefault();"><i class="bi bi-arrow-up"></i></button>
                 <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'down', true)" ontouchstart="handleGameInput('${msgId}', 'down', true); event.preventDefault();"><i class="bi bi-arrow-down"></i></button>
                 <button class="game-btn" onmousedown="handleGameInput('${msgId}', 'right', true)" ontouchstart="handleGameInput('${msgId}', 'right', true); event.preventDefault();"><i class="bi bi-arrow-right"></i></button>
             </div>`;
@@ -4734,10 +4732,8 @@ class SnakeGame {
             `;
         } else {
             controls.innerHTML = `
-                <div></div>
-                <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'up', true)" ontouchstart="handleGameInput('${this.msgId}', 'up', true); event.preventDefault();"><i class="bi bi-arrow-up"></i></button>
-                <div></div>
                 <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'left', true)" ontouchstart="handleGameInput('${this.msgId}', 'left', true); event.preventDefault();"><i class="bi bi-arrow-left"></i></button>
+                <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'up', true)" ontouchstart="handleGameInput('${this.msgId}', 'up', true); event.preventDefault();"><i class="bi bi-arrow-up"></i></button>
                 <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'down', true)" ontouchstart="handleGameInput('${this.msgId}', 'down', true); event.preventDefault();"><i class="bi bi-arrow-down"></i></button>
                 <button class="game-btn" onmousedown="handleGameInput('${this.msgId}', 'right', true)" ontouchstart="handleGameInput('${this.msgId}', 'right', true); event.preventDefault();"><i class="bi bi-arrow-right"></i></button>
             `;
@@ -4786,7 +4782,7 @@ class SnakeGame {
         }
     }
     draw() {
-        this.ctx.fillStyle = '#1e293b';
+        this.ctx.fillStyle = '#0f172a';
         this.ctx.fillRect(0, 0, this.width, this.height);
         if (this.isGameOver) {
             this.ctx.fillStyle = '#ef4444';
