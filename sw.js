@@ -6,12 +6,41 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(clients.claim());
 });
 
+// Fungsi untuk mendekripsi teks Base64 dengan aman (mendukung Emoji / karakter khusus)
+function decryptMessage(text) {
+    if (text && typeof text === 'string' && text.startsWith("ENC::")) {
+        try {
+            // Hapus prefix "ENC::"
+            const base64Str = text.replace("ENC::", "");
+            // Decode Base64 ke string asli
+            return decodeURIComponent(escape(atob(base64Str))); 
+        } catch (e) {
+            console.error("Gagal melakukan dekripsi:", e);
+            // Tampilkan teks ini jika enkripsi gagal dibaca agar tidak menampilkan string acak
+            return "Kamu menerima pesan baru 💬"; 
+        }
+    }
+    return text;
+}
+
 self.addEventListener('push', function(e) {
-    const data = e.data ? e.data.json() : {};
+    let data = {};
+    
+    // Parse data JSON dari server
+    if (e.data) {
+        try {
+            data = e.data.json();
+        } catch (err) {
+            console.error("Gagal parse push data", err);
+        }
+    }
+    
+    // Proses dekripsi body sebelum ditampilkan di notifikasi
+    const decryptedBody = decryptMessage(data.body || "");
     
     const title = data.title || "Notifikasi Baru";
     const options = {
-        body: data.body || "Anda mendapat pesan baru.",
+        body: decryptedBody || "Anda mendapat pesan baru.",
         icon: '/icon-192x192.png', 
         badge: '/badge-72x72.png', 
         vibrate: [200, 100, 200],
