@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#0b0f19" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-192x192.png" />
   <title>Sanz</title>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
@@ -1099,9 +1102,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
 <div id="actionToast"></div>
 
-<button onclick="testNotif()" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:9999; background:var(--danger); color:white; padding:10px 20px; border-radius:10px; font-weight:bold; border:none;">
-  TEST NOTIFIKASI
-</button>
 <script>
 const DEFAULT_AVATAR = "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png";
 
@@ -5134,34 +5134,6 @@ window.sendGameRequest = function(gameType) {
     addMsg(msgData, "me");
     sendEncryptedMessage(msgData);
 };
-
-function testNotif() {
-    if (!("Notification" in window)) {
-        alert("Browser ini tidak mendukung notifikasi.");
-        return;
-    }
-    
-    Notification.requestPermission().then(permission => {
-        alert("Status Izin Browser: " + permission);
-        
-        if (permission === "granted") {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.ready.then(reg => {
-                    reg.showNotification("Berhasil!", {
-                        body: "Notifikasi kamu sudah berfungsi dengan baik.",
-                        vibrate: [200, 100, 200]
-                    });
-                }).catch(err => {
-                    alert("Error Service Worker: " + err);
-                });
-            } else {
-                alert("Service worker tidak didukung.");
-            }
-        } else {
-            alert("Kamu belum memberikan izin (Allow) untuk notifikasi di browser.");
-        }
-    });
-}
 
 document.getElementById("attachGalleryBtn").onclick = function() { 
   document.getElementById("fileInput").click(); 
