@@ -9,14 +9,14 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://img91.wordpress.com/wp-content/uploads/2026/09/24762_192x192.jpg",
+      "src": "https://img91.wordpress.com/wp-content/uploads/2026/09/24764_192x192.jpg",
       "sizes": "192x192",
       "type": "image/jpg"
     },
     {
-      "src": "https://img91.wordpress.com/wp-content/uploads/2026/09/zeeresizer-1.jpg",
+      "src": "https://img91.wordpress.com/wp-content/uploads/2026/09/zeeresizer-2.png",
       "sizes": "512x512",
-      "type": "image/jpg"
+      "type": "image/png"
     }
   ]
 }
