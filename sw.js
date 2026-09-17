@@ -5,19 +5,18 @@ const ASSETS_TO_CACHE = [
     '/manifest.json' 
 ];
 
+// 1. Install & Cache (Fitur PWA)
 self.addEventListener('install', (event) => {
-
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
-
-    self.skipWaiting();
+    self.skipWaiting(); // Diambil dari script kedua
 });
 
+// 2. Activate & Bersihkan Cache Lama
 self.addEventListener('activate', (event) => {
-
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
@@ -28,11 +27,12 @@ self.addEventListener('activate', (event) => {
                 })
             );
         }).then(() => {
-            return clients.claim(); 
+            return clients.claim(); // Diambil dari script kedua
         })
     );
 });
 
+// 3. Fetch (Agar bisa dibuka offline/diinstal)
 self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request).then((response) => {
@@ -41,35 +41,12 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
+// ==========================================
+// BAGIAN NOTIFIKASI (DISAMAKAN DENGAN SCRIPT KEDUA)
+// ==========================================
+
 self.addEventListener('push', function(e) {
-
-    let data = { 
-        title: 'Sanz', 
-        body: 'Ada pesan baru untukmu!', 
-        icon: 'https://img91.wordpress.com/wp-content/uploads/2026/09/24753_192x192.png' 
-    };
-    
-    if (e.data) {
-        try {
-            data = e.data.json(); 
-        } catch (err) {
-            data.body = e.data.text();
-        }
-    }
-
-    const options = {
-        body: data.body,
-        icon: data.icon || 'https://img91.wordpress.com/wp-content/uploads/2026/09/24753_192x192.png',
-        badge: 'https://img91.wordpress.com/wp-content/uploads/2026/09/24753_192x192.png', 
-        vibrate: [200, 100, 200], 
-        data: {
-            dateOfArrival: Date.now()
-        }
-    };
-
-    e.waitUntil(
-        self.registration.showNotification(data.title, options)
-    );
+    // Dibiarkan kosong seperti script kedua milikmu yang berfungsi
 }); 
 
 self.addEventListener('notificationclick', function(e) { 
