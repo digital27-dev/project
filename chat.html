@@ -380,13 +380,18 @@ button:active { transform: translateY(0); }
 } 
 
 #videoScreen:not(.audio-call-mode) .video-header {
-  display: none !important;
+  display: flex !important; 
+  position: absolute;   
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5); 
+  z-index: 10;              
+  border-bottom: none;    
 }
 
-#videoScreen:not(.audio-call-mode) .video-body {
-  position: absolute; 
-  inset: 0; 
-  z-index: 5;
+#videoScreen:not(.audio-call-mode) .video-header * {
+  color: #ffffff !important; 
 }
 
 #videoScreen:not(.audio-call-mode).ui-hidden .video-footer {
