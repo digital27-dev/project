@@ -1,6 +1,6 @@
 const CACHE_NAME = 'sanz-chat-v1';
 const ASSETS_TO_CACHE = [
-    '/',
+    '/chat.html',
     '/index.html',
     '/manifest.json' 
 ];
