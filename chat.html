@@ -862,10 +862,11 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 </div>
 
 <div id="videoScreen" class="video-wrap">
-  <div class="video-header">
-    <span id="callName">Panggilan</span>
-    <div class="net-pill" id="netStatus"><span id="netLeft">— ms</span></div>
-  </div>
+  <div class="video-header" style="justify-content: center; flex-direction: column; gap: 2px;">
+  <span id="callName" style="font-size: 1.15rem; font-weight: 600;">Panggilan</span>
+  <span id="callStatusText" style="font-size: 0.85rem; font-weight: 400; color: white;">Menghubungkan</span>
+  <div class="net-pill" id="netStatus" style="display:none !important;"><span id="netLeft">— ms</span></div>
+</div>
 <div class="video-body">
   <div class="audio-call-avatar"><img id="audioCallProfilePic" src="" style="width:100%; height:100%; object-fit:cover;" /></div>
   <div id="micStatusRemote" class="media-status-overlay hidden mic" title="Mikrofon partner dimatikan"><i class="bi bi-mic-mute-fill"></i></div>
@@ -1512,6 +1513,33 @@ let partner = null, pc, localStream, isFront = true, isPipSwapped = false, isAud
 let myMicEnabled = true, myCamEnabled = true, partnerMicEnabled = true, partnerCamEnabled = true;
 let replyingTo = null, myProfilePicURL = localStorage.getItem('myProfilePic') || "", currentViewedStoryId = null; 
 let isRecordingVN = false, audioRecorder = null, audioChunks = [], currentReactMsgId = null, messagesMap = {}, selectedFile = null;
+let callTimerInterval = null;
+let callStartTime = null;
+let currentCallDuration = "00:00";
+
+function startCallTimer() {
+    if (callTimerInterval) clearInterval(callTimerInterval);
+    callStartTime = Date.now();
+    currentCallDuration = "00:00";
+    document.getElementById("callStatusText").textContent = currentCallDuration;
+    
+    callTimerInterval = setInterval(() => {
+        const diff = Math.floor((Date.now() - callStartTime) / 1000);
+        const h = Math.floor(diff / 3600);
+        const m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+        const s = String(diff % 60).padStart(2, '0');
+        
+        currentCallDuration = h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
+        document.getElementById("callStatusText").textContent = currentCallDuration;
+    }, 1000);
+}
+
+function stopCallTimer() {
+    if (callTimerInterval) {
+        clearInterval(callTimerInterval);
+        callTimerInterval = null;
+    }
+}
 
 function refreshVideoBackgrounds() {
   const localVid = document.getElementById("localVideo");
@@ -4071,25 +4099,18 @@ function createPeer() {
 
 function checkSignal() { 
   if (!pc) { 
-    document.getElementById("netStatus").style.display = "none"; 
+    document.getElementById("callStatusText").textContent = "Menghubungkan"; 
     return; 
   } 
   
   const state = pc.connectionState;
-  const netPill = document.getElementById("netStatus"); 
   
   if (state === "connected") { 
-    netPill.style.display = "flex"; 
-    updateLatency(); 
-    clearInterval(window.latencyInterval); 
-    window.latencyInterval = setInterval(updateLatency, 1000); 
+    if (!callTimerInterval) startCallTimer(); 
   } else if (state === "connecting" || state === "new") { 
-    netPill.style.display = "flex"; 
-    document.getElementById("netLeft").textContent = "Connecting"; 
+    document.getElementById("callStatusText").textContent = "Menghubungkan";
   } else { 
-    netPill.style.display = "none"; 
-    clearInterval(window.latencyInterval); 
-    document.getElementById("netLeft").textContent = "— ms"; 
+    stopCallTimer();
   } 
 }
 
@@ -4319,10 +4340,19 @@ function endCall(isAuto = false, isInitiator = false) {
   document.getElementById("miniRemoteVideoContainer").style.display = "none";
   isMinimizedToPartner = false;
 
+  stopCallTimer(); 
+
   if (isInVideoCall && isInitiator) { 
-    sendSystemMsg(isAudioOnlyCall ? "Panggilan suara diakhiri" : "Video call diakhiri"); 
+    const durationStr = currentCallDuration !== "00:00" ? ` (${currentCallDuration})` : "";
+    sendSystemMsg(isAudioOnlyCall ? `Panggilan suara diakhiri${durationStr}` : `Video call diakhiri${durationStr}`); 
   } 
   
+  currentCallDuration = "00:00";
+  const callStatusEl = document.getElementById("callStatusText");
+  if (callStatusEl) {
+      callStatusEl.textContent = "Menghubungkan";
+  }
+
   isInVideoCall = false; 
   isPipSwapped = false; 
   updateVideoCallButton(); 
