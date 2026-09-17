@@ -1582,6 +1582,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("loginScreen").style.display = "none";
         document.getElementById("searching").style.display = "flex";
         socket.emit("join", window.userData);
+        subscribeToPush();
     }
     renderStickers();
     handleStoryInputToggle();
@@ -1672,7 +1673,7 @@ async function start() {
   localStorage.setItem('userData', JSON.stringify(window.userData)); 
   
   socket.emit("join", window.userData);
-  
+  subscribeToPush();
   document.getElementById("loginScreen").style.display = "none"; 
   document.getElementById("searching").style.display = "flex";
 }
@@ -1973,8 +1974,13 @@ socket.on('message-confirmed', ({ id }) => {
 socket.on("online-count", (count) => document.getElementById("onlineCount").textContent = count);
 
 socket.on("connect", () => { 
-  if (window.userData) socket.emit("join", window.userData); 
-  if (document.getElementById("searching").style.display !== "none") socket.emit("get-online-count"); 
+  if (window.userData) {
+      socket.emit("join", window.userData); 
+      subscribeToPush();
+  }
+  if (document.getElementById("searching").style.display !== "none") {
+      socket.emit("get-online-count"); 
+  }
 });
 
 socket.on("disconnect", () => { 
@@ -5175,8 +5181,6 @@ async function subscribeToPush() {
         console.warn('Push messaging tidak didukung oleh browser ini.');
     }
 }
-
-subscribeToPush();
 
 document.getElementById("attachGalleryBtn").onclick = function() { 
   document.getElementById("fileInput").click(); 
