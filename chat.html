@@ -1490,13 +1490,11 @@ window.closeMediaViewer = function() {
 }
 
 if ('serviceWorker' in navigator) {
-    const swCode = `self.addEventListener('push', function(e) {}); self.addEventListener('notificationclick', function(e) { e.notification.close(); });`;
-    const blob = new Blob([swCode], {type: 'application/javascript'});
-    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.log('SW Reg Failed:', err));
-}
-
-if ("Notification" in window && Notification.permission !== "granted" && Notification.permission !== "denied") {
-    Notification.requestPermission();
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('SW berhasil didaftarkan'))
+        .catch(err => console.error('SW gagal didaftarkan:', err));
+    });
 }
 
 const socket = io("https://chat-bzd5.onrender.com");
@@ -1642,10 +1640,14 @@ function uploadUrlToCloudinary(videoUrl) {
     });
 }
 
-function showLoginForm() {
-  document.getElementById("welcomeContent").style.display = "none"; 
-  document.getElementById("loginForm").classList.remove("hidden"); 
+function showLoginForm() { 
+  document.getElementById("welcomeContent").style.display = "none";  
+  document.getElementById("loginForm").classList.remove("hidden");  
   document.getElementById("name").focus();
+  
+  if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+  }
 }
 
 async function start() {
@@ -3870,21 +3872,22 @@ socket.on("message", data => {
       } catch(e) {}
       
       if (document.hidden || !document.hasFocus()) {
-          const title = partner?.name || "Pesan Baru";
-          const body = data.type === 'file' ? '📸 Mengirim gambar' : (data.type === 'video' ? '🎥 Mengirim Video' : (data.type === 'audio' ? '🎵 Mengirim Voice Note' : data.text));
-          
-          if (Notification.permission === "granted") { 
-            if (navigator.serviceWorker) { 
-              navigator.serviceWorker.ready.then(reg => { 
-                reg.showNotification(title, { body }); 
-              }).catch(() => { 
-                new Notification(title, { body }); 
-              }); 
-            } else { 
-              new Notification(title, { body }); 
-            } 
-          }
-      }
+    const title = partner?.name || "Pesan Baru";
+    const body = data.type === 'file' ? '📸 Mengirim gambar' : (data.type === 'video' ? '🎥 Mengirim Video' : (data.type === 'audio' ? '🎵 Mengirim Voice Note' : data.text));
+    
+    if (Notification.permission === "granted") { 
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(reg => {
+                reg.showNotification(title, { 
+                    body: body,
+                    vibrate: [200, 100, 200] 
+                });
+            });
+        } else {
+            new Notification(title, { body: body });
+        }
+    }
+}
   }
 });
 
