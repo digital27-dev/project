@@ -1510,7 +1510,7 @@ if (!myUserId) {
 let partner = null, pc, localStream, isFront = true, isPipSwapped = false, isAudioOnlyCall = false, isInVideoCall = false;
 let myMicEnabled = true, myCamEnabled = true, partnerMicEnabled = true, partnerCamEnabled = true;
 let replyingTo = null, myProfilePicURL = localStorage.getItem('myProfilePic') || "", currentViewedStoryId = null; 
-let isRecordingVN = false, audioRecorder = null, audioChunks = [], currentReactMsgId = null, messagesMap = {}; 
+let isRecordingVN = false, audioRecorder = null, audioChunks = [], currentReactMsgId = null, messagesMap = {}, selectedFile = null;
 
 function refreshVideoBackgrounds() {
   const localVid = document.getElementById("localVideo");
@@ -3781,6 +3781,25 @@ async function sendFile() {
     showAlert("Gagal mengunggah file: " + err.message); 
     msgElement.remove(); 
   } 
+}
+
+function cancelFilePreview() {
+  document.getElementById('filePreviewModal').style.display = 'none';
+  
+  const previewImg = document.getElementById('previewImage');
+  previewImg.style.display = 'none';
+  previewImg.src = '';
+  
+  const previewVidContainer = document.getElementById('previewVideoContainer');
+  const previewVid = document.getElementById('previewVideo');
+  previewVidContainer.style.display = 'none';
+  previewVid.pause();
+  previewVid.src = '';
+  
+  document.getElementById('captionInput').value = '';
+  document.getElementById('fileInput').value = '';
+  
+  selectedFile = null;
 }
 
 socket.on("matched", p => {
