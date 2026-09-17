@@ -2,22 +2,22 @@ const CACHE_NAME = 'sanz-chat-v1';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',
-    '/manifest.json' // Pastikan kamu sudah membuat file ini seperti panduan sebelumnya
+    '/manifest.json' 
 ];
 
 self.addEventListener('install', (event) => {
-    // Menyimpan aset ke cache agar web bisa diinstal (PWA standard)
+
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
-    // Memaksa service worker baru untuk langsung aktif (kodemu yang sangat berguna untuk chat app)
+
     self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-    // Membersihkan cache lama jika ada update, lalu mengambil alih kontrol
+
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
@@ -28,12 +28,11 @@ self.addEventListener('activate', (event) => {
                 })
             );
         }).then(() => {
-            return clients.claim(); // Kodemu sebelumnya
+            return clients.claim(); 
         })
     );
 });
 
-// Intercept fetch agar PWA bisa memuat halaman saat offline/koneksi buruk
 self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request).then((response) => {
@@ -42,16 +41,14 @@ self.addEventListener('fetch', (event) => {
     );
 });
 
-// MENANGANI NOTIFIKASI LATAR BELAKANG
 self.addEventListener('push', function(e) {
-    // Data default jika payload kosong
+
     let data = { 
-        title: 'Sanz Chat', 
+        title: 'Sanz', 
         body: 'Ada pesan baru untukmu!', 
-        icon: '/icon-192x192.png' // Pastikan gambar ini ada di foldermu
+        icon: 'https://img91.wordpress.com/wp-content/uploads/2026/09/24753_192x192.png' 
     };
     
-    // Menangkap data yang dikirim dari server backend
     if (e.data) {
         try {
             data = e.data.json(); 
@@ -62,9 +59,9 @@ self.addEventListener('push', function(e) {
 
     const options = {
         body: data.body,
-        icon: data.icon || '/icon-192x192.png',
-        badge: '/icon-192x192.png', // Ikon kecil di status bar Android
-        vibrate: [200, 100, 200], // Pola getaran
+        icon: data.icon || 'https://img91.wordpress.com/wp-content/uploads/2026/09/24753_192x192.png',
+        badge: 'https://img91.wordpress.com/wp-content/uploads/2026/09/24753_192x192.png', 
+        vibrate: [200, 100, 200], 
         data: {
             dateOfArrival: Date.now()
         }
@@ -75,7 +72,6 @@ self.addEventListener('push', function(e) {
     );
 }); 
 
-// Kodemu sebelumnya: Sangat efisien untuk UX!
 self.addEventListener('notificationclick', function(e) { 
     e.notification.close(); 
     e.waitUntil(
