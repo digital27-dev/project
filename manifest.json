@@ -2,7 +2,7 @@
   "name": "Sanz",
   "short_name": "Sanz",
   "description": "Ngobrol santai dengan orang baru",
-  "start_url": "/",
+  "start_url": "/chat.html",
   "display": "standalone",
   "background_color": "#0b0f19",
   "theme_color": "#0b0f19",
