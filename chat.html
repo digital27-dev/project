@@ -4363,8 +4363,7 @@ function endCall(isAuto = false, isInitiator = false) {
   stopCallTimer(); 
 
   if (isInVideoCall && isInitiator) { 
-    const durationStr = currentCallDuration !== "00:00" ? ` ${currentCallDuration}` : "";
-    sendSystemMsg(isAudioOnlyCall ? `Panggilan suara diakhiri${durationStr}` : `Video call diakhiri${durationStr}`); 
+    sendSystemMsg(isAudioOnlyCall ? `Panggilan suara diakhiri ${currentCallDuration}` : `Video call diakhiri ${currentCallDuration}`); 
   } 
   
   currentCallDuration = "00:00";
