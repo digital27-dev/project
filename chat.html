@@ -57,6 +57,15 @@ input, textarea {
   -webkit-user-select: auto; 
 }
 
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
 #callName { font-weight: 600 !important; letter-spacing: 0.3px;} 
 
 #miniRemoteVideoContainer { 
@@ -745,7 +754,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     <h1>Anonymous</h1>
     <div class="subtitle">Ngobrol santai dengan orang baru</div>
 
-    <input id="name" name="user_nickname" type="text" maxlength="20" placeholder="Nama (opsional)" autocomplete="off" data-lpignore="true" data-1p-ignore="true" spellcheck="false" />
+    <input id="name" type="search" name="nickname_field" autocomplete="nope" inputmode="text" autocorrect="off" spellcheck="false" data-lpignore="true" placeholder="Nama (opsional)" />
     
     <div style="display:flex; justify-content:space-between; align-items:center; margin:8px 0 6px; font-weight:500; color:var(--text-sec); font-size: 0.9rem;">
       <span>Umur</span>
@@ -893,7 +902,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
           <i class="bi bi-emoji-smile"></i>
         </button>
         
-        <input id="msg" name="chat_message" type="text" maxlength="10000" placeholder="Ketik pesan" autocomplete="off" data-lpignore="true" data-1p-ignore="true" onkeydown="if(event.key==='Enter')handleSendClick()"/>
+        <input id="msg" type="search" name="message_field" autocomplete="nope" inputmode="text" autocorrect="off" spellcheck="false" data-lpignore="true" placeholder="Ketik pesan" onkeydown="if(event.key==='Enter')handleSendClick()" />
         
         <button class="icon-btn" id="attachGalleryBtn" title="Kirim gambar/video">
           <i class="bi bi-paperclip"></i>
