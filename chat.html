@@ -367,6 +367,8 @@ button:active { transform: translateY(0); }
 
 .video-header {
   background: transparent !important;
+  backdrop-filter: none !important;       
+  -webkit-backdrop-filter: none !important;  
   border: none !important;
   box-shadow: none !important;
   position: absolute;
@@ -374,7 +376,12 @@ button:active { transform: translateY(0); }
   left: 0;
   width: 100%;
   z-index: 10;
-  padding: 15px; 
+}
+
+.video-header::before,
+.video-header::after {
+  display: none !important;
+  content: none !important;
 }
 
 #videoScreen .video-header,
