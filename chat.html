@@ -342,7 +342,6 @@ button:active { transform: translateY(0); }
   justify-content: space-between; 
   padding: 0 20px; 
   font-size: 1.1rem; 
-  border-bottom: 1px solid rgba(255,255,255,0.05); 
   z-index: 10;
 }
 
@@ -396,7 +395,7 @@ button:active { transform: translateY(0); }
 
 .video-header * {
   color: #ffffff !important; 
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7); 
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5); 
 }
 
 #videoScreen:not(.audio-call-mode) .video-header {
@@ -405,7 +404,7 @@ button:active { transform: translateY(0); }
   top: 0;
   left: 0;
   width: 100%;
-  background: rgba(0, 0, 0, 0.5); 
+  background: transparent; 
   z-index: 10;              
   border-bottom: none;    
 }
@@ -4364,7 +4363,7 @@ function endCall(isAuto = false, isInitiator = false) {
   stopCallTimer(); 
 
   if (isInVideoCall && isInitiator) { 
-    const durationStr = currentCallDuration !== "00:00" ? ` (${currentCallDuration})` : "";
+    const durationStr = currentCallDuration !== "00:00" ? ` ${currentCallDuration}` : "";
     sendSystemMsg(isAudioOnlyCall ? `Panggilan suara diakhiri${durationStr}` : `Video call diakhiri${durationStr}`); 
   } 
   
