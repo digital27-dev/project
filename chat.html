@@ -834,6 +834,8 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   </div>
 
   <div id="messages"></div>
+  
+  <div id="msgActionOverlay" onclick="closeAllMsgActions()" style="display:none; position:fixed; inset:0; background:rgba(0, 0, 0, 0.4); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:1000; transition: opacity 0.2s;"></div>
 
   <div id="reactionBar" onclick="event.stopPropagation()">
       <span class="reaction-opt" onclick="sendReaction('👍')">👍</span>
@@ -1153,8 +1155,6 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     </div>
   </div>
 </div>
-
-<div id="msgActionOverlay" onclick="closeAllMsgActions()" style="display:none; position:fixed; inset:0; background:rgba(0, 0, 0, 0.4); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:1000; transition: opacity 0.2s;"></div>
 
 <div id="actionToast"></div>
 
@@ -2496,7 +2496,7 @@ function showReactionBar(targetElement, msgId) {
     
     overlay.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
     
-    document.body.appendChild(overlay);
+    document.getElementById('chat').appendChild(overlay);
   }
   overlay.style.display = 'block';
 
@@ -2522,7 +2522,7 @@ function showReactionBar(targetElement, msgId) {
     `;
   }
   
-  document.body.appendChild(rb); 
+  document.getElementById('chat').appendChild(rb);
 
   const rect = targetElement.getBoundingClientRect();
   
@@ -2551,7 +2551,7 @@ function closeReactionBar(e) {
   if (rb && rb.style.display === 'flex') { 
     rb.style.display = 'none'; 
     currentReactMsgId = null; 
-    document.body.appendChild(rb); 
+    document.getElementById('chat').appendChild(rb);; 
   } 
   
   if (overlay) {
