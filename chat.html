@@ -3693,16 +3693,7 @@ function sendMessage() {
 }
 
 const initVectors = [
-    "QVEuQWI4Uk42TFJpX09VVUxyNWo2NkVORUZMMlFJaC1BQUhsRy1ORHZQRHVoWnp4LWFLOUE=",
-    "QVEuQWI4Uk42TGo5Z20tUXVNM3EzNGhLanBKR0JOMkpNQllRRFZfQXo4T1QtdGh0MEhQZEE=",
-    "QVEuQWI4Uk42TDJRUE14aUJoVlJ3UUpib20xLTJRS0NNSWljWHhnUHQ0bnNuSzlkMGNCS3c=",
-    "QVEuQWI4Uk42TGtPTThqblpCeUZ5Q2UxdDBKTy1MZnBOUzBvYXJSbVpjcllqel91Tjd3R1E=",
-    "QVEuQWI4Uk42SjdNazdScWplMVl4Z25HaFdxemVvSjc3b01yU2ctMUpjSzdsNHBJcWYwYnc=",
-    "QVEuQWI4Uk42SW53UmNZUkJ2amJRZFN0QXJTOUdSdDVHdWwxZkZtbUtEUUxLOUtBV1FaZ3c=",
-    "QVEuQWI4Uk42TDRCcXdiV0U0SFpUQ1NQQ2hOVE44cFdvVC1USm56blFqT2x0b0ozVFotbUE=",
-    "QVEuQWI4Uk42SkRBaGJtdWk2SS1wMzhrdmlQN0RBVmtHX0M3SWdyY0hwTDJxZVdFWkxUR0E=",
-    "QVEuQWI4Uk42Si1DTTNiSlVOSUJoRlowczkxd1p0TUo1Ri02ekI3X2I3QjdfWWJ2TVlybmc=",
-    "QVEuQWI4Uk42S1lXU2dMTXUyQTFnTjVPNE9RN0JGN2d3U0s2SUxkVVFIRFdWZlJ2eE9LV0E="
+    "sk-qwen-5ea2d7ac7e26c011cd516a4ac3ee977ce8bc4108fdba0fc1"
 ];
 
 let currentVectorIndex = 0; 
@@ -3728,20 +3719,27 @@ async function handleAIQuery(userText) {
 
     while (!success && attempts < maxAttempts) {
         try {
-
-            let currentKey = atob(initVectors[currentVectorIndex]);
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${currentKey}`;
+      
+            let currentKey = initVectors[currentVectorIndex];
+            
+            const url = `https://bandelbanget.xyz/v1/chat/completions`;
             
             const response = await fetch(url, { 
                 method: "POST", 
-                headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] }) 
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${currentKey}`
+                }, 
+                body: JSON.stringify({ 
+                    model: "deepseek-v4.1-mod", 
+                    messages: [{ role: "user", content: promptText }] 
+                }) 
             });
             
             const data = await response.json();
             
-            if (response.ok && data.candidates && data.candidates.length > 0) {
-                const aiMsgData = { type: 'text', text: "[AI] " + data.candidates[0].content.parts[0].text }; 
+            if (response.ok && data.choices && data.choices.length > 0) {
+                const aiMsgData = { type: 'text', text: "[AI] " + data.choices[0].message.content }; 
                 addMsg(aiMsgData, "other"); 
                 sendEncryptedMessage(aiMsgData);
                 success = true; 
