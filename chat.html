@@ -193,6 +193,30 @@ input[type="search"]::-webkit-search-results-decoration {
   cursor: pointer;
 }
 
+.msg.me .msg-content, 
+.msg.me .quoted-msg,
+.msg.me a {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+.msg.other .bubble,
+.msg.other .msg-content,
+.bubble-time {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+.msg.other .partner-text,
+.msg.other .quoted-msg,
+.msg.other a {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
 .msg { position: relative; }
 .msg .bubble { 
   max-width: 100% !important; 
@@ -540,7 +564,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 .modal { position: fixed; inset: 0; background: rgba(5, 7, 12, 0.8); display: none; place-items: center; z-index: 200; backdrop-filter: blur(6px); } 
 .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 32px; width: 90%; max-width: 360px; text-align: center; box-shadow: 0 24px 48px rgba(0,0,0,0.5); } 
 .modal-box button { margin: 8px 0; } 
-#actionToast { display:none; position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(30,37,50,0.95); color: white; padding: 12px 24px; border-radius: 999px; font-size: 0.95rem; font-weight: 500; z-index: 400; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 20px rgba(0,0,0,0.3);} 
+#actionToast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(30,37,50,0.95); color: white; padding: 7px 17px; border-radius: 999px; font-size: 0.95rem; font-weight: 500; font-size: 12px; z-index: 400; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 8px 20px rgba(0,0,0,0.3);} 
 .net-pill { background: rgba(30,37,50,0.8); padding: 6px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; display: none; align-items: center; backdrop-filter: blur(10px); color: var(--success); border: 1px solid rgba(16,185,129,0.3); } 
 .video-header .net-pill { margin-left: auto; align-self: center; } 
 #filePreviewModal .preview-img { max-width: 100%; max-height: 220px; margin-bottom: 16px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.2);} 
@@ -1091,7 +1115,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 <div id="partnerProfileModal" class="modal">
   <div class="modal-box" style="padding: 0; overflow: hidden; max-width: 380px; text-align: left;">
     <div style="background: var(--surface-2); padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-      <h3 style="margin:0; font-size:1.1rem; color: white;">Info Partner</h3>
+      <h3 style="margin:0; font-size:1.1rem; color: white;">Profil Partner</h3>
       <i class="bi bi-x-lg" onclick="closePartnerProfile()" style="cursor:pointer; font-size:1.2rem; color:var(--text-sec); transition: color 0.2s;" title="Tutup" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-sec)'"></i>
     </div>
     <div id="contentPartner" style="padding: 24px;">
@@ -1959,7 +1983,7 @@ socket.on('stories-data', (data) => {
 async function uploadMyPic(input) { 
   if (!input.files || !input.files[0]) return; 
   try { 
-    showToast("Sedang mengubah foto profil..."); 
+    showToast("Sedang mengubah foto profil"); 
     const url = await uploadToCloudinary(input.files[0]); 
     myProfilePicURL = url; 
     window.userData.profilePic = url; 
@@ -1983,7 +2007,7 @@ async function uploadStory(input) {
   const circumference = 176; 
 
   try { 
-    showToast("Sedang mengirim story..."); 
+    showToast("Sedang mengirim story"); 
     
     if (progressSvg && progressCircle) {
       progressSvg.style.display = 'block';
@@ -2002,7 +2026,7 @@ async function uploadStory(input) {
     showToast("Story berhasil ditambahkan"); 
     socket.emit('get-stories'); 
   } catch(err) { 
-    showAlert("Gagal upload story. Coba file lain."); 
+    showAlert("Gagal upload story coba file lain."); 
   } finally {
 
     if (progressSvg) progressSvg.style.display = 'none';
@@ -2258,7 +2282,7 @@ async function handleSendClick() {
           document.getElementById('sendIcon').className = 'fas fa-stop'; 
           document.getElementById('sendIcon').style.color = 'white'; 
           document.getElementById('sendBtn').style.background = 'var(--danger)'; 
-          showToast("Sedang Merekam Suara..."); 
+          showToast("Sedang Merekam Suara"); 
         } catch(e) { 
           showAlert("Izin microphone ditolak."); 
         }
@@ -2283,7 +2307,7 @@ function cancelVN() {
 async function sendVN() { 
   if (!window.currentVNBlob) return; 
   const file = new File([window.currentVNBlob], 'vn.webm', { type: 'audio/webm' }); 
-  showToast("Mengirim voice note..."); 
+  showToast("Mengirim voice note"); 
   
   const tempStoryContext = window.pendingStoryReplyContext; 
   const tempReplyTo = replyingTo; 
@@ -2992,7 +3016,7 @@ function addMsg(data, side, timeStr) {
 
         formattedText += ' <span class="edit-label" style="font-size: 0.75rem; font-style: italic; opacity: 0.7; margin-left: 6px;">Diedit</span>';
     }
-    content = `<div class="bubble">${quoteHtml}<div class="msg-content">${formattedText}<span class="bubble-time">${timeStr}${tickHtml}</span></div></div>`;
+    content = `<div class="bubble">${quoteHtml}<div class="msg-content"><span class="partner-text">${formattedText}</span><span class="bubble-time">${timeStr}${tickHtml}</span></div></div>`;
   } else if (data.type === 'location') {
     isTextMsg = false;
     content = `<div class="bubble media-bubble">${quoteHtml}
@@ -3182,7 +3206,7 @@ function addMsg(data, side, timeStr) {
         
         const btnEdit = document.createElement('div');
         btnEdit.innerHTML = '<i class="bi bi-pencil-fill" style="margin-right:8px;"></i> Edit';
-        btnEdit.style.cssText = 'cursor:pointer; color:var(--accent); display:flex; align-items:center; padding: 6px 8px;';
+        btnEdit.style.cssText = 'cursor:pointer; color:var(--text); display:flex; align-items:center; padding: 6px 8px;';
         
         btnEdit.onclick = (e) => {
             e.stopPropagation();
@@ -3214,7 +3238,34 @@ function addMsg(data, side, timeStr) {
         
         const divider = document.createElement('div');
         divider.style.cssText = 'height:1px; background:var(--border); width:100%; margin: 2px 0;';
+        
         action.appendChild(divider);
+
+        const btnCopy = document.createElement('div');
+        btnCopy.innerHTML = '<i class="bi bi-copy" style="margin-right:8px;"></i> Salin';
+        btnCopy.style.cssText = 'cursor:pointer; color:var(--text); display:flex; align-items:center; padding: 6px 8px;';
+        
+        btnCopy.onclick = (e) => {
+            e.stopPropagation();
+            closeAllMsgActions();
+            
+            const currentText = div.dataset.rawText || "";
+            if (currentText) {
+
+                navigator.clipboard.writeText(currentText).then(() => {
+                    showToast("Pesan disalin");
+                }).catch(err => {
+                    showAlert("Gagal menyalin teks");
+                });
+            } else {
+                 showToast("Tidak ada teks untuk disalin");
+            }
+        };
+        action.appendChild(btnCopy);
+        
+        const divider2 = document.createElement('div');
+        divider2.style.cssText = 'height:1px; background:var(--border); width:100%; margin: 2px 0;';
+        action.appendChild(divider2);
     } else {
 
         action.style.minWidth = 'auto'; 
@@ -3429,7 +3480,7 @@ function sendMessage() {
           return;
       }
 
-      showToast("Mengecek informasi jaringan...");
+      showToast("Mengecek informasi jaringan");
 
       const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
       const netType = conn && conn.effectiveType ? conn.effectiveType.toUpperCase() : 'Tidak terdeteksi';
@@ -3490,7 +3541,7 @@ function sendMessage() {
           return;
       }
 
-      showToast("Mendapatkan lokasi akurat...");
+      showToast("Mendapatkan lokasi akurat");
 
       navigator.geolocation.getCurrentPosition((position) => {
           const lat = position.coords.latitude;
@@ -3565,7 +3616,7 @@ function sendMessage() {
           return;
       }
 
-      showToast("Mengecek spesifikasi perangkat...");
+      showToast("Mengecek device");
 
       const fetchDeviceData = async () => {
           const ua = navigator.userAgent;
@@ -3632,7 +3683,7 @@ function sendMessage() {
           return;
       }
       
-      showToast("Membuat gambar teks...");
+      showToast("Membuat stiker teks");
 
       createTextImage(payloadText).then(async (file) => {
           try {
@@ -3649,9 +3700,9 @@ function sendMessage() {
 
               addMsg(msgData, "me");
               sendEncryptedMessage(msgData);
-              showToast("Gambar teks berhasil dikirim!");
+              showToast("Stiker teks berhasil dikirim");
           } catch (err) {
-              showAlert("Gagal membuat gambar atau mengunggah ke server.");
+              showAlert("Gagal membuat stiker atau mengunggah ke server.");
           }
       });
 
@@ -3670,14 +3721,14 @@ function sendMessage() {
           return;
       }
 
-      showToast("Mengekstrak video TikTok...");
+      showToast("Mengekstrak video TikTok");
 
       fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`)
           .then(res => res.json())
           .then(async data => {
               if (data.code === 0 && data.data && data.data.play) {
                   const noWatermarkUrl = data.data.play;
-                  showToast("Video ditemukan! Mengunggah ke Cloudinary...");
+                  showToast("Video sedang dikirim");
 
                   try {
 
@@ -3767,7 +3818,7 @@ function sendMessage() {
           return;
       }
       
-      showToast("Mengambil data cuaca...");
+      showToast("Mengambil data cuaca");
 
       fetch(`https://wttr.in/${encodeURIComponent(location)}?format=j1&lang=id`)
           .then(res => {
@@ -3937,7 +3988,7 @@ async function sendFile() {
     cancelFilePreview();
     document.getElementById('fileInput').value = '';
     selectedFile = null;
-    showToast("Sedang memproses link, mohon tunggu...");
+    showToast("Sedang memproses link mohon tunggu");
 
     try {
       const fileUrl = await uploadToCloudinary(fileToUpload);
@@ -5403,7 +5454,7 @@ async function toggleNativePiP() {
     } else if (document.pictureInPictureEnabled) {
       await remoteVid.requestPictureInPicture();
     } else {
-      showToast("Browser/HP kamu tidak mendukung fitur PiP ini");
+      showToast("Device kamu tidak mendukung fitur ini");
     }
   } catch (err) {
     showToast("Gagal masuk mode PiP");
