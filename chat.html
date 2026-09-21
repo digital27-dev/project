@@ -535,7 +535,9 @@ video { width: 100%; height: 100%; object-fit: cover; transition: all 0.4s cubic
 #localVideo { transform: scaleX(-1); } 
 video.pip-normal { width: 120px !important; height: 160px !important; bottom: 20px !important; right: 20px !important; border-radius: 16px; border: 2px solid var(--border); box-shadow: none;} 
 video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px !important; right: 16px !important; border: 2px solid var(--accent); border-radius: 14px; box-shadow: none;} 
-
+.audio-call-mode .top-right-controls {
+  display: none !important;
+}
 .audio-call-mode video { display: none !important; }
 .audio-call-mode .video-body { background: #000; }
 .audio-call-avatar { width: 100%; height: 100%; border-radius: 0; background: transparent; border: none; display: none; overflow: hidden; }
@@ -2139,6 +2141,10 @@ function closeDisconnectModal() {
 function performLogout() { 
   socket.emit('putus-hubungan'); 
   window.pendingStoryReplyContext = null; 
+
+  document.getElementById("messages").innerHTML = ""; 
+  messagesMap = {}; 
+
   localStorage.removeItem('userData'); 
   window.userData = null; 
   partner = null; 
@@ -2157,6 +2163,10 @@ function refreshChat() {
   socket.emit('putus-hubungan'); 
   partner = null; 
   window.pendingStoryReplyContext = null; 
+
+  document.getElementById("messages").innerHTML = ""; 
+  messagesMap = {}; 
+
   document.getElementById("chat").style.display = "none"; 
   document.getElementById("videoScreen").style.display = "none"; 
   document.getElementById("searching").style.display = "flex"; 
