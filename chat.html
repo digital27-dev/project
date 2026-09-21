@@ -5265,6 +5265,36 @@ async function subscribeToPush() {
     }
 }
 
+document.addEventListener("visibilitychange", async () => {
+  const remoteVid = document.getElementById("remoteVideo");
+
+  if (document.hidden) {
+
+    if (isInVideoCall && !isAudioOnlyCall && remoteVid.srcObject) {
+
+      if (document.pictureInPictureEnabled && !document.pictureInPictureElement) {
+        try {
+
+          await remoteVid.requestPictureInPicture();
+        } catch (err) {
+          console.warn("Auto PiP diblokir oleh browser (biasanya butuh user gesture):", err);
+        }
+      }
+    }
+  } 
+
+  else {
+
+    if (document.pictureInPictureElement) {
+      try {
+        await document.exitPictureInPicture();
+      } catch (err) {
+        console.warn("Gagal keluar dari mode PiP:", err);
+      }
+    }
+  }
+});
+
 document.getElementById("attachGalleryBtn").onclick = function() { 
   document.getElementById("fileInput").click(); 
 };
