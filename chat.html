@@ -4582,8 +4582,9 @@ function endCall(isAuto = false, isInitiator = false) {
   stopCallTimer(); 
 
   if (isInVideoCall && isInitiator) { 
-    let durasiInfo = currentCallDuration !== "00:00" ? ` ${currentCallDuration}` : "";
-    sendSystemMsg(isAudioOnlyCall ? `Panggilan suara diakhiri${durasiInfo}` : `Video call diakhiri${durasiInfo}`); 
+    let durasiInfo = currentCallDuration !== "00:00" ? ` (${currentCallDuration})` : "";
+    let myName = window.userData?.name || "Anonim";
+    sendSystemMsg(isAudioOnlyCall ? `Panggilan suara diakhiri ${myName}${durasiInfo}` : `Video call diakhiri ${myName}${durasiInfo}`); 
   }
   
   currentCallDuration = "00:00";
@@ -4596,7 +4597,12 @@ function endCall(isAuto = false, isInitiator = false) {
   isPipSwapped = false; 
   updateVideoCallButton(); 
   
-  showToast(isAuto ? "Terputus" : "Diakhiri"); 
+  let toastMsg = "Terputus";
+  if (!isAuto) {
+      toastMsg = isInitiator ? "Kamu mengakhiri panggilan" : "Partner mengakhiri panggilan";
+  }
+  showToast(toastMsg); 
+  
   socket.emit("end-call"); 
 }
 
