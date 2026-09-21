@@ -754,65 +754,36 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   background: var(--accent);
 }
 
-/* Styling Indikator Teks bergaya WhatsApp */
-.wa-status-text {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(20, 24, 30, 0.75);
-  color: #f1f5f9;
-  padding: 8px 18px;
-  border-radius: 30px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 15;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  pointer-events: none;
-}
-.wa-status-text.hidden {
-  opacity: 0;
-  transform: translate(-50%, -15px);
-}
-
-#micStatusRemoteText { top: 85px; }
-#hdStatusText { top: 135px; color: var(--accent); }
-#micStatusLocalText { bottom: 120px; }
-
-/* Mempercantik Tombol Pojok Kanan Atas (Glassmorphism & Glow Hover) */
 .top-right-controls {
+  position: absolute;
+  top: 25px;
+  right: 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  z-index: 20;
+  transition: opacity 0.3s ease;
 }
+
 .top-right-controls i {
-  font-size: 1.25rem;
-  width: 48px;
-  height: 48px;
+  font-size: 1.15rem;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(11, 15, 25, 0.5); 
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(30, 37, 50, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: grid;
   place-items: center;
   cursor: pointer;
-  color: rgba(255,255,255,0.9);
+  color: white;
   border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
 .top-right-controls i:hover {
-  background: rgba(255,255,255,0.2);
-  transform: scale(1.1) translateY(-2px);
-  color: #fff;
-  border-color: rgba(255,255,255,0.4);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  background: rgba(255,255,255,0.25);
+  transform: scale(1.05);
 }
 
 #videoScreen:not(.audio-call-mode).ui-hidden .top-right-controls {
@@ -1002,37 +973,30 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
 <div id="videoScreen" class="video-wrap">
   <div class="video-header" style="justify-content: center; flex-direction: column; gap: 2px;">
-    <span id="callName" style="font-size: 1.15rem; font-weight: 600;">Panggilan</span>
-    <span id="callStatusText" style="font-size: 0.85rem; font-weight: 400; color: white;">Menghubungkan</span>
-    <div class="net-pill" id="netStatus" style="display:none !important;"><span id="netLeft">— ms</span></div>
-  </div>
-  
-  <div class="video-body">
-    <div class="audio-call-avatar"><img id="audioCallProfilePic" src="" style="width:100%; height:100%; object-fit:cover;" /></div>
-    
-    <!-- Teks Indikator Baru bergaya WhatsApp -->
-    <div id="micStatusRemoteText" class="wa-status-text hidden"><i class="bi bi-mic-mute-fill"></i> Partner dibisukan</div>
-    <div id="micStatusLocalText" class="wa-status-text hidden"><i class="bi bi-mic-mute-fill"></i> Mikrofon dibisukan</div>
-    <div id="hdStatusText" class="wa-status-text hidden"><i class="bi bi-stars"></i> Mode HD Aktif</div>
-    
-    <video id="remoteVideo" autoplay playsinline class="full"></video>
-    <video id="localVideo" autoplay muted playsinline class="pip"></video>
-  </div>
+  <span id="callName" style="font-size: 1.15rem; font-weight: 600;">Panggilan</span>
+  <span id="callStatusText" style="font-size: 0.85rem; font-weight: 400; color: white;">Menghubungkan</span>
+  <div class="net-pill" id="netStatus" style="display:none !important;"><span id="netLeft">— ms</span></div>
+</div>
+<div class="video-body">
+  <div class="audio-call-avatar"><img id="audioCallProfilePic" src="" style="width:100%; height:100%; object-fit:cover;" /></div>
+  <div id="micStatusRemote" class="media-status-overlay hidden mic" title="Mikrofon partner dimatikan"><i class="bi bi-mic-mute-fill"></i></div>
+  <div id="micStatusLocal" class="media-status-overlay hidden mic" title="Mikrofon kamu dimatikan"><i class="bi bi-mic-mute-fill"></i></div>
+  <video id="remoteVideo" autoplay playsinline class="full"></video>
+  <video id="localVideo" autoplay muted playsinline class="pip"></video>
+</div>
 
-  <!-- Tombol Kanan Atas Dipercantik & Ditambah Switch Camera -->
-  <div class="top-right-controls">
-    <i id="switchCamBtn" class="fa-solid fa-camera-rotate" onclick="switchCamera()" title="Putar Kamera" style="display:none;"></i>
-    <i class="bi-arrows-angle-contract" id="nativePipBtn" onclick="toggleNativePiP()" title="Picture in Picture"></i>
-    <i class="bi bi-stars" id="effectBtn" onclick="toggleEffect()" title="Filter Kamera"></i>
-  </div>
+<div class="top-right-controls">
+  <i class="bi-arrows-angle-contract" id="nativePipBtn" onclick="toggleNativePiP()" title="Picture in Picture"></i>
+  <i id="switchCamBtn" class="fa-solid fa-camera-rotate" onclick="switchCamera()"></i>
+  <i class="bi bi-stars" id="effectBtn" onclick="toggleEffect()" title="Filter Kamera"></i>
+</div>
 
-  <div class="video-footer">
-    <i id="micBtn"   class="bi bi-mic-fill"        onclick="toggleMic()"></i>
-    <i id="camBtn"   class="bi bi-camera-video-fill" onclick="toggleCam()"></i>
-    <!-- Tombol SwitchCam sudah dipindah ke atas, jadi dihapus dari sini -->
-    <i class="bi bi-box-arrow-down-right" id="minimizeCallBtn" onclick="minimizeToPartnerView()" title="Kecilkan & tetap lihat partner sambil chat"></i>
-    <i class="bi bi-telephone-x-fill end-call" onclick="endCall(false, true)"></i>
-  </div>
+<div class="video-footer">
+  <i id="micBtn"   class="bi bi-mic-fill"        onclick="toggleMic()"></i>
+  <i id="camBtn"   class="bi bi-camera-video-fill" onclick="toggleCam()"></i>
+  <i class="bi bi-box-arrow-down-right" id="minimizeCallBtn" onclick="minimizeToPartnerView()" title="Kecilkan & tetap lihat partner sambil chat"></i>
+  <i class="bi bi-telephone-x-fill end-call" onclick="endCall(false, true)"></i>
+</div>
 </div>
 
 <div id="mediaViewerModal" class="modal" style="z-index: 600; background: rgba(5,7,12,0.95); display: none;">
@@ -2438,11 +2402,9 @@ function cancelReply() {
 }
 
 function updateMicIcons() { 
-  // Munculkan teks jika mikrofon sendiri mati
-  document.getElementById("micStatusLocalText")?.classList.toggle("hidden", myMicEnabled); 
-  
-  // Munculkan teks jika mikrofon partner mati
-  document.getElementById("micStatusRemoteText")?.classList.toggle("hidden", partnerMicEnabled); 
+  const localMicStatus = document.getElementById("micStatusLocal");
+  if (localMicStatus) localMicStatus.style.display = "none"; 
+  document.getElementById("micStatusRemote")?.classList.toggle("hidden", !!partnerMicEnabled); 
 }
 
 let isMinimizedToPartner = false;
@@ -5399,20 +5361,16 @@ async function toggleEffect() {
   document.getElementById("localVideo").style.filter = effect;
 
   if (effect === 'none') {
+
     if (effectInterval) clearInterval(effectInterval);
     const originalTrack = localStream.getVideoTracks()[0];
     if (pc) {
         const sender = pc.getSenders().find(s => s.track && s.track.kind === "video");
         if (sender) await sender.replaceTrack(originalTrack);
     }
-    // Sembunyikan Teks Mode HD
-    document.getElementById("hdStatusText")?.classList.add("hidden");
     showToast("Efek dimatikan");
     return;
   }
-
-  // Tampilkan Teks Mode HD aktif
-  document.getElementById("hdStatusText")?.classList.remove("hidden");
 
   if (!effectCanvas) {
     effectCanvas = document.createElement('canvas');
@@ -5452,7 +5410,7 @@ async function toggleEffect() {
       if (sender) await sender.replaceTrack(effectTrack);
   }
   
-  showToast("Efek: HD Filter");
+  showToast("Efek: " + effectNames[currentEffectIndex]);
 }
 
 document.getElementById("attachGalleryBtn").onclick = function() { 
