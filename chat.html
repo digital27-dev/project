@@ -38,6 +38,32 @@
   -webkit-tap-highlight-color: transparent !important; 
 } 
 
+body {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+}
+
+.msg .msg-content, 
+.msg .quoted-msg {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+img, video {
+  -webkit-user-drag: none !important; 
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important; 
+}
+
+.encryption-info {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  pointer-events: none; 
+}
+
 html, body { 
   height: 100%; 
   font-family: 'Inter', system-ui, -apple-system, sans-serif; 
@@ -364,6 +390,11 @@ button:active { transform: translateY(0); }
   margin: 0; 
 }
 .footer-inputs button { background: var(--accent); width: 48px; height: 48px; border-radius: 50%; font-size: 1.2rem; display: grid; place-items: center; padding: 0; margin-bottom: 0; box-shadow: none; }
+.footer-inputs button:hover,
+.footer-inputs button:active {
+  transform: none !important;
+  box-shadow: none !important;
+}
 .icon-btn { background: transparent !important; color: var(--text-sec); width: 44px !important; height: 44px !important; box-shadow: none !important; font-size: 1.4rem !important; border-radius: 12px !important;}
 .icon-btn:hover { background: rgba(255,255,255,0.05) !important; color: var(--text); transform: none !important;}
 
@@ -928,11 +959,14 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       </div>
     </div>
 
-    <div id="vnPreview" style="display:none;">
-        <i class="bi bi-trash-fill text-danger" style="font-size:1.4rem; cursor:pointer; color: var(--danger); transition: transform 0.2s;" onclick="cancelVN()" title="Hapus VN" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='none'"></i>
+    <div id="vnPreview" class="footer-inputs" style="display:none; background: transparent; border: none; padding: 0; backdrop-filter: none; align-items: center;">
+      
+        <button onclick="cancelVN()" title="Hapus VN" style="width: 48px; height: 48px; border-radius: 50%; background: var(--danger); color: white; border: none; padding:0; display:grid; place-items:center; box-shadow: none; margin-bottom: 0; flex-shrink: 0; margin-right: 4px; cursor: pointer;">
+            <i class="bi bi-trash-fill" style="font-size: 1.2rem; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='none'"></i>
+        </button>
         
-        <div class="custom-audio-wrapper" style="display:flex; align-items:center; gap:10px; flex:1;">
-            <i class="bi bi-play-fill audio-play-btn" style="font-size:2rem; cursor:pointer; color:var(--accent);" onclick="toggleAudioPlay(this)"></i>
+        <div class="input-wrapper custom-audio-wrapper" style="gap:12px; padding: 0 16px 0 10px; flex: 1; height: 48px; box-sizing: border-box;">
+            <i class="bi bi-play-fill audio-play-btn" style="font-size:2.2rem; cursor:pointer; color:var(--accent); line-height: 1; margin-top: 2px;" onclick="toggleAudioPlay(this)"></i>
             <div class="audio-progress-bg" style="flex:1; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; position:relative; cursor:pointer;" onclick="seekAudio(event, this)">
                 <div class="audio-progress-bar" style="width:0%; height:100%; background:var(--accent); border-radius:3px;"></div>
                 <div class="audio-progress-thumb" style="width:14px; height:14px; background:white; border-radius:50%; position:absolute; top:-4px; left:0%; transform:translateX(-50%); box-shadow: 0 2px 4px rgba(0,0,0,0.4);"></div>
@@ -940,7 +974,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
             <audio id="vnAudioPreview" class="hidden-audio" style="display:none;" onended="resetAudio(this)" ontimeupdate="updateAudioProgress(this)"></audio>
         </div>
 
-        <button onclick="sendVN()" style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent); padding:0; display:grid; place-items:center; box-shadow: none; margin-bottom: 0;" title="Kirim VN">
+        <button onclick="sendVN()" style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent); padding:0; display:grid; place-items:center; box-shadow: none; margin-bottom: 0; flex-shrink: 0; margin-left: 4px;" title="Kirim VN">
             <i class="fas fa-paper-plane" style="font-size:1.2rem; margin-left: -2px;"></i>
         </button>
     </div>
@@ -5437,6 +5471,18 @@ async function toggleEffect() {
   
   showToast("Efek: " + effectNames[currentEffectIndex]);
 }
+
+document.addEventListener('contextmenu', function(e) {
+    if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+        e.preventDefault(); 
+    }
+});
+
+document.addEventListener('dragstart', function(e) {
+    if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+        e.preventDefault(); 
+    }
+});
 
 document.getElementById("attachGalleryBtn").onclick = function() { 
   document.getElementById("fileInput").click(); 
