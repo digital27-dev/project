@@ -5457,7 +5457,7 @@ async function toggleNativePiP() {
       showToast("Device kamu tidak mendukung fitur ini");
     }
   } catch (err) {
-    showToast("Gagal masuk mode PiP");
+    showToast("Gagal mode minimize");
   }
 }
 
@@ -5465,7 +5465,7 @@ let effectCanvas, effectCtx, effectStream, effectInterval, hiddenVideoForEffect;
 let currentEffectIndex = 0;
 
 const effectsList = ['none', 'brightness(1.1) contrast(1.05) saturate(1.15)'];
-const effectNames = ['Normal', 'Beauty Mulus'];
+const effectNames = ['Normal', 'Beauty'];
 
 async function toggleEffect() {
   if (!localStream || isAudioOnlyCall) {
@@ -5548,7 +5548,7 @@ async function toggleEffect() {
       if (sender) await sender.replaceTrack(effectTrack);
   }
   
-  showToast("Efek: " + effectNames[currentEffectIndex]);
+  showToast("Efek diaktifkan");
 }
 
 document.addEventListener('contextmenu', function(e) {
