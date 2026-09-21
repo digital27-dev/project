@@ -490,9 +490,9 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 .media-status-overlay.hidden { opacity: 0; transform: scale(0.85); pointer-events: none; } 
 #remoteVideo.pip ~ #micStatusRemote, #localVideo.pip ~ #micStatusLocal { width: 32px; height: 32px; font-size: 1.1rem; top: 8px; left: 8px; border-width: 1px; } 
 .video-footer i { 
-  font-size: 1.25rem; 
-  width: 48px; 
-  height: 48px; 
+  font-size: 1.15rem; 
+  width: 44px;        
+  height: 44px;     
   border-radius: 50%; 
   background: rgba(255,255,255,0.1); 
   display: grid; 
@@ -5346,8 +5346,8 @@ async function toggleNativePiP() {
 let effectCanvas, effectCtx, effectStream, effectInterval, hiddenVideoForEffect;
 let currentEffectIndex = 0;
 
-const effectsList = ['none', 'grayscale(100%)', 'sepia(100%)', 'hue-rotate(90deg)', 'invert(100%)', 'contrast(150%) brightness(1.2)'];
-const effectNames = ['Normal', 'Hitam Putih', 'Retro/Sepia', 'Alien', 'Invert', 'Vivid'];
+const effectsList = ['none', 'contrast(1.1) brightness(1.1) saturate(1.2)'];
+const effectNames = ['Normal', 'HD Filter'];
 
 async function toggleEffect() {
   if (!localStream || isAudioOnlyCall) {
