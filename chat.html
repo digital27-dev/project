@@ -1131,6 +1131,11 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
           <div style="position:relative; display:inline-block; cursor:pointer; flex-shrink: 0;" onclick="document.getElementById('storyPicInput').click()" title="Tambah Story">
               <img id="myStoryAddPic" src="" style="width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--border); opacity: 0.8;" />
               <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); border-radius:50%;"><i class="bi bi-plus-lg" style="color:white; font-size: 1.5rem; font-weight: bold;"></i></div>
+              
+              <svg id="storyUploadProgressSvg" style="position:absolute; top:-2px; left:-2px; width:60px; height:60px; display:none; transform: rotate(-90deg); pointer-events:none;">
+                  <circle cx="30" cy="30" r="28" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3" />
+                  <circle id="storyUploadProgressCircle" cx="30" cy="30" r="28" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="176" stroke-dashoffset="176" stroke-linecap="round" style="transition: stroke-dashoffset 0.2s ease-out;" />
+              </svg>
           </div>
           <input type="file" id="storyPicInput" accept="image/*,video/*" style="display:none;" onchange="uploadStory(this)" />
           <div id="myStoriesContainer" class="story-container" style="flex: 1; padding: 0;"><span style="color: var(--text-sec); font-weight: 500; font-size: 0.9rem;">Belum ada story</span></div>
@@ -1972,15 +1977,38 @@ async function uploadMyPic(input) {
 async function uploadStory(input) { 
   if (!input.files || !input.files[0]) return; 
   const isVideo = input.files[0].type.startsWith('video/'); 
+  
+  const progressSvg = document.getElementById('storyUploadProgressSvg');
+  const progressCircle = document.getElementById('storyUploadProgressCircle');
+  const circumference = 176; 
+
   try { 
     showToast("Sedang mengirim story..."); 
-    const url = await uploadToCloudinary(input.files[0]); 
+    
+    if (progressSvg && progressCircle) {
+      progressSvg.style.display = 'block';
+      progressCircle.style.strokeDashoffset = circumference;
+    }
+
+    const url = await uploadToCloudinary(input.files[0], (percent) => {
+      if (progressCircle) {
+
+        const offset = circumference - (percent / 100) * circumference;
+        progressCircle.style.strokeDashoffset = offset;
+      }
+    }); 
+    
     socket.emit('add-story', { url: url, type: isVideo ? 'video' : 'image' }); 
     showToast("Story berhasil ditambahkan"); 
     socket.emit('get-stories'); 
   } catch(err) { 
     showAlert("Gagal upload story. Coba file lain."); 
-  } 
+  } finally {
+
+    if (progressSvg) progressSvg.style.display = 'none';
+    if (progressCircle) progressCircle.style.strokeDashoffset = circumference;
+    input.value = ''; 
+  }
 }
 
 function openStoryViewer(story, authorName, isMine) {
