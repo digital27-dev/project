@@ -373,14 +373,14 @@ button:active { transform: translateY(0); }
   background: rgba(30, 37, 50, 0.5);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 6px 16px;
+  padding: 7px 16px;
   font-size: 0.75rem;
   color: var(--text-sec); 
   gap: 6px;
   margin: 3px auto; 
   width: fit-content;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50px;
+  border: 1px solid rgba(255,255,255,0.1);
   user-select: none;
   -webkit-user-select: none;
   pointer-events: none;
@@ -3047,7 +3047,7 @@ function addMsg(data, side, timeStr) {
   const div = document.createElement("div");
   if (data.type === 'system') { 
     div.className = 'msg system-msg'; 
-    div.innerHTML = `<div style="text-align:center; background: rgba(30, 37, 50, 0.5); backdrop-filter: blur(12px); padding:8px 16px; border-radius:16px; font-size:0.85rem; color:var(--text-sec); margin: 2px auto; width: fit-content; border: 1px solid rgba(255,255,255,0.1);">${escapeHtml(data.text)}</div>`; 
+    div.innerHTML = `<div style="text-align:center; background: rgba(30, 37, 50, 0.5); backdrop-filter: blur(12px); padding:7px 16px; border-radius:50px; font-weight: 500; font-size:0.75rem; color:var(--text-sec); margin: 3px auto; width: fit-content; border: 1px solid rgba(255,255,255,0.1);">${escapeHtml(data.text)}</div>`; 
     document.getElementById("messages").appendChild(div); 
     div.scrollIntoView({ behavior: "smooth", block: "end" }); 
     return div; 
@@ -4616,7 +4616,7 @@ socket.on("partner-disconnected", () => {
 
 async function startMedia(isVideo) {
   try {
-    const constraints = { video: isVideo ? { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 }, aspectRatio: { ideal: 16/9 } } : false, audio: true };
+    const constraints = { video: isVideo ? { facingMode: "user", width: { ideal: 1920 }, height: { ideal: 1080 }, aspectRatio: { ideal: 16/9 } } : false, audio: true };
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
     
     if (isVideo) { 
