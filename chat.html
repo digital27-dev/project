@@ -2294,7 +2294,7 @@ async function handleSendClick() {
           document.getElementById('sendIcon').className = 'fas fa-stop'; 
           document.getElementById('sendIcon').style.color = 'white'; 
           document.getElementById('sendBtn').style.background = 'var(--danger)'; 
-          showToast("Sedang Merekam Suara"); 
+          showToast("Sedang merekam suara"); 
         } catch(e) { 
           showAlert("Izin microphone ditolak."); 
         }
@@ -4000,7 +4000,7 @@ async function sendFile() {
     cancelFilePreview();
     document.getElementById('fileInput').value = '';
     selectedFile = null;
-    showToast("Sedang memproses link mohon tunggu");
+    showToast("Sedang memproses link");
 
     try {
       const fileUrl = await uploadToCloudinary(fileToUpload);
