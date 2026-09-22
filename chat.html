@@ -3894,6 +3894,9 @@ function sendMessage() {
   }
   
   const messageData = { type: 'text', text: text, replyTo: replyingTo ? replyingTo.id : null };
+  
+  let currentReplyingTo = replyingTo;
+  
   addMsg(messageData, "me"); 
   sendEncryptedMessage(messageData);
   
@@ -3902,7 +3905,11 @@ function sendMessage() {
   handleInputIconToggle(); 
   input.focus();
   
-  if (text.toLowerCase().includes("/ai")) handleAIQuery(text);
+  let isReplyToAI = currentReplyingTo && currentReplyingTo.text && currentReplyingTo.text.startsWith("[AI]");
+  
+  if (text.toLowerCase().includes("/ai") || isReplyToAI) { 
+      handleAIQuery(text, isReplyToAI ? currentReplyingTo.text : null);
+  }
 }
 
 const initVectors = [
@@ -3911,7 +3918,7 @@ const initVectors = [
 
 let currentVectorIndex = 0; 
 
-async function handleAIQuery(userText) {
+async function handleAIQuery(userText, contextText = null) {
     if (initVectors.length === 0) { 
         addMsg({ type: 'text', text: "[AI] Token belum disetel dengan benar." }, "other"); 
         return; 
@@ -3924,7 +3931,14 @@ async function handleAIQuery(userText) {
     el.textContent = "AI sedang mengetik…"; 
     el.className = "partner-status status-typing";
     
-    const promptText = userText.replace(/@ai/ig, '').trim() || "Halo";
+    const promptText = userText.replace(/\/ai/ig, '').replace(/@ai/ig, '').trim() || "Halo";
+    
+    let messagesPayload = [];
+    if (contextText) {
+
+        messagesPayload.push({ role: "assistant", content: contextText.replace(/^\[AI\]\s*/i, '') });
+    }
+    messagesPayload.push({ role: "user", content: promptText });
     
     let success = false;
     let attempts = 0;
@@ -3932,7 +3946,7 @@ async function handleAIQuery(userText) {
 
     while (!success && attempts < maxAttempts) {
         try {
-      
+       
             let currentKey = initVectors[currentVectorIndex];
             
             const url = `https://bandelbanget.xyz/v1/chat/completions`;
@@ -3945,7 +3959,7 @@ async function handleAIQuery(userText) {
                 }, 
                 body: JSON.stringify({ 
                     model: "kimi-k2.7-code", 
-                    messages: [{ role: "user", content: promptText }] 
+                    messages: messagesPayload 
                 }) 
             });
             
