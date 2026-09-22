@@ -625,13 +625,16 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
   .msg-action { font-size: 0.85rem; padding: 8px 14px; } 
 }
 
-.msg.me.long-press {
+.msg.long-press {
   position: relative;
   z-index: 1001 !important;
 }
-.msg.me.long-press .bubble {
+.msg.long-press .bubble {
   transform: scale(1.02);
   transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s;
+}
+.msg.long-press .msg-action.action-bottom {
+  transform: scale(1) translateY(0) !important;
 }
 .card:not(.hidden) { opacity: 1; transform: translateY(0); } 
 .hidden { display: none !important; } 
@@ -3538,12 +3541,81 @@ if (quotedMsg.dataset.isAi === 'true') {
     
     div.querySelector('.bubble').appendChild(action); 
     setupInteractionForDelete(div, action, msgId, isTextMsg);
-  } else if(side === 'other' && data.type !== 'deleted' && isTextMsg) {
-    const bubble = div.querySelector('.bubble');
-    bubble.addEventListener('click', (e) => { 
-      e.stopPropagation(); 
-      showReactionBar(bubble, msgId); 
-    });
+  } else if(side === 'other' && data.type !== 'deleted') {
+    const action = document.createElement('div');
+    action.className = 'msg-action';
+    action.style.display = 'none';
+
+    let hasAction = false;
+
+    if (data.isSticker || (data.type === 'file' && div.dataset.isSticker === 'true')) {
+        const btnAddSticker = document.createElement('div');
+        btnAddSticker.innerHTML = '<i class="bi bi-star-fill" style="margin-right:8px; color:var(--warning);"></i> Simpan Stiker';
+        btnAddSticker.style.cssText = 'cursor:pointer; color:var(--text); display:flex; align-items:center; padding: 6px 8px;';
+        btnAddSticker.onclick = (e) => {
+            e.stopPropagation();
+            closeAllMsgActions();
+            let stickers = JSON.parse(localStorage.getItem('sanz_stickers') || '[]');
+            if(!stickers.includes(data.fileUrl)) {
+                stickers.push(data.fileUrl);
+                localStorage.setItem('sanz_stickers', JSON.stringify(stickers));
+                renderStickers(); 
+                showToast("Stiker berhasil disimpan!");
+            } else {
+                showToast("Stiker sudah ada di koleksi");
+            }
+        };
+        action.appendChild(btnAddSticker);
+        hasAction = true;
+    }
+
+    else if ((data.type === 'file' || data.type === 'video') && !data.isSticker) {
+        const btnDownload = document.createElement('div');
+        btnDownload.innerHTML = '<i class="bi bi-download" style="margin-right:8px;"></i> Download';
+        btnDownload.style.cssText = 'cursor:pointer; color:var(--text); display:flex; align-items:center; padding: 6px 8px;';
+        btnDownload.onclick = async (e) => {
+            e.stopPropagation();
+            closeAllMsgActions();
+            showToast("Mendownload...");
+            try {
+
+                const res = await fetch(data.fileUrl);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                
+                let ext = data.type === 'video' ? 'mp4' : 'jpg';
+                if (data.fileUrl.includes('.png')) ext = 'png';
+                if (data.fileUrl.includes('.webp')) ext = 'webp';
+                
+                a.download = `SanzMedia_${Date.now()}.${ext}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl);
+                showToast("Berhasil didownload");
+            } catch (err) {
+
+                window.open(data.fileUrl, '_blank');
+            }
+        };
+        action.appendChild(btnDownload);
+        hasAction = true;
+    }
+
+    if (hasAction) {
+        div.querySelector('.bubble').appendChild(action);
+        setupInteractionForDelete(div, action, msgId, isTextMsg);
+    }
+
+    if (isTextMsg) {
+        const bubble = div.querySelector('.bubble');
+        bubble.addEventListener('click', (e) => { 
+            e.stopPropagation(); 
+            showReactionBar(bubble, msgId); 
+        });
+    }
   }
 
   div.addEventListener('touchstart', handleTouchStart, {passive: true}); 
