@@ -4616,8 +4616,7 @@ socket.on("partner-disconnected", () => {
 
 async function startMedia(isVideo) {
   try {
-    const constraints = { video: isVideo ? { facingMode: "user", width: { ideal: 256 }, height: { ideal: 144 }, aspectRatio: { ideal: 16/9 } } : false, audio: true };
-    localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    const constraints = { video: isVideo ? { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 }, aspectRatio: { ideal: 16/9 } } : false, audio: true };
     
     if (isVideo) { 
       const videoTrack = localStream.getVideoTracks()[0]; 
