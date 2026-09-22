@@ -4138,10 +4138,18 @@ async function handleAIQuery(userText, contextText = null) {
             }
             
             if (response.ok && data.choices && data.choices.length > 0) {
-                const aiMsgData = { type: 'text', text: "[AI] " + data.choices[0].message.content }; 
-                addMsg(aiMsgData, "other"); 
-                sendEncryptedMessage(aiMsgData);
-                success = true; 
+
+             const aiMsgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    
+             const aiMsgData = { 
+               id: aiMsgId, 
+               type: 'text', 
+               text: "[AI] " + data.choices[0].message.content 
+             };
+    
+             addMsg(aiMsgData, "other");
+             sendEncryptedMessage(aiMsgData);
+             success = true;
             } else if (response.status === 429 || (data.error && data.error.code === 429)) {
                 currentVectorIndex = (currentVectorIndex + 1) % initVectors.length;
                 attempts++;
