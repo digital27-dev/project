@@ -3183,9 +3183,24 @@ function addMsg(data, side, timeStr) {
     });
 
     let formattedText = escapeHtml(rawText);
+    let aiImages = [];
+    let aiImgCounter = 0;
 
     formattedText = formattedText.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, function(match, alt, url) {
-        return `<img src="${url}" alt="${alt}" style="max-width: 100%; border-radius: 8px; margin-top: 8px; cursor: pointer; display: block;" onclick="openMediaViewer('${url}', 'image', 'AI Image')" />`;
+
+        url = url.replace(/&quot;/g, '"').replace(/&#039;/g, "'").split(/[\s"]/)[0].trim();
+
+        if (url.includes('pollinations.ai')) {
+            let baseUrl = url.split('?')[0]; 
+            url = baseUrl + '?width=1024&height=1024&nologo=true'; 
+        }
+        
+        let safeUrl = url.replace(/'/g, "%27");
+        
+        let html = `<img src="${url}" alt="AI Image" style="max-width: 100%; border-radius: 8px; margin-top: 8px; cursor: pointer; display: block; background: rgba(0,0,0,0.2); min-height: 150px;" onclick="openMediaViewer('${safeUrl}', 'image', 'AI Image')" onerror="this.style.display='none'" />`;
+        
+        aiImages.push(html);
+        return `%%%AI_IMAGE${aiImgCounter++}%%%`;
     });
 
     formattedText = linkify(formattedText
@@ -3193,6 +3208,10 @@ function addMsg(data, side, timeStr) {
         .replace(/_([^_]+)_/g, '<i>$1</i>')
         .replace(/~([^~]+)~/g, '<strike>$1</strike>'))
         .replace(/\n/g, '<br>');
+
+    aiImages.forEach((html, index) => {
+        formattedText = formattedText.replace(`%%%AI_IMAGE${index}%%%`, html);
+    });
 
     inlineCodes.forEach((html, index) => {
         formattedText = formattedText.replace(`%%%INLINECODE${index}%%%`, html);
@@ -3210,7 +3229,7 @@ function addMsg(data, side, timeStr) {
     content = `<div class="bubble media-bubble">${quoteHtml}
       <div class="msg-content" style="padding:8px; min-width: 220px;">
         <div style="color:var(--accent); font-size:0.85rem; font-weight:600; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-          <i class="bi bi-geo-alt-fill"></i> Lokasi
+          <i class="bi bi-geo-alt-fill"></i> Lokasi saya
         </div>
         <iframe src="${escapeHtml(data.embedUrl)}" width="100%" height="160" style="border:0; border-radius:12px; margin-bottom:6px;" allowfullscreen="" loading="lazy"></iframe>
         <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 4px;">
@@ -4124,11 +4143,48 @@ let currentVectorIndex = 0;
 
 async function handleAIQuery(userText, contextText = null, replyToId = null) {
     if (initVectors.length === 0) { 
-      
         addMsg({ type: 'text', text: "[AI] Apikey belum disetel dengan benar.", replyTo: replyToId }, "other"); 
         return; 
     }
     
+    const promptText = userText.replace(/\/ai/ig, '').replace(/@ai/ig, '').trim();
+    const lowerText = promptText.toLowerCase();
+    let instantReply = null;
+
+    if (lowerText === "siapa kamu" || lowerText === "siapa kamu?") {
+        instantReply = "Saya adalah asisten ai";
+    } else if (lowerText.includes("siapa yang buat kamu") || lowerText.includes("siapa pembuatmu") || lowerText.includes("siapa penciptamu")) {
+        instantReply = "Saya dibuat oleh developer bernama sanz";
+    } else if (lowerText.includes("model apa") || lowerText.includes("models apa") || lowerText.includes("pakai model apa")) {
+        instantReply = "Models sanz-k7 pro";
+    }
+
+    if (instantReply) {
+        const aiMsgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        const aiMsgData = { 
+            id: aiMsgId, 
+            type: 'text', 
+            text: "[AI] " + instantReply,
+            replyTo: replyToId 
+        };
+
+        const el = document.getElementById("partnerStatus");
+        const oldStatus = el.textContent;
+        const oldClass = el.className;
+        
+        el.textContent = "AI sedang mengetik…"; 
+        el.className = "partner-status status-typing";
+        
+        setTimeout(() => {
+            addMsg(aiMsgData, "other");
+            sendEncryptedMessage(aiMsgData);
+            el.textContent = oldStatus; 
+            el.className = oldClass;
+        }, 600);
+        
+        return; 
+    }
+
     const el = document.getElementById("partnerStatus");
     const oldStatus = el.textContent;
     const oldClass = el.className;
@@ -4139,7 +4195,6 @@ async function handleAIQuery(userText, contextText = null, replyToId = null) {
     const loadingId = 'ai-loading-' + Date.now();
     addMsg({ id: loadingId, type: 'loading', replyTo: replyToId }, 'other');
 
-    const promptText = userText.replace(/\/ai/ig, '').replace(/@ai/ig, '').trim() || "Halo";
     let messagesPayload = [];
     const messageElements = document.querySelectorAll('#messages .msg');
     
@@ -4171,13 +4226,19 @@ async function handleAIQuery(userText, contextText = null, replyToId = null) {
     });
     
     if (messagesPayload.length === 0) {
-        messagesPayload.push({ role: "user", content: promptText });
+        messagesPayload.push({ role: "user", content: promptText || "Halo" });
     } else {
         const lastMsg = messagesPayload[messagesPayload.length - 1];
-        if (!lastMsg || lastMsg.role !== "user" || lastMsg.content !== promptText) {
-            messagesPayload.push({ role: "user", content: promptText });
+        if (!lastMsg || lastMsg.role !== "user" || lastMsg.content !== (promptText || "Halo")) {
+            messagesPayload.push({ role: "user", content: promptText || "Halo" });
         }
     }
+
+    const systemInstruction = {
+        role: "system",
+        content: "Kamu adalah asisten AI. Nama modelmu adalah 'sanz-k7 pro'. Kamu dibuat oleh developer bernama 'sanz'. Jika ditanya siapa kamu, jawab 'saya adalah asisten ai'. Jika ditanya siapa yang membuatmu, jawab 'saya dibuat oleh developer bernama sanz'. Jika ditanya menggunakan model apa, jawab 'models sanz-k7 pro'. Jika pengguna meminta untuk DIBUATKAN GAMBAR, LUKISAN, atau FOTO, JANGAN memberikan kode SVG/HTML/Python. Kamu HARUS membalas menggunakan format Markdown Image dengan memanggil API pollinations.ai. Formatnya: ![Deskripsi Gambar](https://image.pollinations.ai/prompt/DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS_YANG_SANGAT_DETAIL?width=512&height=512&nologo=true). Contoh balasanmu: 'Ini gambar yang kamu minta: ![Cute cat](https://image.pollinations.ai/prompt/A%20cute%20fluffy%20cat%20playing%20in%20a%20garden?width=512&height=512&nologo=true)'."
+    };
+    messagesPayload.unshift(systemInstruction);
 
     let success = false;
     let attempts = 0;
