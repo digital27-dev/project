@@ -10,6 +10,7 @@
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 
 <style> 
@@ -5474,6 +5475,66 @@ async function toggleNativePiP() {
 let effectCanvas, effectCtx, effectStream, effectInterval, hiddenVideoForEffect;
 let currentEffectIndex = 0;
 
+let faceMesh;
+let isMediaPipeLoading = false;
+
+const FACE_OVAL_INDICES = [
+  10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 
+  397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 
+  172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109
+];
+
+async function initMediaPipe() {
+  if (faceMesh || isMediaPipeLoading) return;
+  isMediaPipeLoading = true;
+  showToast("Memuat AI Beauty Filter...");
+
+  faceMesh = new FaceMesh({
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+  });
+
+  faceMesh.setOptions({
+    maxNumFaces: 1,
+    refineLandmarks: false,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5
+  });
+
+  faceMesh.onResults((results) => {
+    if (!effectCtx || !effectCanvas.width) return;
+
+    effectCtx.globalCompositeOperation = 'source-over';
+    effectCtx.filter = 'none';
+    effectCtx.globalAlpha = 1.0;
+    effectCtx.drawImage(results.image, 0, 0, effectCanvas.width, effectCanvas.height);
+
+    if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+      const landmarks = results.multiFaceLandmarks[0];
+
+      effectCtx.beginPath();
+      for (let i = 0; i < FACE_OVAL_INDICES.length; i++) {
+        const pt = landmarks[FACE_OVAL_INDICES[i]];
+        const x = pt.x * effectCanvas.width;
+        const y = pt.y * effectCanvas.height;
+        if (i === 0) effectCtx.moveTo(x, y);
+        else effectCtx.lineTo(x, y);
+      }
+      effectCtx.closePath();
+
+      effectCtx.globalCompositeOperation = 'soft-light'; 
+      effectCtx.fillStyle = 'rgba(255, 255, 255, 0.45)'; 
+      effectCtx.filter = 'blur(10px)'; 
+      effectCtx.fill();
+
+      effectCtx.globalCompositeOperation = 'source-over';
+      effectCtx.filter = 'none';
+    }
+  });
+
+  isMediaPipeLoading = false;
+  showToast("Beauty Filter Siap!");
+}
+
 const effectsList = ['none', 'brightness(1.1) contrast(1.05) saturate(1.15)'];
 const effectNames = ['Normal', 'Beauty'];
 
@@ -5483,34 +5544,37 @@ async function toggleEffect() {
     return;
   }
   
-  currentEffectIndex = (currentEffectIndex + 1) % effectsList.length;
-  const effect = effectsList[currentEffectIndex];
+  // Toggle antara 0 (Normal) dan 1 (AI Beauty)
+  currentEffectIndex = (currentEffectIndex + 1) % 2; 
   const effectBtn = document.getElementById("effectBtn");
 
   if (currentEffectIndex === 0) {
-
+    // ---- MODE NORMAL ----
     effectBtn.style.background = "rgba(30, 37, 50, 0.4)";
     effectBtn.style.color = "white";
     effectBtn.style.borderColor = "rgba(255,255,255,0.15)";
-  } else {
+    document.getElementById("localVideo").style.filter = "none";
 
-    effectBtn.style.background = "var(--accent)";
-    effectBtn.style.color = "white";
-    effectBtn.style.borderColor = "var(--accent)";
-  }
-
-  document.getElementById("localVideo").style.filter = effect;
-
-  if (effect === 'none') {
     if (effectInterval) clearInterval(effectInterval);
     const originalTrack = localStream.getVideoTracks()[0];
     if (pc) {
-        const sender = pc.getSenders().find(s => s.track && s.track.kind === "video");
-        if (sender) await sender.replaceTrack(originalTrack);
+      const sender = pc.getSenders().find(s => s.track && s.track.kind === "video");
+      if (sender) await sender.replaceTrack(originalTrack);
     }
     showToast("Efek dimatikan");
     return;
   }
+
+  // ---- MODE AI BEAUTY FILTER ----
+  effectBtn.style.background = "var(--accent)";
+  effectBtn.style.color = "white";
+  effectBtn.style.borderColor = "var(--accent)";
+  
+  // (Opsional) sedikit cerahkan UI video lokal jika perlu
+  document.getElementById("localVideo").style.filter = "brightness(1.05)"; 
+
+  // Inisialisasi MediaPipe jika belum
+  if (!faceMesh) initMediaPipe();
 
   if (!effectCanvas) {
     effectCanvas = document.createElement('canvas');
@@ -5527,38 +5591,30 @@ async function toggleEffect() {
   }
 
   hiddenVideoForEffect.onloadedmetadata = () => {
-      effectCanvas.width = hiddenVideoForEffect.videoWidth;
-      effectCanvas.height = hiddenVideoForEffect.videoHeight;
+    effectCanvas.width = hiddenVideoForEffect.videoWidth;
+    effectCanvas.height = hiddenVideoForEffect.videoHeight;
   };
 
+  // Mulai loop mengirim frame video ke AI MediaPipe
   if (effectInterval) clearInterval(effectInterval);
-  effectInterval = setInterval(() => {
-      if (effectCanvas.width && effectCanvas.height) {
-          
-          effectCtx.filter = 'brightness(1.1) contrast(1.05) saturate(1.15)';
-          effectCtx.globalAlpha = 1.0;
-          effectCtx.drawImage(hiddenVideoForEffect, 0, 0, effectCanvas.width, effectCanvas.height);
-          
-          effectCtx.filter = 'brightness(1.05) saturate(1.2) sepia(0.15)';
-          effectCtx.globalAlpha = 0.15; 
-          effectCtx.drawImage(hiddenVideoForEffect, 0, 0, effectCanvas.width, effectCanvas.height);
-          
-          effectCtx.globalAlpha = 1.0;
-      }
-  }, 1000 / 30);
+  effectInterval = setInterval(async () => {
+    if (faceMesh && hiddenVideoForEffect.readyState >= 2) {
+      // Mengirim gambar ke AI. Hasilnya akan digambar di dalam event faceMesh.onResults
+      await faceMesh.send({ image: hiddenVideoForEffect });
+    }
+  }, 1000 / 30); // 30 FPS
 
   if (!effectStream) {
-      effectStream = effectCanvas.captureStream(30);
+    effectStream = effectCanvas.captureStream(30);
   }
 
   const effectTrack = effectStream.getVideoTracks()[0];
 
+  // Kirim video yang sudah di-filter ke lawan bicara
   if (pc) {
-      const sender = pc.getSenders().find(s => s.track && s.track.kind === "video");
-      if (sender) await sender.replaceTrack(effectTrack);
+    const sender = pc.getSenders().find(s => s.track && s.track.kind === "video");
+    if (sender) await sender.replaceTrack(effectTrack);
   }
-  
-  showToast("Efek diaktifkan");
 }
 
 document.addEventListener('contextmenu', function(e) {
