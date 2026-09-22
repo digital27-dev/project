@@ -3001,9 +3001,13 @@ function addMsg(data, side, timeStr) {
         </div>
       </div>`;
   } else if (data.storyReply) {
-
     let quotedPreview = data.storyReply.type === 'video' ? '[Video Story]' : '[Gambar Story]';
-    quoteHtml = `<div class="quoted-msg"><div style="color: var(--accent); font-weight: 600; margin-bottom: 4px;">Membalas Story</div><div style="color: var(--text-sec); word-break: break-word; margin-bottom: 2px; display: flex; align-items: center; gap: 8px;"><img src="${escapeHtml(data.storyReply.url)}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 6px;" /><span>${quotedPreview}</span></div></div>`;
+    
+    let storyThumbHtml = data.storyReply.type === 'video' 
+        ? `<video src="${escapeHtml(data.storyReply.url)}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 6px;" preload="metadata"></video>`
+        : `<img src="${escapeHtml(data.storyReply.url)}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 6px;" />`;
+
+    quoteHtml = `<div class="quoted-msg"><div style="color: var(--accent); font-weight: 600; margin-bottom: 4px;">Membalas Story</div><div style="color: var(--text-sec); word-break: break-word; margin-bottom: 2px; display: flex; align-items: center; gap: 8px;">${storyThumbHtml}<span>${quotedPreview}</span></div></div>`;
   }
 
   let isTextMsg = false, content = '';
@@ -3447,12 +3451,12 @@ function sendMessage() {
       
       if (url.toLowerCase() === "reset") {
           changeChatBackground("");
-          showToast("Background dikembalikan ke bawaan");
+          showToast("Background direset");
       } else if (url.match(/\.gif$/i)) {
           showAlert("Format GIF tidak diizinkan untuk background chat!");
       } else if (url.match(/\.(jpeg|jpg|png|webp)$/i)) {
           changeChatBackground(url);
-          showToast("Background chat berhasil diubah");
+          showToast("Background diubah");
       } else {
           showAlert("URL tidak valid harus berakhiran .jpg .jpeg .png atau .webp");
       }
