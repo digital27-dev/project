@@ -4155,9 +4155,14 @@ function sendMessage() {
   
   let isReplyToAI = currentReplyingTo && currentReplyingTo.text && currentReplyingTo.text.startsWith("[AI]");
   
+  let imageUrl = null;
+  if (currentReplyingTo && currentReplyingTo.fileUrl && (currentReplyingTo.type === 'file' || currentReplyingTo.type === 'video')) {
+      imageUrl = currentReplyingTo.fileUrl;
+  }
+  
   if (text.toLowerCase().includes("/ai") || isReplyToAI) { 
 
-      handleAIQuery(text, isReplyToAI ? currentReplyingTo.text : null, messageId);
+      handleAIQuery(text, isReplyToAI ? currentReplyingTo.text : null, messageId, imageUrl);
   }
 }
 
@@ -4167,7 +4172,7 @@ const initVectors = [
 
 let currentVectorIndex = 0; 
 
-async function handleAIQuery(userText, contextText = null, replyToId = null) {
+async function handleAIQuery(userText, contextText = null, replyToId = null, imageUrl = null) {
     if (initVectors.length === 0) { 
         addMsg({ type: 'text', text: "[AI] Apikey belum disetel dengan benar.", replyTo: replyToId }, "other"); 
         return; 
@@ -4178,7 +4183,7 @@ async function handleAIQuery(userText, contextText = null, replyToId = null) {
     let instantReply = null;
 
     if (lowerText === "siapa kamu" || lowerText === "siapa kamu?") {
-        instantReply = "Saya adalah asisten ai";
+        instantReply = "Saya adalah kecerdasan buatan";
     } else if (lowerText.includes("siapa yang buat kamu") || lowerText.includes("siapa pembuatmu") || lowerText.includes("siapa penciptamu")) {
         instantReply = "Saya dibuat oleh developer bernama sanz";
     } else if (lowerText.includes("model apa") || lowerText.includes("models apa") || lowerText.includes("pakai model apa")) {
@@ -4215,7 +4220,7 @@ async function handleAIQuery(userText, contextText = null, replyToId = null) {
     const oldStatus = el.textContent;
     const oldClass = el.className;
     
-    el.textContent = "AI sedang mengetik…"; 
+    el.textContent = imageUrl ? "AI sedang mengetik…" : "AI sedang mengetik…"; 
     el.className = "partner-status status-typing";
     
     const loadingId = 'ai-loading-' + Date.now();
@@ -4260,6 +4265,14 @@ async function handleAIQuery(userText, contextText = null, replyToId = null) {
         }
     }
 
+    if (imageUrl) {
+        const lastMsgIndex = messagesPayload.length - 1;
+        messagesPayload[lastMsgIndex].content = [
+            { type: "text", text: promptText || "Tolong jelaskan gambar ini secara detail." },
+            { type: "image_url", image_url: { url: imageUrl } }
+        ];
+    }
+
     const systemInstruction = {
         role: "system",
         content: "Kamu adalah asisten AI. Nama modelmu adalah 'sanz-k7 pro'. Kamu dibuat oleh developer bernama 'sanz'. Jika ditanya siapa kamu, jawab 'saya adalah asisten ai'. Jika ditanya siapa yang membuatmu, jawab 'saya dibuat oleh developer bernama sanz'. Jika ditanya menggunakan model apa, jawab 'models sanz-k7 pro'. Jika pengguna meminta untuk DIBUATKAN GAMBAR, LUKISAN, atau FOTO, JANGAN memberikan kode SVG/HTML/Python. Kamu HARUS membalas menggunakan format Markdown Image dengan memanggil API pollinations.ai. Formatnya: ![Deskripsi Gambar](https://image.pollinations.ai/prompt/DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS_YANG_SANGAT_DETAIL?width=512&height=512&nologo=true). Contoh balasanmu: 'Ini gambar yang kamu minta: ![Cute cat](https://image.pollinations.ai/prompt/A%20cute%20fluffy%20cat%20playing%20in%20a%20garden?width=512&height=512&nologo=true)'."
@@ -4282,7 +4295,7 @@ async function handleAIQuery(userText, contextText = null, replyToId = null) {
                     "Authorization": `Bearer ${currentKey}`
                 }, 
                 body: JSON.stringify({ 
-                    model: "kimi-k2.7-code", 
+                    model: "kimi-k3", 
                     messages: messagesPayload 
                 }) 
             });
@@ -4295,21 +4308,23 @@ async function handleAIQuery(userText, contextText = null, replyToId = null) {
             }
             
             if (response.ok && data.choices && data.choices.length > 0) {
-             const aiMsgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                const aiMsgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     
-             const aiMsgData = { 
-               id: aiMsgId, 
-               type: 'text', 
-               text: "[AI] " + data.choices[0].message.content,
-               replyTo: replyToId 
-             };
+                const aiMsgData = { 
+                    id: aiMsgId, 
+                    type: 'text', 
+                    text: "[AI] " + data.choices[0].message.content,
+                    replyTo: replyToId 
+                };
     
-             addMsg(aiMsgData, "other");
-             sendEncryptedMessage(aiMsgData);
-             success = true;
+                addMsg(aiMsgData, "other");
+                sendEncryptedMessage(aiMsgData);
+                success = true;
+
             } else if (response.status === 429 || (data.error && data.error.code === 429)) {
                 currentVectorIndex = (currentVectorIndex + 1) % initVectors.length;
                 attempts++;
+
             } else if (data.error) {
                 addMsg({ type: 'text', text: `[AI] Error: ${data.error.message}`, replyTo: replyToId }, "other");
                 success = true; 
@@ -4374,77 +4389,59 @@ async function sendFile() {
   const caption = document.getElementById('captionInput').value.trim();
   const isVideo = selectedFile.type.startsWith('video/');
   const fileToUpload = selectedFile;
-  
-  const isLinkMode = caption.toLowerCase().includes('/link');
-
-  const localPreviewUrl = URL.createObjectURL(fileToUpload);
   const msgId = 'temp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
 
-  if (isLinkMode) {
-    cancelFilePreview();
-    document.getElementById('fileInput').value = '';
-    selectedFile = null;
-    showToast("Sedang memproses link");
+  const localPreviewUrl = URL.createObjectURL(fileToUpload);
 
-    try {
-      const fileUrl = await uploadToCloudinary(fileToUpload);
-      const finalCaption = caption.replace(/\/link/ig, fileUrl).trim();
-      const msgData = {
-        type: 'text',
-        text: finalCaption || fileUrl,
-        replyTo: replyingTo ? replyingTo.id : null
-      };
-
-      addMsg(msgData, "me");
-      sendEncryptedMessage(msgData);
-      cancelReply();
-    } catch (err) {
-      showAlert("Gagal membuat link: " + err.message);
-    }
-    return; 
-  }
-
-  const msgData = { 
+  const msgData = {
     id: msgId,
-    type: isVideo ? 'video' : 'file', 
-    fileUrl: localPreviewUrl, 
-    caption: caption || undefined, 
+    type: isVideo ? 'video' : 'file',
+    fileUrl: localPreviewUrl,
+    caption: caption.replace('/link', '').replace('/ai', '').trim(), 
     fromName: window.userData?.name || "Anonim",
-    isUploading: true,
-    replyTo: replyingTo ? replyingTo.id : null 
+    replyTo: replyingTo ? replyingTo.id : null,
+    isUploading: true
   };
-  
-  const msgElement = addMsg(msgData, "me"); 
-  
-  cancelFilePreview(); 
-  document.getElementById('fileInput').value = ''; 
-  selectedFile = null; 
-  
+
+  const msgElement = addMsg(msgData, "me");
+
+  cancelFilePreview();
+  document.getElementById('fileInput').value = '';
+  selectedFile = null;
+  showToast("Sedang mengirim media");
+
   try {
-    const fileUrl = await uploadToCloudinary(fileToUpload, (percent) => { 
+
+    const fileUrl = await uploadToCloudinary(fileToUpload, (percent) => {
       const progressBar = document.getElementById(`upload-progress-${msgId}`);
-      if (progressBar) progressBar.style.width = percent + '%'; 
+      if (progressBar) progressBar.style.width = percent + '%';
     });
-    
-    msgData.fileUrl = fileUrl; 
-    delete msgData.isUploading; 
-    msgElement.dataset.fileUrl = fileUrl; 
-    
+
+    msgData.fileUrl = fileUrl;
+    delete msgData.isUploading;
+    msgElement.dataset.fileUrl = fileUrl;
+
     const overlay = document.getElementById(`upload-overlay-${msgId}`);
-    if (overlay) overlay.remove(); 
-    
+    if (overlay) overlay.remove();
+
     const mediaDiv = msgElement.querySelector('div[onclick*="openMediaViewer"]');
     if (mediaDiv) {
         mediaDiv.setAttribute('onclick', `openMediaViewer('${fileUrl}', '${isVideo ? 'video' : 'image'}', '${escapeHtml(msgData.fromName)}')`);
     }
-    
+
     delete msgData.id;
-    sendEncryptedMessage(msgData); 
-    cancelReply(); 
-  } catch (err) { 
-    showAlert("Gagal mengunggah file: " + err.message); 
-    msgElement.remove(); 
-  } 
+    sendEncryptedMessage(msgData);
+    cancelReply();
+
+    if (caption && caption.toLowerCase().includes('/ai') && !isVideo) {
+        const promptText = caption.replace(/\/ai/ig, '').trim() || "Tolong jelaskan gambar ini secara detail.";
+        handleAIQuery(promptText, null, msgId, fileUrl);
+    }
+
+  } catch (err) {
+    showAlert("Gagal mengunggah file: " + err.message);
+    msgElement.remove();
+  }
 }
 
 function cancelFilePreview() {
