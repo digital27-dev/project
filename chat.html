@@ -365,8 +365,30 @@ button:active { transform: translateY(0); }
 .status-offline { color: var(--danger); } 
 .status-last-seen { color: var(--text-sec); } 
 .status-typing { color: var(--warning); font-style: italic; } 
-.encryption-info { font-weight:500; display: flex; align-items: center; justify-content: center; background: rgba(30, 37, 50, 0.5); backdrop-filter: blur(12px); padding: 8px 12px; font-size: 0.8rem; color: var(--text-sec); gap: 6px; } 
-.encryption-info i { font-size: 0.75rem; color: var(--text-sec); } 
+.encryption-info {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 37, 50, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  color: var(--text-sec); 
+  gap: 6px;
+  margin: 4px auto; 
+  width: fit-content;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+}
+.encryption-info i { 
+  font-size: 0.75rem; 
+  color: inherit; 
+}
 #messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; overflow-x: hidden; } 
 
 .footer { 
@@ -1011,12 +1033,12 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     </div>
   </div>
 
-  <div class="encryption-info">
-    <i class="fa-solid fa-lock"></i>
-    Pesan terenkripsi End-to-End
+  <div id="messages">
+    <div class="encryption-info">
+      <i class="fa-solid fa-lock"></i>
+      Pesan terenkripsi secara end-to-end
+    </div>
   </div>
-
-  <div id="messages"></div>
   
   <div id="msgActionOverlay" onclick="closeAllMsgActions()" style="display:none; position:fixed; inset:0; background:rgba(0, 0, 0, 0.4); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:1000; transition: opacity 0.2s;"></div>
 
@@ -2223,7 +2245,12 @@ function performLogout() {
   socket.emit('putus-hubungan'); 
   window.pendingStoryReplyContext = null; 
 
-  document.getElementById("messages").innerHTML = ""; 
+  document.getElementById("messages").innerHTML = `
+  <div class="encryption-info">
+    <i class="fa-solid fa-lock"></i>
+    Pesan terenkripsi secara end-to-end
+  </div>
+`;
   messagesMap = {}; 
 
   localStorage.removeItem('userData'); 
@@ -2245,7 +2272,12 @@ function refreshChat() {
   partner = null; 
   window.pendingStoryReplyContext = null; 
 
-  document.getElementById("messages").innerHTML = ""; 
+  document.getElementById("messages").innerHTML = `
+  <div class="encryption-info">
+    <i class="fa-solid fa-lock"></i>
+    Pesan terenkripsi secara end-to-end
+  </div>
+`;
   messagesMap = {}; 
 
   document.getElementById("chat").style.display = "none"; 
@@ -3730,7 +3762,12 @@ function sendMessage() {
           return;
       }
 
-      document.getElementById("messages").innerHTML = "";
+      document.getElementById("messages").innerHTML = `
+  <div class="encryption-info">
+    <i class="fa-solid fa-lock"></i>
+    Pesan terenkripsi secara end-to-end
+  </div>
+`;
       messagesMap = {};
       
       socket.emit("clear-chat");
@@ -4329,7 +4366,12 @@ socket.on("matched", p => {
 });
 
 socket.on("chat-history", historyArr => { 
-  document.getElementById("messages").innerHTML = ""; 
+  document.getElementById("messages").innerHTML = `
+  <div class="encryption-info">
+    <i class="fa-solid fa-lock"></i>
+    Pesan terenkripsi secara end-to-end
+  </div>
+`;
   messagesMap = {}; 
   historyArr.forEach(msg => { 
     msg.text = decrypt(msg.text); 
@@ -4840,7 +4882,12 @@ function autoEndCallIfDisconnected() {
 socket.on("end-call", () => endCall(false, false));
 
 socket.on("chat-cleared", () => {
-  document.getElementById("messages").innerHTML = "";
+  document.getElementById("messages").innerHTML = `
+  <div class="encryption-info">
+    <i class="fa-solid fa-lock"></i>
+    Pesan terenkripsi secara end-to-end
+  </div>
+`;
   messagesMap = {};
   showToast("Percakapan dihapus");
 });
