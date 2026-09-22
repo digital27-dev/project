@@ -3172,8 +3172,8 @@ function addMsg(data, side, timeStr) {
     let senderName = data.fromName || (side === 'me' ? (window.userData?.name || 'Kamu') : (partner?.name || 'Partner'));
     content = `<div class="bubble media-bubble ${!data.caption ? 'no-caption' : ''}">
       ${quoteHtml}
-      <div class="video-msg-container" style="position:relative; cursor:pointer; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center;" onclick="openMediaViewer('${data.fileUrl}', 'video', '${escapeHtml(senderName)}')">
-        <video src="${data.fileUrl}" style="pointer-events:none; -webkit-user-drag:none; user-select:none; max-width:100%; max-height:280px; background:#000; display:block; object-fit: contain; border-radius: 12px;" preload="metadata" oncontextmenu="return false;"></video>
+      <div class="video-msg-container" style="position:relative; cursor:pointer; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; transform: translateZ(0); -webkit-mask-image: -webkit-radial-gradient(white, black);" onclick="openMediaViewer('${data.fileUrl}', 'video', '${escapeHtml(senderName)}')">
+       <video src="${data.fileUrl}" style="pointer-events:none; -webkit-user-drag:none; user-select:none; max-width:100%; max-height:280px; background:#000; display:block; object-fit: contain; border-radius: inherit;" preload="metadata" oncontextmenu="return false;"></video>
         <div class="play-overlay" style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.3);"><i class="bi bi-play-fill" style="font-size:3.5rem; color:rgba(255,255,255,0.85);"></i></div>
             ${uploadOverlayHtml}
           </div>
