@@ -2269,7 +2269,9 @@ function confirmDisconnect() {
 }
 
 socket.on('message-confirmed', ({ id }) => { 
-  const lastMsg = document.querySelector('.msg.me:last-child'); 
+  const myMessages = document.querySelectorAll('.msg.me');
+  const lastMsg = myMessages[myMessages.length - 1];
+  
   if (lastMsg && lastMsg.dataset.msgId && lastMsg.dataset.msgId.startsWith('temp-')) { 
     const oldTempId = lastMsg.dataset.msgId; 
     lastMsg.dataset.msgId = id; 
