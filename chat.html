@@ -1636,9 +1636,16 @@ function renderStickers() {
 
 function sendStickerMessage(url) {
   if (!partner) return;
-  const messageData = { type: 'file', fileUrl: url, caption: '', isSticker: true };
+  const messageData = { 
+      type: 'file', 
+      fileUrl: url, 
+      caption: '', 
+      isSticker: true,
+      replyTo: replyingTo ? replyingTo.id : null 
+  };
   addMsg(messageData, "me");
   sendEncryptedMessage(messageData);
+  cancelReply(); 
 }
 
 window.handleStoryInputToggle = function() {
@@ -4270,9 +4277,7 @@ async function sendFile() {
 
     try {
       const fileUrl = await uploadToCloudinary(fileToUpload);
-
       const finalCaption = caption.replace(/\/link/ig, fileUrl).trim();
-
       const msgData = {
         type: 'text',
         text: finalCaption || fileUrl,
@@ -4294,7 +4299,8 @@ async function sendFile() {
     fileUrl: localPreviewUrl, 
     caption: caption || undefined, 
     fromName: window.userData?.name || "Anonim",
-    isUploading: true 
+    isUploading: true,
+    replyTo: replyingTo ? replyingTo.id : null 
   };
   
   const msgElement = addMsg(msgData, "me"); 
@@ -4323,6 +4329,7 @@ async function sendFile() {
     
     delete msgData.id;
     sendEncryptedMessage(msgData); 
+    cancelReply(); 
   } catch (err) { 
     showAlert("Gagal mengunggah file: " + err.message); 
     msgElement.remove(); 
