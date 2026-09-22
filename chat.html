@@ -3338,7 +3338,7 @@ function addMsg(data, side, timeStr) {
     if (data.isSticker) div.dataset.isSticker = 'true';
   } else if (data.type === 'loading') {
     isTextMsg = false;
-    content = `<div class="bubble"><div class="msg-content" style="padding: 2px 10px;"><div class="ai-typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div>`;
+    content = `<div class="bubble"><div class="msg-content" style="padding: 0px 10px;"><div class="ai-typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div>`;
     div.dataset.type = 'loading';
   } else if (data.type === 'deleted') {
     content = `<div class="bubble deleted-msg"><i class="bi bi-ban" style="margin-right:6px;"></i>Pesan ini telah dihapus<span class="bubble-time">${timeStr}</span></div>`;
@@ -5760,9 +5760,9 @@ async function toggleEffect() {
     effectBtn.style.borderColor = "rgba(255,255,255,0.15)";
   } else {
 
-    effectBtn.style.background = "var(--accent)";
-    effectBtn.style.color = "white";
-    effectBtn.style.borderColor = "var(--accent)";
+    effectBtn.style.background = "rgba(16, 185, 129, 0.15)"; 
+    effectBtn.style.color = "var(--accent)"; 
+    effectBtn.style.borderColor = "rgba(16, 185, 129, 0.3)";
   }
 
   document.getElementById("localVideo").style.filter = effect;
