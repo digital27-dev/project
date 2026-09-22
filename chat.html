@@ -377,7 +377,7 @@ button:active { transform: translateY(0); }
   font-size: 0.75rem;
   color: var(--text-sec); 
   gap: 6px;
-  margin: 4px auto; 
+  margin: 3px auto; 
   width: fit-content;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -3599,8 +3599,16 @@ function createTextImage(text) {
 function sendMessage() {
   const input = document.getElementById("msg");
   let text = input.value.trim().substring(0, 10000); 
-  
+
   if (!text) return;
+
+  const displayCommandAsMessage = () => {
+      const commandId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+      const cmdData = { id: commandId, type: 'text', text: text, replyTo: replyingTo ? replyingTo.id : null };
+      addMsg(cmdData, "me");
+      sendEncryptedMessage(cmdData);
+      return commandId;
+  };
 
   if (text.toLowerCase().startsWith("/stiker ")) {
       const url = text.substring(8).trim();
@@ -3643,7 +3651,8 @@ function sendMessage() {
   }
 
   if (text.toLowerCase() === "/sanz") {
-      text = "*Daftar Fitur*\n\n" +
+      const cmdId = displayCommandAsMessage();
+      const menuText = "*Daftar Fitur*\n\n" +
              "• *stiker url* : Menambah stiker\n" +
              "• *cuaca <daerah>* : Info cuaca\n" +
              "• *ai <text>* : Kecerdasan buatan\n" +
@@ -3660,9 +3669,20 @@ function sendMessage() {
              "• *tiktok url* : Putar video TikTok\n" +
              "• *vidio url* : Putar video YouTube\n\n" +
              "_Pesan akan dikirim otomatis oleh sistem contoh */stiker url* untuk menggunakan fitur_";
+      
+      const msgData = { type: 'text', text: menuText, replyTo: cmdId };
+      addMsg(msgData, "me");
+      sendEncryptedMessage(msgData);
+
+      input.value = "";
+      cancelReply();
+      handleInputIconToggle();
+      input.focus();
+      return;
   }
   
   if (text.toLowerCase() === "/test") {
+      const cmdId = displayCommandAsMessage();
       input.value = "";
       cancelReply();
       handleInputIconToggle();
@@ -3705,7 +3725,7 @@ function sendMessage() {
               const msgData = { 
                   type: 'text', 
                   text: infoMsg, 
-                  replyTo: replyingTo ? replyingTo.id : null 
+                  replyTo: cmdId 
               };
               
               addMsg(msgData, "me");
@@ -3719,6 +3739,7 @@ function sendMessage() {
   }
   
   if (text.toLowerCase() === "/lokasi") {
+      const cmdId = displayCommandAsMessage();
       input.value = "";
       cancelReply();
       handleInputIconToggle();
@@ -3746,7 +3767,7 @@ function sendMessage() {
               type: 'location', 
               mapUrl: mapUrl,
               embedUrl: embedUrl,
-              replyTo: replyingTo ? replyingTo.id : null 
+              replyTo: cmdId 
           };
           
           addMsg(msgData, "me");
@@ -3805,12 +3826,13 @@ function sendMessage() {
   }
   
   if (text.toLowerCase() === "/music") {
+      const cmdId = displayCommandAsMessage();
       const uniqueId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
       const msgData = { 
           id: uniqueId,
           type: 'spotify-carousel', 
           currentIndex: 0,
-          replyTo: replyingTo ? replyingTo.id : null 
+          replyTo: cmdId 
       };
       
       addMsg(msgData, "me");
@@ -3824,6 +3846,7 @@ function sendMessage() {
   }
   
   if (text.toLowerCase() === "/device") {
+      const cmdId = displayCommandAsMessage();
       input.value = "";
       cancelReply();
       handleInputIconToggle();
@@ -3878,7 +3901,7 @@ function sendMessage() {
           const msgData = { 
               type: 'text', 
               text: infoMsg, 
-              replyTo: replyingTo ? replyingTo.id : null 
+              replyTo: cmdId 
           };
           
           addMsg(msgData, "me");
@@ -3949,7 +3972,6 @@ function sendMessage() {
                   showToast("Video sedang dikirim");
 
                   try {
-
                       const cloudinaryUrl = await uploadUrlToCloudinary(noWatermarkUrl);
 
                       const msgData = {
@@ -4016,10 +4038,9 @@ function sendMessage() {
       return;
   }
 
-  if (!partner) return;
   if (text.toLowerCase().startsWith("/cuaca ")) {
       const location = text.substring(7).trim();
-      const currentReply = replyingTo ? replyingTo.id : null;
+      const cmdId = displayCommandAsMessage();
       
       input.value = "";
       cancelReply();
@@ -4059,7 +4080,7 @@ function sendMessage() {
                   const msgData = { 
                       type: 'text', 
                       text: weatherMsg, 
-                      replyTo: currentReply 
+                      replyTo: cmdId 
                   };
                   addMsg(msgData, "me");
                   sendEncryptedMessage(msgData);
@@ -4074,9 +4095,10 @@ function sendMessage() {
       return;
   }
   
-  const messageData = { type: 'text', text: text, replyTo: replyingTo ? replyingTo.id : null };
-  
   let currentReplyingTo = replyingTo;
+  
+  const messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+  const messageData = { id: messageId, type: 'text', text: text, replyTo: currentReplyingTo ? currentReplyingTo.id : null };
   
   addMsg(messageData, "me"); 
   sendEncryptedMessage(messageData);
@@ -4089,7 +4111,8 @@ function sendMessage() {
   let isReplyToAI = currentReplyingTo && currentReplyingTo.text && currentReplyingTo.text.startsWith("[AI]");
   
   if (text.toLowerCase().includes("/ai") || isReplyToAI) { 
-      handleAIQuery(text, isReplyToAI ? currentReplyingTo.text : null);
+
+      handleAIQuery(text, isReplyToAI ? currentReplyingTo.text : null, messageId);
   }
 }
 
@@ -4099,9 +4122,10 @@ const initVectors = [
 
 let currentVectorIndex = 0; 
 
-async function handleAIQuery(userText, contextText = null) {
+async function handleAIQuery(userText, contextText = null, replyToId = null) {
     if (initVectors.length === 0) { 
-        addMsg({ type: 'text', text: "[AI] Apikey belum disetel dengan benar." }, "other"); 
+      
+        addMsg({ type: 'text', text: "[AI] Apikey belum disetel dengan benar.", replyTo: replyToId }, "other"); 
         return; 
     }
     
@@ -4113,7 +4137,7 @@ async function handleAIQuery(userText, contextText = null) {
     el.className = "partner-status status-typing";
     
     const loadingId = 'ai-loading-' + Date.now();
-    addMsg({ id: loadingId, type: 'loading' }, 'other');
+    addMsg({ id: loadingId, type: 'loading', replyTo: replyToId }, 'other');
 
     const promptText = userText.replace(/\/ai/ig, '').replace(/@ai/ig, '').trim() || "Halo";
     let messagesPayload = [];
@@ -4184,13 +4208,13 @@ async function handleAIQuery(userText, contextText = null) {
             }
             
             if (response.ok && data.choices && data.choices.length > 0) {
-
              const aiMsgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     
              const aiMsgData = { 
                id: aiMsgId, 
                type: 'text', 
-               text: "[AI] " + data.choices[0].message.content 
+               text: "[AI] " + data.choices[0].message.content,
+               replyTo: replyToId 
              };
     
              addMsg(aiMsgData, "other");
@@ -4200,10 +4224,10 @@ async function handleAIQuery(userText, contextText = null) {
                 currentVectorIndex = (currentVectorIndex + 1) % initVectors.length;
                 attempts++;
             } else if (data.error) {
-                addMsg({ type: 'text', text: `[AI] Error: ${data.error.message}` }, "other");
+                addMsg({ type: 'text', text: `[AI] Error: ${data.error.message}`, replyTo: replyToId }, "other");
                 success = true; 
             } else {
-                addMsg({ type: 'text', text: "[AI] Terjadi kesalahan tidak terduga pada server." }, "other");
+                addMsg({ type: 'text', text: "[AI] Terjadi kesalahan tidak terduga pada server.", replyTo: replyToId }, "other");
                 success = true; 
             }
         } catch (e) { 
@@ -4211,7 +4235,7 @@ async function handleAIQuery(userText, contextText = null) {
                 messagesMap[loadingId].remove();
                 delete messagesMap[loadingId];
             }
-            addMsg({ type: 'text', text: "[AI] Gagal menghubungi server pastikan koneksi internet stabil." }, "other"); 
+            addMsg({ type: 'text', text: "[AI] Gagal menghubungi server pastikan koneksi internet stabil.", replyTo: replyToId }, "other"); 
             success = true; 
         }
     }
@@ -4221,7 +4245,7 @@ async function handleAIQuery(userText, contextText = null) {
             messagesMap[loadingId].remove();
             delete messagesMap[loadingId];
         }
-        addMsg({ type: 'text', text: "[AI] Mohon maaf server sedang limit silakan coba lagi nanti." }, "other");
+        addMsg({ type: 'text', text: "[AI] Mohon maaf server sedang limit silakan coba lagi nanti.", replyTo: replyToId }, "other");
     }
 
     el.textContent = oldStatus; 
