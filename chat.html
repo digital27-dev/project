@@ -3474,6 +3474,7 @@ function sendMessage() {
              "• *link <img>* : Convert url pada caption\n" +
              "• *text <text>* : Merubah teks menjadi stiker\n" +
              "• *lokasi* : Berbagi lokasi saya\n" +
+             "• *clear* : Hapus semua percakapan\n" +
              "• *test* : Cek info jaringan provider\n" +
              "• *device* : Cek spesifikasi perangkat\n" +
              "• *bg url* : Mengubah background chat\n" +
@@ -3578,6 +3579,26 @@ function sendMessage() {
       }, (error) => {
           showAlert("Gagal mendapatkan lokasi pastikan perizinan aktif.");
       }, { enableHighAccuracy: true, timeout: 10000 });
+      return;
+  }
+  
+  if (text.toLowerCase() === "/clear") {
+      input.value = "";
+      cancelReply();
+      handleInputIconToggle();
+      input.focus();
+
+      if (!partner) {
+          showAlert("Belum terhubung dengan partner");
+          return;
+      }
+
+      document.getElementById("messages").innerHTML = "";
+      messagesMap = {};
+      
+      socket.emit("clear-chat");
+      
+      showToast("Percakapan dihapus");
       return;
   }
   
@@ -4613,6 +4634,12 @@ function autoEndCallIfDisconnected() {
 }
 
 socket.on("end-call", () => endCall(false, false));
+
+socket.on("chat-cleared", () => {
+  document.getElementById("messages").innerHTML = "";
+  messagesMap = {};
+  showToast("Partner telah membersihkan riwayat obrolan");
+});
 
 function resetVideoLayout() {
     const local = document.getElementById("localVideo");
