@@ -7,7 +7,9 @@
   <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="https://img91.wordpress.com/wp-content/uploads/2026/09/24764_192x192.jpg" />
   <title>Sanz</title>
-
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -841,6 +843,83 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 #videoScreen:not(.audio-call-mode).ui-hidden .top-right-controls {
   opacity: 0;
   pointer-events: none;
+}
+
+.code-container {
+  background: #1e1e1e;
+  border-radius: 8px;
+  margin: 8px 0;
+  overflow: hidden;
+  font-family: monospace;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+.code-header {
+  background: #2d2d2d;
+  padding: 6px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #ccc;
+}
+.code-header span {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+.code-header button {
+  background: transparent;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  box-shadow: none;
+  border-radius: 4px;
+  transition: all 0.2s;
+  font-size: 0.8rem;
+  width: auto !important;
+  margin-left: auto;
+  margin-bottom: 0 !important; 
+}
+.code-header button:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  transform: none;
+}
+.code-content {
+  padding: 12px;
+  overflow-x: auto;
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.code-content code {
+  font-family: inherit;
+  white-space: pre;
+}
+.ai-typing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 20px;
+}
+.ai-typing .dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--text-sec);
+  border-radius: 50%;
+  animation: typingPulse 1.4s infinite ease-in-out both;
+}
+.ai-typing .dot:nth-child(1) { animation-delay: -0.32s; }
+.ai-typing .dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typingPulse {
+  0%, 80%, 100% { transform: scale(0.5); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
 }
 </style>
 </head>
@@ -3026,10 +3105,62 @@ function addMsg(data, side, timeStr) {
   }
 
   if (data.type === 'text' || !data.type) {
-    isTextMsg = true; 
-    let formattedText = linkify(escapeHtml(data.text).replace(/\*([^\*]+)\*/g, '<b>$1</b>').replace(/_([^_]+)_/g, '<i>$1</i>').replace(/~([^~]+)~/g, '<strike>$1</strike>')).replace(/\n/g, '<br>');
-    if (data.isEdited) {
+    isTextMsg = true;
+    let rawText = data.text || '';
+    let codeBlocks = [];
+    let counter = 0;
 
+    rawText = rawText.replace(/```([a-zA-Z0-9_+-]*)\s*([\s\S]*?)```/g, function(match, lang, code) {
+        let id = 'code-' + Date.now() + '-' + counter;
+        let language = (lang || '').trim() || 'plaintext';
+        let validLang = hljs.getLanguage(language) ? language : 'plaintext';
+        
+        let highlighted = hljs.highlight(code.trim(), { language: validLang }).value;
+
+        let html = `
+        <div class="code-container" contenteditable="false" onclick="event.stopPropagation()">
+            <div class="code-header">
+                <span>${language}</span>
+                <button onclick="copyCodeBlock('${id}', this)"><i class="bi bi-clipboard"></i> <span>Salin Kode</span></button>
+            </div>
+            <pre class="code-content"><code id="${id}" class="hljs ${validLang}">${highlighted}</code></pre>
+        </div>`;
+        codeBlocks.push(html);
+        const placeholder = `%%%CODEBLOCK${counter}%%%`;
+        counter++;
+        return placeholder;
+    });
+
+    let inlineCodes = [];
+    let inlineCounter = 0;
+    rawText = rawText.replace(/`([^`]+)`/g, function(match, code) {
+        let html = `<code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.85em; color: #e2e8f0;">${escapeHtml(code)}</code>`;
+        inlineCodes.push(html);
+        const placeholder = `%%%INLINECODE${inlineCounter}%%%`;
+        inlineCounter++;
+        return placeholder;
+    });
+
+    let formattedText = escapeHtml(rawText);
+
+    formattedText = formattedText.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, function(match, alt, url) {
+        return `<img src="${url}" alt="${alt}" style="max-width: 100%; border-radius: 8px; margin-top: 8px; cursor: pointer; display: block;" onclick="openMediaViewer('${url}', 'image', 'AI Image')" />`;
+    });
+
+    formattedText = linkify(formattedText
+        .replace(/\*([^\*]+)\*/g, '<b>$1</b>')
+        .replace(/_([^_]+)_/g, '<i>$1</i>')
+        .replace(/~([^~]+)~/g, '<strike>$1</strike>'))
+        .replace(/\n/g, '<br>');
+
+    inlineCodes.forEach((html, index) => {
+        formattedText = formattedText.replace(`%%%INLINECODE${index}%%%`, html);
+    });
+    codeBlocks.forEach((html, index) => {
+        formattedText = formattedText.replace(`%%%CODEBLOCK${index}%%%`, html);
+    });
+
+    if (data.isEdited) {
         formattedText += ' <span class="edit-label" style="font-size: 0.75rem; font-style: italic; opacity: 0.7; margin-left: 6px;">Diedit</span>';
     }
     content = `<div class="bubble">${quoteHtml}<div class="msg-content"><span class="partner-text">${formattedText}</span><span class="bubble-time">${timeStr}${tickHtml}</span></div></div>`;
@@ -3205,6 +3336,10 @@ function addMsg(data, side, timeStr) {
     div.dataset.type = 'file'; 
     div.dataset.fromName = data.fromName || senderName;
     if (data.isSticker) div.dataset.isSticker = 'true';
+  } else if (data.type === 'loading') {
+    isTextMsg = false;
+    content = `<div class="bubble"><div class="msg-content" style="padding: 2px 10px;"><div class="ai-typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div></div></div>`;
+    div.dataset.type = 'loading';
   } else if (data.type === 'deleted') {
     content = `<div class="bubble deleted-msg"><i class="bi bi-ban" style="margin-right:6px;"></i>Pesan ini telah dihapus<span class="bubble-time">${timeStr}</span></div>`;
   }
@@ -3920,7 +4055,7 @@ let currentVectorIndex = 0;
 
 async function handleAIQuery(userText, contextText = null) {
     if (initVectors.length === 0) { 
-        addMsg({ type: 'text', text: "[AI] Token belum disetel dengan benar." }, "other"); 
+        addMsg({ type: 'text', text: "[AI] Apikey belum disetel dengan benar." }, "other"); 
         return; 
     }
     
@@ -3931,24 +4066,56 @@ async function handleAIQuery(userText, contextText = null) {
     el.textContent = "AI sedang mengetik…"; 
     el.className = "partner-status status-typing";
     
-    const promptText = userText.replace(/\/ai/ig, '').replace(/@ai/ig, '').trim() || "Halo";
-    
-    let messagesPayload = [];
-    if (contextText) {
+    const loadingId = 'ai-loading-' + Date.now();
+    addMsg({ id: loadingId, type: 'loading' }, 'other');
 
-        messagesPayload.push({ role: "assistant", content: contextText.replace(/^\[AI\]\s*/i, '') });
-    }
-    messagesPayload.push({ role: "user", content: promptText });
+    const promptText = userText.replace(/\/ai/ig, '').replace(/@ai/ig, '').trim() || "Halo";
+    let messagesPayload = [];
+    const messageElements = document.querySelectorAll('#messages .msg');
     
+    messageElements.forEach((msgEl) => {
+        const bubble = msgEl.querySelector('.bubble');
+        if (!bubble || bubble.classList.contains('deleted-msg') || msgEl.dataset.type === 'loading') return;
+        
+        let contentDiv = bubble.querySelector('.msg-content') || bubble.querySelector('div:not(.quoted-msg)');
+        if (!contentDiv) return;
+        
+        let clone = contentDiv.cloneNode(true);
+        let t = clone.querySelector('.bubble-time');
+        if (t) t.remove();
+        let editLabel = clone.querySelector('.edit-label'); 
+        if (editLabel) editLabel.remove();
+        
+        let textContent = clone.textContent.trim();
+        if (!textContent) return;
+        
+        if (msgEl.classList.contains('other')) {
+            let cleanText = textContent.replace(/^\[AI\]\s*/i, '');
+            messagesPayload.push({ role: "assistant", content: cleanText });
+        } else if (msgEl.classList.contains('me')) {
+            let cleanText = textContent.replace(/\/ai/ig, '').replace(/@ai/ig, '').trim();
+            if (cleanText) {
+                messagesPayload.push({ role: "user", content: cleanText });
+            }
+        }
+    });
+    
+    if (messagesPayload.length === 0) {
+        messagesPayload.push({ role: "user", content: promptText });
+    } else {
+        const lastMsg = messagesPayload[messagesPayload.length - 1];
+        if (!lastMsg || lastMsg.role !== "user" || lastMsg.content !== promptText) {
+            messagesPayload.push({ role: "user", content: promptText });
+        }
+    }
+
     let success = false;
     let attempts = 0;
     const maxAttempts = initVectors.length;
 
     while (!success && attempts < maxAttempts) {
         try {
-       
             let currentKey = initVectors[currentVectorIndex];
-            
             const url = `https://bandelbanget.xyz/v1/chat/completions`;
             
             const response = await fetch(url, { 
@@ -3964,6 +4131,11 @@ async function handleAIQuery(userText, contextText = null) {
             });
             
             const data = await response.json();
+
+            if (messagesMap[loadingId]) {
+                messagesMap[loadingId].remove();
+                delete messagesMap[loadingId];
+            }
             
             if (response.ok && data.choices && data.choices.length > 0) {
                 const aiMsgData = { type: 'text', text: "[AI] " + data.choices[0].message.content }; 
@@ -3981,12 +4153,20 @@ async function handleAIQuery(userText, contextText = null) {
                 success = true; 
             }
         } catch (e) { 
+            if (messagesMap[loadingId]) {
+                messagesMap[loadingId].remove();
+                delete messagesMap[loadingId];
+            }
             addMsg({ type: 'text', text: "[AI] Gagal menghubungi server pastikan koneksi internet stabil." }, "other"); 
             success = true; 
         }
     }
 
     if (!success && attempts >= maxAttempts) {
+        if (messagesMap[loadingId]) {
+            messagesMap[loadingId].remove();
+            delete messagesMap[loadingId];
+        }
         addMsg({ type: 'text', text: "[AI] Mohon maaf server sedang limit silakan coba lagi nanti." }, "other");
     }
 
@@ -4652,7 +4832,7 @@ socket.on("end-call", () => endCall(false, false));
 socket.on("chat-cleared", () => {
   document.getElementById("messages").innerHTML = "";
   messagesMap = {};
-  showToast("Partner telah membersihkan riwayat obrolan");
+  showToast("Percakapan dihapus");
 });
 
 function resetVideoLayout() {
@@ -4839,10 +5019,49 @@ window.updateMsgAsEdited = function(msgId, newText) {
 
     const contentDiv = msgDiv.querySelector('.msg-content');
     if (contentDiv) {
-
         const timeSpan = contentDiv.querySelector('.bubble-time');
         
-        let formattedText = linkify(escapeHtml(newText).replace(/\*([^\*]+)\*/g, '<b>$1</b>').replace(/_([^_]+)_/g, '<i>$1</i>').replace(/~([^~]+)~/g, '<strike>$1</strike>')).replace(/\n/g, '<br>');
+        let rawText = newText || '';
+        let codeBlocks = [];
+        let counter = 0;
+        
+        rawText = rawText.replace(/```([a-zA-Z0-9_+-]*)\s*([\s\S]*?)```/g, function(match, lang, code) {
+            let id = 'code-' + Date.now() + '-' + counter;
+            let language = (lang || '').trim() || 'plaintext';
+            let validLang = hljs.getLanguage(language) ? language : 'plaintext';
+            let highlighted = hljs.highlight(code.trim(), { language: validLang }).value;
+            let html = `
+            <div class="code-container" contenteditable="false" onclick="event.stopPropagation()">
+                <div class="code-header">
+                    <span>${language}</span>
+                    <button onclick="copyCodeBlock('${id}', this)"><i class="bi bi-clipboard"></i> <span>Salin Kode</span></button>
+                </div>
+                <pre class="code-content"><code id="${id}" class="hljs ${validLang}">${highlighted}</code></pre>
+            </div>`;
+            codeBlocks.push(html);
+            return `%%%CODEBLOCK${counter++}%%%`;
+        });
+
+        let inlineCodes = [];
+        let inlineCounter = 0;
+        rawText = rawText.replace(/`([^`]+)`/g, function(match, code) {
+            let html = `<code style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.85em; color: #e2e8f0;">${escapeHtml(code)}</code>`;
+            inlineCodes.push(html);
+            return `%%%INLINECODE${inlineCounter++}%%%`;
+        });
+
+        let formattedText = linkify(escapeHtml(rawText)
+            .replace(/\*([^\*]+)\*/g, '<b>$1</b>')
+            .replace(/_([^_]+)_/g, '<i>$1</i>')
+            .replace(/~([^~]+)~/g, '<strike>$1</strike>'))
+            .replace(/\n/g, '<br>');
+
+        inlineCodes.forEach((html, index) => { 
+            formattedText = formattedText.replace(`%%%INLINECODE${index}%%%`, html); 
+        });
+        codeBlocks.forEach((html, index) => { 
+            formattedText = formattedText.replace(`%%%CODEBLOCK${index}%%%`, html); 
+        });
 
         contentDiv.innerHTML = formattedText + ' <span class="edit-label" style="font-size: 0.75rem; font-style: italic; opacity: 0.7; margin-left: 6px;">Diedit</span>';
         if (timeSpan) contentDiv.appendChild(timeSpan);
@@ -5613,6 +5832,28 @@ document.addEventListener('contextmenu', function(e) {
         e.preventDefault(); 
     }
 });
+
+window.copyCodeBlock = function(id, btn) {
+    const codeEl = document.getElementById(id);
+    if (!codeEl) return;
+    
+    const textToCopy = codeEl.innerText;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalHtml = btn.innerHTML;
+        const originalColor = btn.style.color;
+        
+        btn.innerHTML = '<i class="bi bi-check2"></i> <span>Tersalin!</span>';
+        btn.style.color = 'var(--success)';
+        
+        setTimeout(() => {
+            btn.innerHTML = originalHtml;
+            btn.style.color = originalColor || '#ccc';
+        }, 2000);
+    }).catch(err => {
+        showAlert("Gagal menyalin kode!");
+    });
+}
 
 document.addEventListener('dragstart', function(e) {
     if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
