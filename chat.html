@@ -1265,7 +1265,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
               <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); border-radius:50%;"><i class="bi bi-plus-lg" style="color:white; font-size: 1.5rem; font-weight: bold;"></i></div>
               
               <svg id="storyUploadProgressSvg" style="position:absolute; top:-2px; left:-2px; width:60px; height:60px; display:none; transform: rotate(-90deg); pointer-events:none;">
-                  <circle cx="30" cy="30" r="28" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3" />
+                  <circle cx="30" cy="30" r="28" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2.5" />
                   <circle id="storyUploadProgressCircle" cx="30" cy="30" r="28" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="176" stroke-dashoffset="176" stroke-linecap="round" style="transition: stroke-dashoffset 0.2s ease-out;" />
               </svg>
           </div>
@@ -2097,7 +2097,6 @@ socket.on('stories-data', (data) => {
                 }
 
                 img.onclick = () => {
-
                     socket.emit('mark-story-seen', story.id);
                     
                     if (partnerPicHeader) {
@@ -2113,6 +2112,47 @@ socket.on('stories-data', (data) => {
         } else {
             partnerStoriesContainer.innerHTML = emptyStoryText;
         }
+    }
+
+    const storyViewerModal = document.getElementById('storyViewerModal');
+    if (currentViewedStoryId && storyViewerModal.style.display !== 'none') {
+        const currentStory = data.myStories?.find(s => s.id === currentViewedStoryId);
+        
+        if (currentStory) {
+            const ul = document.getElementById('storyViewersList');
+            ul.innerHTML = ''; 
+            
+            if (currentStory.viewers && currentStory.viewers.length > 0) {
+                currentStory.viewers.forEach(v => {
+                    let viewerName = (v && v.name) ? v.name : (partner ? partner.name : "Partner");
+                    const li = document.createElement('li');
+                    li.innerHTML = `<i class="bi bi-person-fill" style="color:var(--text); margin-right: 5px;"></i> ${viewerName}`;
+                    li.style.padding = '6px 0';
+                    ul.appendChild(li);
+                });
+            } else {
+                ul.innerHTML = '<li>Belum ada yang melihat</li>';
+            }
+        }
+    }
+});
+
+socket.on('story-viewed-by-partner', (viewerData) => {
+    const storyViewerModal = document.getElementById('storyViewerModal');
+    
+    if (currentViewedStoryId === viewerData.storyId && storyViewerModal.style.display !== 'none') {
+        const ul = document.getElementById('storyViewersList');
+        
+        if (ul.innerHTML.includes('Belum ada yang melihat')) {
+            ul.innerHTML = '';
+        }
+        
+        const viewerName = viewerData.viewerName || (partner ? partner.name : "Partner");
+        
+        const li = document.createElement('li');
+        li.innerHTML = `<i class="bi bi-person-fill" style="color:var(--text); margin-right: 5px;"></i> ${viewerName}`;
+        li.style.padding = '6px 0';
+        ul.appendChild(li);
     }
 });
 
