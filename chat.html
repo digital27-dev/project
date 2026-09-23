@@ -2430,7 +2430,7 @@ function refreshChat() {
   document.getElementById("videoScreen").style.display = "none"; 
   document.getElementById("searching").style.display = "flex"; 
   document.getElementById("searchStatus").textContent = "Mencari partner"; 
-  document.getElementById("dynamicText").textContent = "Sedang mencari partner baru"; 
+  document.getElementById("dynamicText").textContent = "Sedang mencari partner baru mohon tunggu sebentar"; 
   setTimeout(() => socket.emit("join", window.userData), 400); 
 }
 
