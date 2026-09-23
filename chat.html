@@ -3770,6 +3770,12 @@ function updateMsgAsDeleted(msgId) {
   const msgDiv = messagesMap[msgId]; 
   if (!msgDiv) return;
   
+  if (msgDiv.dataset.type === 'loading') {
+      msgDiv.remove();
+      delete messagesMap[msgId];
+      return;
+  }
+  
   const clone = msgDiv.cloneNode(true); 
   msgDiv.parentNode.replaceChild(clone, msgDiv); 
   messagesMap[msgId] = clone; 
@@ -4384,185 +4390,163 @@ const initVectors = [
 let currentVectorIndex = 0; 
 
 async function handleAIQuery(userText, contextText = null, replyToId = null, imageUrl = null) {
-    if (initVectors.length === 0) { 
-        addMsg({ type: 'text', text: "[AI] Apikey belum disetel dengan benar.", replyTo: replyToId }, "other"); 
-        return; 
-    }
-    
-    const promptText = userText.replace(/\/ai/ig, '').replace(/@ai/ig, '').trim();
-    const lowerText = promptText.toLowerCase();
-    let instantReply = null;
+  if (initVectors.length === 0) { 
+    addMsg({ type: 'text', text: "[AI] Apikey belum disetel dengan benar.", replyTo: replyToId }, "other"); 
+    return; 
+  }
+  
+  const promptText = userText.replace(/\/ai/ig, '').replace(/@ai/ig, '').trim();
+  const lowerText = promptText.toLowerCase();
+  let instantReply = null;
 
-    if (lowerText === "siapa kamu" || lowerText === "siapa kamu?") {
-        instantReply = "Saya adalah kecerdasan buatan";
-    } else if (lowerText.includes("siapa yang buat kamu") || lowerText.includes("siapa pembuatmu") || lowerText.includes("siapa penciptamu")) {
-        instantReply = "Saya dibuat oleh developer bernama sanz";
-    } else if (lowerText.includes("model apa") || lowerText.includes("models apa") || lowerText.includes("pakai model apa")) {
-        instantReply = "Models sanz-k7 pro";
-    }
+  if (lowerText === "siapa kamu" || lowerText === "siapa kamu?") {
+    instantReply = "Saya adalah kecerdasan buatan";
+  } else if (lowerText.includes("siapa yang buat kamu") || lowerText.includes("siapa pembuatmu") || lowerText.includes("siapa penciptamu")) {
+    instantReply = "Saya dibuat oleh developer bernama sanz";
+  } else if (lowerText.includes("model apa") || lowerText.includes("models apa") || lowerText.includes("pakai model apa")) {
+    instantReply = "Models sanz-k7 pro";
+  }
 
-    if (instantReply) {
-        const aiMsgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-        const aiMsgData = { 
-            id: aiMsgId, 
-            type: 'text', 
-            text: "[AI] " + instantReply,
-            replyTo: replyToId 
-        };
-
-        const el = document.getElementById("partnerStatus");
-        const oldStatus = el.textContent;
-        const oldClass = el.className;
-        
-        el.textContent = "AI sedang mengetik…"; 
-        el.className = "partner-status status-typing";
-        
-        setTimeout(() => {
-            addMsg(aiMsgData, "other");
-            sendEncryptedMessage(aiMsgData);
-            el.textContent = oldStatus; 
-            el.className = oldClass;
-        }, 600);
-        
-        return; 
-    }
-
-    const el = document.getElementById("partnerStatus");
-    const oldStatus = el.textContent;
-    const oldClass = el.className;
-    
-    el.textContent = imageUrl ? "AI sedang mengetik…" : "AI sedang mengetik…"; 
-    el.className = "partner-status status-typing";
-    
-    const loadingId = 'ai-loading-' + Date.now();
-    addMsg({ id: loadingId, type: 'loading', replyTo: replyToId }, 'other');
-
-    let messagesPayload = [];
-    const messageElements = document.querySelectorAll('#messages .msg');
-    
-    messageElements.forEach((msgEl) => {
-        const bubble = msgEl.querySelector('.bubble');
-        if (!bubble || bubble.classList.contains('deleted-msg') || msgEl.dataset.type === 'loading') return;
-        
-        let contentDiv = bubble.querySelector('.msg-content') || bubble.querySelector('div:not(.quoted-msg)');
-        if (!contentDiv) return;
-        
-        let clone = contentDiv.cloneNode(true);
-        let t = clone.querySelector('.bubble-time');
-        if (t) t.remove();
-        let editLabel = clone.querySelector('.edit-label'); 
-        if (editLabel) editLabel.remove();
-        
-        let textContent = clone.textContent.trim();
-        if (!textContent) return;
-        
-        if (msgEl.classList.contains('other')) {
-            let cleanText = textContent.replace(/^\[AI\]\s*/i, '');
-            messagesPayload.push({ role: "assistant", content: cleanText });
-        } else if (msgEl.classList.contains('me')) {
-            let cleanText = textContent.replace(/\/ai/ig, '').replace(/@ai/ig, '').trim();
-            if (cleanText) {
-                messagesPayload.push({ role: "user", content: cleanText });
-            }
-        }
-    });
-    
-    if (messagesPayload.length === 0) {
-        messagesPayload.push({ role: "user", content: promptText || "Halo" });
-    } else {
-        const lastMsg = messagesPayload[messagesPayload.length - 1];
-        if (!lastMsg || lastMsg.role !== "user" || lastMsg.content !== (promptText || "Halo")) {
-            messagesPayload.push({ role: "user", content: promptText || "Halo" });
-        }
-    }
-
-    if (imageUrl) {
-        const lastMsgIndex = messagesPayload.length - 1;
-        messagesPayload[lastMsgIndex].content = [
-            { type: "text", text: promptText || "Tolong jelaskan gambar ini secara detail." },
-            { type: "image_url", image_url: { url: imageUrl } }
-        ];
-    }
-
-    const systemInstruction = {
-        role: "system",
-        content: "Kamu adalah asisten AI. Nama modelmu adalah 'sanz-k7 pro'. Kamu dibuat oleh developer bernama 'sanz'. Jika ditanya siapa kamu, jawab 'saya adalah asisten ai'. Jika ditanya siapa yang membuatmu, jawab 'saya dibuat oleh developer bernama sanz'. Jika ditanya menggunakan model apa, jawab 'models sanz-k7 pro'. Jika pengguna meminta untuk DIBUATKAN GAMBAR, LUKISAN, atau FOTO, JANGAN memberikan kode SVG/HTML/Python. Kamu HARUS membalas menggunakan format Markdown Image dengan memanggil API pollinations.ai. Formatnya: ![Deskripsi Gambar](https://image.pollinations.ai/prompt/DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS_YANG_SANGAT_DETAIL?width=512&height=512&nologo=true). Contoh balasanmu: 'Ini gambar yang kamu minta: ![Cute cat](https://image.pollinations.ai/prompt/A%20cute%20fluffy%20cat%20playing%20in%20a%20garden?width=512&height=512&nologo=true)'."
+  if (instantReply) {
+    const aiMsgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    const aiMsgData = { 
+      id: aiMsgId, 
+      type: 'text', 
+      text: "[AI] " + instantReply,
+      replyTo: replyToId 
     };
-    messagesPayload.unshift(systemInstruction);
 
-    let success = false;
-    let attempts = 0;
-    const maxAttempts = initVectors.length;
-
-    while (!success && attempts < maxAttempts) {
-        try {
-            let currentKey = initVectors[currentVectorIndex];
-            const url = `https://bandelbanget.xyz/v1/chat/completions`;
-            
-            const response = await fetch(url, { 
-                method: "POST", 
-                headers: { 
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${currentKey}`
-                }, 
-                body: JSON.stringify({ 
-                    model: "kimi-k3", 
-                    messages: messagesPayload 
-                }) 
-            });
-            
-            const data = await response.json();
-
-            if (messagesMap[loadingId]) {
-                messagesMap[loadingId].remove();
-                delete messagesMap[loadingId];
-            }
-            
-            if (response.ok && data.choices && data.choices.length > 0) {
-                const aiMsgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    setTimeout(() => {
+      addMsg(aiMsgData, "other");
+      sendEncryptedMessage(aiMsgData);
+    }, 600);
     
-                const aiMsgData = { 
-                    id: aiMsgId, 
-                    type: 'text', 
-                    text: "[AI] " + data.choices[0].message.content,
-                    replyTo: replyToId 
-                };
-    
-                addMsg(aiMsgData, "other");
-                sendEncryptedMessage(aiMsgData);
-                success = true;
+    return; 
+  }
 
-            } else if (response.status === 429 || (data.error && data.error.code === 429)) {
-                currentVectorIndex = (currentVectorIndex + 1) % initVectors.length;
-                attempts++;
+  const loadingId = 'ai-loading-' + Date.now();
+  const loadingData = { id: loadingId, type: 'loading', replyTo: replyToId };
+  addMsg(loadingData, 'other');
+  sendEncryptedMessage(loadingData);
 
-            } else if (data.error) {
-                addMsg({ type: 'text', text: `[AI] Error: ${data.error.message}`, replyTo: replyToId }, "other");
-                success = true; 
-            } else {
-                addMsg({ type: 'text', text: "[AI] Terjadi kesalahan tidak terduga pada server.", replyTo: replyToId }, "other");
-                success = true; 
-            }
-        } catch (e) { 
-            if (messagesMap[loadingId]) {
-                messagesMap[loadingId].remove();
-                delete messagesMap[loadingId];
-            }
-            addMsg({ type: 'text', text: "[AI] Gagal menghubungi server pastikan koneksi internet stabil.", replyTo: replyToId }, "other"); 
-            success = true; 
-        }
+  const finalizeAiResponse = (textResponse) => {
+
+    if (messagesMap[loadingId]) {
+      messagesMap[loadingId].remove();
+      delete messagesMap[loadingId];
     }
 
-    if (!success && attempts >= maxAttempts) {
-        if (messagesMap[loadingId]) {
-            messagesMap[loadingId].remove();
-            delete messagesMap[loadingId];
-        }
-        addMsg({ type: 'text', text: "[AI] Mohon maaf server sedang limit silakan coba lagi nanti.", replyTo: replyToId }, "other");
-    }
+    socket.emit("delete-for-everyone", { msgId: loadingId });
 
-    el.textContent = oldStatus; 
-    el.className = oldClass;
+    const aiMsgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    const aiMsgData = { 
+      id: aiMsgId, 
+      type: 'text', 
+      text: textResponse,
+      replyTo: replyToId 
+    };
+    addMsg(aiMsgData, "other");
+    sendEncryptedMessage(aiMsgData);
+  };
+
+  let messagesPayload = [];
+  const messageElements = document.querySelectorAll('#messages .msg');
+  
+  messageElements.forEach((msgEl) => {
+    const bubble = msgEl.querySelector('.bubble');
+    if (!bubble || bubble.classList.contains('deleted-msg') || msgEl.dataset.type === 'loading') return;
+    
+    let contentDiv = bubble.querySelector('.msg-content') || bubble.querySelector('div:not(.quoted-msg)');
+    if (!contentDiv) return;
+    
+    let clone = contentDiv.cloneNode(true);
+    let t = clone.querySelector('.bubble-time');
+    if (t) t.remove();
+    let editLabel = clone.querySelector('.edit-label'); 
+    if (editLabel) editLabel.remove();
+    
+    let textContent = clone.textContent.trim();
+    if (!textContent) return;
+    
+    if (msgEl.classList.contains('other')) {
+      let cleanText = textContent.replace(/^\[AI\]\s*/i, '');
+      messagesPayload.push({ role: "assistant", content: cleanText });
+    } else if (msgEl.classList.contains('me')) {
+      let cleanText = textContent.replace(/\/ai/ig, '').replace(/@ai/ig, '').trim();
+      if (cleanText) {
+        messagesPayload.push({ role: "user", content: cleanText });
+      }
+    }
+  });
+  
+  if (messagesPayload.length === 0) {
+    messagesPayload.push({ role: "user", content: promptText || "Halo" });
+  } else {
+    const lastMsg = messagesPayload[messagesPayload.length - 1];
+    if (!lastMsg || lastMsg.role !== "user" || lastMsg.content !== (promptText || "Halo")) {
+      messagesPayload.push({ role: "user", content: promptText || "Halo" });
+    }
+  }
+
+  if (imageUrl) {
+    const lastMsgIndex = messagesPayload.length - 1;
+    messagesPayload[lastMsgIndex].content = [
+      { type: "text", text: promptText || "Tolong jelaskan gambar ini secara detail." },
+      { type: "image_url", image_url: { url: imageUrl } }
+    ];
+  }
+
+  const systemInstruction = {
+    role: "system",
+    content: "Kamu adalah asisten AI. Nama modelmu adalah 'sanz-k7 pro'. Kamu dibuat oleh developer bernama 'sanz'. Jika ditanya siapa kamu, jawab 'saya adalah asisten ai'. Jika ditanya siapa yang membuatmu, jawab 'saya dibuat oleh developer bernama sanz'. Jika ditanya menggunakan model apa, jawab 'models sanz-k7 pro'. Jika pengguna meminta untuk DIBUATKAN GAMBAR, LUKISAN, atau FOTO, JANGAN memberikan kode SVG/HTML/Python. Kamu HARUS membalas menggunakan format Markdown Image dengan memanggil API pollinations.ai. Formatnya: ![Deskripsi Gambar](https://image.pollinations.ai/prompt/DESKRIPSI_GAMBAR_DALAM_BAHASA_INGGRIS_YANG_SANGAT_DETAIL?width=512&height=512&nologo=true). Contoh balasanmu: 'Ini gambar yang kamu minta: ![Cute cat](https://image.pollinations.ai/prompt/A%20cute%20fluffy%20cat%20playing%20in%20a%20garden?width=512&height=512&nologo=true)'."
+  };
+  messagesPayload.unshift(systemInstruction);
+
+  let success = false;
+  let attempts = 0;
+  const maxAttempts = initVectors.length;
+
+  while (!success && attempts < maxAttempts) {
+    try {
+      let currentKey = initVectors[currentVectorIndex];
+      const url = `https://bandelbanget.xyz/v1/chat/completions`;
+      
+      const response = await fetch(url, { 
+        method: "POST", 
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${currentKey}`
+        }, 
+        body: JSON.stringify({ 
+          model: "kimi-k3", 
+          messages: messagesPayload 
+        }) 
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.choices && data.choices.length > 0) {
+        finalizeAiResponse("[AI] " + data.choices[0].message.content);
+        success = true;
+      } else if (response.status === 429 || (data.error && data.error.code === 429)) {
+        currentVectorIndex = (currentVectorIndex + 1) % initVectors.length;
+        attempts++;
+      } else if (data.error) {
+        finalizeAiResponse(`[AI] Error: ${data.error.message}`);
+        success = true; 
+      } else {
+        finalizeAiResponse("[AI] Terjadi kesalahan tidak terduga pada server.");
+        success = true; 
+      }
+    } catch (e) { 
+      finalizeAiResponse("[AI] Gagal menghubungi server pastikan koneksi internet stabil.");
+      success = true; 
+    }
+  }
+
+  if (!success && attempts >= maxAttempts) {
+    finalizeAiResponse("[AI] Mohon maaf server sedang limit silakan coba lagi nanti.");
+  }
 }
 
 function previewFile() {
