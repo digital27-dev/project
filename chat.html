@@ -2901,6 +2901,7 @@ function confirmDelete() {
   if (pendingDeleteBubble) { 
     pendingDeleteBubble.innerHTML = '<i class="bi bi-ban" style="margin-right:6px;"></i>Pesan ini telah dihapus<span class="bubble-time">'+(pendingDeleteBubble.querySelector('.bubble-time')?.textContent || '')+'</span>'; 
     pendingDeleteBubble.className = 'bubble deleted-msg'; 
+    pendingDeleteBubble.removeAttribute('style');
   } 
   if (pendingDeleteAction) pendingDeleteAction.remove(); 
   
@@ -3550,8 +3551,8 @@ if (quotedMsg.dataset.isAi === 'true') {
 
     if (data.isSticker || (data.type === 'file' && div.dataset.isSticker === 'true')) {
         const btnAddSticker = document.createElement('div');
-        btnAddSticker.innerHTML = '<i class="bi bi-star-fill" style="margin-right:8px; color:var(--warning);"></i> Simpan Stiker';
-        btnAddSticker.style.cssText = 'cursor:pointer; color:var(--text); display:flex; align-items:center; padding: 6px 8px;';
+        btnAddSticker.innerHTML = '<i class="bi bi-arrow-return-right" style="margin-right:8px;"></i> Simpan';
+        btnAddSticker.style.cssText = 'cursor:pointer; color:var(--text); display:flex; align-items:center; padding: 2px 2px;';
         btnAddSticker.onclick = (e) => {
             e.stopPropagation();
             closeAllMsgActions();
@@ -3572,11 +3573,11 @@ if (quotedMsg.dataset.isAi === 'true') {
     else if ((data.type === 'file' || data.type === 'video') && !data.isSticker) {
         const btnDownload = document.createElement('div');
         btnDownload.innerHTML = '<i class="bi bi-download" style="margin-right:8px;"></i> Download';
-        btnDownload.style.cssText = 'cursor:pointer; color:var(--text); display:flex; align-items:center; padding: 6px 8px;';
+        btnDownload.style.cssText = 'cursor:pointer; color:var(--text); display:flex; align-items:center; padding: 2px 2px;';
         btnDownload.onclick = async (e) => {
             e.stopPropagation();
             closeAllMsgActions();
-            showToast("Mendownload...");
+            showToast("Mendownload media");
             try {
 
                 const res = await fetch(data.fileUrl);
@@ -3640,6 +3641,7 @@ function updateMsgAsDeleted(msgId) {
   if (bubble) { 
     bubble.innerHTML = `<i class="bi bi-ban" style="margin-right:6px;"></i>Pesan ini telah dihapus<span class="bubble-time">${msgDiv.querySelector('.bubble-time')?.textContent || ''}</span>`; 
     bubble.className = 'bubble deleted-msg'; 
+    bubble.removeAttribute('style');
   }
   
   const action = clone.querySelector('.msg-action'); 
