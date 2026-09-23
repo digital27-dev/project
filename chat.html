@@ -1026,11 +1026,10 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
         <div class="partner-status" id="partnerStatus">Online</div>
       </div>
     </div>
-    <div style="display:flex; gap:16px; font-size:1.3rem; align-items:center;">
+    <div style="display:flex; gap:20px; font-size:1.3rem; align-items:center;">
       <i class="bi bi-arrow-clockwise" id="refreshBtn" onclick="refreshChat()" style="display:none; cursor:pointer; color: var(--text-sec); transition: color 0.2s;" title="Cari partner baru" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-sec)'"></i>
-      <i class="bi bi-telephone-fill" id="audioCallBtn" style="cursor:pointer; color:var(--text-sec); transition: color 0.2s;" onclick="callUser(false)" title="Panggilan Suara" onmouseover="this.style.color='var(--text-sec)'" onmouseout="this.style.color='var(--text-sec)'"></i>
-      <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer; color:var(--text-sec); transition: color 0.2s;" onclick="callUser(true)" title="Video Call" onmouseover="this.style.color='var(--text-sec)'" onmouseout="this.style.color='var(--text-sec)'"></i>
-      <div style="width: 1px; height: 24px; background: var(--border); margin: 0 4px;"></div>
+      <i class="bi bi-camera-video" id="videoCallBtn" style="cursor:pointer; color:var(--text-sec); transition: color 0.2s;" onclick="callUser(true)" title="Video Call" onmouseover="this.style.color='var(--text-sec)'" onmouseout="this.style.color='var(--text-sec)'"></i>
+      <i class="bi bi-telephone" id="audioCallBtn" style="cursor:pointer; color:var(--text-sec); transition: color 0.2s;" onclick="callUser(false)" title="Panggilan Suara" onmouseover="this.style.color='var(--text-sec)'" onmouseout="this.style.color='var(--text-sec)'"></i>
       <i class="bi bi-list" style="cursor:pointer; color:var(--text-sec); font-size: 1.5rem; transition: color 0.2s;" onclick="openMyProfile()" title="Profil Saya" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-sec)'"></i>
     </div>
   </div>
