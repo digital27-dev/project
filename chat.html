@@ -648,7 +648,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 
 .unseen-story-ring { border: 2px solid var(--success) !important; padding: 2px; background-clip: content-box; }
 
-.story-thumb { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); margin: 6px; cursor: pointer; display: inline-block; transition: transform 0.2s;}
+.story-thumb { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2.5px solid var(--accent); margin: 6px; cursor: pointer; display: inline-block; transition: transform 0.2s;}
 .story-thumb:hover { transform: scale(1.05); }
 .story-container { white-space: nowrap; overflow-x: auto; padding: 12px 0; text-align: left; scrollbar-width: none; }
 .story-container::-webkit-scrollbar { display: none; }
@@ -1266,7 +1266,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
               
               <svg id="storyUploadProgressSvg" style="position:absolute; top:-2px; left:-2px; width:60px; height:60px; display:none; transform: rotate(-90deg); pointer-events:none;">
                   <circle cx="30" cy="30" r="28" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3" />
-                  <circle id="storyUploadProgressCircle" cx="30" cy="30" r="28" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="176" stroke-dashoffset="176" stroke-linecap="round" style="transition: stroke-dashoffset 0.2s ease-out;" />
+                  <circle id="storyUploadProgressCircle" cx="30" cy="30" r="28" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-dasharray="176" stroke-dashoffset="176" stroke-linecap="round" style="transition: stroke-dashoffset 0.2s ease-out;" />
               </svg>
           </div>
           <input type="file" id="storyPicInput" accept="image/*,video/*" style="display:none;" onchange="uploadStory(this)" />
@@ -2056,7 +2056,7 @@ socket.on('stories-data', (data) => {
     const partnerPicHeader = document.getElementById("headerPartnerPic");
     if (partnerPicHeader) {
         if (data.hasUnseenPartnerStory) {
-            partnerPicHeader.style.border = "2px solid #25D366";
+            partnerPicHeader.style.border = "2px solid var(--accent)";
             partnerPicHeader.style.padding = "2px";
             partnerPicHeader.style.borderRadius = "50%";
         } else {
@@ -2093,7 +2093,7 @@ socket.on('stories-data', (data) => {
                 img.className = 'story-thumb';
                 
                 if (!story.isSeen) {
-                    img.style.border = "2px solid var(--accent)";
+                    img.style.border = "2.5px solid var(--accent)";
                 }
 
                 img.onclick = () => {
@@ -2104,7 +2104,7 @@ socket.on('stories-data', (data) => {
                         partnerPicHeader.style.border = "none";
                         partnerPicHeader.style.padding = "0px";
                     }
-                    img.style.border = "2px solid var(--accent)"; 
+                    img.style.border = "2.5px solid var(--accent)"; 
 
                     openStoryViewer(story, data.partnerName, false);
                 };
@@ -2119,7 +2119,7 @@ socket.on('stories-data', (data) => {
 async function uploadMyPic(input) { 
   if (!input.files || !input.files[0]) return; 
   try { 
-    showToast("Sedang mengubah foto profil"); 
+    showToast("Mengubah foto profil"); 
     const url = await uploadToCloudinary(input.files[0]); 
     myProfilePicURL = url; 
     window.userData.profilePic = url; 
@@ -2128,7 +2128,7 @@ async function uploadMyPic(input) {
     document.getElementById('myProfileModalPic').src = url; 
     document.getElementById('myStoryAddPic').src = url; 
     socket.emit('update-profile-pic', url); 
-    showToast("Foto profil berhasil diubah"); 
+    showToast("Profil berhasil diubah"); 
   } catch(err) { 
     showAlert("Gagal upload foto"); 
   } 
@@ -2169,48 +2169,6 @@ async function uploadStory(input) {
     if (progressCircle) progressCircle.style.strokeDashoffset = circumference;
     input.value = ''; 
   }
-}
-
-function showPartnerStory(story, partnerName) {
-    if (!story) return;
-
-    socket.emit('mark-story-seen', story.id);
-
-    const partnerPicHeader = document.getElementById("headerPartnerPic");
-    if (partnerPicHeader) {
-        partnerPicHeader.style.border = "none";
-        partnerPicHeader.style.padding = "0px";
-    }
-
-    socket.emit('get-stories'); 
-    const storyModal = document.getElementById('storyModal');
-    const storyImage = document.getElementById('storyImage'); 
-    const storyVideo = document.getElementById('storyVideo'); 
-    const storyUploaderName = document.getElementById('storyUploaderName'); 
-
-    if (storyModal) {
-      
-        if (storyUploaderName) {
-            storyUploaderName.textContent = partnerName || 'Partner';
-        }
-
-        if (story.type === 'video' && storyVideo) {
-            if (storyImage) storyImage.style.display = 'none';
-            storyVideo.style.display = 'block';
-            storyVideo.src = story.url;
-            storyVideo.play();
-        } else if (storyImage) {
-            if (storyVideo) storyVideo.style.display = 'none';
-            storyImage.style.display = 'block';
-            storyImage.src = story.url;
-        }
-
-        storyModal.style.display = 'flex'; 
-
-        setTimeout(() => {
-            closeStoryModal();
-        }, 5000);
-    }
 }
 
 function closeStoryModal() {
@@ -2276,10 +2234,14 @@ function openStoryViewer(story, authorName, isMine) {
         document.getElementById('storyReplyContainer').style.display = 'none';
         viewersListDiv.style.display = 'block'; 
         deleteBtn.style.display = 'inline-block';
+        
         if (story.viewers && story.viewers.length > 0) {
           story.viewers.forEach(v => { 
+
+            let viewerName = (v && v.name) ? v.name : (partner ? partner.name : "Partner");
+            
             const li = document.createElement('li'); 
-            li.innerHTML = `<i class="bi bi-person-fill" style="color:var(--text); margin-right: 5px;"></i> ${v.name}`; 
+            li.innerHTML = `<i class="bi bi-person-fill" style="color:var(--text); margin-right: 5px;"></i> ${viewerName}`; 
             li.style.padding = '6px 0'; 
             ul.appendChild(li); 
           }); 
