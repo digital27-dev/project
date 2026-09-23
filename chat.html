@@ -2051,47 +2051,52 @@ function closeMyProfile() {
 }
 
 socket.on('stories-data', (data) => {
-    const pContainer = document.getElementById('partnerStoriesContainer');
-    const mContainer = document.getElementById('myStoriesContainer');
-    
-    pContainer.innerHTML = ''; 
-    mContainer.innerHTML = '';
-    
-    const headerPic = document.getElementById("headerPartnerPic");
-    let hasUnseen = false;
+    const partnerPicHeader = document.getElementById("headerPartnerPic");
+    if (partnerPicHeader) {
+        if (data.hasUnseenPartnerStory) {
 
-    if (data.partnerStories.length > 0) { 
-        data.partnerStories.forEach(s => { 
-            const el = document.createElement(s.type === 'video' ? 'video' : 'img'); 
-            el.src = s.url; 
-            el.className = 'story-thumb'; 
-            if (s.type === 'video') el.muted = true; 
-            el.onclick = () => openStoryViewer(s, data.partnerName, false); 
-            pContainer.appendChild(el); 
+            partnerPicHeader.style.border = "3px solid #25D366";
+            partnerPicHeader.style.padding = "2px";
+            partnerPicHeader.style.borderRadius = "50%"; 
+        } else {
 
-            if(!viewedStories.includes(s.id)) hasUnseen = true;
-        }); 
-    } else {
-      pContainer.innerHTML = '<span style="color: var(--text-sec); font-weight: 500; font-size: 0.9rem;">Belum ada story</span>';
-    }
-    
-    if(hasUnseen) {
-      headerPic.classList.add('unseen-story-ring');
-    } else {
-      headerPic.classList.remove('unseen-story-ring');
+            partnerPicHeader.style.border = "none";
+            partnerPicHeader.style.padding = "0px";
+        }
     }
 
-    if (data.myStories.length > 0) { 
-      data.myStories.forEach(s => { 
-        const el = document.createElement(s.type === 'video' ? 'video' : 'img'); 
-        el.src = s.url; 
-        el.className = 'story-thumb'; 
-        if (s.type === 'video') el.muted = true; 
-        el.onclick = () => openStoryViewer(s, 'Saya', true); 
-        mContainer.appendChild(el); 
-      }); 
-    } else {
-      mContainer.innerHTML = '<span style="color: var(--text-sec); font-weight: 500; font-size: 0.9rem;">Belum ada story</span>';
+    const myStoriesContainer = document.getElementById('myStoriesContainer');
+    if (myStoriesContainer) {
+        myStoriesContainer.innerHTML = ''; 
+        if (data.myStories && data.myStories.length > 0) {
+            data.myStories.forEach(story => {
+                const img = document.createElement('img');
+                img.src = story.url;
+                img.className = 'story-item-circle'; 
+                
+                img.onclick = () => showMyStory(story); 
+                myStoriesContainer.appendChild(img);
+            });
+        }
+    }
+
+    const partnerStoriesContainer = document.getElementById('partnerStoriesContainer');
+    if (partnerStoriesContainer) {
+        partnerStoriesContainer.innerHTML = ''; 
+        if (data.partnerStories && data.partnerStories.length > 0) {
+            data.partnerStories.forEach(story => {
+                const img = document.createElement('img');
+                img.src = story.url;
+                img.className = 'story-item-circle';
+                
+                if (!story.isSeen) {
+                    img.style.border = "2px solid #25D366";
+                }
+
+                img.onclick = () => showPartnerStory(story, data.partnerName);
+                partnerStoriesContainer.appendChild(img);
+            });
+        }
     }
 });
 
@@ -2148,6 +2153,62 @@ async function uploadStory(input) {
     if (progressCircle) progressCircle.style.strokeDashoffset = circumference;
     input.value = ''; 
   }
+}
+
+function showPartnerStory(story, partnerName) {
+    if (!story) return;
+
+    socket.emit('mark-story-seen', story.id);
+
+    const partnerPicHeader = document.getElementById("headerPartnerPic");
+    if (partnerPicHeader) {
+        partnerPicHeader.style.border = "none";
+        partnerPicHeader.style.padding = "0px";
+    }
+
+    socket.emit('get-stories'); 
+    const storyModal = document.getElementById('storyModal');
+    const storyImage = document.getElementById('storyImage'); 
+    const storyVideo = document.getElementById('storyVideo'); 
+    const storyUploaderName = document.getElementById('storyUploaderName'); 
+
+    if (storyModal) {
+      
+        if (storyUploaderName) {
+            storyUploaderName.textContent = partnerName || 'Partner';
+        }
+
+        if (story.type === 'video' && storyVideo) {
+            if (storyImage) storyImage.style.display = 'none';
+            storyVideo.style.display = 'block';
+            storyVideo.src = story.url;
+            storyVideo.play();
+        } else if (storyImage) {
+            if (storyVideo) storyVideo.style.display = 'none';
+            storyImage.style.display = 'block';
+            storyImage.src = story.url;
+        }
+
+        storyModal.style.display = 'flex'; 
+
+        setTimeout(() => {
+            closeStoryModal();
+        }, 5000);
+    }
+}
+
+function closeStoryModal() {
+    const storyModal = document.getElementById('storyModal');
+    const storyVideo = document.getElementById('storyVideo');
+    
+    if (storyModal) {
+        storyModal.style.display = 'none';
+    }
+    
+    if (storyVideo) {
+        storyVideo.pause();
+        storyVideo.src = ''; 
+    }
 }
 
 function openStoryViewer(story, authorName, isMine) {
@@ -2236,9 +2297,67 @@ function deleteCurrentStory() {
   } 
 }
 
-socket.on('partner-profile-updated', (url) => { 
-  if (partner) partner.profilePic = url; 
-  document.getElementById("headerPartnerPic").src = url || DEFAULT_AVATAR; 
+socket.on('partner-profile-updated', (url) => {
+  if (!partner) return; 
+  
+  partner.profilePic = url; 
+  const picUrl = url || DEFAULT_AVATAR;
+  
+  document.getElementById("headerPartnerPic").src = picUrl; 
+  const modalPic = document.getElementById("partnerProfileModalPic");
+  if (modalPic) modalPic.src = picUrl;
+  
+  const audioCallPic = document.getElementById("audioCallProfilePic");
+  if (audioCallPic) audioCallPic.src = picUrl;
+  
+  const incomingAvatar = document.getElementById("incomingCallAvatar");
+  if (incomingAvatar) incomingAvatar.src = picUrl;
+  
+  const waitingAvatar = document.getElementById("waitingCallAvatar");
+  if (waitingAvatar) waitingAvatar.src = picUrl;
+  
+  const miniAudio = document.getElementById("miniAudioImg");
+  if (miniAudio) miniAudio.src = picUrl;
+  
+  refreshVideoBackgrounds();
+});
+
+socket.on('partner-info-updated', (data) => {
+  if (!partner) return;
+
+  if (data.name) partner.name = data.name;
+  if (data.age) partner.age = data.age;
+  if (data.gender) partner.gender = data.gender;
+  if (data.job) partner.job = data.job;
+
+  if (data.name) {
+      document.getElementById("partnerName").textContent = partner.name;
+      document.getElementById("partnerProfileNameTitle").innerText = partner.name;
+      
+      const callerNameEl = document.getElementById("callerName");
+      if (callerNameEl) callerNameEl.textContent = partner.name;
+      
+      const waitingNameEl = document.getElementById("waitingPartnerName");
+      if (waitingNameEl) waitingNameEl.textContent = partner.name;
+      
+      const callNameEl = document.getElementById("callName");
+      if (callNameEl) callNameEl.textContent = partner.name;
+  }
+
+  const profileContent = document.getElementById("profileContent");
+  if (profileContent) {
+      profileContent.innerHTML = `
+        <div><b style="color:white;">Umur:</b> ${partner.age}</div>
+        <div><b style="color:white;">Gender:</b> ${partner.gender && partner.gender !== "-" ? partner.gender : "Tidak disebutkan"}</div>
+        <div><b style="color:white;">Status:</b> ${partner.job && partner.job !== "-" ? partner.job : "Tidak disebutkan"}</div>
+        <div><b style="color:white;">Lokasi:</b> ${partner.distance || "Tidak diketahui"} dari lokasimu</div>
+        <div><b style="color:white;">Server:</b> ${partner.server}</div>
+      `;
+  }
+});
+
+socket.on('partner-story-updated', () => {
+  socket.emit('get-stories');
 });
 
 function showDisconnectModal() { 
@@ -3561,7 +3680,7 @@ if (quotedMsg.dataset.isAi === 'true') {
                 stickers.push(data.fileUrl);
                 localStorage.setItem('sanz_stickers', JSON.stringify(stickers));
                 renderStickers(); 
-                showToast("Stiker berhasil disimpan!");
+                showToast("Stiker berhasil disimpan");
             } else {
                 showToast("Stiker sudah ada di koleksi");
             }
