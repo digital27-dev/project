@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alat Enkripsi File Offline</title>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --success: #10B981;
+            --danger: #EF4444;
+            --bg: #F3F4F6;
+            --surface: #FFFFFF;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .card {
+            background-color: var(--surface);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            margin-top: 0;
+            text-align: center;
+            color: #111827;
+        }
+        p.subtitle {
+            font-size: 0.875rem;
+            text-align: center;
+            color: #6B7280;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        input[type="file"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #D1D5DB;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        input[type="file"] {
+            background-color: #F9FAFB;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        button.btn-encrypt {
+            background-color: var(--primary);
+        }
+        button.btn-decrypt {
+            background-color: var(--success);
+        }
+        #status {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 0.875rem;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Brankas File</h2>
+    <p class="subtitle">Enkripsi & Dekripsi berjalan 100% offline di browser Anda. Tidak ada data yang diunggah.</p>
+    
+    <div class="form-group">
+        <label for="fileInput">Pilih File</label>
+        <input type="file" id="fileInput">
+    </div>
+
+    <div class="form-group">
+        <label for="password">Kata Sandi</label>
+        <input type="password" id="password" placeholder="Masukkan kata sandi rahasia">
+    </div>
+
+    <div class="button-group">
+        <button class="btn-encrypt" onclick="processFile('encrypt')">Gembok (Enkripsi)</button>
+        <button class="btn-decrypt" onclick="processFile('decrypt')">Buka (Dekripsi)</button>
+    </div>
+
+    <div id="status"></div>
+</div>
+
+<script>
+    // Fungsi untuk menghasilkan kunci kriptografi dari kata sandi
+    async function deriveKey(password, salt) {
+        const enc = new TextEncoder();
+        const keyMaterial = await crypto.subtle.importKey(
+            "raw", enc.encode(password), {name: "PBKDF2"}, false, ["deriveKey"]
+        );
+        return crypto.subtle.deriveKey(
+            { name: "PBKDF2", salt: salt, iterations: 100000, hash: "SHA-256" },
+            keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
+        );
+    }
+
+    // Fungsi utama proses file
+    async function processFile(action) {
+        const fileInput = document.getElementById('fileInput').files[0];
+        const password = document.getElementById('password').value;
+        const status = document.getElementById('status');
+
+        if (!fileInput || !password) {
+            status.innerText = "Harap pilih file dan masukkan kata sandi!";
+            status.style.color = "var(--danger)";
+            return;
+        }
+
+        status.innerText = "Memproses... Harap tunggu.";
+        status.style.color = "#333";
+
+        try {
+            const arrayBuffer = await fileInput.arrayBuffer();
+
+            if (action === 'encrypt') {
+                // Generate Salt & IV untuk keamanan ekstra
+                const salt = crypto.getRandomValues(new Uint8Array(16));
+                const iv = crypto.getRandomValues(new Uint8Array(12));
+                const key = await deriveKey(password, salt);
+
+                // Proses Enkripsi
+                const encryptedContent = await crypto.subtle.encrypt(
+                    { name: "AES-GCM", iv: iv }, key, arrayBuffer
+                );
+
+                // Gabungkan Salt (16 byte) + IV (12 byte) + Data Terenkripsi
+                const result = new Uint8Array(salt.byteLength + iv.byteLength + encryptedContent.byteLength);
+                result.set(salt, 0);
+                result.set(iv, salt.byteLength);
+                result.set(new Uint8Array(encryptedContent), salt.byteLength + iv.byteLength);
+
+                downloadFile(result, fileInput.name + ".enc");
+                status.innerText = "✅ File berhasil dienkripsi!";
+                status.style.color = "var(--success)";
+                
+            } else {
+                // Proses Dekripsi
+                if (arrayBuffer.byteLength < 28) throw new Error("Format file tidak valid.");
+                
+                // Ekstrak Salt, IV, dan Data dari file
+                const salt = arrayBuffer.slice(0, 16);
+                const iv = arrayBuffer.slice(16, 28);
+                const data = arrayBuffer.slice(28);
+
+                const key = await deriveKey(password, salt);
+                const decryptedContent = await crypto.subtle.decrypt(
+                    { name: "AES-GCM", iv: new Uint8Array(iv) }, key, data
+                );
+
+                // Hapus ekstensi .enc jika ada untuk nama asli
+                let originalName = fileInput.name;
+                if (originalName.endsWith('.enc')) {
+                    originalName = originalName.slice(0, -4);
+                } else {
+                    originalName = "decrypted_" + originalName;
+                }
+
+                downloadFile(new Uint8Array(decryptedContent), originalName);
+                status.innerText = "✅ File berhasil didekripsi!";
+                status.style.color = "var(--success)";
+            }
+        } catch (error) {
+            console.error(error);
+            status.innerText = "❌ Gagal! Kata sandi salah atau file rusak.";
+            status.style.color = "var(--danger)";
+        }
+    }
+
+    // Fungsi utilitas untuk memicu unduhan otomatis
+    function downloadFile(uint8Array, filename) {
+        const blob = new Blob([uint8Array], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+</script>
+
+</body>
+</html>
