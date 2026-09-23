@@ -16,29 +16,28 @@
         .options label { font-weight: 500; cursor: pointer; color: #991B1B; }
         button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
         button:hover { background: var(--primary-hover); }
-        .output-section { border-top: 2px dashed var(--border); padding-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Obfuscator Web Lanjutan (Pro)</h2>
+    <h2>Obfuscator</h2>
     <p class="subtitle">Enkripsi Hex-Base64 Lapis Ganda + Debugger Trap Pembeku Browser.</p>
 
     <div>
-        <label for="inputCode">1. Masukkan Kode Asli (Mulai dari &lt;html&gt;):</label>
+        <label for="inputCode">Masukkan kode</label>
         <textarea id="inputCode" placeholder="Paste kode Anda di sini..."></textarea>
     </div>
 
     <div class="options">
         <input type="checkbox" id="antiInspect" checked>
-        <label for="antiInspect">Aktifkan Jebakan Debugger & Blokir Klik Kanan (Direkomendasikan)</label>
+        <label for="antiInspect">Aktifkan Jebakan Debugger Blokir Klik Kanan (Direkomendasikan)</label>
     </div>
 
-    <button onclick="protectCode()">🔥 Obfuscate Tingkat Tinggi</button>
+    <button onclick="protectCode()">Enkripsi</button>
 
     <div class="output-section">
-        <label for="outputCode">2. Salin Hasilnya (Gunakan sebagai index.html):</label>
+        <label for="outputCode">Salin hasilnya gunakan index.html</label>
         <textarea id="outputCode" readonly></textarea>
     </div>
 </div>
