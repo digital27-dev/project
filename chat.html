@@ -3189,6 +3189,12 @@ function setupInteractionForDelete(msgElement, actionElement, msgId, isTextMsg) 
 }
 
 function addMsg(data, side, timeStr) {
+  if (data && data.id && data.id.startsWith('ai-loading-')) {
+
+      if (data.type === 'deleted' || (data.text && typeof data.text === 'string' && data.text.toLowerCase().includes("telah dihapus"))) {
+          return; 
+      }
+  }
   const div = document.createElement("div");
   if (data.type === 'system') { 
     div.className = 'msg system-msg'; 
@@ -3770,7 +3776,7 @@ function updateMsgAsDeleted(msgId) {
   const msgDiv = messagesMap[msgId]; 
   if (!msgDiv) return;
   
-  if (msgDiv.dataset.type === 'loading') {
+  if (msgId.startsWith('ai-loading-') || msgDiv.dataset.type === 'loading') {
       msgDiv.remove();
       delete messagesMap[msgId];
       return;
