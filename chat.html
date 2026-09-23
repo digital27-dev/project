@@ -329,7 +329,6 @@ h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing:
 h2 { margin-bottom: 1.5rem; } 
 .subtitle { font-weight: 400; color: var(--text-sec); text-align: center; font-size: 0.95rem; margin-bottom: 2rem; line-height: 1.4;} 
 input, select, button { outline: none; width: 100%; padding: 14px 16px; margin-bottom: 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-2); color: white; font-size: 0.95rem; font-family: inherit; transition: border-color 0.2s;} 
-input:focus, select:focus { border-color: var(--accent); }
 input::placeholder, select option:disabled { color: #64748b; } 
 button { background: var(--accent); color: white; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; padding: 14px 20px; font-size: 1rem; box-shadow: 0 4px 12px rgba(16,185,129,0.2);} 
 button:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(16,185,129,0.3);} 
@@ -557,8 +556,8 @@ button:active { transform: translateY(0); }
 video { width: 100%; height: 100%; object-fit: cover; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); } 
 #localVideo.full, #remoteVideo.full { position: static; width: 100% !important; height: 100% !important; border-radius: 0 !important; border: none !important; box-shadow: none !important; z-index: 5; } 
 #localVideo { transform: scaleX(-1); } 
-video.pip-normal { width: 120px !important; height: 160px !important; bottom: 20px !important; right: 20px !important; border-radius: 16px; border: 2px solid var(--border); box-shadow: none;} 
-video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px !important; right: 16px !important; border: 2px solid var(--accent); border-radius: 14px; box-shadow: none;} 
+video.pip-normal { width: 120px !important; height: 160px !important; bottom: 20px !important; right: 20px !important; border-radius: 16px; box-shadow: none;} 
+video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px !important; right: 16px !important; border-radius: 14px; box-shadow: none;} 
 .audio-call-mode .top-right-controls {
   display: none !important;
 }
@@ -1275,7 +1274,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
           <div id="myStoriesContainer" class="story-container" style="flex: 1; padding: 0;"><span style="color: var(--text-sec); font-weight: 500; font-size: 0.9rem;">Belum ada story</span></div>
       </div>
 
-      <button onclick="showDisconnectModal()" style="margin-top:24px; background:rgba(239, 68, 68, 0.1); color: var(--danger); font-weight: 600; border: 1px solid rgba(239,68,68,0.3); box-shadow: none; border-radius: 12px;"><i class="bi bi-box-arrow-right" style="margin-right: 6px;"></i> Akhiri Obrolan</button>
+      <button onclick="showDisconnectModal()" style="margin-top:24px; background:rgba(239, 68, 68, 0.1); color: var(--danger); font-weight: 600; border: 1px solid rgba(239,68,68,0.3); box-shadow: none; border-radius: 12px;"><i class="bi bi-box-arrow-right" style="margin-right: 6px;"></i> Putus hubungan</button>
     </div>
   </div>
 </div>
@@ -1384,7 +1383,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
 </div>
 
 <div id="inAppCameraOverlay" style="display:none; position:fixed; inset:0; background:#000; z-index:9999; flex-direction:column; user-select:none;">
-    <div style="padding:20px; display:flex; justify-content:space-between; position:absolute; top:0; width:100%; z-index:10; background: linear-gradient(rgba(0,0,0,0.5), transparent);">
+    <div style="padding:20px; display:flex; justify-content:space-between; position:absolute; top:0; width:100%; z-index:10; background: none;">
         <i class="bi bi-x-lg" onclick="closeInAppCamera()" style="color:white; font-size:1.5rem; cursor:pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5);"></i>
         <i class="fa-solid fa-camera-rotate" onclick="switchInAppCamera()" style="color:white; font-size:1.5rem; cursor:pointer; text-shadow: 0 2px 4px rgba(0,0,0,0.5);"></i>
     </div>
