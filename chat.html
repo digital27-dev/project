@@ -2051,19 +2051,21 @@ function closeMyProfile() {
 }
 
 socket.on('stories-data', (data) => {
+    if (!data) return;
+
     const partnerPicHeader = document.getElementById("headerPartnerPic");
     if (partnerPicHeader) {
         if (data.hasUnseenPartnerStory) {
-
-            partnerPicHeader.style.border = "3px solid #25D366";
+            partnerPicHeader.style.border = "2px solid #25D366";
             partnerPicHeader.style.padding = "2px";
-            partnerPicHeader.style.borderRadius = "50%"; 
+            partnerPicHeader.style.borderRadius = "50%";
         } else {
-
             partnerPicHeader.style.border = "none";
             partnerPicHeader.style.padding = "0px";
         }
     }
+
+    const emptyStoryText = '<span style="color: var(--text-sec); font-weight: 500; font-size: 0.9rem;">Belum ada story</span>';
 
     const myStoriesContainer = document.getElementById('myStoriesContainer');
     if (myStoriesContainer) {
@@ -2072,11 +2074,12 @@ socket.on('stories-data', (data) => {
             data.myStories.forEach(story => {
                 const img = document.createElement('img');
                 img.src = story.url;
-                img.className = 'story-item-circle'; 
-                
-                img.onclick = () => showMyStory(story); 
+                img.className = 'story-thumb'; 
+                img.onclick = () => openStoryViewer(story, window.userData?.name || "Kamu", true); 
                 myStoriesContainer.appendChild(img);
             });
+        } else {
+            myStoriesContainer.innerHTML = emptyStoryText;
         }
     }
 
@@ -2087,15 +2090,28 @@ socket.on('stories-data', (data) => {
             data.partnerStories.forEach(story => {
                 const img = document.createElement('img');
                 img.src = story.url;
-                img.className = 'story-item-circle';
+                img.className = 'story-thumb';
                 
                 if (!story.isSeen) {
-                    img.style.border = "2px solid #25D366";
+                    img.style.border = "2px solid var(--accent)";
                 }
 
-                img.onclick = () => showPartnerStory(story, data.partnerName);
+                img.onclick = () => {
+
+                    socket.emit('mark-story-seen', story.id);
+                    
+                    if (partnerPicHeader) {
+                        partnerPicHeader.style.border = "none";
+                        partnerPicHeader.style.padding = "0px";
+                    }
+                    img.style.border = "2px solid var(--accent)"; 
+
+                    openStoryViewer(story, data.partnerName, false);
+                };
                 partnerStoriesContainer.appendChild(img);
             });
+        } else {
+            partnerStoriesContainer.innerHTML = emptyStoryText;
         }
     }
 });
