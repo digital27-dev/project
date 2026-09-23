@@ -380,7 +380,7 @@ button:active { transform: translateY(0); }
   margin: 3px auto; 
   width: fit-content;
   border-radius: 50px;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border);
   user-select: none;
   -webkit-user-select: none;
   pointer-events: none;
@@ -643,8 +643,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
     #localVideo.pip, #remoteVideo.pip { width: 100px !important; height: 133px !important; bottom: 16px; right: 16px; } 
 } 
 
-.avatar-header { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: var(--surface-2); border: 2px solid transparent; cursor: pointer; transition: border-color 0.2s;}
-.avatar-header:hover { border-color: var(--accent); }
+.avatar-header { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; background: var(--surface-2); border: 2px solid transparent; cursor: pointer; transition: border-color 0.2s;}
 
 .unseen-story-ring { border: 2px solid var(--success) !important; padding: 2px; background-clip: content-box; }
 
@@ -1032,7 +1031,7 @@ video.pip-mini { width: 96px !important; height: 128px !important; bottom: 100px
       <i class="bi bi-telephone-fill" id="audioCallBtn" style="cursor:pointer; color:var(--text-sec); transition: color 0.2s;" onclick="callUser(false)" title="Panggilan Suara" onmouseover="this.style.color='var(--text-sec)'" onmouseout="this.style.color='var(--text-sec)'"></i>
       <i class="bi bi-camera-video-fill" id="videoCallBtn" style="cursor:pointer; color:var(--text-sec); transition: color 0.2s;" onclick="callUser(true)" title="Video Call" onmouseover="this.style.color='var(--text-sec)'" onmouseout="this.style.color='var(--text-sec)'"></i>
       <div style="width: 1px; height: 24px; background: var(--border); margin: 0 4px;"></div>
-      <i class="bi bi-person-circle" style="cursor:pointer; color:var(--text-sec); font-size: 1.5rem; transition: color 0.2s;" onclick="openMyProfile()" title="Profil Saya" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-sec)'"></i>
+      <i class="bi bi-list" style="cursor:pointer; color:var(--text-sec); font-size: 1.5rem; transition: color 0.2s;" onclick="openMyProfile()" title="Profil Saya" onmouseover="this.style.color='white'" onmouseout="this.style.color='var(--text-sec)'"></i>
     </div>
   </div>
 
@@ -3198,7 +3197,7 @@ function addMsg(data, side, timeStr) {
   const div = document.createElement("div");
   if (data.type === 'system') { 
     div.className = 'msg system-msg'; 
-    div.innerHTML = `<div style="text-align:center; background: rgba(30, 37, 50, 0.5); backdrop-filter: blur(12px); padding:7px 16px; border-radius:50px; font-weight: 500; font-size:0.75rem; color:var(--text-sec); margin: 3px auto; width: fit-content; border: 1px solid rgba(255,255,255,0.1);">${escapeHtml(data.text)}</div>`; 
+    div.innerHTML = `<div style="text-align:center; background: rgba(30, 37, 50, 0.5); backdrop-filter: blur(12px); padding:7px 16px; border-radius:50px; font-weight: 500; font-size:0.75rem; color:var(--text-sec); margin: 3px auto; width: fit-content; border: 1px solid var(--border);">${escapeHtml(data.text)}</div>`; 
     document.getElementById("messages").appendChild(div); 
     div.scrollIntoView({ behavior: "smooth", block: "end" }); 
     return div; 
