@@ -116,7 +116,7 @@ input[type="search"]::-webkit-search-results-decoration {
   cursor: move; touch-action: none; user-select: none; 
   border-radius: 16px; overflow: hidden; 
   width: 120px !important; height: 160px !important; 
-  box-shadow: none; border: 2px solid var(--border); 
+  box-shadow: none; border: none; 
 } 
 
 #miniRemoteVideo { 
@@ -125,20 +125,20 @@ input[type="search"]::-webkit-search-results-decoration {
 } 
 
 #miniRemoteVideoContainer.dragging { 
-  opacity: 0.92; border: 2px solid var(--accent); z-index: 300 !important; 
+  opacity: 0.92; border: none; z-index: 300 !important; 
 } 
 
 #localVideo.pip, #remoteVideo.pip { 
   position: fixed !important; top: 70px; right: 16px; bottom: auto; left: auto; 
   width: 120px !important; height: 160px !important; 
-  border-radius: 16px; border: 2px solid var(--border); 
+  border-radius: 16px; border: none; 
   background: rgba(0,0,0,0.9); object-fit: cover; 
   cursor: move; touch-action: none; backface-visibility: hidden; 
   perspective: 1000px; transition: none; box-shadow: none; 
 } 
 
 #localVideo.pip.dragging, #remoteVideo.pip.dragging { 
-  opacity: 0.92; border: 2px solid var(--accent); z-index: 999 !important; 
+  opacity: 0.92; border: none; z-index: 999 !important; 
 } 
 
 #replyPreview { 
