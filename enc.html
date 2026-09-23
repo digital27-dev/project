@@ -3,218 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alat Enkripsi File Offline</title>
+    <title>HTML Obfuscator Pro (Tingkat Tinggi)</title>
     <style>
-        :root {
-            --primary: #4F46E5;
-            --success: #10B981;
-            --danger: #EF4444;
-            --bg: #F3F4F6;
-            --surface: #FFFFFF;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-        }
-        .card {
-            background-color: var(--surface);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            width: 100%;
-            max-width: 400px;
-        }
-        h2 {
-            margin-top: 0;
-            text-align: center;
-            color: #111827;
-        }
-        p.subtitle {
-            font-size: 0.875rem;
-            text-align: center;
-            color: #6B7280;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        input[type="file"], input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #D1D5DB;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-        input[type="file"] {
-            background-color: #F9FAFB;
-        }
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        button {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        button:hover {
-            opacity: 0.9;
-        }
-        button.btn-encrypt {
-            background-color: var(--primary);
-        }
-        button.btn-decrypt {
-            background-color: var(--success);
-        }
-        #status {
-            margin-top: 15px;
-            text-align: center;
-            font-weight: 500;
-            font-size: 0.875rem;
-            min-height: 20px;
-        }
+        :root { --primary: #B91C1C; --primary-hover: #991B1B; --bg: #F3F4F6; --surface: #FFFFFF; --border: #D1D5DB; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: #333; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { background: var(--surface); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); width: 100%; max-width: 800px; }
+        h2 { margin-top: 0; color: #111827; text-align: center; }
+        p.subtitle { text-align: center; color: #6B7280; font-size: 0.9rem; margin-bottom: 25px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; color: #374151; }
+        textarea { width: 100%; height: 200px; padding: 12px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; font-family: monospace; font-size: 0.9rem; resize: vertical; background: #F9FAFB; }
+        .options { margin: 15px 0; padding: 15px; background: #FEF2F2; border-radius: 6px; border: 1px solid #FECACA; }
+        .options label { font-weight: 500; cursor: pointer; color: #991B1B; }
+        button { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        button:hover { background: var(--primary-hover); }
+        .output-section { border-top: 2px dashed var(--border); padding-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Brankas File</h2>
-    <p class="subtitle">Enkripsi & Dekripsi berjalan 100% offline di browser Anda. Tidak ada data yang diunggah.</p>
-    
-    <div class="form-group">
-        <label for="fileInput">Pilih File</label>
-        <input type="file" id="fileInput">
+<div class="container">
+    <h2>Obfuscator Web Lanjutan (Pro)</h2>
+    <p class="subtitle">Enkripsi Hex-Base64 Lapis Ganda + Debugger Trap Pembeku Browser.</p>
+
+    <div>
+        <label for="inputCode">1. Masukkan Kode Asli (Mulai dari &lt;html&gt;):</label>
+        <textarea id="inputCode" placeholder="Paste kode Anda di sini..."></textarea>
     </div>
 
-    <div class="form-group">
-        <label for="password">Kata Sandi</label>
-        <input type="password" id="password" placeholder="Masukkan kata sandi rahasia">
+    <div class="options">
+        <input type="checkbox" id="antiInspect" checked>
+        <label for="antiInspect">Aktifkan Jebakan Debugger & Blokir Klik Kanan (Direkomendasikan)</label>
     </div>
 
-    <div class="button-group">
-        <button class="btn-encrypt" onclick="processFile('encrypt')">Gembok (Enkripsi)</button>
-        <button class="btn-decrypt" onclick="processFile('decrypt')">Buka (Dekripsi)</button>
-    </div>
+    <button onclick="protectCode()">🔥 Obfuscate Tingkat Tinggi</button>
 
-    <div id="status"></div>
+    <div class="output-section">
+        <label for="outputCode">2. Salin Hasilnya (Gunakan sebagai index.html):</label>
+        <textarea id="outputCode" readonly></textarea>
+    </div>
 </div>
 
 <script>
-    // Fungsi untuk menghasilkan kunci kriptografi dari kata sandi
-    async function deriveKey(password, salt) {
-        const enc = new TextEncoder();
-        const keyMaterial = await crypto.subtle.importKey(
-            "raw", enc.encode(password), {name: "PBKDF2"}, false, ["deriveKey"]
-        );
-        return crypto.subtle.deriveKey(
-            { name: "PBKDF2", salt: salt, iterations: 100000, hash: "SHA-256" },
-            keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
-        );
-    }
+    function protectCode() {
+        const inputArea = document.getElementById('inputCode');
+        const outputArea = document.getElementById('outputCode');
+        let rawCode = inputArea.value;
 
-    // Fungsi utama proses file
-    async function processFile(action) {
-        const fileInput = document.getElementById('fileInput').files[0];
-        const password = document.getElementById('password').value;
-        const status = document.getElementById('status');
-
-        if (!fileInput || !password) {
-            status.innerText = "Harap pilih file dan masukkan kata sandi!";
-            status.style.color = "var(--danger)";
+        if (!rawCode.trim()) {
+            alert("Kode tidak boleh kosong!");
             return;
         }
 
-        status.innerText = "Memproses... Harap tunggu.";
-        status.style.color = "#333";
+        // Script Pertahanan Berlapis (Anti Klik Kanan & Debugger Trap)
+        const defenseScript = `
+<script>
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.onkeydown = function(e) {
+        if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 67 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
+    }
+    setInterval(function() {
+        const _0x1 = new Function('debugger');
+        _0x1();
+    }, 50);
+<\/script>`;
+
+        if (document.getElementById('antiInspect').checked) {
+            rawCode = defenseScript + "\n" + rawCode;
+        }
 
         try {
-            const arrayBuffer = await fileInput.arrayBuffer();
-
-            if (action === 'encrypt') {
-                // Generate Salt & IV untuk keamanan ekstra
-                const salt = crypto.getRandomValues(new Uint8Array(16));
-                const iv = crypto.getRandomValues(new Uint8Array(12));
-                const key = await deriveKey(password, salt);
-
-                // Proses Enkripsi
-                const encryptedContent = await crypto.subtle.encrypt(
-                    { name: "AES-GCM", iv: iv }, key, arrayBuffer
-                );
-
-                // Gabungkan Salt (16 byte) + IV (12 byte) + Data Terenkripsi
-                const result = new Uint8Array(salt.byteLength + iv.byteLength + encryptedContent.byteLength);
-                result.set(salt, 0);
-                result.set(iv, salt.byteLength);
-                result.set(new Uint8Array(encryptedContent), salt.byteLength + iv.byteLength);
-
-                downloadFile(result, fileInput.name + ".enc");
-                status.innerText = "✅ File berhasil dienkripsi!";
-                status.style.color = "var(--success)";
-                
-            } else {
-                // Proses Dekripsi
-                if (arrayBuffer.byteLength < 28) throw new Error("Format file tidak valid.");
-                
-                // Ekstrak Salt, IV, dan Data dari file
-                const salt = arrayBuffer.slice(0, 16);
-                const iv = arrayBuffer.slice(16, 28);
-                const data = arrayBuffer.slice(28);
-
-                const key = await deriveKey(password, salt);
-                const decryptedContent = await crypto.subtle.decrypt(
-                    { name: "AES-GCM", iv: new Uint8Array(iv) }, key, data
-                );
-
-                // Hapus ekstensi .enc jika ada untuk nama asli
-                let originalName = fileInput.name;
-                if (originalName.endsWith('.enc')) {
-                    originalName = originalName.slice(0, -4);
-                } else {
-                    originalName = "decrypted_" + originalName;
-                }
-
-                downloadFile(new Uint8Array(decryptedContent), originalName);
-                status.innerText = "✅ File berhasil didekripsi!";
-                status.style.color = "var(--success)";
+            // Lapis 1: Base64
+            const step1 = btoa(unescape(encodeURIComponent(rawCode)));
+            // Lapis 2: Reverse String
+            const step2 = step1.split('').reverse().join('');
+            // Lapis 3: Hexadecimal
+            let step3 = '';
+            for(let i = 0; i < step2.length; i++) {
+                step3 += step2.charCodeAt(i).toString(16).padStart(2, '0');
             }
-        } catch (error) {
-            console.error(error);
-            status.innerText = "❌ Gagal! Kata sandi salah atau file rusak.";
-            status.style.color = "var(--danger)";
-        }
-    }
 
-    // Fungsi utilitas untuk memicu unduhan otomatis
-    function downloadFile(uint8Array, filename) {
-        const blob = new Blob([uint8Array], { type: 'application/octet-stream' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+            // Kode Decoder Mandiri yang Disamarkan (IIFE)
+            const finalCode = `<script>
+(function(){
+    var _0xa="${step3}";
+    var _0xb="";
+    for(var i=0;i<_0xa.length;i+=2){
+        _0xb+=String.fromCharCode(parseInt(_0xa.substr(i,2),16));
+    }
+    var _0xc=_0xb.split('').reverse().join('');
+    document.open();
+    document.write(decodeURIComponent(escape(atob(_0xc))));
+    document.close();
+})();
+<\/script>`;
+
+            outputArea.value = finalCode;
+            outputArea.select();
+        } catch (e) {
+            alert("Terjadi kesalahan saat memproses kode.");
+        }
     }
 </script>
 
