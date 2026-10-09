@@ -92,8 +92,6 @@
             color: var(--text-main);
             box-sizing: border-box;
             transition: all 0.3s ease;
-            
-            /* INI KUNCINYA: Menghilangkan garis/fitur tarik (resize) di pojok kanan bawah */
             resize: none; 
         }
 
@@ -107,7 +105,6 @@
             background-color: #27272a;
         }
 
-        /* Kustomisasi Scrollbar agar elegan */
         textarea::-webkit-scrollbar { width: 8px; }
         textarea::-webkit-scrollbar-track { background: transparent; }
         textarea::-webkit-scrollbar-thumb { background: #52525b; border-radius: 10px; }
@@ -164,7 +161,6 @@
             gap: 8px;
         }
 
-        /* Area Preview */
         #previewContainer {
             margin-top: 30px;
             border-radius: 16px;
@@ -230,7 +226,15 @@
         </div>
 
         <div id="previewContainer">
+            <div class="preview-header">
+                <i class="bi bi-card-image"></i> Hasil Pratinjau
+            </div>
             <img id="preview" alt="Preview Gambar">
+            
+            <!-- Tambahan Tombol Copy Link -->
+            <button id="copyLinkBtn" class="btn-secondary" style="width: 100%; margin-top: 15px; background: rgba(255,255,255,0.03);">
+                <i class="bi bi-link-45deg"></i> Salin Link Pratinjau (.png)
+            </button>
         </div>
     </div>
 
@@ -242,12 +246,30 @@
         const preview = document.getElementById('preview');
         const errorMsg = document.getElementById('errorMsg');
         const errorText = document.getElementById('errorText');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+
+        // FITUR BARU: Membaca URL saat halaman dimuat (jika link dibuka di browser)
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash;
+            // Jika URL memiliki hash dan diakhiri dengan .png
+            if (hash && hash.endsWith('.png')) {
+                try {
+                    // Ekstrak base64 dari format #kodebase64/image.png
+                    let extractedBase64 = hash.substring(1, hash.lastIndexOf('/'));
+                    extractedBase64 = decodeURIComponent(extractedBase64);
+                    
+                    base64Input.value = extractedBase64;
+                    previewBtn.click(); // Otomatis klik tombol pratinjau
+                } catch (e) {
+                    console.error("Gagal membaca link gambar:", e);
+                }
+            }
+        });
 
         // Fungsi Tampilkan Preview
         previewBtn.addEventListener('click', function() {
             let base64String = base64Input.value.trim();
             
-            // Sembunyikan error sebelumnya
             errorMsg.style.display = 'none';
 
             if (!base64String) {
@@ -255,24 +277,20 @@
                 errorMsg.style.display = 'flex';
                 previewContainer.style.display = 'none';
                 
-                // Efek getar (shake) pada input box
                 base64Input.style.transform = 'translateX(5px)';
                 setTimeout(() => base64Input.style.transform = 'translateX(-5px)', 100);
                 setTimeout(() => base64Input.style.transform = 'translateX(0)', 200);
                 return;
             }
 
-            // Tambahkan prefix jika user hanya menempelkan kode mentah
             if (!base64String.startsWith('data:image')) {
                 let mimeType = base64String.startsWith('/9j/') ? 'jpeg' : 'png';
                 base64String = `data:image/${mimeType};base64,` + base64String;
             }
 
-            // Set gambar
             preview.src = base64String;
             previewContainer.style.display = 'block';
             
-            // Tangani error jika bukan gambar
             preview.onerror = function() {
                 errorText.textContent = "Kode Base64 rusak atau format tidak didukung.";
                 errorMsg.style.display = 'flex';
@@ -286,7 +304,37 @@
             errorMsg.style.display = 'none';
             previewContainer.style.display = 'none';
             preview.src = '';
+            // Reset URL hash tanpa reload halaman
+            window.history.replaceState(null, null, window.location.pathname);
             base64Input.focus();
+        });
+
+        // FITUR BARU: Fungsi Copy Link
+        copyLinkBtn.addEventListener('click', function() {
+            let base64String = base64Input.value.trim();
+            if (!base64String) return;
+
+            // Membuat URL dengan pola: domain.vercel.app/#kode-base-64/image.png
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareableUrl = `${baseUrl}#${encodeURIComponent(base64String)}/image.png`;
+
+            // Menyalin ke clipboard
+            navigator.clipboard.writeText(shareableUrl).then(() => {
+                const originalHtml = copyLinkBtn.innerHTML;
+                copyLinkBtn.innerHTML = '<i class="bi bi-check-circle" style="color: #4ade80;"></i> Berhasil Disalin!';
+                copyLinkBtn.style.color = '#4ade80';
+                copyLinkBtn.style.borderColor = '#4ade80';
+
+                // Kembalikan tombol seperti semula setelah 2 detik
+                setTimeout(() => {
+                    copyLinkBtn.innerHTML = originalHtml;
+                    copyLinkBtn.style.color = '';
+                    copyLinkBtn.style.borderColor = '';
+                }, 2000);
+            }).catch(err => {
+                errorText.textContent = "Gagal menyalin link. Pastikan browser mengizinkan akses Clipboard.";
+                errorMsg.style.display = 'flex';
+            });
         });
     </script>
 </body>
