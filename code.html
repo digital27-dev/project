@@ -344,7 +344,7 @@
                             return origOpen.apply(this, arguments);
                         };
                         XMLHttpRequest.prototype.send = function() {
-                            window.parent.postMessage({ type: 'network', reqId: this._reqId, method: this._reqMethod, url: this._reqUrl, status: 'Pending...' }, '*');
+                            window.parent.postMessage({ type: 'network', reqId: this._reqId, method: this._reqMethod, url: this._reqUrl, status: '' }, '*');
                             this.addEventListener('load', function() {
                                 window.parent.postMessage({ type: 'network', reqId: this._reqId, method: this._reqMethod, url: this._reqUrl, status: this.status, ok: (this.status >= 200 && this.status < 300) }, '*');
                             });
@@ -391,7 +391,7 @@
 
             if (e.data.type === 'network') {
                 let existingLog = document.getElementById(e.data.reqId);
-                let statusClass = e.data.status === 'Pending...' ? 'pending' : (e.data.ok ? 'success' : 'fail');
+                let statusClass = e.data.status === '' ? 'pending' : (e.data.ok ? 'success' : 'fail');
                 
                 if (existingLog) {
                     const statusSpan = existingLog.querySelector('.net-status');
