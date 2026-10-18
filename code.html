@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Coder</title>
+    <style>
+        /* === TEMA & VARIABEL === */
+        :root {
+            --bg-main: #181818;
+            --bg-panel: #1e1e1e;
+            --bg-header: #252526;
+            --border-color: #333333;
+            --accent: #007acc;
+            --text-main: #cccccc;
+            --text-muted: #7a7a7a;
+            --mac-red: #ff5f56;
+            --mac-yellow: #ffbd2e;
+            --mac-green: #27c93f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: row; /* Default PC */
+        }
+
+        /* === LAYOUT UTAMA === */
+        .editor-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            background-color: var(--bg-panel);
+            height: 100%;
+        }
+
+        .preview-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #111;
+            height: 100%;
+        }
+
+        /* === RESPONSIVE MOBILE (Jika layar lebih kecil dari 768px) === */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                overflow-y: auto;
+            }
+            .editor-section {
+                flex: none;
+                height: 50vh; /* Setengah layar untuk editor di HP */
+                border-right: none;
+                border-bottom: 2px solid var(--accent);
+            }
+            .preview-section {
+                flex: none;
+                height: auto;
+                min-height: 100vh;
+            }
+        }
+
+        /* === HEADER & MAC DOTS === */
+        .window-header {
+            background-color: var(--bg-header);
+            height: 45px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            border-bottom: 1px solid var(--border-color);
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .mac-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot.red { background-color: var(--mac-red); }
+        .dot.yellow { background-color: var(--mac-yellow); }
+        .dot.green { background-color: var(--mac-green); }
+
+        .file-title {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 500;
+            background-color: var(--bg-panel);
+            padding: 5px 15px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* === TEXT EDITOR === */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-area {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 15px;
+            border: none;
+            resize: none;
+            outline: none;
+            tab-size: 4;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #777; }
+
+        /* === PREVIEW & iPHONE 17 PRO MOCKUP === */
+        .preview-header {
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #181818;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .preview-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: radial-gradient(circle at center, #222 0%, #111 100%);
+        }
+
+        .iphone-17-pro {
+            width: 100%;
+            max-width: 340px; /* Ukuran maksimal di PC */
+            aspect-ratio: 9 / 19.5; /* Proporsi asli iPhone */
+            background-color: #fff;
+            border-radius: 40px;
+            position: relative;
+            box-shadow: 
+                0 0 0 3px #222, 
+                0 0 0 10px #0a0a0a, 
+                0 25px 40px rgba(0,0,0,0.8),
+                inset 0 0 0 5px #000;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dynamic-island {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30%;
+            min-width: 100px;
+            height: 30px;
+            background-color: #000;
+            border-radius: 20px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .lens { width: 10px; height: 10px; background: #111; border-radius: 50%; box-shadow: inset 0 0 3px #1a1a4a; }
+        .sensor { width: 6px; height: 6px; background: #050505; border-radius: 50%; }
+
+        .preview-iframe {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100%; height: 100%;
+            border: none;
+            background-color: #ffffff;
+            border-radius: 35px;
+        }
+
+        /* === DEVELOPER CONSOLE === */
+        .console-container {
+            height: 250px;
+            background-color: #0d0d0d;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .console-toolbar {
+            background-color: #1a1a1a;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #222;
+        }
+
+        .console-title { font-size: 12px; font-weight: bold; color: #888; }
+        
+        .btn-clear {
+            background: #2a2a2a;
+            color: #ccc;
+            border: 1px solid #444;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        .btn-clear:hover { background: #444; color: #fff; }
+
+        .console-logs {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+        }
+
+        .log-item { padding: 5px 0; border-bottom: 1px solid #1a1a1a; word-break: break-all; }
+        .log-item.log { color: #ccc; }
+        .log-item.info { color: #3794ff; }
+        .log-item.warn { color: #cd9731; }
+        .log-item.error { color: #f14c4c; background-color: rgba(241, 76, 76, 0.1); padding-left: 8px; border-left: 3px solid #f14c4c; }
+        .log-item.system { color: #555; font-style: italic; }
+
+    </style>
+</head>
+<body>
+
+    <!-- KIRI / ATAS: EDITOR -->
+    <div class="editor-section">
+        <div class="window-header">
+            <!-- Mac Dots -->
+            <div class="mac-dots">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+            </div>
+            <!-- Nama File Statis -->
+            <div class="file-title">index.html (HTML + CSS + JS)</div>
+        </div>
+        <div class="editor-container">
+            <textarea id="editor-html" class="code-area" spellcheck="false" placeholder="Tulis kode HTML lengkapmu di sini..."></textarea>
+        </div>
+    </div>
+
+    <!-- KANAN / BAWAH: PREVIEW & CONSOLE -->
+    <div class="preview-section">
+        <div class="preview-header">
+            iPhone 17 Pro
+        </div>
+        
+        <div class="preview-wrapper">
+            <!-- Mockup iPhone 17 Pro Responsif -->
+            <div class="iphone-17-pro">
+                <div class="dynamic-island">
+                    <div class="lens"></div>
+                    <div class="sensor"></div>
+                </div>
+                <iframe id="live-frame" class="preview-iframe"></iframe>
+            </div>
+        </div>
+
+        <!-- Developer Console -->
+        <div class="console-container">
+            <div class="console-toolbar">
+                <span class="console-title">TERMINAL LOGS</span>
+                <button class="btn-clear" onclick="clearConsole()">Clear Logs</button>
+            </div>
+            <div id="console-output" class="console-logs">
+                <div class="log-item system">System ready. Menunggu eksekusi kode...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIKA JAVASCRIPT APLIKASI -->
+    <script>
+        const editor = document.getElementById('editor-html');
+        
+        // --- 1. EDITOR UTILITIES (TAB INDENT) ---
+        editor.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                let start = this.selectionStart;
+                let end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+                renderPreview();
+            }
+        });
+        editor.addEventListener('input', renderPreview);
+
+        // --- 2. LIVE RENDERER & CONSOLE INTERCEPTOR ---
+        let renderTimer;
+        
+        function renderPreview() {
+            clearTimeout(renderTimer);
+            renderTimer = setTimeout(() => {
+                const userCode = editor.value;
+                const iframe = document.getElementById('live-frame');
+
+                // Memasukkan script penangkap console log otomatis ke kode user
+                const interceptorScript = `
+                    <script>
+                        window.onerror = function(msg, url, line) {
+                            window.parent.postMessage({ type: 'error', text: msg + ' (Baris ' + line + ')' }, '*');
+                            return true;
+                        };
+                        const methods = ['log', 'info', 'warn', 'error'];
+                        methods.forEach(method => {
+                            const original = console[method];
+                            console[method] = function(...args) {
+                                const parsedArgs = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+                                window.parent.postMessage({ type: method, text: parsedArgs }, '*');
+                                original.apply(console, args);
+                            };
+                        });
+                    <\/script>
+                `;
+
+                // CSS Bawaan agar konten tidak tertutup Dynamic Island
+                const baseStyles = `
+                    <style>
+                        body { 
+                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+                            margin: 0; 
+                            padding: 45px 15px 20px 15px; /* Padding atas untuk Dynamic island */
+                            box-sizing: border-box;
+                        }
+                    </style>
+                `;
+
+                // Gabungkan script sistem dan kode milik user
+                const srcDoc = interceptorScript + baseStyles + userCode;
+                iframe.srcdoc = srcDoc;
+            }, 600); // Render ditunda 0.6 detik saat mengetik agar ringan
+        }
+
+        // --- 3. TAMPILKAN LOG DARI IFRAME KE PANEL ---
+        const consoleBox = document.getElementById('console-output');
+
+        window.addEventListener('message', (e) => {
+            if (e.data && e.data.type) {
+                // Hapus tulisan default
+                if (consoleBox.querySelector('.system')) {
+                    consoleBox.innerHTML = '';
+                }
+
+                const logEl = document.createElement('div');
+                logEl.className = 'log-item ' + e.data.type;
+                
+                let icon = '❯ ';
+                if (e.data.type === 'error') icon = '✖ ';
+                if (e.data.type === 'warn') icon = '⚠ ';
+                if (e.data.type === 'info') icon = 'ℹ ';
+
+                logEl.textContent = icon + e.data.text;
+                consoleBox.appendChild(logEl);
+                
+                // Auto scroll ke bawah
+                consoleBox.scrollTop = consoleBox.scrollHeight;
+            }
+        });
+
+        function clearConsole() {
+            consoleBox.innerHTML = '<div class="log-item system">Console dibersihkan...</div>';
+        }
+
+        // --- 4. DATA DEMO (HTML + CSS + JS) SAAT HALAMAN DIBUKA ---
+        window.onload = () => {
+            editor.value = `<!-- Tuliskan CSS di dalam tag style -->
+<style>
+  .container {
+    text-align: center;
+    margin-top: 30px;
+  }
+  h1 { color: #333; font-size: 24px; }
+  p { color: #666; margin-bottom: 20px; }
+  
+  button {
+    background: #007aff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 5px;
+    box-shadow: 0 4px 10px rgba(0,122,255,0.3);
+  }
+  
+  .btn-error {
+    background: #ff4757;
+    box-shadow: 0 4px 10px rgba(255,71,87,0.3);
+  }
+</style>
+
+<!-- Tuliskan elemen HTML di sini -->
+<div class="container">
+  <h1>Halo, iPhone 17!</h1>
+  <p>Semua kode ditulis di 1 file HTML ini.</p>
+  
+  <button onclick="testLog()">Test Log</button>
+  <button class="btn-error" onclick="testError()">Test Error</button>
+</div>
+
+<!-- Tuliskan JavaScript di dalam tag script -->
+<script>
+  console.info("Aplikasi dimuat di perangkat Mobile.");
+
+  function testLog() {
+    console.log("Tombol berhasil ditekan!");
+    console.warn("Ini adalah contoh peringatan.");
+  }
+
+  function testError() {
+    // Memicu error untuk dilihat di console bawah
+    throw new Error("Ups, terjadi simulasi error fatal!");
+  }
+<\/script>`;
+            renderPreview();
+        };
+    </script>
+</body>
+</html>
