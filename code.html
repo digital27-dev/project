@@ -3,444 +3,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Coder</title>
+    <title>Pro Live Coder - iOS 17 Studio</title>
     <style>
-        /* === TEMA & VARIABEL === */
         :root {
-            --bg-main: #181818;
-            --bg-panel: #1e1e1e;
-            --bg-header: #252526;
-            --border-color: #333333;
-            --accent: #007acc;
-            --text-main: #cccccc;
-            --text-muted: #7a7a7a;
-            --mac-red: #ff5f56;
-            --mac-yellow: #ffbd2e;
-            --mac-green: #27c93f;
+            --bg-main: #0a0a0a;
+            --bg-panel: #141414;
+            --bg-header: #1c1c1c;
+            --border-color: #2e2e2e;
+            --accent: #0a84ff;
+            --text-main: #ededed;
+            --text-muted: #888888;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-main);
+            background-color: var(--bg-main); 
             color: var(--text-main);
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
+            padding: 12px;
+            gap: 12px;
+        }
+
+        .main-workspace {
             display: flex;
-            height: 100vh;
+            flex-direction: row;
+            flex: 1;
+            gap: 12px;
             overflow: hidden;
-            flex-direction: row; /* Default PC */
         }
 
-        /* === LAYOUT UTAMA === */
         .editor-section {
-            flex: 1;
-            display: flex;
+            flex: 1.2; 
+            display: flex; 
             flex-direction: column;
-            border-right: 1px solid var(--border-color);
             background-color: var(--bg-panel);
-            height: 100%;
-        }
-
-        .preview-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: #111;
-            height: 100%;
-        }
-
-        /* === RESPONSIVE MOBILE (Jika layar lebih kecil dari 768px) === */
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-                overflow-y: auto;
-            }
-            .editor-section {
-                flex: none;
-                height: 50vh; /* Setengah layar untuk editor di HP */
-                border-right: none;
-                border-bottom: 2px solid var(--accent);
-            }
-            .preview-section {
-                flex: none;
-                height: auto;
-                min-height: 100vh;
-            }
-        }
-
-        /* === HEADER & MAC DOTS === */
-        .window-header {
-            background-color: var(--bg-header);
-            height: 45px;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            border-bottom: 1px solid var(--border-color);
-            gap: 15px;
-            flex-shrink: 0;
-        }
-
-        .mac-dots {
-            display: flex;
-            gap: 8px;
-        }
-
-        .dot { width: 12px; height: 12px; border-radius: 50%; }
-        .dot.red { background-color: var(--mac-red); }
-        .dot.yellow { background-color: var(--mac-yellow); }
-        .dot.green { background-color: var(--mac-green); }
-
-        .file-title {
-            color: #fff;
-            font-size: 13px;
-            font-weight: 500;
-            background-color: var(--bg-panel);
-            padding: 5px 15px;
-            border-radius: 4px;
             border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        
+        .preview-section { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
         }
 
-        /* === TEXT EDITOR === */
-        .editor-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        @media (max-width: 768px) {
+            body { padding: 0; gap: 0; overflow-y: auto; height: auto; min-height: 100vh; }
+            .main-workspace { flex-direction: column; overflow: visible; gap: 0; flex: none; height: auto; }
+            .editor-section { flex: none; height: 50vh; border-radius: 0; border: none; border-bottom: 2px solid var(--border-color); }
+            .preview-section { flex: none; height: auto; padding: 30px 0; border-radius: 0; border: none; border-bottom: 2px solid var(--border-color); overflow: visible; }
+            .console-container { border-radius: 0; border: none; height: 300px; flex: none; }
         }
 
-        .code-area {
-            width: 100%;
-            height: 100%;
-            background-color: transparent;
-            color: #d4d4d4;
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            padding: 15px;
-            border: none;
-            resize: none;
-            outline: none;
-            tab-size: 4;
+        .window-header {
+            background-color: var(--bg-header); height: 48px; display: flex;
+            align-items: center; justify-content: space-between; padding: 0 16px;
+            border-bottom: 1px solid var(--border-color); flex-shrink: 0;
+        }
+        .mac-dots { display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; opacity: 0.8; transition: opacity 0.2s; }
+        .dot:hover { opacity: 1; }
+        .dot.red { background: #ff5f56; } .dot.yellow { background: #ffbd2e; } .dot.green { background: #27c93f; }
+        
+        .file-title {
+            color: var(--text-muted); font-size: 13px; font-weight: 500;
+            background-color: rgba(255,255,255,0.05); padding: 4px 12px;
+            border-radius: 6px; margin-left: 16px; letter-spacing: 0.3px;
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #777; }
+        .editor-container { flex: 1; position: relative; overflow: hidden; }
+        #editor-html { width: 100%; height: 100%; font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 14px; }
 
-        /* === PREVIEW & iPHONE 17 PRO MOCKUP === */
         .preview-header {
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #181818;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-            flex-shrink: 0;
+            height: 48px; display: flex; align-items: center; justify-content: center;
+            background-color: var(--bg-header); border-bottom: 1px solid var(--border-color);
+            font-size: 13px; font-weight: 500; color: var(--text-muted); flex-shrink: 0; letter-spacing: 0.5px;
         }
 
         .preview-wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: radial-gradient(circle at center, #222 0%, #111 100%);
+            flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; 
+            background: radial-gradient(circle at center, #1f1f1f 0%, #111 100%); position: relative;
         }
 
         .iphone-17-pro {
-            width: 100%;
-            max-width: 340px; /* Ukuran maksimal di PC */
-            aspect-ratio: 9 / 19.5; /* Proporsi asli iPhone */
-            background-color: #fff;
-            border-radius: 40px;
-            position: relative;
-            box-shadow: 
-                0 0 0 3px #222, 
-                0 0 0 10px #0a0a0a, 
-                0 25px 40px rgba(0,0,0,0.8),
-                inset 0 0 0 5px #000;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            width: 100%; max-width: 350px; aspect-ratio: 9 / 19.5; background-color: #ffffff;
+            border-radius: 38px; position: relative;
+            box-shadow: 0 0 0 2px #333, 0 0 0 12px #0a0a0a, 0 30px 60px rgba(0,0,0,0.8), inset 0 0 0 6px #000;
+            display: flex; flex-direction: column; overflow: hidden; transition: background-color 0.3s ease;
         }
+
+        .iphone-top-bar {
+            width: 100%; height: 55px; display: flex; justify-content: space-between; align-items: center;
+            padding: 0 24px; position: relative; z-index: 20; background-color: inherit; color: #000; 
+            transition: color 0.3s ease; flex-shrink: 0;
+        }
+
+        .status-left { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; margin-top: -5px; }
+        .status-right { display: flex; align-items: center; gap: 6px; margin-top: -5px; }
+        .status-icon { width: 16px; height: 16px; fill: currentColor; }
+        
+        .battery-icon { 
+            width: 24px; height: 11.5px; border: 1px solid currentColor; 
+            border-radius: 3.5px; position: relative; padding: 1px; opacity: 0.9;
+        }
+        .battery-icon::after { content: ''; position: absolute; right: -3.5px; top: 2.5px; width: 2px; height: 4px; background: currentColor; border-radius: 0 2px 2px 0; }
+        .battery-level { width: 80%; height: 100%; background: currentColor; border-radius: 1.5px; transition: width 0.5s; }
 
         .dynamic-island {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30%;
-            min-width: 100px;
-            height: 30px;
-            background-color: #000;
-            border-radius: 20px;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 10px;
+            position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 120px; height: 32px; 
+            background-color: #000; border-radius: 20px; display: flex; align-items: center; justify-content: space-between;
+            padding: 0 12px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: inset 0 0 2px rgba(255,255,255,0.1);
         }
 
-        .lens { width: 10px; height: 10px; background: #111; border-radius: 50%; box-shadow: inset 0 0 3px #1a1a4a; }
-        .sensor { width: 6px; height: 6px; background: #050505; border-radius: 50%; }
+        .lens { width: 12px; height: 12px; background: #111; border-radius: 50%; box-shadow: inset 0 0 4px #1a1a4a; }
+        .sensor { width: 8px; height: 8px; background: #050505; border-radius: 50%; }
 
-        .preview-iframe {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            width: 100%; height: 100%;
-            border: none;
-            background-color: #ffffff;
-            border-radius: 35px;
-        }
+        .island-indicators { display: flex; position: absolute; right: 15px; }
+        .hw-dot { width: 5px; height: 5px; border-radius: 50%; opacity: 0; transition: opacity 0.3s; }
+        .hw-dot.cam { background-color: #30d158; box-shadow: 0 0 4px #30d158; }
+        .hw-dot.mic { background-color: #ff9f0a; box-shadow: 0 0 4px #ff9f0a; }
+        .hw-dot.active { opacity: 1; }
 
-        /* === DEVELOPER CONSOLE === */
+        .dynamic-island.audio-active { width: 165px; }
+        .audio-wave { display: none; gap: 2.5px; align-items: center; margin-right: 6px; height: 12px; position: absolute; right: 25px; }
+        .dynamic-island.audio-active .audio-wave { display: flex; }
+        .wave-bar { width: 3px; background: #ff9f0a; border-radius: 2px; animation: bounce 0.5s infinite ease-in-out alternate; }
+        .wave-bar:nth-child(1) { height: 6px; animation-delay: 0s; }
+        .wave-bar:nth-child(2) { height: 11px; animation-delay: 0.2s; }
+        .wave-bar:nth-child(3) { height: 7px; animation-delay: 0.4s; }
+        @keyframes bounce { 0% { height: 4px; } 100% { height: 12px; } }
+
+        .preview-iframe { flex: 1; width: 100%; border: none; background-color: transparent; border-radius: 0 0 34px 34px; }
+
         .console-container {
-            height: 250px;
-            background-color: #0d0d0d;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
+            height: 220px; background-color: var(--bg-panel); border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; flex-shrink: 0; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-
-        .console-toolbar {
-            background-color: #1a1a1a;
-            padding: 8px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #222;
+        .console-toolbar { 
+            background: var(--bg-header); padding: 8px 16px; display: flex; justify-content: space-between; 
+            align-items: center; border-bottom: 1px solid var(--border-color); border-radius: 12px 12px 0 0;
         }
-
-        .console-title { font-size: 12px; font-weight: bold; color: #888; }
+        .console-title { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 1px; display: flex; gap: 15px; align-items: center;}
         
-        .btn-clear {
-            background: #2a2a2a;
-            color: #ccc;
-            border: 1px solid #444;
-            padding: 5px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
+        .btn-action { 
+            background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); 
+            padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; transition: all 0.2s;
         }
-        .btn-clear:hover { background: #444; color: #fff; }
+        .btn-action:hover { background: #2a2a2a; color: #fff; }
+        .btn-action.run { color: #30d158; border-color: #276233; background: rgba(48, 209, 88, 0.1); }
+        .btn-action.run:hover { background: #30d158; color: #000; }
 
-        .console-logs {
-            flex: 1;
-            padding: 10px;
-            overflow-y: auto;
-            font-family: 'Consolas', monospace;
-            font-size: 13px;
-        }
+        .console-logs { flex: 1; padding: 12px; overflow-y: auto; font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 13px; scroll-behavior: smooth; }
+        .log-item { display: flex; align-items: flex-start; padding: 6px 4px; border-bottom: 1px solid rgba(255,255,255,0.03); line-height: 1.4; word-wrap: break-word; }
+        .log-item:last-child { border-bottom: none; }
+        
+        .log-time { color: #5c5c5c; font-size: 11px; margin-right: 10px; font-family: monospace; white-space: nowrap; padding-top: 1px; }
+        .log-content { flex: 1; }
 
-        .log-item { padding: 5px 0; border-bottom: 1px solid #1a1a1a; word-break: break-all; }
-        .log-item.log { color: #ccc; }
-        .log-item.info { color: #3794ff; }
-        .log-item.warn { color: #cd9731; }
-        .log-item.error { color: #f14c4c; background-color: rgba(241, 76, 76, 0.1); padding-left: 8px; border-left: 3px solid #f14c4c; }
-        .log-item.system { color: #555; font-style: italic; }
-
+        .log-item.log .log-content { color: #d4d4d4; } 
+        .log-item.info .log-content { color: #5ac8fa; } 
+        .log-item.warn .log-content { color: #ffcc00; } 
+        .log-item.error .log-content { color: #ff3b30; } 
+        .log-item.network .log-content { color: #a89f91; }
+        .net-status.success { color: #30d158; font-weight: bold; }
+        .net-status.fail { color: #ff3b30; font-weight: bold; }
+        .net-status.pending { color: #ff9f0a; font-style: italic; }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.36.2/ace.js"></script>
 </head>
 <body>
 
-    <!-- KIRI / ATAS: EDITOR -->
-    <div class="editor-section">
-        <div class="window-header">
-            <!-- Mac Dots -->
-            <div class="mac-dots">
-                <div class="dot red"></div>
-                <div class="dot yellow"></div>
-                <div class="dot green"></div>
-            </div>
-            <!-- Nama File Statis -->
-            <div class="file-title">index.html (HTML + CSS + JS)</div>
-        </div>
-        <div class="editor-container">
-            <textarea id="editor-html" class="code-area" spellcheck="false" placeholder="Tulis kode HTML lengkapmu di sini..."></textarea>
-        </div>
-    </div>
-
-    <!-- KANAN / BAWAH: PREVIEW & CONSOLE -->
-    <div class="preview-section">
-        <div class="preview-header">
-            iPhone 17 Pro
-        </div>
-        
-        <div class="preview-wrapper">
-            <!-- Mockup iPhone 17 Pro Responsif -->
-            <div class="iphone-17-pro">
-                <div class="dynamic-island">
-                    <div class="lens"></div>
-                    <div class="sensor"></div>
+    <div class="main-workspace">
+        <div class="editor-section">
+            <div class="window-header">
+                <div style="display: flex; align-items: center;">
+                    <div class="mac-dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+                    <div class="file-title">index.html</div>
                 </div>
-                <iframe id="live-frame" class="preview-iframe"></iframe>
+                <button class="btn-action run" onclick="renderPreview()">▶ Run Code</button>
+            </div>
+            <div class="editor-container">
+                <div id="editor-html"></div>
             </div>
         </div>
 
-        <!-- Developer Console -->
-        <div class="console-container">
-            <div class="console-toolbar">
-                <span class="console-title">TERMINAL LOGS</span>
-                <button class="btn-clear" onclick="clearConsole()">Clear Logs</button>
-            </div>
-            <div id="console-output" class="console-logs">
-                <div class="log-item system">System ready. Menunggu eksekusi kode...</div>
+        <div class="preview-section">
+            <div class="preview-header">iPhone 17 Pro Preview</div>
+            <div class="preview-wrapper">
+                <div class="iphone-17-pro" id="iphone-body">
+                    <div class="iphone-top-bar" id="status-bar">
+                        <div class="status-left" id="clock">00:00</div>
+                        
+                        <div class="dynamic-island" id="dynamic-island">
+                            <div class="lens"></div>
+                            <div class="audio-wave"><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div></div>
+                            <div class="island-indicators">
+                                <div class="hw-dot mic" id="mic-dot"></div>
+                                <div class="hw-dot cam" id="cam-dot"></div>
+                            </div>
+                            <div class="sensor"></div>
+                        </div>
+
+                        <div class="status-right">
+                            <svg class="status-icon" viewBox="0 0 24 24">
+                                <path d="M12 21L23.6 7C23.1 6.6 18.6 3 12 3C5.4 3 0.9 6.6 0.4 7L12 21Z" />
+                            </svg>
+                            <div class="battery-icon"><div class="battery-level" id="battery-level"></div></div>
+                        </div>
+                    </div>
+                    
+                    <iframe id="live-frame" class="preview-iframe" allow="camera; microphone; autoplay"></iframe>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- LOGIKA JAVASCRIPT APLIKASI -->
-    <script>
-        const editor = document.getElementById('editor-html');
-        
-        // --- 1. EDITOR UTILITIES (TAB INDENT) ---
-        editor.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                let start = this.selectionStart;
-                let end = this.selectionEnd;
-                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
-                this.selectionStart = this.selectionEnd = start + 4;
-                renderPreview();
-            }
-        });
-        editor.addEventListener('input', renderPreview);
+    <div class="console-container">
+        <div class="console-toolbar">
+            <div class="console-title">
+                <span>TERMINAL</span>
+            </div>
+            <button class="btn-action" onclick="clearConsole()">Clear Logs</button>
+        </div>
+        <div id="console-output" class="console-logs"></div>
+    </div>
 
-        // --- 2. LIVE RENDERER & CONSOLE INTERCEPTOR ---
-        let renderTimer;
+    <script>
+        const editor = ace.edit("editor-html");
+        editor.setTheme("ace/theme/tomorrow_night_eighties");
+        editor.session.setMode("ace/mode/html");
+        editor.setOptions({
+            fontSize: "14px",
+            showPrintMargin: false,
+            useWorker: false
+        });
+
+        function getTimestamp() {
+            const now = new Date();
+            const h = now.getHours().toString().padStart(2, '0');
+            const m = now.getMinutes().toString().padStart(2, '0');
+            const s = now.getSeconds().toString().padStart(2, '0');
+            return `[${h}:${m}:${s}]`;
+        }
+
+        editor.session.on('change', () => renderPreview());
+
+        setInterval(() => {
+            const d = new Date();
+            document.getElementById('clock').textContent = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+        }, 1000);
         
+        if (navigator.getBattery) {
+            navigator.getBattery().then(b => {
+                const updateBat = () => { 
+                    document.getElementById('battery-level').style.width = (b.level * 100) + "%";
+                    document.getElementById('battery-level').style.background = b.charging ? "#30d158" : "currentColor";
+                };
+                updateBat(); b.addEventListener('levelchange', updateBat); b.addEventListener('chargingchange', updateBat);
+            });
+        }
+
+        let renderTimer;
         function renderPreview() {
             clearTimeout(renderTimer);
+            document.getElementById('cam-dot').classList.remove('active');
+            document.getElementById('mic-dot').classList.remove('active');
+            
             renderTimer = setTimeout(() => {
-                const userCode = editor.value;
+                const code = editor.getValue();
                 const iframe = document.getElementById('live-frame');
 
-                // Memasukkan script penangkap console log otomatis ke kode user
-                const interceptorScript = `
+                const systemScript = `
                     <script>
-                        window.onerror = function(msg, url, line) {
-                            window.parent.postMessage({ type: 'error', text: msg + ' (Baris ' + line + ')' }, '*');
-                            return true;
+                        function checkTheme() {
+                            const bg = window.getComputedStyle(document.body).backgroundColor;
+                            const rgb = bg.match(/\\d+/g);
+                            if(rgb) {
+                                const brightness = Math.round(((parseInt(rgb[0])*299)+(parseInt(rgb[1])*587)+(parseInt(rgb[2])*114))/1000);
+                                window.parent.postMessage({ type: 'theme', mode: brightness > 125 ? 'light' : 'dark', bgColor: bg }, '*');
+                            }
+                        }
+                        setInterval(checkTheme, 300);
+
+                        document.addEventListener('play', (e) => { if(e.target.tagName === 'AUDIO' || e.target.tagName === 'VIDEO') window.parent.postMessage({ type: 'audio', state: 'play' }, '*'); }, true);
+                        document.addEventListener('pause', (e) => { if(e.target.tagName === 'AUDIO' || e.target.tagName === 'VIDEO') window.parent.postMessage({ type: 'audio', state: 'pause' }, '*'); }, true);
+
+                        if (!navigator.mediaDevices) navigator.mediaDevices = {};
+                        const originalGetUserMedia = navigator.mediaDevices.getUserMedia ? navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices) : null;
+                        navigator.mediaDevices.getUserMedia = function(constraints) {
+                            if (constraints && constraints.video) window.parent.postMessage({ type: 'hw_active', hardware: 'camera' }, '*');
+                            if (constraints && constraints.audio) window.parent.postMessage({ type: 'hw_active', hardware: 'mic' }, '*');
+                            return originalGetUserMedia ? originalGetUserMedia(constraints) : Promise.resolve({});
                         };
-                        const methods = ['log', 'info', 'warn', 'error'];
-                        methods.forEach(method => {
-                            const original = console[method];
+
+                        const m = ['log','info','warn','error'];
+                        m.forEach(method => {
+                            const og = console[method];
                             console[method] = function(...args) {
-                                const parsedArgs = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
-                                window.parent.postMessage({ type: method, text: parsedArgs }, '*');
-                                original.apply(console, args);
+                                window.parent.postMessage({ type: method, text: args.join(' ') }, '*');
+                                og.apply(console, args);
                             };
                         });
+                        window.onerror = (m, u, l) => window.parent.postMessage({ type: 'error', text: m + ' (Baris ' + l + ')' }, '*');
+
+                        const origFetch = window.fetch;
+                        window.fetch = async function(...args) {
+                            const url = typeof args[0] === 'string' ? args[0] : (args[0] ? args[0].url : 'unknown');
+                            const method = args[1] && args[1].method ? args[1].method.toUpperCase() : 'GET';
+                            const reqId = 'req_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+                            
+                            window.parent.postMessage({ type: 'network', reqId, method, url, status: '' }, '*');
+                            try {
+                                const response = await origFetch.apply(this, args);
+                                window.parent.postMessage({ type: 'network', reqId, method, url, status: response.status, ok: response.ok }, '*');
+                                return response;
+                            } catch (err) {
+                                window.parent.postMessage({ type: 'network', reqId, method, url, status: 'Failed', ok: false }, '*');
+                                throw err;
+                            }
+                        };
+
+                        const origOpen = XMLHttpRequest.prototype.open;
+                        const origSend = XMLHttpRequest.prototype.send;
+                        XMLHttpRequest.prototype.open = function(method, url) {
+                            this._reqMethod = method;
+                            this._reqUrl = url;
+                            this._reqId = 'xhr_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+                            return origOpen.apply(this, arguments);
+                        };
+                        XMLHttpRequest.prototype.send = function() {
+                            window.parent.postMessage({ type: 'network', reqId: this._reqId, method: this._reqMethod, url: this._reqUrl, status: 'Pending...' }, '*');
+                            this.addEventListener('load', function() {
+                                window.parent.postMessage({ type: 'network', reqId: this._reqId, method: this._reqMethod, url: this._reqUrl, status: this.status, ok: (this.status >= 200 && this.status < 300) }, '*');
+                            });
+                            this.addEventListener('error', function() {
+                                window.parent.postMessage({ type: 'network', reqId: this._reqId, method: this._reqMethod, url: this._reqUrl, status: 'Failed', ok: false }, '*');
+                            });
+                            return origSend.apply(this, arguments);
+                        };
                     <\/script>
                 `;
 
-                // CSS Bawaan agar konten tidak tertutup Dynamic Island
-                const baseStyles = `
-                    <style>
-                        body { 
-                            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-                            margin: 0; 
-                            padding: 45px 15px 20px 15px; /* Padding atas untuk Dynamic island */
-                            box-sizing: border-box;
-                        }
-                    </style>
-                `;
-
-                // Gabungkan script sistem dan kode milik user
-                const srcDoc = interceptorScript + baseStyles + userCode;
-                iframe.srcdoc = srcDoc;
-            }, 600); // Render ditunda 0.6 detik saat mengetik agar ringan
+                const baseStyles = `<style>body { margin: 0; padding: 16px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; min-height: 100vh; }</style>`;
+                iframe.srcdoc = systemScript + baseStyles + code;
+            }, 600);
         }
 
-        // --- 3. TAMPILKAN LOG DARI IFRAME KE PANEL ---
+        const statusBar = document.getElementById('status-bar');
+        const dynIsland = document.getElementById('dynamic-island');
+        const iphBody = document.getElementById('iphone-body');
         const consoleBox = document.getElementById('console-output');
 
         window.addEventListener('message', (e) => {
-            if (e.data && e.data.type) {
-                // Hapus tulisan default
-                if (consoleBox.querySelector('.system')) {
-                    consoleBox.innerHTML = '';
-                }
+            if (!e.data || !e.data.type) return;
 
+            if (e.data.type === 'theme') {
+                statusBar.style.color = e.data.mode === 'dark' ? '#ffffff' : '#000000';
+                iphBody.style.backgroundColor = e.data.bgColor; 
+                return;
+            }
+            if (e.data.type === 'audio') {
+                if (e.data.state === 'play') dynIsland.classList.add('audio-active');
+                else dynIsland.classList.remove('audio-active');
+                return;
+            }
+            if (e.data.type === 'hw_active') {
+                if (e.data.hardware === 'camera') document.getElementById('cam-dot').classList.add('active');
+                if (e.data.hardware === 'mic') document.getElementById('mic-dot').classList.add('active');
+                setTimeout(() => {
+                    document.getElementById('cam-dot').classList.remove('active');
+                    document.getElementById('mic-dot').classList.remove('active');
+                }, 5000);
+                return;
+            }
+
+            if (e.data.type === 'network') {
+                let existingLog = document.getElementById(e.data.reqId);
+                let statusClass = e.data.status === 'Pending...' ? 'pending' : (e.data.ok ? 'success' : 'fail');
+                
+                if (existingLog) {
+                    const statusSpan = existingLog.querySelector('.net-status');
+                    if(statusSpan) {
+                        statusSpan.className = `net-status ${statusClass}`;
+                        statusSpan.textContent = e.data.status;
+                    }
+                } else {
+                    const logEl = document.createElement('div');
+                    logEl.id = e.data.reqId;
+                    logEl.className = 'log-item network';
+                    logEl.innerHTML = `<span class="log-time">${getTimestamp()}</span> <div class="log-content"><b>[${e.data.method}]</b> ${e.data.url} - <span class="net-status ${statusClass}">${e.data.status}</span></div>`;
+                    consoleBox.appendChild(logEl);
+                }
+            } 
+            else {
                 const logEl = document.createElement('div');
                 logEl.className = 'log-item ' + e.data.type;
+                const icon = '❯ ';
                 
-                let icon = '❯ ';
-                if (e.data.type === 'error') icon = '✖ ';
-                if (e.data.type === 'warn') icon = '⚠ ';
-                if (e.data.type === 'info') icon = 'ℹ ';
-
-                logEl.textContent = icon + e.data.text;
+                logEl.innerHTML = `<span class="log-time">${getTimestamp()}</span> <div class="log-content">${icon} ${e.data.text}</div>`;
                 consoleBox.appendChild(logEl);
-                
-                // Auto scroll ke bawah
-                consoleBox.scrollTop = consoleBox.scrollHeight;
             }
+
+            consoleBox.scrollTop = consoleBox.scrollHeight;
         });
 
-        function clearConsole() {
-            consoleBox.innerHTML = '<div class="log-item system">Console dibersihkan...</div>';
-        }
+        function clearConsole() { consoleBox.innerHTML = ''; }
 
-        // --- 4. DATA DEMO (HTML + CSS + JS) SAAT HALAMAN DIBUKA ---
         window.onload = () => {
-            editor.value = `<!-- Tuliskan CSS di dalam tag style -->
-<style>
-  .container {
-    text-align: center;
-    margin-top: 30px;
-  }
-  h1 { color: #333; font-size: 24px; }
-  p { color: #666; margin-bottom: 20px; }
-  
-  button {
-    background: #007aff;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 20px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    margin: 5px;
-    box-shadow: 0 4px 10px rgba(0,122,255,0.3);
-  }
-  
-  .btn-error {
-    background: #ff4757;
-    box-shadow: 0 4px 10px rgba(255,71,87,0.3);
-  }
+            editor.setValue(`<style>
+  body { background-color: #0f172a; color: white; display: flex; flex-direction: column; gap: 15px; }
+  button { padding: 12px; border-radius: 8px; border: none; background: #3b82f6; color: white; font-weight: bold; cursor: pointer; }
+  .box { padding: 15px; background: rgba(255,255,255,0.1); border-radius: 8px; border: 1px dashed #475569; }
 </style>
 
-<!-- Tuliskan elemen HTML di sini -->
-<div class="container">
-  <h1>Halo, iPhone 17!</h1>
-  <p>Semua kode ditulis di 1 file HTML ini.</p>
-  
-  <button onclick="testLog()">Test Log</button>
-  <button class="btn-error" onclick="testError()">Test Error</button>
-</div>
+<h3>Network API Test</h3>
+<div class="box" id="result">Hasil data akan muncul di sini...</div>
+<button onclick="ambilData()">Fetch Data API</button>
+<button onclick="ambilError()" style="background:#ef4444;">Test Fetch Error</button>
 
-<!-- Tuliskan JavaScript di dalam tag script -->
 <script>
-  console.info("Aplikasi dimuat di perangkat Mobile.");
-
-  function testLog() {
-    console.log("Tombol berhasil ditekan!");
-    console.warn("Ini adalah contoh peringatan.");
+  console.log("Test tombol untuk menampilkan.");
+  
+  async function ambilData() {
+      console.info("Memulai request ke API...");
+      try {
+          const res = await fetch('https://jsonplaceholder.typicode.com/users/1');
+          const data = await res.json();
+          document.getElementById('result').innerHTML = 'Halo, ' + data.name;
+          console.log("Data berhasil diambil!");
+      } catch(err) {
+          console.error("Gagal ambil data!");
+      }
   }
 
-  function testError() {
-    // Memicu error untuk dilihat di console bawah
-    throw new Error("Ups, terjadi simulasi error fatal!");
+  async function ambilError() {
+      console.warn("Memulai request API yang tidak valid...");
+      try {
+          await fetch('https://jsonplaceholder.typicode.com/users/invalid_url_999');
+      } catch(err) {}
   }
-<\/script>`;
+<\/script>`, -1);
+            
             renderPreview();
         };
     </script>
