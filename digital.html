@@ -5378,8 +5378,8 @@ function requestDeposit() {
   let trxId = Date.now();
   let timeStr = new Date().toLocaleTimeString('id-ID');
 
-  let activeDep = { id: trxId, uid: userID, amount: amount, status: 'Menunggu', endTime: Date.now() + (5 * 60 * 1000) };
-  localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(activeDep));
+let activeDep = { id: trxId, uid: userID, amount: amount, status: 'Menunggu' };
+localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(activeDep));
 
   document.getElementById('deposit-step-1').style.display = 'none';
   document.getElementById('deposit-step-2').style.display = 'block';
@@ -5407,10 +5407,11 @@ function showQR(url, activeDep, isResume = false) {
   document.getElementById('deposit-instructions').style.display = 'block';
   document.getElementById('qris-image-tag').src = url;
   
-  if (!isResume) {
-    activeDep.qrUrl = url;
-    localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(activeDep));
+  if (!activeDep.endTime) {
+    activeDep.endTime = Date.now() + (5 * 60 * 1000);
   }
+  activeDep.qrUrl = url;
+  localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(activeDep));
   
   if (depositTimerInterval) clearInterval(depositTimerInterval);
   depositTimerInterval = setInterval(() => {
