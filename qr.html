@@ -47,6 +47,12 @@
       transform: translateY(-2px);
     }
 
+    .link-box {
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 16px;
+    }
+
     .qr-wrapper {
       background: #ffffff;
       border-radius: 16px;
@@ -130,19 +136,35 @@
       <i class="bi bi-qr-code-scan fs-3"></i>
     </div>
     <h5 class="fw-bold mb-1 text-white">QRIS Cleaner</h5>
-    <p class="text-secondary small mb-0" id="headerSubtitle">Upload galeri deteksi merchant nominal</p>
+    <p class="text-secondary small mb-0" id="headerSubtitle">Upload galeri atau tempel link payment gateway</p>
   </div>
 
   <!-- Bagian Utama (Upload & Hasil) -->
   <div id="mainView">
-    <!-- Area Upload Galeri -->
+    <!-- Area Upload Galeri & Input Link -->
     <div id="uploadSection">
-      <div class="upload-box p-4 text-center" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-box p-4 text-center mb-3" id="dropZone" onclick="document.getElementById('fileInput').click()">
         <i class="bi bi-images text-info display-5 mb-2 d-block"></i>
         <span class="btn btn-primary btn-sm px-4 rounded-pill fw-semibold">
           <i class="bi bi-upload me-1"></i> Upload Gambar
         </span>
         <input type="file" id="fileInput" accept="image/*" hidden>
+      </div>
+
+      <!-- Input Link Otomatis -->
+      <div class="link-box p-3">
+        <label for="qrisUrlInput" class="form-label text-secondary mb-2 d-flex justify-content-between align-items-center" style="font-size: 0.75rem;">
+          <span><i class="bi bi-link-45deg text-info fs-6 align-middle"></i> Deteksi otomatis payment gateway</span>
+        </label>
+        <div class="input-group input-group-sm">
+          <input type="url" id="qrisUrlInput" class="form-control bg-dark text-light border-secondary" placeholder="Tempel link pembayaran...">
+          <button class="btn btn-outline-secondary" type="button" onclick="pasteFromClipboard()" title="Tempel dari Clipboard">
+            <i class="bi bi-clipboard-plus"></i>
+          </button>
+          <button class="btn btn-info text-dark fw-semibold px-3" type="button" onclick="handleUrlInput()">
+            <i class="bi bi-search me-1"></i> Cek
+          </button>
+        </div>
       </div>
     </div>
 
@@ -204,7 +226,7 @@
           <i class="bi bi-download me-1"></i> Download QRIS
         </button>
         <button class="btn btn-outline-secondary btn-sm py-2 rounded-3" onclick="resetApp()">
-          <i class="bi bi-arrow-repeat me-1"></i> Upload Gambar Lain
+         Kembali
         </button>
       </div>
     </div>
@@ -241,6 +263,7 @@
 
   const fileInput = document.getElementById('fileInput');
   const dropZone = document.getElementById('dropZone');
+  const qrisUrlInput = document.getElementById('qrisUrlInput');
   const statusBox = document.getElementById('statusBox');
   const uploadSection = document.getElementById('uploadSection');
   const resultSection = document.getElementById('resultSection');
@@ -263,8 +286,8 @@
 
   let currentMerchant = 'QRIS';
   let currentHistoryId = null;
+  let urlAutoCheckTimer = null;
 
-  // Inisialisasi badge riwayat saat halaman dibuka
   updateHistoryBadge();
 
   fileInput.addEventListener('change', (e) => {
@@ -284,6 +307,43 @@
     if (e.dataTransfer.files?.[0]) processImageFile(e.dataTransfer.files[0]);
   });
 
+  // Deteksi otomatis saat user menempel (paste) atau mengetik URL
+  qrisUrlInput.addEventListener('paste', () => {
+    setTimeout(() => {
+      if (qrisUrlInput.value.trim()) handleUrlInput();
+    }, 80);
+  });
+
+  qrisUrlInput.addEventListener('input', () => {
+    clearTimeout(urlAutoCheckTimer);
+    const val = qrisUrlInput.value.trim();
+    if (/^https?:\/\/.+/i.test(val) || val.startsWith('000201')) {
+      urlAutoCheckTimer = setTimeout(() => {
+        handleUrlInput();
+      }, 650);
+    }
+  });
+
+  qrisUrlInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleUrlInput();
+    }
+  });
+
+  async function pasteFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        qrisUrlInput.value = text.trim();
+        handleUrlInput();
+      }
+    } catch (e) {
+      qrisUrlInput.focus();
+      showError('Izin clipboard ditolak browser, silakan tempel (Ctrl+V) manual.');
+    }
+  }
+
   function showLoading(msg) {
     statusBox.className = 'alert alert-info d-flex align-items-center gap-2 py-2 px-3 small mt-3 mb-0 rounded-3';
     statusBox.innerHTML = `<div class="spinner-border spinner-border-sm"></div><span>${msg}</span>`;
@@ -297,6 +357,216 @@
   function hideStatus() {
     statusBox.className = 'd-none';
     statusBox.innerHTML = '';
+  }
+
+  // ========================================================
+  // LOGIKA DETEKSI QRIS DARI URL / PAYMENT GATEWAY
+  // ========================================================
+  function extractPayloadFromUrlParams(rawUrl) {
+    try {
+      const urlObj = new URL(rawUrl);
+      const candidateKeys = ['raw', 'qris', 'qr', 'payload', 'data', 'code', 'qr_string', 'qr_code', 'string'];
+
+      // 1. Cek key umum pada query parameter (contoh: ?raw=000201...)
+      for (const key of candidateKeys) {
+        const val = urlObj.searchParams.get(key);
+        if (val && val.trim().startsWith('000201')) {
+          return val.trim();
+        }
+      }
+
+      // 2. Cek semua parameter barangkali memakai nama key unik
+      for (const [, val] of urlObj.searchParams.entries()) {
+        if (val && val.trim().startsWith('000201')) {
+          return val.trim();
+        }
+      }
+
+      // 3. Cek hash fragment (#raw=000201...)
+      if (urlObj.hash) {
+        const hashParams = new URLSearchParams(urlObj.hash.replace(/^#/, ''));
+        for (const [, val] of hashParams.entries()) {
+          if (val && val.trim().startsWith('000201')) {
+            return val.trim();
+          }
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function loadImageFromUrl(src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error('Gagal memuat gambar'));
+      img.src = src;
+    });
+  }
+
+  async function scanImageElement(img) {
+    const croppedCanvas = detectWhiteQrBox(img);
+    const variants = [
+      croppedCanvas,
+      createThresholdCanvas(croppedCanvas, 128, 0),
+      createThresholdCanvas(croppedCanvas, 100, 0),
+      createThresholdCanvas(croppedCanvas, 160, 0),
+      createThresholdCanvas(croppedCanvas, 128, 0.22),
+      createThresholdCanvas(croppedCanvas, 110, 0.25)
+    ];
+
+    for (const variant of variants) {
+      const payload = await decodeCanvas(variant);
+      if (payload) return payload;
+      await new Promise((r) => setTimeout(r, 10));
+    }
+    return null;
+  }
+
+  async function handleUrlInput() {
+    clearTimeout(urlAutoCheckTimer);
+    const inputVal = qrisUrlInput.value.trim();
+
+    if (!inputVal) {
+      showError('Masukkan link payment gateway terlebih dahulu.');
+      return;
+    }
+
+    // Jika user menempelkan raw string EMVCo QRIS secara langsung
+    if (inputVal.startsWith('000201')) {
+      renderDetectedPayload(inputVal);
+      return;
+    }
+
+    let validUrl;
+    try {
+      validUrl = new URL(inputVal).href;
+    } catch (e) {
+      showError('Format link tidak valid. Pastikan diawali http:// atau https://');
+      return;
+    }
+
+    // Tahap 1: Cek parameter URL (seperti ?raw=000201... pada Fastebridge)
+    showLoading('Mengecek parameter link payment gateway...');
+    const paramPayload = extractPayloadFromUrlParams(validUrl);
+    if (paramPayload) {
+      renderDetectedPayload(paramPayload);
+      return;
+    }
+
+    // Tahap 2: Coba muat langsung sebagai URL Gambar
+    showLoading('Mengecek apakah link berisi gambar QRIS...');
+    try {
+      const directImg = await loadImageFromUrl(validUrl);
+      const imgPayload = await scanImageElement(directImg);
+      if (imgPayload) {
+        renderDetectedPayload(imgPayload);
+        return;
+      }
+    } catch (e) {
+      // Lanjut ke pengecekan halaman HTML / Proxy jika bukan direct image atau terblokir CORS
+    }
+
+    // Tahap 3: Ambil konten halaman web / gambar via CORS Proxy
+    showLoading('Memindai halaman & gambar dari link...');
+    try {
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(validUrl)}`;
+      const response = await fetch(proxyUrl);
+      if (!response.ok) throw new Error('Tidak dapat mengakses halaman link.');
+
+      const contentType = response.headers.get('content-type') || '';
+
+      // Jika hasil proxy adalah file gambar
+      if (contentType.startsWith('image/')) {
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const proxiedImg = await loadImageFromUrl(blobUrl);
+        const payload = await scanImageElement(proxiedImg);
+        URL.revokeObjectURL(blobUrl);
+        if (payload) {
+          renderDetectedPayload(payload);
+          return;
+        }
+      } else {
+        // Jika hasil proxy adalah HTML / JSON dari payment gateway
+        const htmlText = await response.text();
+
+        // Cari pola payload EMVCo QRIS (000201...) di dalam source HTML/JS
+        const emvMatch = htmlText.match(/000201[0-9A-Za-z\s.\-_/+=]{40,}/);
+        if (emvMatch) {
+          const cleanedMatch = emvMatch[0].split(/["'<>&]/)[0].trim();
+          if (cleanedMatch.length >= 50) {
+            renderDetectedPayload(cleanedMatch);
+            return;
+          }
+        }
+
+        // Cari semua tag <img> di dalam halaman dan pindai satu per satu
+        const doc = new DOMParser().parseFromString(htmlText, 'text/html');
+        const imgTags = Array.from(doc.querySelectorAll('img'));
+
+        for (const imgTag of imgTags) {
+          const rawSrc = imgTag.getAttribute('src');
+          if (!rawSrc) continue;
+
+          let resolvedSrc = rawSrc;
+          if (!rawSrc.startsWith('data:')) {
+            try {
+              resolvedSrc = new URL(rawSrc, validUrl).href;
+            } catch (err) {
+              continue;
+            }
+          }
+
+          try {
+            const candidateImg = await loadImageFromUrl(
+              resolvedSrc.startsWith('data:')
+                ? resolvedSrc
+                : `https://api.allorigins.win/raw?url=${encodeURIComponent(resolvedSrc)}`
+            );
+            if (candidateImg.width < 60 || candidateImg.height < 60) continue;
+
+            const qrFromTag = await scanImageElement(candidateImg);
+            if (qrFromTag) {
+              renderDetectedPayload(qrFromTag);
+              return;
+            }
+          } catch (err) {}
+        }
+      }
+
+      showError('Tidak ditemukan gambar QRIS atau data pembayaran pada link tersebut.');
+    } catch (err) {
+      showError('Gagal memeriksa link (terproteksi / tidak dapat dijangkau).');
+    }
+  }
+
+  function renderDetectedPayload(payload) {
+    const info = parseEMVCoQRIS(payload);
+    currentMerchant = info.merchant.replace(/[^a-zA-Z0-9]/g, '_');
+    merchantNameEl.textContent = info.merchant;
+    merchantAmountEl.textContent = info.amount;
+
+    // Simpan otomatis ke riwayat
+    currentHistoryId = addHistoryRecord(info.merchant, info.amount);
+
+    QRCode.toCanvas(cleanCanvas, payload, {
+      width: 600,
+      margin: 2,
+      errorCorrectionLevel: 'H',
+      color: { dark: '#000000', light: '#ffffff' }
+    }, (err) => {
+      if (err) {
+        showError('Gagal membuat gambar QRIS.');
+        return;
+      }
+      hideStatus();
+      uploadSection.classList.add('d-none');
+      resultSection.classList.remove('d-none');
+
+      uploadCanvasToCloudinary(cleanCanvas, currentHistoryId);
+    });
   }
 
   // Manajemen Riwayat (LocalStorage)
@@ -352,7 +622,6 @@
       cloudUrl: ''
     });
 
-    // Batasi maksimal 50 riwayat terakhir agar ringan
     if (list.length > 50) list.pop();
     saveHistory(list);
     return id;
@@ -398,7 +667,7 @@
         <i class="bi bi-clock-history fs-5"></i>
         <span id="historyBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info text-dark ${getHistory().length ? '' : 'd-none'}" style="font-size: 0.65rem;">${getHistory().length}</span>
       `;
-      headerSubtitle.textContent = 'Upload galeri deteksi merchant nominal';
+      headerSubtitle.textContent = 'Upload galeri atau tempel link payment gateway';
     }
   }
 
@@ -654,52 +923,14 @@
     await new Promise((res) => (img.onload = res));
     await new Promise((r) => setTimeout(r, 30));
 
-    const croppedCanvas = detectWhiteQrBox(img);
-    const variants = [
-      croppedCanvas,
-      createThresholdCanvas(croppedCanvas, 128, 0),
-      createThresholdCanvas(croppedCanvas, 100, 0),
-      createThresholdCanvas(croppedCanvas, 160, 0),
-      createThresholdCanvas(croppedCanvas, 128, 0.22),
-      createThresholdCanvas(croppedCanvas, 110, 0.25)
-    ];
-
-    let payload = null;
-    for (const variant of variants) {
-      payload = await decodeCanvas(variant);
-      if (payload) break;
-      await new Promise((r) => setTimeout(r, 10));
-    }
+    const payload = await scanImageElement(img);
 
     if (!payload) {
       showError('QRIS tidak terbaca pastikan gambar jelas.');
       return;
     }
 
-    const info = parseEMVCoQRIS(payload);
-    currentMerchant = info.merchant.replace(/[^a-zA-Z0-9]/g, '_');
-    merchantNameEl.textContent = info.merchant;
-    merchantAmountEl.textContent = info.amount;
-
-    // Simpan otomatis ke riwayat
-    currentHistoryId = addHistoryRecord(info.merchant, info.amount);
-
-    QRCode.toCanvas(cleanCanvas, payload, {
-      width: 600,
-      margin: 2,
-      errorCorrectionLevel: 'H',
-      color: { dark: '#000000', light: '#ffffff' }
-    }, (err) => {
-      if (err) {
-        showError('Gagal membuat gambar QRIS.');
-        return;
-      }
-      hideStatus();
-      uploadSection.classList.add('d-none');
-      resultSection.classList.remove('d-none');
-
-      uploadCanvasToCloudinary(cleanCanvas, currentHistoryId);
-    });
+    renderDetectedPayload(payload);
   }
 
   function copyCloudinaryLink() {
@@ -722,6 +953,7 @@
 
   function resetApp() {
     fileInput.value = '';
+    qrisUrlInput.value = '';
     resultSection.classList.add('d-none');
     uploadSection.classList.remove('d-none');
     hideStatus();
