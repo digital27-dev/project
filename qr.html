@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRIS Cleaner - Deteksi & Bersihkan Kode QRIS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Library jsQR untuk membaca/mendeteksi QR Code dari gambar -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <!-- Library QRCode (node-qrcode browser bundle) untuk membuat gambar QR bersih resolusi tinggi -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Animasi halus untuk transisi */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold text-slate-900 leading-tight">QRIS Cleaner</h1>
+                    <p class="text-xs text-slate-500">Hapus logo, frame & teks — Sisakan kode QR bersih</p>
+                </div>
+            </div>
+            <span class="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                100% Diproses di Browser (Aman)
+            </span>
+        </div>
+    </header>
+
+    <!-- Konten Utama -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-6 sm:py-8">
+        
+        <!-- Area Notifikasi / Pesan Status -->
+        <div id="statusBox" class="hidden mb-6 p-4 rounded-2xl border text-sm font-medium flex items-center justify-between gap-3 fade-in">
+            <div class="flex items-center gap-3">
+                <span id="statusIcon"></span>
+                <span id="statusText"></span>
+            </div>
+            <button onclick="hideStatus()" class="text-slate-400 hover:text-slate-600 p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Area Upload Galeri & Drag-and-Drop -->
+        <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 sm:p-8 mb-6">
+            <div class="text-center mb-5">
+                <h2 class="text-base sm:text-lg font-semibold text-slate-900">1. Unggah Gambar QRIS dari Galeri</h2>
+                <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                    Pilih poster/gambar QRIS yang memiliki logo Bank BI, GPN, nama toko, atau hiasan warna-warni.
+                </p>
+            </div>
+
+            <!-- Dropzone -->
+            <div id="dropZone" 
+                 class="border-2 border-dashed border-slate-300 hover:border-indigo-500 bg-slate-50/70 hover:bg-indigo-50/30 transition-all rounded-2xl p-6 sm:p-10 text-center cursor-pointer flex flex-col items-center justify-center group">
+                <input type="file" id="fileInput" accept="image/*" class="hidden">
+                
+                <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+
+                <p class="text-sm sm:text-base font-semibold text-slate-800">
+                    Klik untuk Pilih dari Galeri / File
+                </p>
+                <p class="text-xs text-slate-500 mt-1">
+                    atau seret dan lepas (drag & drop) gambar ke kotak ini
+                </p>
+
+                <button type="button" onclick="document.getElementById('fileInput').click(); event.stopPropagation();" 
+                        class="mt-4 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-medium rounded-xl shadow-sm transition-colors inline-flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Pilih Gambar Galeri
+                </button>
+            </div>
+        </section>
+
+        <!-- Area Hasil Deteksi & QRIS Bersih -->
+        <section id="resultSection" class="hidden fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Kolom Kiri: Gambar Asli yang Diunggah -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 sm:p-6 flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Gambar Asli</span>
+                        <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">Sumber</span>
+                    </div>
+                    
+                    <div class="flex-grow flex items-center justify-center bg-slate-100 rounded-2xl p-4 min-h-[260px] overflow-hidden border border-slate-200/60">
+                        <img id="originalPreview" src="" alt="Pratinjau Gambar Asli" class="max-h-72 w-auto object-contain rounded-lg shadow-sm">
+                    </div>
+
+                    <!-- Info Terdeteksi dari Payload QRIS -->
+                    <div class="mt-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-slate-500">Nama Merchant:</span>
+                            <span id="merchantName" class="font-semibold text-slate-800 truncate max-w-[180px]">-</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-slate-500">Kota / Lokasi:</span>
+                            <span id="merchantCity" class="font-medium text-slate-700 truncate max-w-[180px]">-</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-slate-500">Standar Kode:</span>
+                            <span id="qrisTypeBadge" class="font-medium text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">QRIS Valid</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kolom Kanan: Hasil QRIS Bersih (Tanpa Logo BI & Tanpa Teks) -->
+                <div class="bg-white rounded-3xl shadow-sm border-2 border-indigo-500/30 p-5 sm:p-6 flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-indigo-600">Hasil QRIS Bersih</span>
+                        <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-medium">Siap Pakai</span>
+                    </div>
+
+                    <!-- Placeholder / Canvas QRIS Bersih -->
+                    <div class="flex-grow flex flex-col items-center justify-center bg-slate-100/80 rounded-2xl p-6 min-h-[260px] border border-slate-200/60">
+                        <div class="bg-white p-3 rounded-2xl shadow-md border border-slate-200">
+                            <canvas id="cleanQrCanvas" class="max-w-full h-auto block rounded-lg"></canvas>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-3 text-center">
+                            Hanya kode matriks QR murni (tanpa logo BI, frame, atau teks)
+                        </p>
+                    </div>
+
+                    <!-- Opsi Kustomisasi Ringan -->
+                    <div class="mt-4 grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="qrMargin" class="block text-xs font-medium text-slate-600 mb-1">Garis Tepi Putih (Margin)</label>
+                            <select id="qrMargin" onchange="regenerateCleanQR()" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500">
+                                <option value="1">Tipis (Minimalis)</option>
+                                <option value="2" selected>Standar (Direkomendasikan)</option>
+                                <option value="4">Lebar</option>
+                                <option value="0">Tanpa Tepi (0px)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="qrSize" class="block text-xs font-medium text-slate-600 mb-1">Resolusi Gambar</label>
+                            <select id="qrSize" onchange="regenerateCleanQR()" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:border-indigo-500">
+                                <option value="512">Sedang (512 x 512 px)</option>
+                                <option value="1024" selected>Tinggi HD (1024 x 1024 px)</option>
+                                <option value="2048">Ultra HD (2048 x 2048 px)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Download Utama -->
+                    <div class="mt-4 flex flex-col sm:flex-row gap-2.5">
+                        <button id="downloadBtn" onclick="downloadCleanQR()" 
+                                class="flex-grow py-3 px-4 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-sm rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Download QRIS Bersih (.PNG)
+                        </button>
+                        <button onclick="copyPayload()" title="Salin teks kode QRIS"
+                                class="py-3 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                            <span class="sm:hidden">Salin Data QR</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Canvas Tersembunyi untuk Pemrosesan Pemindaian Gambar -->
+        <canvas id="hiddenScanCanvas" class="hidden"></canvas>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-5 mt-8">
+        <div class="max-w-4xl mx-auto px-4 text-center text-xs text-slate-500">
+            <p>Privasi Terjaga: Seluruh proses deteksi dan pembuatan ulang kode QRIS dilakukan secara lokal di perangkat Anda. Tidak ada gambar yang dikirim ke server.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Variabel global untuk menyimpan payload QRIS yang berhasil dideteksi
+        let detectedPayload = "";
+        let extractedMerchantName = "QRIS-Bersih";
+
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const resultSection = document.getElementById('resultSection');
+        const originalPreview = document.getElementById('originalPreview');
+        const cleanQrCanvas = document.getElementById('cleanQrCanvas');
+        const hiddenScanCanvas = document.getElementById('hiddenScanCanvas');
+
+        // Event listener saat klik area dropzone
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Event listener saat memilih file dari galeri
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                processImageFile(e.target.files[0]);
+            }
+        });
+
+        // Event listener Drag & Drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-indigo-500', 'bg-indigo-50/50');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-indigo-500', 'bg-indigo-50/50');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-indigo-500', 'bg-indigo-50/50');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                processImageFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        /**
+         * Menampilkan pesan notifikasi status (sukses / error / info)
+         */
+        function showStatus(message, type = 'info') {
+            const box = document.getElementById('statusBox');
+            const text = document.getElementById('statusText');
+            const icon = document.getElementById('statusIcon');
+
+            box.className = 'mb-6 p-4 rounded-2xl border text-sm font-medium flex items-center justify-between gap-3 fade-in';
+            
+            if (type === 'success') {
+                box.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-800');
+                icon.innerHTML = `<svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            } else if (type === 'error') {
+                box.classList.add('bg-rose-50', 'border-rose-200', 'text-rose-800');
+                icon.innerHTML = `<svg class="w-5 h-5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            } else {
+                box.classList.add('bg-indigo-50', 'border-indigo-200', 'text-indigo-800');
+                icon.innerHTML = `<svg class="w-5 h-5 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            }
+
+            text.textContent = message;
+            box.classList.remove('hidden');
+        }
+
+        function hideStatus() {
+            document.getElementById('statusBox').classList.add('hidden');
+        }
+
+        /**
+         * Memproses file gambar yang diunggah pengguna
+         */
+        function processImageFile(file) {
+            if (!file.type.startsWith('image/')) {
+                showStatus('File yang dipilih bukan gambar. Silakan pilih file gambar (JPG, PNG, WEBP).', 'error');
+                return;
+            }
+
+            showStatus('Sedang memindai dan mendeteksi kode QRIS dari gambar...', 'info');
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // Tampilkan pratinjau gambar asli
+                    originalPreview.src = event.target.result;
+                    
+                    // Lakukan deteksi QR Code menggunakan multi-skala agar akurat walau gambar poster besar
+                    const qrResult = scanQRFromImage(img);
+
+                    if (qrResult && qrResult.data) {
+                        detectedPayload = qrResult.data;
+                        
+                        // Parse info EMVCo QRIS (Nama Merchant, Kota, dll)
+                        const qrisInfo = parseEMVCoQRIS(detectedPayload);
+                        document.getElementById('merchantName').textContent = qrisInfo.merchantName || 'Tidak tercantum';
+                        document.getElementById('merchantCity').textContent = qrisInfo.merchantCity || '-';
+                        
+                        const badge = document.getElementById('qrisTypeBadge');
+                        if (qrisInfo.isQRIS) {
+                            badge.textContent = 'QRIS Standar BI';
+                            badge.className = 'font-medium text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md';
+                        } else {
+                            badge.textContent = 'QR Code Umum';
+                            badge.className = 'font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md';
+                        }
+
+                        extractedMerchantName = qrisInfo.merchantName 
+                            ? qrisInfo.merchantName.replace(/[^a-zA-Z0-9_-]/g, '_') 
+                            : 'QRIS-Bersih';
+
+                        // Buat ulang gambar QR bersih tanpa logo/teks
+                        regenerateCleanQR();
+
+                        // Tampilkan bagian hasil
+                        resultSection.classList.remove('hidden');
+                        showStatus('Berhasil! Kode QRIS terdeteksi dan telah dibersihkan menjadi QR murni.', 'success');
+                        
+                        // Scroll halus ke bagian hasil pada layar kecil
+                        if (window.innerWidth < 768) {
+                            resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    } else {
+                        resultSection.classList.add('hidden');
+                        showStatus('Gagal mendeteksi kode QR pada gambar tersebut. Pastikan kotak QR terlihat jelas dan tidak buram.', 'error');
+                    }
+                };
+                img.onerror = function() {
+                    showStatus('Gagal memuat gambar. File mungkin rusak.', 'error');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Memindai QR Code dengan mencoba beberapa skala resolusi & peningkatan kontras
+         * agar QRIS yang berada di dalam poster besar tetap mudah ditemukan.
+         */
+        function scanQRFromImage(img) {
+            const ctx = hiddenScanCanvas.getContext('2d', { willReadFrequently: true });
+            
+            // Coba beberapa ukuran maksimal untuk meningkatkan peluang deteksi jsQR
+            const maxDimensions = [1200, 800, 1800, 500];
+
+            for (let maxDim of maxDimensions) {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxDim || height > maxDim) {
+                    const ratio = Math.min(maxDim / width, maxDim / height);
+                    width = Math.round(width * ratio);
+                    height = Math.round(height * ratio);
+                }
+
+                hiddenScanCanvas.width = width;
+                hiddenScanCanvas.height = height;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, width, height);
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const imageData = ctx.getImageData(0, 0, width, height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "attemptBoth"
+                });
+
+                if (code && code.data) {
+                    return code;
+                }
+            }
+
+            return null;
+        }
+
+        /**
+         * Membaca informasi dasar dari string payload EMVCo QRIS (Tag 59 = Nama Merchant, Tag 60 = Kota)
+         */
+        function parseEMVCoQRIS(payload) {
+            let result = {
+                isQRIS: payload.startsWith('000201'),
+                merchantName: '',
+                merchantCity: ''
+            };
+
+            try {
+                let index = 0;
+                while (index < payload.length - 4) {
+                    const tag = payload.substring(index, index + 2);
+                    const lengthStr = payload.substring(index + 2, index + 4);
+                    const length = parseInt(lengthStr, 10);
+
+                    if (isNaN(length) || length <= 0) break;
+
+                    const value = payload.substring(index + 4, index + 4 + length);
+
+                    if (tag === '59') {
+                        result.merchantName = value.trim();
+                    } else if (tag === '60') {
+                        result.merchantCity = value.trim();
+                    }
+
+                    index += 4 + length;
+                }
+            } catch (e) {
+                console.warn('Gagal mem-parsing tag EMVCo secara penuh:', e);
+            }
+
+            return result;
+        }
+
+        /**
+         * Membuat ulang kode QRIS yang bersih (hanya matriks hitam-putih) ke dalam Canvas
+         */
+        function regenerateCleanQR() {
+            if (!detectedPayload) return;
+
+            const margin = parseInt(document.getElementById('qrMargin').value, 10);
+            const width = parseInt(document.getElementById('qrSize').value, 10);
+
+            QRCode.toCanvas(cleanQrCanvas, detectedPayload, {
+                width: width,
+                margin: margin,
+                color: {
+                    dark: '#000000',  // Hitam pekat murni
+                    light: '#FFFFFF'  // Putih bersih murni
+                },
+                errorCorrectionLevel: 'M' // Tingkat koreksi standar yang cepat dipindai
+            }, function (error) {
+                if (error) {
+                    console.error(error);
+                    showStatus('Terjadi kesalahan saat membuat gambar QR bersih.', 'error');
+                }
+            });
+        }
+
+        /**
+         * Mengunduh hasil QRIS bersih sebagai file PNG
+         */
+        function downloadCleanQR() {
+            if (!detectedPayload) return;
+
+            try {
+                const dataUrl = cleanQrCanvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `QRIS-Bersih-${extractedMerchantName}.png`;
+                link.href = dataUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showStatus('Gambar QRIS bersih berhasil diunduh!', 'success');
+            } catch (err) {
+                showStatus('Gagal mengunduh gambar. Silakan coba lagi.', 'error');
+            }
+        }
+
+        /**
+         * Menyalin string payload QRIS ke clipboard (menggunakan execCommand untuk kompatibilitas iFrame)
+         */
+        function copyPayload() {
+            if (!detectedPayload) return;
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = detectedPayload;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                showStatus('Data string QRIS berhasil disalin ke papan klip!', 'success');
+            } catch (err) {
+                showStatus('Gagal menyalin data QRIS.', 'error');
+            }
+            document.body.removeChild(tempInput);
+        }
+    </script>
+</body>
+</html>
