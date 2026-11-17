@@ -4706,17 +4706,31 @@ function processResetLoginPinPwd() {
   }
 }
 
-function verifyCaptcha(type) { 
-  if (cfCaptchaStatus[type]) return; 
-  const box = document.getElementById(`cf-box-${type}`); 
-  box.style.borderTopColor = "var(--primary)"; 
-  box.classList.add('loading'); 
-  setTimeout(() => { 
-    box.classList.remove('loading'); 
-    box.classList.add('verified'); 
-    box.style.borderTopColor = ""; 
-    cfCaptchaStatus[type] = true; 
-  }, 1000); 
+function verifyCaptcha(type) {
+  if (cfCaptchaStatus[type]) return;
+
+  const box = document.getElementById(`cf-box-${type}`);
+  const textSpan = box.closest('.cf-captcha-box').querySelector('.cf-text-wrap span');
+
+  if (textSpan) {
+    textSpan.innerText = "Verifying...";
+  }
+
+  box.style.borderTopColor = "var(--primary)";
+  box.classList.add('loading');
+  box.classList.remove('verified');
+
+  setTimeout(() => {
+    box.classList.remove('loading');
+    box.classList.add('verified');
+    box.style.borderTopColor = "";
+    
+    if (textSpan) {
+      textSpan.innerText = "Verify you are human"; 
+    }
+
+    cfCaptchaStatus[type] = true;
+  }, 1200); 
 }
 
 function openLoginModal() { 
@@ -4763,7 +4777,9 @@ function processRegister() {
   if (name.length < 3) return showModal("Perhatian", "Pendaftaran nama lengkap minimal 3 karakter.", "error");
   if (phone.length < 10) return showModal("Perhatian", "Pendaftaran nomor handphone minimal 10 digit angka.", "error");
   if (ref !== "REF57183") return showModal("Perhatian", "Kode referensi tidak valid.", "error");
-  if (!cfCaptchaStatus['reg']) return showModal("Perhatian", "Selesaikan verifikasi terlebih dahulu.", "error");
+  if (!cfCaptchaStatus['reg']) {
+  return showModal("Perhatian", "Selesaikan verifikasi terlebih dahulu.", "error");
+}
   
   let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
   if (usersDb[phone]) {
@@ -6945,7 +6961,9 @@ function processLogin() {
   const pass = document.getElementById('login-password').value.trim();
 
   if (!phone || !pass) return showModal("Perhatian", "Silakan masukkan nomor handphone dan password.", "error");
-  if (!cfCaptchaStatus['login']) return showModal("Perhatian", "Selesaikan verifikasi terlebih dahulu.", "error");
+  if (!cfCaptchaStatus['login']) {
+  return showModal("Perhatian", "Selesaikan verifikasi terlebih dahulu.", "error");
+}
 
   let usersDb = JSON.parse(localStorage.getItem('sanz_users_db')) || {};
 
@@ -7092,16 +7110,30 @@ const captchaShapes = [
 ];
 
 function verifyCaptcha(type) {
-  if (cfCaptchaStatus[type]) return; 
-  
+  if (cfCaptchaStatus[type]) return;
+
   const box = document.getElementById(`cf-box-${type}`);
+  const textSpan = box.closest('.cf-captcha-box').querySelector('.cf-text-wrap span');
+
+  if (textSpan) {
+    textSpan.innerText = "Verifying...";
+  }
+
   box.style.borderTopColor = "var(--primary)";
   box.classList.add('loading');
-  
+  box.classList.remove('verified');
+
   setTimeout(() => {
-    currentCaptchaType = type;
-    openSliderCaptcha();
-  }, 600);
+    box.classList.remove('loading');
+    box.classList.add('verified');
+    box.style.borderTopColor = "";
+    
+    if (textSpan) {
+      textSpan.innerText = "Verify you are human"; 
+    }
+
+    cfCaptchaStatus[type] = true;
+  }, 1200); 
 }
 
 function loadCaptchaImage() {
