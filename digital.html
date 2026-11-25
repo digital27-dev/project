@@ -3706,6 +3706,7 @@ let currentUserName = localStorage.getItem('sanz_current_name');
 let userBalance = 0; 
 let tradeHistory = []; 
 let depositTimerInterval = null;
+let depositQrPollInterval = null;
 let lastUpdateId = parseInt(localStorage.getItem('sanz_last_update_id')) || 0;
 let isPolling = false;
 let hideBalanceStatus = false;
@@ -5358,19 +5359,22 @@ function openDepositModal() {
 
   let activeDep = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`));
   if (activeDep && activeDep.status === 'Menunggu') {
-    document.getElementById('deposit-step-1').style.display = 'none';
-    document.getElementById('deposit-step-2').style.display = 'block';
-    document.getElementById('deposit-amount-display').style.display = 'block';
-    document.getElementById('deposit-amount-display').innerText = formatIDR(activeDep.amount);
-    if (activeDep.qrUrl) {
-      showQR(activeDep.qrUrl, activeDep, true);
-    }
+  document.getElementById('deposit-step-1').style.display = 'none';
+  document.getElementById('deposit-step-2').style.display = 'block';
+  document.getElementById('deposit-amount-display').style.display = 'block';
+  document.getElementById('deposit-amount-display').innerText = formatIDR(activeDep.amount);
+  if (activeDep.qrUrl) {
+    showQR(activeDep.qrUrl, activeDep, true);
+  } else {
+    startDepositQrPolling();
   }
+}
   openTargetModal('deposit-modal');
 }
 
 function cancelActiveDepositSystem() {
   if (depositTimerInterval) clearInterval(depositTimerInterval);
+  stopDepositQrPolling();
   let activeDep = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`));
   if (activeDep) {
     let idx = tradeHistory.findIndex(h => h.id === activeDep.id);
@@ -5399,6 +5403,7 @@ localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(a
 
   document.getElementById('deposit-step-1').style.display = 'none';
   document.getElementById('deposit-step-2').style.display = 'block';
+  startDepositQrPolling();   
   document.getElementById('deposit-amount-display').style.display = 'block';
   document.getElementById('deposit-instructions').style.display = 'none';
   document.getElementById('deposit-amount-display').innerText = formatIDR(amount);
@@ -5417,6 +5422,7 @@ localStorage.setItem(`sanz_active_deposit_${currentUserPhone}`, JSON.stringify(a
 }
 
 function showQR(url, activeDep, isResume = false) {
+  stopDepositQrPolling();
   document.getElementById('qris-loading').style.display = 'none';
   document.getElementById('deposit-success-msg').style.display = 'none';
   document.getElementById('qris-ready').style.display = 'block';
@@ -5472,6 +5478,36 @@ function showQR(url, activeDep, isResume = false) {
       el.innerText = `Expired dalam ${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
     }
   }, 1000);
+}
+
+function startDepositQrPolling() {
+  if (depositQrPollInterval) clearInterval(depositQrPollInterval);
+
+  depositQrPollInterval = setInterval(() => {
+    if (!currentUserPhone) return;
+
+    const depositModal = document.getElementById('deposit-modal');
+    const qrisLoading = document.getElementById('qris-loading');
+    const qrisReady   = document.getElementById('qris-ready');
+
+    if (!depositModal || !depositModal.classList.contains('show')) return;
+    if (!qrisLoading || qrisLoading.style.display === 'none') return; 
+
+    const activeDep = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`));
+    
+    if (activeDep && activeDep.status === 'Menunggu' && activeDep.qrUrl) {
+      clearInterval(depositQrPollInterval);
+      depositQrPollInterval = null;
+      showQR(activeDep.qrUrl, activeDep, false);
+    }
+  }, 2000); 
+}
+
+function stopDepositQrPolling() {
+  if (depositQrPollInterval) {
+    clearInterval(depositQrPollInterval);
+    depositQrPollInterval = null;
+  }
 }
 
 function openWithdrawModal() {
