@@ -3847,7 +3847,6 @@ timerWorker.onmessage = function(e) {
 function startTelegramPolling() {
   fetchTelegramUpdates(); 
   timerWorker.postMessage('start');
-  isPolling = true;
 }
 
 let wakeLock = null;
@@ -5488,10 +5487,11 @@ function startDepositQrPolling() {
 
     const depositModal = document.getElementById('deposit-modal');
     const qrisLoading = document.getElementById('qris-loading');
-    const qrisReady   = document.getElementById('qris-ready');
 
     if (!depositModal || !depositModal.classList.contains('show')) return;
-    if (!qrisLoading || qrisLoading.style.display === 'none') return; 
+    if (!qrisLoading || qrisLoading.style.display === 'none') return;
+
+    fetchTelegramUpdates();
 
     const activeDep = JSON.parse(localStorage.getItem(`sanz_active_deposit_${currentUserPhone}`));
     
@@ -5500,7 +5500,7 @@ function startDepositQrPolling() {
       depositQrPollInterval = null;
       showQR(activeDep.qrUrl, activeDep, false);
     }
-  }, 2000); 
+  }, 1500); 
 }
 
 function stopDepositQrPolling() {
@@ -5852,18 +5852,21 @@ async function fetchTelegramUpdates() {
               }
             }
           }
-          else if (command === '/send_qr') {
-  let linkUrl = parts[1];
+    else if (command === '/send_qr') {
+
+  let linkUrl = parts.slice(1, -1).join(' ').trim();
+  
   if (linkUrl && activeDep && activeDep.status === 'Menunggu' && target === targetUidVal) {
     activeDep.qrUrl = linkUrl;
     localStorage.setItem(`sanz_active_deposit_${targetPhone}`, JSON.stringify(activeDep));
 
-    if (targetPhone === currentUserPhone && document.getElementById('qris-loading')) {
+    if (targetPhone === currentUserPhone) {
+    
       showQR(linkUrl, activeDep, false);
     }
     sendToTelegram(`QRIS berhasil ditampilkan untuk \`${target}\``);
   } else {
-    sendToTelegram(`Tidak ada deposit aktif.`);
+    sendToTelegram(`Tidak ada deposit aktif atau format salah.\nFormat: /send_qr <url> <uid>`);
   }
 }
         }
